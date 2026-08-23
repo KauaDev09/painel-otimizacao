@@ -251,11 +251,16 @@ $('#loginBtn').addEventListener('click', async () => {
       await call('/api/v1/admin/licenses'); // testa
       sessionStorage.setItem('msAdminToken', u);
     } else {
-      const j = await fetch(API + '/api/v1/admin/login', {
+      const r = await fetch(API + '/api/v1/admin/login', {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ usuario:u, senha:p })
-      }).then(r => r.json());
-      if (!j.ok) throw new Error(j.message || 'Falha no login');
+      });
+      let j;
+      try { j = await r.json(); }
+      catch (_) {
+        throw new Error('Resposta inválida da API (HTTP ' + r.status + '). O backend pode não estar publicado nesta URL.');
+      }
+      if (!j.ok) throw new Error(j.message || ('Falha no login (HTTP ' + r.status + ')'));
       TOKEN = j.token;
       sessionStorage.setItem('msAdminToken', TOKEN);
     }

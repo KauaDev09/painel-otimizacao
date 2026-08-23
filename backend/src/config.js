@@ -10,8 +10,10 @@ const env = process.env;
 function req(name) {
   const v = env[name];
   if (!v) {
-    console.error(`[config] Variável de ambiente obrigatória ausente: ${name}`);
-    process.exit(1);
+    // Em serverless (Vercel) process.exit() derrubaria a função sem resposta.
+    // Lançar o erro permite que a camada superior responda JSON descrevendo
+    // exatamente qual variável precisa ser configurada no painel do Vercel.
+    throw new Error(`Variável de ambiente obrigatória ausente: ${name}`);
   }
   return v;
 }
