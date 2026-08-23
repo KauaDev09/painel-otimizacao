@@ -59,7 +59,7 @@ class Router {
 }
 
 const router = new Router();
-router.get('/api/v1/health', async () => ({ ok: true, service: 'bios-optimizer-api', time: new Date().toISOString() }));
+router.get('/api/v1/health', async () => ({ ok: true, service: 'bios-optimizer-api', time: new Date().toISOString(), vurl: process.env.VERCEL_URL || null }));
 licenseRoutes.register(router);
 adminRoutes.register(router);
 appRoutes.register(router);

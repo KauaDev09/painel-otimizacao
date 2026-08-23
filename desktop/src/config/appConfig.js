@@ -12,7 +12,7 @@ const APP_VERSION = '2.0.0';
 const SUPPORT_EMAIL = 'suporte@example.com';      // TODO: definir contato oficial
 const OFFICIAL_URL = 'https://mainstreetoptimizer.example.com'; // TODO: site oficial
 // URL pública da API de licenças/atualizações (não é segredo).
-const DEFAULT_API_URL = 'https://api.mainstreet-bios-optimizer.example.com';
+const DEFAULT_API_URL = 'https://mainstreet-bios-optimizer.vercel.app';
 
 module.exports = {
   APP_NAME,
