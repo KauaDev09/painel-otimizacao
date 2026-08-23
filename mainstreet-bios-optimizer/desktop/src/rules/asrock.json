@@ -1,0 +1,23 @@
+{
+  "vendor": "asrock",
+  "display": ["ASRock"],
+  "menuBank": {
+    "overclockMenu": "OC Tweaker",
+    "advancedMenu": "Advanced",
+    "chipsetConfig": "Advanced → Chipset Configuration",
+    "bootMenu": "Boot",
+    "securityMenu": "Security"
+  },
+  "pathOverrides": {
+    "above4g-rebar": [
+      "Advanced → Chipset Configuration → Above 4G Decoding",
+      "Advanced → Chipset Configuration → Resizable BAR"
+    ],
+    "xmp-expo-amd": ["OC Tweaker → DRAM Profile Configuration → XMP 2.0 Profile 1 / EXPO"],
+    "xmp-intel": ["OC Tweaker → DRAM Profile Configuration → XMP 2.0 Profile 1"]
+  },
+  "globalNotes": [
+    "Em placas ASRock, o menu de overclock chama-se OC Tweaker; perfis ficam em DRAM Profile Configuration.",
+    "Caminhos tratados como 'prováveis' — podem variar conforme modelo e versão da UEFI."
+  ]
+}

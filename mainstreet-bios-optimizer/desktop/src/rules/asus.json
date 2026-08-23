@@ -1,0 +1,24 @@
+{
+  "vendor": "asus",
+  "display": ["ASUS", "ASUSTeK"],
+  "menuBank": {
+    "overclockMenu": "AI Tweaker",
+    "advancedMenu": "Advanced",
+    "amdOverclocking": "Advanced → AMD Overclocking",
+    "pciSettings": "Advanced → PCI Subsystem Settings",
+    "bootMenu": "Boot",
+    "securityMenu": "Security"
+  },
+  "pathOverrides": {
+    "above4g-rebar": [
+      "Advanced → PCI Subsystem Settings → Above 4G Decoding",
+      "Advanced → PCI Subsystem Settings → Re-Size BAR Support"
+    ],
+    "xmp-expo-amd": ["AI Tweaker → Ai Overclock Tuner → XMP/EXPO/D.O.C.P. (Profile 1)"],
+    "xmp-intel": ["AI Tweaker → Ai Overclock Tuner → XMP (Profile 1)"]
+  },
+  "globalNotes": [
+    "Em placas ASUS, o menu de overclock chama-se AI Tweaker; perfis de memória aparecem como Ai Overclock Tuner (XMP/EXPO/D.O.C.P.).",
+    "Caminhos tratados como 'prováveis' — podem variar conforme modelo e versão da UEFI."
+  ]
+}

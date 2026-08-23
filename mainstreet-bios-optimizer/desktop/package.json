@@ -1,0 +1,55 @@
+{
+  "name": "mainstreet-bios-optimizer",
+  "version": "2.0.0",
+  "description": "MAINSTREET BIOS OPTIMIZER — análise de BIOS, otimização do Windows, game boost, limpeza e manutenção para Windows.",
+  "main": "src/main.js",
+  "author": "Mainstreet",
+  "license": "Proprietary",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis",
+    "dist:dir": "electron-builder --win nsis --dir"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.mainstreet.biosoptimizer",
+    "productName": "MAINSTREET BIOS OPTIMIZER",
+    "copyright": "Copyright © 2026 Mainstreet",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "!**/*.map"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "${productName} Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "MAINSTREET BIOS OPTIMIZER",
+      "uninstallDisplayName": "MAINSTREET BIOS OPTIMIZER"
+    }
+  },
+  "allowScripts": {
+    "electron@31.7.7": true
+  }
+}

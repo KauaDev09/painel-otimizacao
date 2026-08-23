@@ -1,0 +1,24 @@
+{
+  "vendor": "msi",
+  "display": ["MSI", "Micro-Star"],
+  "menuBank": {
+    "overclockMenu": "OC",
+    "advancedMenu": "Advanced",
+    "settingsMenu": "Settings",
+    "cpuFeatures": "OC → CPU Features",
+    "bootMenu": "Settings → Boot",
+    "securityMenu": "Settings → Security"
+  },
+  "pathOverrides": {
+    "above4g-rebar": [
+      "Settings → Advanced → PCI Subsystem Settings → Above 4G Decoding",
+      "Settings → Advanced → PCI Subsystem Settings → Re-Size BAR Support"
+    ],
+    "xmp-expo-amd": ["OC → Extreme Memory Profile (XMP)/EXPO", "OC → A-XMP (Profile 1)"],
+    "xmp-intel": ["OC → Extreme Memory Profile (XMP)", "OC → A-XMP (Profile 1)"]
+  },
+  "globalNotes": [
+    "Em placas MSI, o menu de overclock chama-se OC; perfis de memória podem aparecer como A-XMP.",
+    "Caminhos tratados como 'prováveis' — podem variar conforme modelo e versão da UEFI (Click BIOS 5 / Click BIOS X)."
+  ]
+}

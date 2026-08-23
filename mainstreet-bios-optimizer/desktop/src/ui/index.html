@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'" />
+  <title>MAINSTREET BIOS OPTIMIZER</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header id="topbar">
+    <div class="logo" id="brand">
+      <span class="logo-main">MAINSTREET</span>
+      <span class="logo-sub">BIOS OPTIMIZER</span>
+    </div>
+    <nav id="nav">
+      <button data-view="home" class="tab active">Início</button>
+      <button data-view="dashboard" class="tab">Meu Computador</button>
+      <button data-view="recs" class="tab">Recomendações</button>
+      <button data-view="optimize" class="tab">Otimizar</button>
+      <button data-view="gameboost" class="tab">Game Boost</button>
+      <button data-view="monitor" class="tab">Monitor</button>
+      <button data-view="benchmark" class="tab">Benchmark</button>
+      <button data-view="network" class="tab">Rede</button>
+      <button data-view="startup" class="tab">Inicialização</button>
+      <button data-view="processes" class="tab">Processos</button>
+      <button data-view="maintenance" class="tab">Manutenção</button>
+      <button data-view="security" class="tab">Segurança</button>
+      <button data-view="restore" class="tab">Restauração</button>
+      <button data-view="history" class="tab">Histórico</button>
+      <button data-view="settings" class="tab">Configurações</button>
+      <button data-view="support" class="tab">Suporte</button>
+    </nav>
+    <div class="top-actions">
+      <label class="switch" title="Exibe informações técnicas avançadas">
+        <input type="checkbox" id="techToggle" />
+        <span class="slider"></span>
+        <span class="switch-label">Modo Técnico</span>
+      </label>
+      <button id="reportBtn" class="btn btn-outline" disabled>GERAR RELATÓRIO</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===================== HOME ===================== -->
+    <section id="view-home" class="view active">
+      <div class="hero">
+        <div class="hero-glow"></div>
+        <h1><span>MAINSTREET</span> BIOS OPTIMIZER</h1>
+        <p class="tagline">Analise sua máquina e descubra o melhor perfil de BIOS.</p>
+        <p class="disclaimer">Somente diagnóstico e recomendação — nenhum ajuste é aplicado automaticamente.</p>
+        <button id="analyzeBtn" class="btn btn-primary btn-big">▶ ANALISAR COMPUTADOR</button>
+      </div>
+      <div class="home-grid">
+        <div class="feature"><h3>1 · Detecção real</h3><p>CPU, GPU, RAM, placa-mãe e BIOS lidos via CIM/WMI — nada é inventado.</p></div>
+        <div class="feature"><h3>2 · Recomendações guiadas</h3><p>Onde encontrar cada configuração na BIOS, com risco e impacto explicados.</p></div>
+        <div class="feature"><h3>3 · Pontuação clara</h3><p>BIOS Optimization Score de 0 a 100 com explicação por categoria.</p></div>
+      </div>
+    </section>
+
+    <!-- ===================== PROGRESSO ===================== -->
+    <section id="view-progress" class="view">
+      <div class="progress-wrap">
+        <h2>Analisando computador…</h2>
+        <div class="spinner"></div>
+        <ul id="stepList"></ul>
+      </div>
+    </section>
+
+    <!-- ===================== DASHBOARD / MEU COMPUTADOR ===================== -->
+    <section id="view-dashboard" class="view">
+      <div class="dash-grid">
+        <div class="dash-left" id="hwCards"></div>
+        <aside class="dash-right">
+          <div class="score-panel">
+            <h3>BIOS OPTIMIZATION SCORE</h3>
+            <div class="score-ring" id="scoreRing"><span id="scoreValue">–</span><small>/100</small></div>
+            <ul id="scoreCats"></ul>
+          </div>
+          <div class="counts-panel">
+            <h3>Recomendações encontradas</h3>
+            <div id="recCounts"></div>
+            <button id="goRecsBtn" class="btn btn-primary">VER RECOMENDAÇÕES</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ===================== RECOMENDAÇÕES ===================== -->
+    <section id="view-recs" class="view">
+      <div class="filters" id="recFilters">
+        <button data-f="all" class="chip active">Todas</button>
+        <button data-f="critical" class="chip">🔴 Críticas</button>
+        <button data-f="recommended" class="chip">🟢 Recomendadas</button>
+        <button data-f="optional" class="chip">🟡 Opcionais</button>
+        <button data-f="informational" class="chip">⚪ Informativas</button>
+        <button data-f="advanced" class="chip tech-only hidden">⚙️ Avançadas</button>
+      </div>
+      <div id="advancedBanner" class="banner hidden">
+        ⚙️ CONFIGURAÇÕES AVANÇADAS — não recomendadas para usuários comuns. Alterações manuais por sua conta e risco.
+      </div>
+      <div id="recList"></div>
+    </section>
+
+    <!-- ===================== GAME BOOST ===================== -->
+    <section id="view-gameboost" class="view">
+      <div class="history-head">
+        <h2>Game Boost</h2>
+        <div>
+          <button id="gbAnalyzeBtn" class="btn btn-primary">ANALISAR GAME BOOST</button>
+        </div>
+      </div>
+      <div id="gbStatus" class="service-status hidden"><span class="spinner spinner-sm"></span><span id="gbStatusText">Analisando…</span></div>
+      <div class="dash-grid">
+        <div class="dash-left">
+          <div id="gbCards" class="hw-grid"></div>
+          <p class="empty-note hidden" id="gbEmpty">Execute a análise para ver o diagnóstico gamer.</p>
+        </div>
+        <aside class="dash-right">
+          <div class="score-panel">
+            <h3>GAME BOOST SCORE</h3>
+            <div class="score-ring" id="gbScoreRing"><span id="gbScoreValue">–</span><small>/100</small></div>
+            <ul id="gbPenalties"></ul>
+          </div>
+          <div class="counts-panel">
+            <h3>Recomendações encontradas</h3>
+            <div id="gbCounts"></div>
+          </div>
+        </aside>
+      </div>
+      <div id="gbRecList"></div>
+    </section>
+
+    <!-- ===================== SEGURANÇA ===================== -->
+    <section id="view-security" class="view">
+      <div class="history-head">
+        <h2>Segurança</h2>
+        <div>
+          <button id="secScanBtn" class="btn btn-outline" title="Inicia a Verificação Rápida nativa do Microsoft Defender em segundo plano">VERIFICAÇÃO RÁPIDA</button>
+          <button id="secAnalyzeBtn" class="btn btn-primary">ANALISAR SEGURANÇA</button>
+        </div>
+      </div>
+      <div id="secStatus" class="service-status hidden"><span class="spinner spinner-sm"></span><span id="secStatusText">Analisando…</span></div>
+      <div class="dash-grid">
+        <div class="dash-left">
+          <div id="secCards" class="hw-grid"></div>
+          <p class="empty-note hidden" id="secEmpty">Execute a análise para ver o estado do Microsoft Defender e das proteções do Windows.</p>
+        </div>
+        <aside class="dash-right">
+          <div class="score-panel">
+            <h3>SECURITY SCORE</h3>
+            <div class="score-ring" id="secScoreRing"><span id="secScoreValue">–</span><small>/100</small></div>
+            <ul id="secPenalties"></ul>
+          </div>
+          <div class="counts-panel">
+            <h3>Ameaças</h3>
+            <div id="secThreatCounts"></div>
+            <button id="goThreatsBtn" class="btn btn-outline hidden">VER AMEAÇAS</button>
+          </div>
+        </aside>
+      </div>
+      <div class="group-title" id="threatSectionTitle">Ameaças detectadas</div>
+      <table class="history-table" id="threatTable">
+        <thead><tr><th>Data</th><th>Ameaça</th><th>Severidade</th><th>Estado</th><th>Origem</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="group-title">Recomendações de segurança</div>
+      <div id="secRecList"></div>
+    </section>
+
+    <!-- ===================== OTIMIZAR ===================== -->
+    <section id="view-optimize" class="view">
+      <div class="history-head">
+        <h2>Otimizações do Sistema</h2>
+        <div class="opt-actions">
+          <label class="switch" title="Cria um ponto de restauração do Windows antes de aplicar">
+            <input type="checkbox" id="optRestorePoint" checked />
+            <span class="slider"></span>
+            <span class="switch-label">Ponto de restauração</span>
+          </label>
+          <button id="optApplyBtn" class="btn btn-primary">APLICAR SELECIONADAS</button>
+        </div>
+      </div>
+      <p class="disclaimer">Selecione otimizações individuais ou use um perfil pronto. Tudo é aplicado com backup do registro e pode ser desfeito em <b>Restauração</b>.</p>
+
+      <div class="group-title">Perfis prontos</div>
+      <div id="profileRow" class="profile-row"></div>
+
+      <div class="filters" id="optFilters">
+        <button data-f="all" class="chip active">Todas</button>
+      </div>
+      <div id="optItemList"></div>
+
+      <div class="group-title">Drivers oficiais</div>
+      <div id="driverCards" class="profile-row"></div>
+    </section>
+
+    <!-- ===================== MANUTENÇÃO ===================== -->
+    <section id="view-maintenance" class="view">
+      <div class="history-head">
+        <h2>Manutenção</h2>
+      </div>
+
+      <div class="group-title">Limpeza nativa — sem programas de terceiros</div>
+      <div class="clean-toolbar">
+        <button id="cleanMeasureBtn" class="btn btn-outline">MEDIR TAMANHOS</button>
+        <button id="cleanSelectAllBtn" class="btn btn-outline">MARCAR TODAS</button>
+        <button id="cleanBtn" class="btn btn-primary">LIMPAR SELECIONADAS</button>
+        <span id="cleanTotalSize" class="dim-note"></span>
+      </div>
+      <div id="cleanList"></div>
+
+      <div class="group-title">Reparo do sistema (SFC / DISM)</div>
+      <div id="repairList" class="repair-grid"></div>
+    </section>
+
+    <!-- ===================== RESTAURAÇÃO ===================== -->
+    <section id="view-restore" class="view">
+      <div class="history-head">
+        <h2>Central de Restauração</h2>
+        <div>
+          <button id="restoreRefreshBtn" class="btn btn-outline">ATUALIZAR</button>
+        </div>
+      </div>
+      <p class="disclaimer">Histórico de otimizações aplicadas neste computador. Use <b>DESFAZER</b> para reverter itens individualmente ou uma operação completa.</p>
+      <table class="history-table" id="operationsTable">
+        <thead><tr><th>Data</th><th>Operação</th><th>Itens</th><th>Sucesso</th><th>Ações</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- ===================== ATIVAÇÃO DE LICENÇA ===================== -->
+    <section id="view-activation" class="view">
+      <div class="hero">
+        <div class="hero-glow"></div>
+        <h1><span>ATIVAR</span> LICENÇA</h1>
+        <p class="tagline">Informe sua chave para liberar todos os recursos do BIOS Optimizer.</p>
+        <div class="activation-panel">
+          <input id="licenseKeyInput" class="license-input" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="29" spellcheck="false" autocomplete="off" />
+          <button id="activateBtn" class="btn btn-primary btn-big">ATIVAR AGORA</button>
+          <div id="activationMsg" class="activation-msg"></div>
+          <p class="disclaimer" id="activationDevice"></p>
+          <p class="disclaimer">A licença é vinculada a este computador e validada com segurança no servidor — nenhum dado sensível é armazenado no aplicativo.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== HISTÓRICO ===================== -->
+    <section id="view-history" class="view">
+      <div class="history-head">
+        <h2>Histórico de análises</h2>
+        <div>
+          <button id="compareBtn" class="btn btn-outline" disabled>COMPARAR ANTES / DEPOIS</button>
+          <button id="refreshHistoryBtn" class="btn btn-outline">ATUALIZAR</button>
+        </div>
+      </div>
+      <table class="history-table" id="historyTable">
+        <thead><tr><th></th><th>Data</th><th>Score</th><th>CPU</th><th>RAM</th><th>Placa-mãe</th><th>BIOS</th><th>🟢</th><th>🟡</th><th>🔴</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div id="compareResult"></div>
+    </section>
+
+    <!-- ===================== MONITOR ===================== -->
+    <section id="view-monitor" class="view">
+      <div class="history-head">
+        <h2>Monitor em tempo real</h2>
+        <div class="opt-actions">
+          <span class="dim-note">Atualiza automaticamente enquanto esta aba está aberta.</span>
+          <button id="monitorPauseBtn" class="btn btn-outline">PAUSAR</button>
+        </div>
+      </div>
+      <p class="disclaimer">Medições reais coletadas do Windows. Métricas que o sistema não expõe aparecem como indisponíveis — nada é estimado.</p>
+      <div id="monitorCards" class="monitor-grid"></div>
+    </section>
+
+    <!-- ===================== BENCHMARK ===================== -->
+    <section id="view-benchmark" class="view">
+      <div class="history-head">
+        <h2>Benchmark</h2>
+        <button id="benchRunBtn" class="btn btn-primary">EXECUTAR BENCHMARK COMPLETO</button>
+      </div>
+      <p class="disclaimer">Medições reais de CPU (single/multi-thread), banda de memória e taxa sequencial de disco. Os índices comparam apenas execuções deste aplicativo — nenhum ganho de FPS é prometido ou estimado.</p>
+      <div id="benchStatus" class="service-status hidden"><span class="spinner spinner-sm"></span><span id="benchStatusText">Executando…</span></div>
+      <div id="benchResults"></div>
+      <div class="group-title">Histórico de benchmarks</div>
+      <table class="history-table" id="benchTable">
+        <thead><tr><th>Data</th><th>CPU single</th><th>CPU multi</th><th>Melhoria multi</th><th>RAM (GB/s)</th><th>Disco leitura</th><th>Disco gravação</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- ===================== REDE ===================== -->
+    <section id="view-network" class="view">
+      <div class="history-head">
+        <h2>Network Optimizer</h2>
+        <div>
+          <button id="netPingBtn" class="btn btn-primary">PING TEST</button>
+          <button id="netDnsBtn" class="btn btn-outline">DNS TEST</button>
+        </div>
+      </div>
+      <div class="group-title">Adaptadores ativos</div>
+      <div id="netAdapterCards" class="hw-grid"></div>
+      <div id="netPingResult"></div>
+      <div id="netDnsResult"></div>
+      <div class="group-title">Otimizações de rede disponíveis</div>
+      <div id="netOptList"></div>
+    </section>
+
+    <!-- ===================== INICIALIZAÇÃO ===================== -->
+    <section id="view-startup" class="view">
+      <div class="history-head">
+        <h2>Startup Manager</h2>
+        <button id="startupRefreshBtn" class="btn btn-outline">ATUALIZAR</button>
+      </div>
+      <p class="disclaimer">Programas configurados para iniciar com o Windows. O impacto é uma <b>estimativa</b> baseada no tipo de aplicativo — desativar itens de segurança do Windows não é permitido.</p>
+      <table class="history-table" id="startupTable">
+        <thead><tr><th>Programa</th><th>Origem</th><th>Escopo</th><th>Impacto (estimado)</th><th>Comando</th><th>Estado</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- ===================== PROCESSOS ===================== -->
+    <section id="view-processes" class="view">
+      <div class="history-head">
+        <h2>Process Manager</h2>
+        <div class="opt-actions">
+          <input id="procSearch" class="license-input proc-search" placeholder="Filtrar por nome…" spellcheck="false" autocomplete="off" />
+          <button id="procRefreshBtn" class="btn btn-outline">ATUALIZAR</button>
+        </div>
+      </div>
+      <p class="disclaimer">Processos críticos do Windows são protegidos e não podem ser encerrados nem repriorizados.</p>
+      <table class="history-table" id="processTable">
+        <thead><tr><th>Processo</th><th>PID</th><th>Fabricante</th><th>CPU (s)</th><th>RAM</th><th>Prioridade</th><th>Ações</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- ===================== CONFIGURAÇÕES ===================== -->
+    <section id="view-settings" class="view">
+      <div class="history-head"><h2>Configurações</h2></div>
+      <div class="settings-grid">
+        <div class="hw-card full">
+          <h3>Geral</h3>
+          <label class="opt-item setting-row"><input type="checkbox" id="setStartWin"/><div class="opt-body"><div class="opt-title">Iniciar com o Windows</div><div class="opt-desc">Abre o aplicativo minimizado ao ligar o computador.</div></div></label>
+          <label class="opt-item setting-row"><input type="checkbox" id="setTray"/><div class="opt-body"><div class="opt-title">Minimizar para a bandeja</div><div class="opt-desc">Fechar a janela mantém o app ativo na bandeja.</div></div></label>
+          <label class="opt-item setting-row"><input type="checkbox" id="setNotif"/><div class="opt-body"><div class="opt-title">Notificações do aplicativo</div><div class="opt-desc">Alertas sobre licença, atualizações e resultados.</div></div></label>
+        </div>
+        <div class="hw-card full">
+          <h3>Otimização</h3>
+          <label class="opt-item setting-row"><input type="checkbox" id="setRestorePoint"/><div class="opt-body"><div class="opt-title">Criar ponto de restauração por padrão</div><div class="opt-desc">Marcado automaticamente ao aplicar otimizações.</div></div></label>
+          <label class="opt-item setting-row"><input type="checkbox" id="setConfirm"/><div class="opt-body"><div class="opt-title">Pedir confirmação antes de alterações</div><div class="opt-desc">Confirmação extra antes de aplicar qualquer otimização.</div></div></label>
+          <div class="setting-select-row">
+            <span class="k">Perfil padrão recomendado</span>
+            <select id="setDefaultProfile" class="license-input select-inline">
+              <option value="safe">Seguro</option>
+              <option value="balanced">Equilibrado</option>
+              <option value="performance">Desempenho</option>
+              <option value="gaming">Gamer</option>
+              <option value="work">Trabalho</option>
+              <option value="laptop">Notebook</option>
+            </select>
+          </div>
+        </div>
+        <div class="hw-card full">
+          <h3>Monitoramento</h3>
+          <div class="setting-select-row">
+            <span class="k">Intervalo de atualização do Monitor</span>
+            <select id="setInterval" class="license-input select-inline">
+              <option value="1">1 segundo</option>
+              <option value="2">2 segundos</option>
+              <option value="5">5 segundos</option>
+            </select>
+          </div>
+        </div>
+        <div class="hw-card full">
+          <h3>Atualizações</h3>
+          <label class="opt-item setting-row"><input type="checkbox" id="setAutoUpdate"/><div class="opt-body"><div class="opt-title">Verificar atualizações automaticamente</div><div class="opt-desc">Consulta o servidor ao iniciar; nunca instala nada sozinho.</div></div></label>
+          <button id="checkUpdateBtn" class="btn btn-outline">VERIFICAR ATUALIZAÇÕES AGORA</button>
+          <span id="updateCheckMsg" class="dim-note" style="margin-left:10px"></span>
+        </div>
+        <div class="hw-card full">
+          <h3>Licença</h3>
+          <div id="settingsLicenseInfo" class="kv-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== SUPORTE ===================== -->
+    <section id="view-support" class="view">
+      <div class="history-head"><h2>Suporte</h2></div>
+      <div class="dash-grid">
+        <div class="dash-left">
+          <div class="group-title">Perguntas frequentes</div>
+          <details class="faq"><summary>Por que algumas otimizações pedem senha de administrador?</summary><p>Alterações no registro e nos serviços do Windows exigem permissão de administrador. O aplicativo agrupa tudo em um único pedido de UAC, com backup prévio para permitir desfazer.</p></details>
+          <details class="faq"><summary>As otimizações podem ser revertidas?</summary><p>Sim. Itens com backup do registro podem ser revertidos individualmente na aba Restauração. Limpezas de arquivos apagam definitivamente e não são reversíveis — isso é sempre avisado antes.</p></details>
+          <details class="faq"><summary>A análise altera alguma configuração da BIOS?</summary><p>Não. A análise é somente leitura e orienta manualmente onde ajustar cada opção dentro da BIOS da sua placa-mãe.</p></details>
+          <details class="faq"><summary>Posso usar em mais de um computador?</summary><p>Cada licença possui um limite de dispositivos definido na compra. Ativar em outra máquina usa uma das vagas — o suporte pode liberar dispositivos antigos.</p></details>
+          <details class="faq"><summary>O Monitor mostra temperatura?</summary><p>Somente quando o fabricante expõe os sensores ACPI ao Windows. Quando não há sensor disponível, o campo fica como indisponível — nunca inventamos valores.</p></details>
+          <details class="faq"><summary>O Benchmark promete aumento de FPS?</summary><p>Não. O benchmark mede CPU, memória e disco com cargas reais e serve para comparar antes/depois das otimizações neste mesmo aplicativo.</p></details>
+        </div>
+        <aside class="dash-right">
+          <div class="counts-panel">
+            <h3>Status do serviço</h3>
+            <div class="count-row"><span>Licenciamento/API</span><span id="svcStatus"><span class="dot unknown"></span>Verificando…</span></div>
+            <button id="svcRetryBtn" class="btn btn-outline">TESTAR NOVAMENTE</button>
+          </div>
+          <div class="counts-panel">
+            <h3>Informações da versão</h3>
+            <div id="supportVersionInfo" class="kv-list"></div>
+          </div>
+          <div class="counts-panel">
+            <h3>Contato</h3>
+            <p class="empty-note">Precisa de ajuda com licença, ativação ou reembolso? Fale com o suporte oficial.</p>
+            <button id="contactSupportBtn" class="btn btn-primary">ABRIR PÁGINA DE SUPORTE</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== MODAL DETALHES ===================== -->
+  <div id="modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- ===================== TOAST ===================== -->
+  <div id="toast" class="hidden"></div>
+
+    <footer>
+    <span id="licBadge" class="lic-badge">LICENÇA: VERIFICANDO…</span>
+    <span>v2.0.0 · A análise é somente leitura. Alterações só ocorrem quando você solicita — sempre com backup e opção de desfazer.</span>
+    <span id="techExportWrap" class="hidden">
+      <a href="#" id="exportRawLink">Exportar dados brutos (JSON)</a>
+    </span>
+  </footer>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

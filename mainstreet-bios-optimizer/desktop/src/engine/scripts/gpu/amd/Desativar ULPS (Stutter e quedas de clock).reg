@@ -1,0 +1,5 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\amdkmdag]
+"EnableUlps"=dword:00000000
+"EnableUlps_NA"=dword:00000000

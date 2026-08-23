@@ -1,0 +1,15 @@
+# Dependências
+node_modules/
+
+# Builds
+desktop/release/
+desktop/dist/
+*.exe
+
+# Ambiente e segredos
+backend/.env
+backend/.env.local
+
+# Estado local do app em desenvolvimento
+*.log
+state/

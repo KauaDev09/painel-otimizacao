@@ -1,0 +1,337 @@
+[
+  {
+    "id": "legacy-boot-alert",
+    "file": "generic",
+    "name": "Sistema em modo Legacy (CSM)",
+    "platform": "generic",
+    "category": "uefi",
+    "level": "critical",
+    "risk": "medium",
+    "impact": "medium",
+    "when": { "f": "boot.mode", "op": "eq", "v": "Legacy" },
+    "statusText": "Inicialização: {boot.mode} · Disco do sistema: {disk.partitionStyle}",
+    "recommendationText": "Avaliar migração para inicialização UEFI (com cautela e backup)",
+    "reason": "O Windows não está utilizando inicialização UEFI. Recursos modernos como Resizable BAR e Above 4G Decoding dependem do modo UEFI. A migração envolve conversão da tabela de partições (MBR → GPT) e pode impedir o Windows de iniciar se feita incorretamente.",
+    "benefit": "Habilita recursos de firmware modernos (Secure Boot, Resizable BAR, inicialização mais rápida) e é pré-requisito para várias otimizações.",
+    "compatibility": "Requer disco com estilo GPT (ou conversão via ferramenta oficial da Microsoft, ex.: MBR2GPT), Windows 10/11 x64 e suporte UEFI na placa-mãe.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → Boot → Boot Mode / CSM (nome varia conforme fabricante)",
+    "steps": [
+      "FAÇA BACKUP dos dados antes de qualquer alteração.",
+      "Verifique o estilo de partição do disco do sistema (GPT ou MBR) em Gerenciamento de Disco.",
+      "Se estiver em MBR, avalie a ferramenta oficial MBR2GPT da Microsoft (executar somente com backup e por conta do técnico).",
+      "Reinicie o computador e entre na BIOS.",
+      "Localize a opção CSM / Boot Mode / UEFI Compatibility.",
+      "Ative o modo UEFI (desative CSM apenas APÓS confirmar GPT).",
+      "Certifique-se de que o Windows aparece como opção de inicialização UEFI antes de salvar.",
+      "Salve e reinicie. Se o sistema não iniciar, reverta para Legacy/CSM."
+    ],
+    "notes": [
+      "🔴 ATENÇÃO: alterar o modo de inicialização sem disco GPT impedirá o Windows de iniciar.",
+      "Esta ferramenta NÃO executa a conversão nem altera a BIOS. Apenas orienta o técnico."
+    ]
+  },
+  {
+    "id": "csm-verify-uefi",
+    "file": "generic",
+    "name": "CSM desativado (modo UEFI nativo)",
+    "platform": "generic",
+    "category": "uefi",
+    "level": "optional",
+    "risk": "low",
+    "impact": "low",
+    "when": { "f": "boot.mode", "op": "eq", "v": "UEFI" },
+    "statusText": "Inicialização: {boot.mode} · Estado do CSM: não exposto pelo Windows",
+    "recommendationText": "Confirmar na BIOS que o CSM está desativado",
+    "reason": "O sistema já inicia via UEFI. Com o CSM desativado, recursos como Above 4G Decoding e Resizable BAR funcionam plenamente e o tempo de inicialização tende a ser menor.",
+    "benefit": "Compatibilidade total com recursos UEFI modernos; pré-requisito para Resizable BAR.",
+    "compatibility": "Sistemas já instalados em GPT/UEFI. Não altere se houver sistemas legados ou discos MBR de inicialização no equipamento.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → Boot → CSM (Compatibility Support Module)",
+    "steps": [
+      "Reinicie e entre na BIOS.",
+      "Abra o menu Boot.",
+      "Localize CSM (ou Launch CSM / Compatibility Support Module).",
+      "Se estiver ativado e todos os discos de inicialização forem GPT/UEFI, desative-o.",
+      "Salve e reinicie, conferindo se o Windows inicia normalmente."
+    ],
+    "notes": ["Nome pode variar conforme fabricante e versão da BIOS."]
+  },
+  {
+    "id": "above4g-rebar",
+    "file": "generic",
+    "name": "Above 4G Decoding + Resizable BAR",
+    "platform": "generic",
+    "category": "gpu",
+    "level": "recommended",
+    "risk": "low",
+    "impact": "medium",
+    "when": {
+      "all": [
+        { "f": "gpuSummary.hasModernRebarCapable", "op": "true" },
+        { "f": "boot.mode", "op": "eq", "v": "UEFI" }
+      ]
+    },
+    "statusText": "Estado atual: não foi possível determinar (o Windows não expõe essa configuração)",
+    "recommendationText": "Verificar/ativar Above 4G Decoding e Resizable BAR na BIOS",
+    "reason": "Foi detectada uma GPU compatível com Resizable BAR ({gpuSummary.primaryName}) e o sistema inicia em UEFI, atendendo aos pré-requisitos básicos. O estado atual da opção não pode ser lido pelo Windows.",
+    "benefit": "Possível ganho de desempenho em jogos (típico de poucos % até ~10%, dependendo do título) e melhor uso da VRAM pela CPU.",
+    "compatibility": "Requer simultaneamente: GPU compatível, CPU/plataforma compatível, placa-mãe com suporte, inicialização UEFI (CSM desativado) e driver atualizado.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → PCIe / Advanced → Above 4G Decoding e Re-Size BAR Support",
+    "paths": {
+      "asus": ["Advanced → PCI Subsystem Settings → Above 4G Decoding", "Advanced → PCI Subsystem Settings → Re-Size BAR Support"],
+      "gigabyte": ["Settings → IO Ports → Above 4G Decoding", "Settings → IO Ports → Re-Size BAR Support"],
+      "msi": ["Settings → Advanced → PCI Subsystem Settings → Above 4G Decoding", "Settings → Advanced → PCI Subsystem Settings → Re-Size BAR Support"],
+      "asrock": ["Advanced → Chipset Configuration → Above 4G Decoding", "Advanced → Chipset Configuration → Resizable BAR"]
+    },
+    "steps": [
+      "Atualize o driver da GPU para a versão mais recente.",
+      "Reinicie e entre na BIOS.",
+      "Ative Above 4G Decoding.",
+      "Ative Resizable BAR / Smart Access Memory (a opção só aparece após Above 4G ativado em muitas placas).",
+      "Confirme que o CSM está desativado.",
+      "Salve e reinicie.",
+      "Valide no painel do driver da GPU (NVIDIA Control Panel / AMD Adrenalin / Intel Arc) se o recurso ficou ativo."
+    ],
+    "notes": [
+      "Disponibilidade depende da versão da BIOS e da combinação CPU+placa-mãe+GPU.",
+      "Nome pode variar conforme fabricante (Re-Size BAR, SAM, Clever Access Memory)."
+    ]
+  },
+  {
+    "id": "secureboot-review",
+    "file": "generic",
+    "name": "Secure Boot",
+    "platform": "generic",
+    "category": "security",
+    "level": "informational",
+    "risk": "info",
+    "impact": "low",
+    "when": { "f": "os.detected", "op": "true" },
+    "statusMap": { "enabled": "ATIVADO", "disabled": "DESATIVADO", "unavailable": "NÃO DISPONÍVEL", "unknown": "NÃO FOI POSSÍVEL DETERMINAR" },
+    "statusField": "secureBoot",
+    "recommendationText": "Manter ativado quando disponível (segurança/compatibilidade)",
+    "reason": "Secure Boot é um recurso de segurança que valida assinaturas digitais durante a inicialização, protegendo contra rootkits/bootkits. Também é requisito de compatibilidade do Windows 11. Não é uma configuração de desempenho/FPS.",
+    "benefit": "Proteção da cadeia de inicialização; compatibilidade com requisitos do Windows 11 e anti-cheats que exigem Secure Boot.",
+    "compatibility": "Somente em modo UEFI. Alguns sistemas Linux/dual-boot podem exigir desativação temporária ou registro MOK.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → Security / Boot → Secure Boot",
+    "steps": [
+      "Reinicie e entre na BIOS.",
+      "Abra o menu Security (ou Boot).",
+      "Localize Secure Boot.",
+      "Se estiver desativado e o sistema estiver em UEFI/GPT, avalie ativá-lo (pode exigir restaurar chaves padrão / OS Type: Windows UEFI Mode).",
+      "Salve e reinicie, testando a inicialização do sistema."
+    ],
+    "notes": [
+      "Classificação: segurança/compatibilidade — não trate como ajuste de desempenho.",
+      "Em máquinas OEM (Dell/HP/Lenovo/Acer), normalmente já vem ativado de fábrica."
+    ]
+  },
+  {
+    "id": "tpm-review",
+    "file": "generic",
+    "name": "TPM (Trusted Platform Module / fTPM / PTT)",
+    "platform": "generic",
+    "category": "security",
+    "level": "informational",
+    "risk": "info",
+    "impact": "low",
+    "when": { "f": "os.detected", "op": "true" },
+    "statusMap": {
+      "present_enabled": "PRESENTE E ATIVADO",
+      "present_disabled": "PRESENTE E DESATIVADO",
+      "present_unknown": "PRESENTE — ESTADO NÃO DETERMINADO SEM ADMINISTRADOR",
+      "unknown": "NÃO FOI POSSÍVEL DETERMINAR"
+    },
+    "statusField": "tpm.stateLabel",
+    "recommendationText": "Manter ativado quando disponível (segurança/compatibilidade)",
+    "reason": "O TPM armazena chaves criptográficas com segurança e é requisito do Windows 11. Em plataformas AMD o firmware chama-se fTPM; em Intel, PTT. Não influencia FPS.",
+    "benefit": "Criptografia de disco (BitLocker), Windows Hello e conformidade com requisitos do Windows 11.",
+    "compatibility": "Placas-mãe recentes possuem TPM de firmware integrado; placas antigas podem usar módulo TPM dedicado (header TPM).",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → Advanced / Security → TPM/fTPM/PTT",
+    "steps": [
+      "Reinicie e entre na BIOS.",
+      "Procure em Advanced ou Security a opção TPM Device Selection / fTPM (AMD) / PTT (Intel).",
+      "Mantenha ativado. Em caso de reinstalações ou criptografia existente, evite desativar (pode tornar dados ilegíveis)."
+    ],
+    "notes": [
+      "Desativar o TPM com BitLocker ativo pode solicitar a chave de recuperação no próximo boot.",
+      "Detecção completa do estado requer execução como administrador."
+    ]
+  },
+  {
+    "id": "virtualization-status",
+    "file": "generic",
+    "name": "Virtualização de hardware (SVM / VT-x)",
+    "platform": "generic",
+    "category": "cpu",
+    "level": "informational",
+    "risk": "info",
+    "impact": "low",
+    "when": { "f": "os.detected", "op": "true" },
+    "statusMap": {
+      "enabled_hypervisor_running": "ATIVA (hipervisor em execução)",
+      "enabled_firmware": "ATIVA (firmware)",
+      "off_or_hidden_by_hypervisor": "DESATIVADA OU OCULTA POR HIPERVISOR",
+      "unknown": "NÃO FOI POSSÍVEL DETERMINAR"
+    },
+    "statusField": "virtStatusLabel",
+    "recommendationText": "Essa configuração é relacionada à virtualização",
+    "reason": "Essa configuração é relacionada à virtualização (WSL2, Hyper-V, Docker, máquinas virtuais, emuladores Android). Ativar ou desativar não deve ser feito simplesmente para tentar ganhar FPS.",
+    "benefit": "Necessária para Hyper-V, WSL2, Docker Desktop, VMs e alguns emuladores. Sem necessidade desses recursos, o estado atual não representa problema.",
+    "compatibility": "Depende do suporte da CPU e da exposição na BIOS. Em notebooks corporativos a opção pode estar bloqueada pelo fabricante.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → Advanced / CPU Configuration → SVM Mode (AMD) ou Intel Virtualization Technology (Intel)",
+    "steps": [
+      "Reinicie e entre na BIOS.",
+      "AMD: Advanced → CPU Configuration → SVM Mode. Intel: Advanced/CPU Configuration → Intel Virtualization Technology (VT-x).",
+      "Altere apenas se você utiliza recursos de virtualização que estejam falhando.",
+      "Salve e reinicie."
+    ],
+    "notes": ["Nome pode variar conforme fabricante e versão da BIOS."]
+  },
+  {
+    "id": "bios-update-advisory",
+    "file": "generic",
+    "name": "Atualização de BIOS/UEFI",
+    "platform": "generic",
+    "category": "bios",
+    "level": "optional",
+    "risk": "medium",
+    "impact": "low",
+    "when": { "all": [{ "f": "bios.ageYears", "op": "gte", "v": 4 }] },
+    "statusText": "Data da BIOS: {bios.dateISO} · Versão: {bios.version}",
+    "recommendationText": "Avaliar atualização da BIOS junto ao fabricante",
+    "reason": "A BIOS detectada possui aproximadamente {bios.ageYears} anos. Versões novas corrigem bugs, adicionam suporte a recursos (ex.: Resizable BAR) e melhoram compatibilidade com memória e CPU.",
+    "benefit": "Correções de estabilidade, compatibilidade e, em alguns casos, novos recursos de firmware.",
+    "compatibility": "Atualizações devem vir EXCLUSIVAMENTE do site oficial do fabricante da placa-mãe/OEM, com modelo exato.",
+    "rebootRequired": true,
+    "pathDefault": "Utilitário do fabricante (EZ Flash / Q-Flash / M-Flash / BIOS Flashback) ou suporte do OEM",
+    "steps": [
+      "Confirme o modelo exato da placa-mãe ou do computador (OEM).",
+      "Baixe a BIOS SOMENTE do site oficial do fabricante.",
+      "Leia as notas de versão e as instruções específicas.",
+      "Faça backup dos dados importantes.",
+      "Garanta energia estável (notebook: carregado e na tomada; desktop: evite tempestades/instabilidade elétrica).",
+      "Execute o utilitário de flash do próprio fabricante seguindo o passo a passo oficial.",
+      "Após atualizar, entre na BIOS e restaure Load Optimized Defaults se recomendado, reconfigurando XMP/perfil anterior."
+    ],
+    "notes": [
+      "🔴 Uma interrupção durante o flash pode inutilizar a placa-mãe. Se o sistema está estável, a atualização é opcional.",
+      "Esta ferramenta NÃO atualiza firmware automaticamente."
+    ]
+  },
+  {
+    "id": "ram-mixed-modules",
+    "file": "generic",
+    "name": "Módulos de memória diferentes",
+    "platform": "generic",
+    "category": "memory",
+    "level": "optional",
+    "risk": "info",
+    "impact": "low",
+    "when": { "f": "ram.layoutIsMixed", "op": "true" },
+    "statusText": "{ram.count} módulos · Capacidades: {ram.perModuleGBList} GB · Velocidades configuradas: {ram.configSpeedList} MHz",
+    "recommendationText": "Padronizar os módulos de memória (opcional)",
+    "reason": "Foram identificados módulos com características diferentes (capacidade, velocidade ou fabricante). O sistema operará na configuração comum mais baixa entre eles.",
+    "benefit": "Uniformidade de módulos favorece estabilidade e o funcionamento em canal duplo simétrico.",
+    "compatibility": "Sempre aplicável quando há mistura; verifique o manual da placa-mãe para posicionamento recomendado dos slots.",
+    "rebootRequired": false,
+    "pathDefault": "Verificação física dos módulos + consulta ao manual da placa-mãe",
+    "steps": [
+      "Desligue o computador e desconecte da tomada.",
+      "Identifique os módulos instalados (etiquetas).",
+      "Consulte o manual da placa-mãe para a ordem recomendada de slots.",
+      "Se possível, utilize módulos idênticos (mesmo modelo/velocidade/capacidade)."
+    ],
+    "notes": ["Não afirmamos que sua configuração atual está ruim — apenas registramos a diferença detectada."]
+  },
+  {
+    "id": "ram-single-module",
+    "file": "generic",
+    "name": "Memória em módulo único",
+    "platform": "generic",
+    "category": "memory",
+    "level": "informational",
+    "risk": "info",
+    "impact": "low",
+    "when": { "f": "ram.layout", "op": "eq", "v": "single" },
+    "statusText": "1 módulo · {ram.totalGB} GB · {ram.minConfigMHz} MHz",
+    "recommendationText": "Considerar um segundo módulo idêntico (opcional)",
+    "reason": "Foi detectado apenas um módulo de memória, o que impede a operação em canal duplo (dual channel). Isso limita parte da largura de banda da memória, sobretudo em GPUs integradas.",
+    "benefit": "Canal duplo pode melhorar desempenho em tarefas sensíveis à largura de banda de memória.",
+    "compatibility": "Prefira um módulo igual ao existente (mesma capacidade/velocidade) e siga o manual da placa-mãe quanto ao slot correto.",
+    "rebootRequired": false,
+    "pathDefault": "Verificação física — nenhum ajuste de software necessário",
+    "steps": [
+      "Desligue o computador e desconecte da tomada.",
+      "Instale um segundo módulo compatível no slot indicado no manual.",
+      "Após ligar, confira no aplicativo se ambos os módulos aparecem."
+    ],
+    "notes": ["Não prometemos ganho de FPS específico — o impacto depende da carga de trabalho."]
+  },
+  {
+    "id": "ram-low-clock",
+    "file": "generic",
+    "name": "Frequência de memória modesta",
+    "platform": "generic",
+    "category": "memory",
+    "level": "optional",
+    "risk": "low",
+    "impact": "low",
+    "when": {
+      "all": [
+        { "f": "ram.minConfigMHz", "op": "gt", "v": 0 },
+        { "f": "ram.minConfigMHz", "op": "lte", "v": 2133 },
+        { "f": "ram.profile", "op": "ne", "v": "likely_inactive" }
+      ]
+    },
+    "statusText": "Operando em {ram.minConfigMHz} MHz ({ram.ddrType})",
+    "recommendationText": "Verificar opções de perfil de memória na BIOS, se disponíveis",
+    "reason": "A memória opera em uma frequência modesta. Se os módulos e a plataforma oferecerem perfis mais rápidos (XMP/EXPO), eles podem estar disponíveis — mas isso precisa ser confirmado na BIOS.",
+    "benefit": "Melhor largura de banda de memória quando houver perfil superior disponível e validado.",
+    "compatibility": "Depende dos módulos instalados e do chipset/placa-mãe.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → Menu de Overclock/Memória → Perfil XMP/EXPO (se disponível)",
+    "steps": [
+      "Reinicie e entre na BIOS.",
+      "Localize as informações de memória e os perfis XMP/EXPO disponíveis.",
+      "Se houver perfil superior, ative e teste estabilidade (memtest/stress leve).",
+      "Em caso de instabilidade, retorne ao perfil anterior."
+    ],
+    "notes": ["Não afirmamos que a configuração atual é ruim — registramos apenas o valor observado.", "Nome pode variar conforme fabricante."]
+  },
+  {
+    "id": "ram-profile-verify",
+    "file": "generic",
+    "name": "Confirmar perfil de memória (XMP/EXPO)",
+    "platform": "generic",
+    "category": "memory",
+    "level": "optional",
+    "risk": "low",
+    "impact": "medium",
+    "when": {
+      "all": [
+        { "f": "ram.ddrType", "op": "in", "v": ["DDR4", "DDR5"] },
+        { "f": "ram.profile", "op": "eq", "v": "unknown" }
+      ]
+    },
+    "statusText": "Velocidades anunciadas pelos módulos: {ram.ratedSpeedList} MHz · Configurada: {ram.minConfigMHz} MHz",
+    "recommendationText": "Confirmar na BIOS se existe perfil XMP/EXPO disponível",
+    "reason": "Não foi possível determinar pelo Windows se existe margem de perfil de memória. A confirmação exige verificar as opções de perfil dentro da própria BIOS.",
+    "benefit": "Se houver perfil disponível e ele for ativado, melhora a largura de banda de memória.",
+    "compatibility": "DDR4/DDR5 em plataformas que suportem perfis XMP/EXPO.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → Menu de Overclock/Memória → XMP/EXPO",
+    "steps": [
+      "Reinicie e entre na BIOS.",
+      "Localize a opção de perfil de memória (XMP/EXPO/DOCP, conforme fabricante).",
+      "Se houver Profile 1 disponível, ative-o e salve.",
+      "Teste estabilidade; em caso de problemas, retorne ao perfil automático."
+    ],
+    "notes": ["Nome pode variar: DOCP (ASUS/AMD), EOCP (algumas ASRock), XMP/EXPO."]
+  }
+]

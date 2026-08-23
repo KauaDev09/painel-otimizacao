@@ -1,0 +1,24 @@
+{
+  "vendor": "gigabyte",
+  "display": ["Gigabyte", "AORUS"],
+  "menuBank": {
+    "overclockMenu": "Tweaker",
+    "settingsMenu": "Settings",
+    "advancedCpu": "Tweaker → Advanced CPU Settings",
+    "ioPorts": "Settings → IO Ports",
+    "bootMenu": "Boot",
+    "securityMenu": "Security"
+  },
+  "pathOverrides": {
+    "above4g-rebar": [
+      "Settings → IO Ports → Above 4G Decoding",
+      "Settings → IO Ports → Re-Size BAR Support"
+    ],
+    "xmp-expo-amd": ["Tweaker → Extreme Memory Profile (XMP/EXPO)"],
+    "xmp-intel": ["Tweaker → Extreme Memory Profile (XMP)"]
+  },
+  "globalNotes": [
+    "Em placas Gigabyte/AORUS, o menu de overclock chama-se Tweaker; Above 4G e ReBAR ficam em Settings → IO Ports.",
+    "Caminhos tratados como 'prováveis' — podem variar conforme modelo e versão da UEFI."
+  ]
+}

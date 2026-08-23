@@ -1,0 +1,215 @@
+[
+  {
+    "id": "xmp-expo-amd",
+    "file": "amd",
+    "name": "XMP / EXPO (perfil de memória)",
+    "platform": "AMD",
+    "category": "memory",
+    "level": "recommended",
+    "risk": "low",
+    "impact": "medium",
+    "when": {
+      "all": [
+        { "f": "cpu.brand", "op": "eq", "v": "AMD" },
+        { "f": "ram.ddrType", "op": "in", "v": ["DDR4", "DDR5"] },
+        { "f": "ram.profile", "op": "eq", "v": "likely_inactive" }
+      ]
+    },
+    "statusText": "Operando em {ram.minConfigMHz} MHz · Velocidade anunciada pelos módulos: {ram.maxRatedMHz} MHz · Perfil: PROVAVELMENTE INATIVO",
+    "recommendationText": "Ativar perfil XMP (DDR4) ou EXPO (DDR5) na BIOS",
+    "reason": "A memória está operando em uma frequência inferior à velocidade anunciada pelos próprios módulos — evidência típica de que o perfil configurado pelo fabricante não está ativo.",
+    "benefit": "Possível aumento de desempenho da memória e da CPU (largura de banda e latências), conforme validação de estabilidade.",
+    "compatibility": "Perfil definido pelo fabricante dos módulos para a plataforma. DDR4 → XMP; DDR5 → EXPO/XMP. Requer suporte da placa-mãe/chipset.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → Menu de Overclock/Tweaker → XMP/EXPO Profile",
+    "paths": {
+      "asus": ["AI Tweaker → Ai Overclock Tuner → XMP/EXPO/D.O.C.P."],
+      "gigabyte": ["Tweaker → Extreme Memory Profile (XMP/EXPO)"],
+      "msi": ["OC → Extreme Memory Profile (XMP)/EXPO", "OC → A-XMP"],
+      "asrock": ["OC Tweaker → DRAM Profile Configuration → XMP 2.0 Profile 1 / EXPO"]
+    },
+    "steps": [
+      "Reinicie o computador.",
+      "Entre na BIOS (geralmente Del, F2 ou F10 durante o boot).",
+      "Abra o menu Tweaker/Overclock/AI Tweaker.",
+      "Procure XMP, EXPO, D.O.C.P. ou Extreme Memory Profile.",
+      "Selecione Profile 1 (perfil anunciado pelos módulos).",
+      "Salve as alterações (F10) e reinicie.",
+      "Após iniciar o Windows, confirme a nova frequência neste aplicativo."
+    ],
+    "notes": [
+      "Nome pode variar conforme fabricante e versão da BIOS.",
+      "Se ocorrer instabilidade após ativar, retorne ao perfil automático."
+    ]
+  },
+  {
+    "id": "cpb-verify-amd",
+    "file": "amd",
+    "name": "Core Performance Boost (AMD)",
+    "platform": "AMD",
+    "category": "cpu",
+    "level": "optional",
+    "risk": "low",
+    "impact": "medium",
+    "when": {
+      "all": [
+        { "f": "cpu.brand", "op": "eq", "v": "AMD" },
+        { "f": "cpu.isRyzen", "op": "true" }
+      ]
+    },
+    "statusText": "Estado atual: não exposto pelo Windows — verificar na BIOS",
+    "recommendationText": "Verificar se Core Performance Boost está ativado (padrão: ativado)",
+    "reason": "O Core Performance Boost permite que o processador Ryzen alcance automaticamente suas frequências máximas de fábrica. Desativado, o boost fica limitado ao clock base.",
+    "benefit": "Garante o comportamento de boost projetado pela AMD, sem overclock manual.",
+    "compatibility": "Processadores AMD Ryzen em placas AM4/AM5. Em configurações padrão já vem ativado.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → Advanced / OC → Core Performance Boost",
+    "paths": {
+      "asus": ["Advanced → AMD Overclocking → Precision Boost Overdrive → (verificar Core Performance Boost)"],
+      "gigabyte": ["Tweaker → Advanced CPU Settings → Core Performance Boost"],
+      "msi": ["OC → Advanced CPU Configuration → AMD Overclocking → Core Performance Boost"],
+      "asrock": ["OC Tweaker → AMD Overclocking → Core Performance Boost"]
+    },
+    "steps": [
+      "Reinicie e entre na BIOS.",
+      "Localize Core Performance Boost (em AMD Overclocking ou menu OC).",
+      "Confirme que está Auto/Enabled.",
+      "Não altere outros parâmetros dessa área.",
+      "Salve e reinicie."
+    ],
+    "notes": ["Em configurações de fábrica esta opção normalmente já está correta — apenas confirme."]
+  },
+  {
+    "id": "svm-amd-info",
+    "file": "amd",
+    "name": "SVM Mode (virtualização AMD)",
+    "platform": "AMD",
+    "category": "virtualization",
+    "level": "informational",
+    "risk": "info",
+    "impact": "low",
+    "when": {
+      "all": [
+        { "f": "cpu.brand", "op": "eq", "v": "AMD" },
+        { "any": [
+          { "f": "virtStatus", "op": "eq", "v": "off_or_hidden_by_hypervisor" },
+          { "f": "virtStatus", "op": "eq", "v": "unknown" }
+        ] }
+      ]
+    },
+    "statusText": "Estado detectado: {virtStatusLabel}",
+    "recommendationText": "Essa configuração é relacionada à virtualização — altere somente se necessário",
+    "reason": "Essa configuração é relacionada à virtualização (Hyper-V, WSL2, VMs, Docker, emuladores). Não deve ser alterada simplesmente na expectativa de ganhar FPS.",
+    "benefit": "Necessária para Hyper-V, WSL2, Docker Desktop, máquinas virtuais e alguns emuladores Android.",
+    "compatibility": "CPUs AMD com SVM; em notebooks corporativos pode estar bloqueada pelo OEM.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → Advanced → CPU Configuration → SVM Mode",
+    "paths": {
+      "asus": ["Advanced → CPU Configuration → SVM Mode"],
+      "gigabyte": ["M.I.T. / Tweaker → Advanced CPU Core Settings → SVM", "Settings → Miscellaneous → SVM"],
+      "msi": ["OC → CPU Features → SVM Mode", "Settings → Advanced → CPU Configuration → SVM"],
+      "asrock": ["Advanced → CPU Configuration → SVM"]
+    },
+    "steps": [
+      "Reinicie e entre na BIOS.",
+      "Localize SVM Mode.",
+      "Ative somente se você utiliza recursos de virtualização.",
+      "Salve e reinicie."
+    ],
+    "notes": ["Nome pode variar conforme fabricante e versão da BIOS."]
+  },
+  {
+    "id": "pbo-advanced-amd",
+    "file": "amd",
+    "name": "Precision Boost Overdrive (PBO)",
+    "platform": "AMD",
+    "category": "cpu",
+    "level": "advanced",
+    "advanced": true,
+    "techOnly": true,
+    "risk": "medium",
+    "impact": "medium",
+    "when": {
+      "all": [
+        { "f": "cpu.brand", "op": "eq", "v": "AMD" },
+        { "f": "cpu.isRyzen", "op": "true" }
+      ]
+    },
+    "statusText": "Estado atual: não exposto pelo Windows",
+    "recommendationText": "Avançado — não recomendado para usuários comuns",
+    "reason": "O PBO eleva os limites de potência/clock além do padrão de fábrica. Exige análise de refrigeração, qualidade da placa-mãe e validação de estabilidade. NÃO recomendamos valores automáticos nem alterações sem acompanhamento técnico.",
+    "benefit": "Potencial ganho de desempenho multinúcleo quando bem configurado e refrigerado.",
+    "compatibility": "Ryzen em chipsets B/X. Depende de VRM da placa-mãe e sistema de refrigeração adequado.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → AMD Overclocking → Precision Boost Overdrive",
+    "steps": [
+      "Somente prossiga se você domina estabilidade, temperaturas e limites térmicos.",
+      "Avalie o cooler antes de qualquer mudança.",
+      "Prefira perfis conservadores documentados pelo próprio fabricante da placa-mãe.",
+      "Valide estabilidade prolongada após cada alteração.",
+      "Em caso de dúvida, mantenha os padrões de fábrica."
+    ],
+    "notes": [
+      "Esta ferramenta nunca aplica PBO automaticamente.",
+      "Evite combinar PBO agressivo com coolers de baixa capacidade."
+    ]
+  },
+  {
+    "id": "curve-optimizer-advanced-amd",
+    "file": "amd",
+    "name": "Curve Optimizer",
+    "platform": "AMD",
+    "category": "cpu",
+    "level": "advanced",
+    "advanced": true,
+    "techOnly": true,
+    "risk": "medium",
+    "impact": "low",
+    "when": {
+      "all": [
+        { "f": "cpu.brand", "op": "eq", "v": "AMD" },
+        { "f": "cpu.isRyzen", "op": "true" }
+      ]
+    },
+    "statusText": "Estado atual: não exposto pelo Windows",
+    "recommendationText": "Avançado — não recomendado para usuários comuns",
+    "reason": "O Curve Optimizer ajusta curvas de tensão por núcleo. Valores incorretos causam travamentos aleatórios difíceis de diagnosticar. Não recomendamos offsets específicos sem teste individual por núcleo.",
+    "benefit": "Quando bem calibrado, reduz temperatura e pode melhorar sustentação de clock.",
+    "compatibility": "Ryzen 5000/7000/9000 com BIOS recente.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → AMD Overclocking → Precision Boost Overdrive → Curve Optimizer",
+    "steps": [
+      "Somente para usuários avançados com metodologia de teste por núcleo.",
+      "Alterne um núcleo por vez, com validação longa entre etapas.",
+      "Documente cada offset aplicado para permitir reversão.",
+      "Sem metodologia, mantenha o padrão."
+    ],
+    "notes": ["Instabilidade por undervolt agressivo pode corromper sessões de trabalho."]
+  },
+  {
+    "id": "voltages-advisory-amd",
+    "file": "amd",
+    "name": "Vcore / SoC Voltage / LLC / BCLK / Timings manuais",
+    "platform": "AMD",
+    "category": "cpu",
+    "level": "advanced",
+    "advanced": true,
+    "techOnly": true,
+    "risk": "high",
+    "impact": "medium",
+    "when": { "all": [{ "f": "cpu.brand", "op": "eq", "v": "AMD" }] },
+    "statusText": "Estes ajustes não são monitorados nem modificados por este aplicativo",
+    "recommendationText": "Avançado — não recomendado para usuários comuns",
+    "reason": "Ajustes de tensão (CPU Voltage, SoC Voltage, Vcore, Load Line Calibration), BCLK e timings manuais de memória podem degradar hardware permanentemente ou impedir o boot. Nunca recomendamos valores sem evidência específica de compatibilidade com o seu lote de silício.",
+    "benefit": "Nenhum benefício garantido; risco real de perda de estabilidade e de garantia.",
+    "compatibility": "Depende do lote do processador (silicon lottery), da placa-mêe e da refrigeração.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → Tweaker / AMD Overclocking (não alterar sem conhecimento)",
+    "steps": [
+      "Não realize essas alterações sem conhecimento técnico especializado.",
+      "Se um técnico optar por prosseguir, faça UMA alteração por vez, com validação completa entre elas.",
+      "Conheça o procedimento CMOS Clear da sua placa-mãe antes de qualquer experimento."
+    ],
+    "notes": ["Este aplicativo NÃO altera voltagens, BCLK ou timings — apenas alerta sobre o risco."]
+  }
+]

@@ -1,0 +1,257 @@
+'use strict';
+
+// EngineService — camada de alto nível sobre catálogo + runner + proteção.
+//   - A interface NUNCA envia comandos: envia apenas IDs de itens do catálogo.
+//   - Toda aplicação passa por: backup das chaves -> (opcional) ponto de
+//     restauração -> orquestrador com UAC único -> registro da operação.
+//   - Desfazer usa a ação de undo do próprio item (script, PowerShell inline
+//     ou restauração do backup .reg capturado antes da aplicação).
+
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+
+const catalog = require('./catalog');
+const runner = require('./runner');
+const protection = require('./restorePoint');
+
+const PROFILES = {
+  safe: { name: 'Seguro', icon: '🛡️', description: 'Só ajustes de baixo risco, totalmente reversíveis.' },
+  balanced: { name: 'Equilibrado', icon: '⚖️', description: 'Melhor custo-benefício para uso diário.' },
+  performance: { name: 'Desempenho', icon: '⚡', description: 'Máxima responsividade do sistema.' },
+  gaming: { name: 'Gamer', icon: '🎮', description: 'Foco em FPS e latência em jogos.' },
+  work: { name: 'Trabalho', icon: '💼', description: 'Estabilidade para produtividade; sem mudanças agressivas.' },
+  laptop: { name: 'Notebook', icon: '🔋', description: 'Equilíbrio entre desempenho e bateria.' }
+};
+
+let stateDir = null;
+let operationsFile = null;
+
+function setStateDir(dir) {
+  stateDir = dir;
+  fs.mkdirSync(dir, { recursive: true });
+  operationsFile = path.join(dir, 'operations.json');
+}
+
+function _loadOperations() {
+  try {
+    return JSON.parse(fs.readFileSync(operationsFile, 'utf8'));
+  } catch (_) {
+    return [];
+  }
+}
+
+function _saveOperations(ops) {
+  // Mantém no máximo 100 operações no histórico local.
+  fs.writeFileSync(operationsFile, JSON.stringify(ops.slice(-100), null, 2), 'utf8');
+}
+
+/** Lista itens sanitizados para a interface. */
+function listItems() {
+  return catalog.ITEMS.map((it) => ({
+    id: it.id,
+    name: it.name,
+    category: it.category,
+    description: it.description,
+    benefit: it.benefit,
+    risk: it.risk,
+    riskLabel: catalog.RISK_LABELS[it.risk] || it.risk,
+    requiresAdmin: !!it.requiresAdmin,
+    confirm: !!it.confirm,
+    profiles: it.profiles || [],
+    proOnly: it.proOnly !== false,
+    vendor: it.vendor || null,
+    rebootRequired: !!it.rebootRequired
+  }));
+}
+
+function getProfiles() {
+  return Object.entries(PROFILES).map(([id, p]) => ({ id, ...p }));
+}
+
+function getDrivers() {
+  return catalog.DRIVER_DOWNLOAD_ITEMS.map((d) => {
+    const item = { id: d.id, vendor: d.vendor };
+    return item;
+  });
+}
+
+/**
+ * Aplica um conjunto de itens por ID.
+ * opts: { label, createRestorePoint:boolean, onStep(name, ok, message) }
+ * Retorna { ok, results, opId, launchError, restorePoint }.
+ */
+async function applyItems(ids, opts = {}) {
+  if (!stateDir) throw new Error('Engine não inicializado.');
+  const items = [];
+  const seen = new Set();
+  for (const id of ids || []) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const it = catalog.getItem(String(id));
+    if (!it || !it.apply) continue;
+    items.push(it);
+  }
+  if (!items.length) {
+    return { ok: false, error: 'Nenhuma otimização válida selecionada.', results: [], opId: null };
+  }
+
+  const opId = `op-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
+  const opDir = path.join(stateDir, opId);
+  fs.mkdirSync(opDir, { recursive: true });
+
+  // 1) Backup das chaves de registro que cada item declara tocar.
+  const records = [];
+  for (const it of items) {
+    let backupReg = null;
+    if (Array.isArray(it.registryKeys) && it.registryKeys.length) {
+      try { backupReg = await protection.backupRegistryKeys(it.registryKeys, opId); } catch (_) { backupReg = null; }
+    }
+    records.push({ id: it.id, name: it.name, backupReg });
+  }
+
+  // 2) Ponto de restauração do Windows (opcional, melhor esforço).
+  let restorePoint = null;
+  if (opts.createRestorePoint) {
+    restorePoint = await protection.createRestorePoint('Mainstreet BIOS Optimizer - ' + (opts.label || 'otimizações'));
+  }
+
+  // 3) Monta os passos: scripts do catálogo + PS inline viram arquivos .ps1
+  //    temporários para entrarem no MESMO orquestrador (UAC único).
+  const tmpFiles = [];
+  const steps = [];
+  items.forEach((it, idx) => {
+    const act = it.apply;
+    if (act.type === 'script') {
+      steps.push({ name: it.name, path: catalog.resolveScript(act.file) });
+    } else if (act.type === 'ps') {
+      const psFile = path.join(opDir, `apply-${idx}.ps1`);
+      fs.writeFileSync(psFile, act.script, 'utf8');
+      tmpFiles.push(psFile);
+      steps.push({ name: it.name, path: psFile });
+    }
+  });
+
+  const { results, logText, launchError } = await runner.runSteps(steps, {
+    onStepEnd: (name, ok, message) => { if (opts.onStep) opts.onStep(name, ok, message); }
+  });
+
+  // Limpa .ps1 temporários (o conteúdo já está no catálogo).
+  for (const f of tmpFiles) { try { fs.rmSync(f, { force: true }); } catch (_) { /* ignora */ } }
+
+  // 4) Registra a operação para a Central de Restauração.
+  const ops = _loadOperations();
+  ops.push({
+    id: opId,
+    ts: Date.now(),
+    label: opts.label || `${items.length} otimização(ões)`,
+    profile: opts.profile || null,
+    items: records,
+    results
+  });
+  _saveOperations(ops);
+
+  const allOk = results.length > 0 && results.every((r) => r.ok);
+  return { ok: allOk, results, opId, launchError, restorePoint };
+}
+
+/**
+ * Desfaz um item específico pelo ID (procura o backup mais recente).
+ */
+async function undoItem(id) {
+  const it = catalog.getItem(String(id));
+  if (!it || !it.undo) {
+    return { ok: false, message: 'Este item não possui ação de desfazer automática.' };
+  }
+  const act = it.undo;
+
+  if (act.type === 'backup') {
+    // Restaura o .reg mais recente que contém este item.
+    const ops = _loadOperations();
+    for (let i = ops.length - 1; i >= 0; i--) {
+      const rec = (ops[i].items || []).find((x) => x.id === it.id);
+      if (rec && rec.backupReg && fs.existsSync(rec.backupReg)) {
+        const r = await protection.restoreRegistryBackup(rec.backupReg);
+        return r;
+      }
+    }
+    return { ok: false, message: 'Nenhum backup encontrado para este item.' };
+  }
+
+  if (act.type === 'ps') {
+    const tmp = path.join(stateDir, `undo-${Date.now()}.ps1`);
+    fs.mkdirSync(stateDir, { recursive: true });
+    fs.writeFileSync(tmp, act.script, 'utf8');
+    try {
+      const { result } = await runner.runSingle(`Desfazer: ${it.name}`, tmp);
+      return { ok: !!result.ok, message: result.message };
+    } finally {
+      try { fs.rmSync(tmp, { force: true }); } catch (_) { /* ignora */ }
+    }
+  }
+
+  if (act.type === 'script') {
+    const { result } = await runner.runSingle(`Desfazer: ${it.name}`, catalog.resolveScript(act.file));
+    return { ok: !!result.ok, message: result.message };
+  }
+
+  return { ok: false, message: 'Ação de desfazer desconhecida.' };
+}
+
+/** Histórico local de operações (mais recente primeiro). */
+function listOperations() {
+  return _loadOperations().slice().reverse().map((op) => ({
+    id: op.id,
+    ts: op.ts,
+    label: op.label,
+    profile: op.profile,
+    itemCount: (op.items || []).length,
+    successCount: (op.results || []).filter((r) => r.ok).length
+  }));
+}
+
+/** Detalhe de uma operação (itens, backups disponíveis, resultados). */
+function getOperation(opId) {
+  const op = _loadOperations().find((o) => o.id === String(opId));
+  if (!op) return null;
+  return {
+    ...op,
+    items: (op.items || []).map((r) => ({
+      id: r.id,
+      name: r.name,
+      hasBackup: !!(r.backupReg && fs.existsSync(r.backupReg))
+    }))
+  };
+}
+
+/** Desfaz todos os itens reversíveis de uma operação (ordem inversa). */
+async function undoOperation(opId, opts = {}) {
+  const op = _loadOperations().find((o) => o.id === String(opId));
+  if (!op) return { ok: false, error: 'Operação não encontrada.', results: [] };
+
+  const ids = (op.items || []).slice().reverse()
+    .filter((r) => r.backupReg || (catalog.getItem(r.id) || {}).undo)
+    .map((r) => r.id);
+
+  // Executa undos um a um (cada um pode ter mecanismo distinto).
+  const results = [];
+  for (const id of ids) {
+    const r = await undoItem(id);
+    results.push({ id, ...r });
+    if (opts.onStep) opts.onStep(id, r.ok, r.message);
+  }
+  return { ok: results.every((r) => r.ok), results };
+}
+
+module.exports = {
+  setStateDir,
+  listItems,
+  getProfiles,
+  getDrivers,
+  applyItems,
+  undoItem,
+  undoOperation,
+  listOperations,
+  getOperation,
+  PROFILES
+};

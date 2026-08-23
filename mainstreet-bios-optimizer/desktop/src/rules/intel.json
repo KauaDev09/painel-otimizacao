@@ -1,0 +1,208 @@
+[
+  {
+    "id": "xmp-intel",
+    "file": "intel",
+    "name": "XMP (perfil de memória)",
+    "platform": "Intel",
+    "category": "memory",
+    "level": "recommended",
+    "risk": "low",
+    "impact": "medium",
+    "when": {
+      "all": [
+        { "f": "cpu.brand", "op": "eq", "v": "Intel" },
+        { "f": "ram.ddrType", "op": "in", "v": ["DDR4", "DDR5"] },
+        { "f": "ram.profile", "op": "eq", "v": "likely_inactive" }
+      ]
+    },
+    "statusText": "Operando em {ram.minConfigMHz} MHz · Velocidade anunciada pelos módulos: {ram.maxRatedMHz} MHz · Perfil: PROVAVELMENTE INATIVO",
+    "recommendationText": "Ativar perfil XMP na BIOS",
+    "reason": "A memória está operando em uma frequência inferior à velocidade anunciada pelos próprios módulos — evidência típica de que o perfil XMP não está ativo.",
+    "benefit": "Possível aumento de desempenho da memória e da CPU, conforme validação de estabilidade.",
+    "compatibility": "Perfil XMP definido pelo fabricante dos módulos; requer suporte da placa-mãe/chipset.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → Menu de Overclock/Tweaker → XMP Profile",
+    "paths": {
+      "asus": ["AI Tweaker → Ai Overclock Tuner → XMP"],
+      "gigabyte": ["Tweaker → Extreme Memory Profile (XMP)"],
+      "msi": ["OC → Extreme Memory Profile (XMP)", "OC → A-XMP"],
+      "asrock": ["OC Tweaker → DRAM Profile Configuration → XMP 2.0 Profile 1"]
+    },
+    "steps": [
+      "Reinicie o computador.",
+      "Entre na BIOS (geralmente Del, F2 ou F10 durante o boot).",
+      "Abra o menu OC / Tweaker / AI Tweaker.",
+      "Procure Extreme Memory Profile (XMP).",
+      "Selecione Profile 1.",
+      "Salve as alterações e reinicie.",
+      "Confirme a nova frequência neste aplicativo."
+    ],
+    "notes": [
+      "Nome pode variar conforme fabricante e versão da BIOS.",
+      "Em caso de instabilidade, retorne ao perfil automático."
+    ]
+  },
+  {
+    "id": "turbo-speedshift-intel",
+    "file": "intel",
+    "name": "Turbo Boost / Speed Shift (Intel)",
+    "platform": "Intel",
+    "category": "cpu",
+    "level": "optional",
+    "risk": "low",
+    "impact": "medium",
+    "when": { "all": [{ "f": "cpu.brand", "op": "eq", "v": "Intel" }] },
+    "statusText": "Clock base detectado: {cpu.baseClockMhz} MHz · Clock atual: {cpu.currentClockMhz} MHz · Estado das opções de firmware: não exposto pelo Windows",
+    "recommendationText": "Verificar se Turbo Boost está habilitado (padrão: habilitado)",
+    "reason": "O Turbo Boost permite que o processador alcance automaticamente suas frequências máximas de fábrica. Em notebooks, planos de energia do Windows também influenciam o comportamento — mas este aplicativo não altera o registro nem planos de energia automaticamente.",
+    "benefit": "Garante o comportamento de boost projetado pela Intel, sem overclock manual.",
+    "compatibility": "Todas as CPUs Intel Core modernas; em OEMs a opção pode estar oculta.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → Advanced / Performance → Intel Turbo Boost Technology",
+    "paths": {
+      "asus": ["Advanced → CPU Configuration → Intel (R) Turbo Boost Technology"],
+      "gigabyte": ["Tweaker → Advanced CPU Settings → Intel(R) Turbo Boost Technology"],
+      "msi": ["OC → CPU Features → Intel Turbo Boost Technology"],
+      "asrock": ["Advanced → CPU Configuration → Intel Turbo Boost Technology"]
+    },
+    "steps": [
+      "Reinicie e entre na BIOS.",
+      "Localize Intel Turbo Boost Technology (e/ou Speed Shift / HWP).",
+      "Confirme Enabled/Auto.",
+      "Salve e reinicie."
+    ],
+    "notes": ["Em configurações de fábrica normalmente já estão corretas — apenas confirme."]
+  },
+  {
+    "id": "vtd-intel-info",
+    "file": "intel",
+    "name": "VT-x / VT-d (virtualização Intel)",
+    "platform": "Intel",
+    "category": "virtualization",
+    "level": "informational",
+    "risk": "info",
+    "impact": "low",
+    "when": {
+      "all": [
+        { "f": "cpu.brand", "op": "eq", "v": "Intel" },
+        { "any": [
+          { "f": "virtStatus", "op": "eq", "v": "off_or_hidden_by_hypervisor" },
+          { "f": "virtStatus", "op": "eq", "v": "unknown" }
+        ] }
+      ]
+    },
+    "statusText": "Estado detectado: {virtStatusLabel}",
+    "recommendationText": "Essa configuração é relacionada à virtualização — altere somente se necessário",
+    "reason": "Essa configuração é relacionada à virtualização (Hyper-V, WSL2, VMs, Docker, emuladores). Não deve ser alterada simplesmente na expectativa de ganhar FPS.",
+    "benefit": "Necessária para Hyper-V, WSL2, Docker Desktop, máquinas virtuais e alguns emuladores Android.",
+    "compatibility": "CPUs Intel com VT-x; em notebooks corporativos pode estar bloqueada pelo OEM.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → Advanced → CPU Configuration → Intel Virtualization Technology (VT-x)",
+    "paths": {
+      "asus": ["Advanced → CPU Configuration → Intel Virtualization Technology"],
+      "gigabyte": ["Chipset → VT-d", "Tweaker → Advanced CPU Core Settings → Virtualization"],
+      "msi": ["OC → CPU Features → Intel Virtualization Technology", "Settings → Advanced → CPU Configuration → Intel Virtualization Technology"],
+      "asrock": ["Advanced → CPU Configuration → Intel Virtualization Technology"]
+    },
+    "steps": [
+      "Reinicie e entre na BIOS.",
+      "Localize Intel Virtualization Technology (VT-x) e, opcionalmente, VT-d.",
+      "Ative somente se você utiliza recursos de virtualização.",
+      "Salve e reinicie."
+    ],
+    "notes": ["Nome pode variar conforme fabricante e versão da BIOS."]
+  },
+  {
+    "id": "power-limits-advanced-intel",
+    "file": "intel",
+    "name": "Power Limits (PL1/PL2)",
+    "platform": "Intel",
+    "category": "cpu",
+    "level": "advanced",
+    "advanced": true,
+    "techOnly": true,
+    "risk": "medium",
+    "impact": "medium",
+    "when": {
+      "all": [
+        { "f": "cpu.brand", "op": "eq", "v": "Intel" },
+        { "any": [
+          { "f": "cpu.unlocked", "op": "true" },
+          { "f": "motherboard.isOem", "op": "false" }
+        ] }
+      ]
+    },
+    "statusText": "Estado atual: não exposto pelo Windows · CPU desbloqueada: {cpu.unlockedLabel}",
+    "recommendationText": "Avançado — não recomendado para usuários comuns",
+    "reason": "Alterar limites de potência muda o comportamento térmico e a sustentação de clock. Sem análise de cooler, VRM e temperaturas, recomendamos manter os padrões do fabricante.",
+    "benefit": "Sustentação de clock melhorada quando há margem térmica — caso contrário, apenas mais calor sem ganho.",
+    "compatibility": "Depende do chipset (placas Z permitem controle completo), do VRM e da refrigeração.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → Tweaker / Performance → Power Limits",
+    "steps": [
+      "Somente prossiga com metodologia de medição de temperatura e estabilidade.",
+      "Nunca remova limites sem verificar a capacidade do cooler e do VRM.",
+      "Valide após cada mudança; reverta em caso de throttling térmico."
+    ],
+    "notes": ["Este aplicativo NÃO altera power limits automaticamente."]
+  },
+  {
+    "id": "overclock-advisory-intel",
+    "file": "intel",
+    "name": "Overclock de CPU (série K)",
+    "platform": "Intel",
+    "category": "cpu",
+    "level": "advanced",
+    "advanced": true,
+    "techOnly": true,
+    "risk": "high",
+    "impact": "medium",
+    "when": {
+      "all": [
+        { "f": "cpu.brand", "op": "eq", "v": "Intel" },
+        { "f": "cpu.unlocked", "op": "true" },
+        { "f": "os.pcType", "op": "ne", "v": "Notebook" }
+      ]
+    },
+    "statusText": "CPU aparentemente desbloqueada: {cpu.name}",
+    "recommendationText": "Avançado — não recomendado para usuários comuns",
+    "reason": "Overclock manual exige verificação simultânea de: CPU compatível (série K/KF/KS), placa-mãe com chipset Z (ou B-series com permissão), qualidade do VRM e sistema de refrigeração adequado. Sem essa verificação completa, não recomendamos prosseguir.",
+    "benefit": "Ganho potencial de desempenho sob custos de calor, consumo e risco de estabilidade.",
+    "compatibility": "CPU K + chipset Z + cooler adequado + fonte dimensionada.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → OC / AI Tweaker (não alterar sem conhecimento)",
+    "steps": [
+      "Não realize overclock sem confirmar os quatro requisitos (CPU, placa, chipset, refrigeração).",
+      "Prefira perfis documentados do fabricante da placa-mãe.",
+      "Altere um parâmetro por vez com validação longa entre etapas.",
+      "Conheça o procedimento de CMOS Clear antes de experimentar."
+    ],
+    "notes": ["Este aplicativo NÃO faz overclock automático."]
+  },
+  {
+    "id": "voltages-advisory-intel",
+    "file": "intel",
+    "name": "Vcore / LLC / BCLK / Timings manuais",
+    "platform": "Intel",
+    "category": "cpu",
+    "level": "advanced",
+    "advanced": true,
+    "techOnly": true,
+    "risk": "high",
+    "impact": "medium",
+    "when": { "all": [{ "f": "cpu.brand", "op": "eq", "v": "Intel" }] },
+    "statusText": "Estes ajustes não são monitorados nem modificados por este aplicativo",
+    "recommendationText": "Avançado — não recomendado para usuários comuns",
+    "reason": "Ajustes de Vcore, Load Line Calibration, BCLK e timings manuais podem degradar hardware permanentemente ou impedir o boot. Nunca recomendamos valores sem evidência específica de compatibilidade com o seu lote de silício.",
+    "benefit": "Nenhum benefício garantido; risco real de perda de estabilidade e de garantia.",
+    "compatibility": "Depende do lote do processador, da placa-mãe e da refrigeração.",
+    "rebootRequired": true,
+    "pathDefault": "BIOS → Tweaker / OC (não alterar sem conhecimento)",
+    "steps": [
+      "Não realize essas alterações sem conhecimento técnico especializado.",
+      "Se um técnico optar por prosseguir, faça UMA alteração por vez, com validação completa entre elas.",
+      "Conheça o procedimento CMOS Clear da sua placa-mãe antes de qualquer experimento."
+    ],
+    "notes": ["Este aplicativo NÃO altera voltagens ou BCLK — apenas alerta sobre o risco."]
+  }
+]
