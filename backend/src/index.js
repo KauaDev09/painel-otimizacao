@@ -110,7 +110,7 @@ function serveAdmin(res) {
   });
 }
 
-const server = http.createServer(async (req, res) => {
+async function handleRequest(req, res) {
   const urlObj = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = urlObj.pathname;
 
@@ -144,9 +144,15 @@ const server = http.createServer(async (req, res) => {
     if (status >= 500) console.error('[api]', err);
     return sendJson(res, status, err.payload || { ok: false, code: 'SERVER_ERROR', message: 'Erro interno do servidor.' });
   }
-});
+}
 
-server.listen(config.port, () => {
-  console.log(`[api] BIOS Optimizer API ouvindo em http://0.0.0.0:${config.port}`);
-  console.log(`[api] Painel administrativo: http://localhost:${config.port}/admin`);
-});
+const server = http.createServer(handleRequest);
+
+if (require.main === module) {
+  server.listen(config.port, () => {
+    console.log(`[api] BIOS Optimizer API ouvindo em http://0.0.0.0:${config.port}`);
+    console.log(`[api] Painel administrativo: http://localhost:${config.port}/admin`);
+  });
+}
+
+module.exports = { handleRequest };

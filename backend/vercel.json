@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/[[...path]].js": {
+      "includeFiles": "admin/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/", "destination": "/api/[[...path]]" },
+    { "source": "/admin", "destination": "/api/[[...path]]" }
+  ]
+}

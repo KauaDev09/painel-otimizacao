@@ -18,6 +18,7 @@ function getPool(cfg) {
       user: cfg.db.user,
       password: cfg.db.password,
       database: cfg.db.database,
+      ssl: { minVersion: 'TLSv1.2', rejectUnauthorized: true },
       waitForConnections: true,
       connectionLimit: 10,
       namedPlaceholders: false
