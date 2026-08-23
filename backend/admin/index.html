@@ -128,7 +128,7 @@
             <div><label>Dias de validade</label><input id="genDias" type="number" value="365" min="1" style="width:110px" /></div>
             <div><label>Máx. dispositivos</label><input id="genDisp" type="number" value="2" min="1" style="width:90px" /></div>
             <div><label>Quantidade</label><input id="genQtd" type="number" value="1" min="1" max="50" style="width:90px" /></div>
-            <div><label>E-mail do cliente (opcional)</label><input id="genEmail" type="email" placeholder="cliente@email.com" /></div>
+            <div><label>Nome do cliente (opcional)</label><input id="genCliente" type="text" placeholder="Ex.: João Silva" maxlength="120" /></div>
             <div style="margin-bottom:1px"><button id="genBtn" class="btn btn-primary">GERAR</button></div>
           </div>
           <div id="genMsg" class="msg"></div>
@@ -307,7 +307,7 @@ async function loadLicenses() {
       <td><span class="st-${esc(l.status)}">${esc(l.status)}</span></td>
       <td>${fmtExp(l.expira_em)}</td>
       <td>${l.dispositivos_ativos}/${l.max_dispositivos}</td>
-      <td>${esc(l.usuario_email || '')}</td>
+      <td>${esc(l.usuario_nome || l.usuario_email || '')}</td>
       <td><div class="row-actions">
         <button class="btn btn-outline" data-a="block"   data-id="${l.id}" data-k="${esc(l.chave)}">Bloquear</button>
         <button class="btn btn-outline" data-a="unblock" data-id="${l.id}" data-k="${esc(l.chave)}">Reativar</button>
@@ -328,7 +328,7 @@ $('#genBtn').addEventListener('click', async () => {
         dias: Number($('#genDias').value),
         maxDispositivos: Number($('#genDisp').value),
         quantidade: Number($('#genQtd').value),
-        email: $('#genEmail').value.trim() || undefined
+        nome: $('#genCliente').value.trim() || undefined
       }
     });
     msg.innerHTML = 'Chaves geradas:<br>' + j.created.map(c => fmtKey(c)).join('<br>');

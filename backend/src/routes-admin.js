@@ -26,6 +26,7 @@ async function listLicenses() {
     config,
     `SELECT l.id, l.chave, l.plano, l.status, l.max_dispositivos, l.criada_em, l.expira_em,
             l.renovada_em, l.bloqueada_em, l.observacao,
+            u.nome AS usuario_nome,
             u.email AS usuario_email,
             (SELECT COUNT(*) FROM dispositivos d WHERE d.licenca_id = l.id AND d.ativo = 1) AS dispositivos_ativos
        FROM licencas l
@@ -41,16 +42,29 @@ async function createLicenses(body) {
   const dias = Number(body.dias || config.license.defaultDays);
   const qtd = Math.min(50, Math.max(1, Number(body.quantidade || 1)));
   const observacao = body.observacao ? String(body.observacao).slice(0, 255) : null;
-  let email = body.email ? String(body.email).trim().toLowerCase() : null;
+  let nome = body.nome ? String(body.nome).trim().slice(0, 120) : null;
 
+  // Vincula a licença a um cliente identificado pelo nome.
+  // O schema exige e-mail único: gera um endereço interno a partir do nome.
   let usuarioId = null;
-  if (email) {
-    await db.query(
-      config,
-      'INSERT INTO usuarios (nome, email, criado_em) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE email = VALUES(email)',
-      [email.split('@')[0], email]
-    );
-    const u = await db.queryOne(config, 'SELECT id FROM usuarios WHERE email = ? LIMIT 1', [email]);
+  if (nome) {
+    const slug = nome
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase().replace(/[^a-z0-9]+/g, '.')
+      .replace(/^\.+|\.+$/g, '') || 'cliente';
+    let u = await db.queryOne(config, 'SELECT id FROM usuarios WHERE nome = ? LIMIT 1', [nome]);
+    if (!u) {
+      let email = `${slug}@clientes.local`;
+      if (await db.queryOne(config, 'SELECT id FROM usuarios WHERE email = ? LIMIT 1', [email])) {
+        email = `${slug}.${Date.now()}@clientes.local`;
+      }
+      await db.query(
+        config,
+        'INSERT INTO usuarios (nome, email, criado_em) VALUES (?, ?, NOW())',
+        [nome, email]
+      );
+      u = await db.queryOne(config, 'SELECT id FROM usuarios WHERE email = ? LIMIT 1', [email]);
+    }
     usuarioId = u ? u.id : null;
   }
 
