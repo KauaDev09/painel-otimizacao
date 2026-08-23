@@ -13,3 +13,6 @@ backend/.env.local
 # Estado local do app em desenvolvimento
 *.log
 state/
+
+.vercel
+.env*
