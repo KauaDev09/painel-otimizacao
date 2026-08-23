@@ -25,7 +25,14 @@
     },
     "files": [
       "src/**/*",
+      "!src/engine/scripts/**",
       "!**/*.map"
+    ],
+    "extraResources": [
+      {
+        "from": "src/engine/scripts",
+        "to": "engine/scripts"
+      }
     ],
     "win": {
       "target": [

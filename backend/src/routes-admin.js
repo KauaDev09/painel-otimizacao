@@ -94,6 +94,9 @@ async function licenseAction(id, body) {
     case 'deactivate':
       await db.query(config, "UPDATE licencas SET status = 'inativa' WHERE id = ?", [lic.id]);
       break;
+    case 'delete':
+      await db.query(config, 'DELETE FROM licencas WHERE id = ?', [lic.id]);
+      break;
     default:
       return { ok: false, code: 'BAD_ACTION', message: 'Ação inválida.', status: 400 };
   }

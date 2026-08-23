@@ -813,8 +813,15 @@ function getItem(id) {
   return ITEMS.find((i) => i.id === id) || null;
 }
 
+// Scripts precisam existir como arquivos reais no disco (cmd.exe/reg.exe não
+// leem dentro do app.asar). No instalador eles são copiados para
+// resources/engine/scripts via extraResources; em dev, ficam junto do código.
+const SCRIPTS_BASE = __dirname.includes('app.asar')
+  ? path.join(__dirname, '..', '..', 'engine', 'scripts')
+  : path.join(__dirname, 'scripts');
+
 function resolveScript(relFile) {
-  return path.join(__dirname, 'scripts', relFile);
+  return path.join(SCRIPTS_BASE, relFile);
 }
 
 module.exports = { CATEGORIES, RISK_LABELS, ITEMS, DRIVER_DOWNLOAD_ITEMS, getItem, resolveScript };
