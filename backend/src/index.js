@@ -1,6 +1,6 @@
 'use strict';
 
-// MAINSTREET BIOS OPTIMIZER — API de licenciamento (Node puro, sem framework).
+// ORION OPTIMIZER — API de licenciamento (Node puro, sem framework).
 // Responsável por: autenticação, validação/ativação/renovação/expiração/
 // bloqueio de licenças, gerenciamento de dispositivos, histórico e logs.
 //

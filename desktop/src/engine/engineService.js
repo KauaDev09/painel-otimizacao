@@ -27,6 +27,9 @@ const PROFILES = {
 let stateDir = null;
 let operationsFile = null;
 
+// PowerShell 5.1 lê arquivos .ps1 SEM BOM como ANSI (acentos quebram).
+const PS1_BOM = '\ufeff';
+
 function setStateDir(dir) {
   stateDir = dir;
   fs.mkdirSync(dir, { recursive: true });
@@ -88,7 +91,19 @@ async function applyItems(ids, opts = {}) {
   for (const id of ids || []) {
     if (seen.has(id)) continue;
     seen.add(id);
-    const it = catalog.getItem(String(id));
+    let it = catalog.getItem(String(id));
+    if (!it) {
+      // Itens de download de driver vivem fora do ITEMS principal.
+      const drv = catalog.DRIVER_DOWNLOAD_ITEMS.find((d) => d.id === String(id));
+      if (drv) {
+        const vendorName = { nvidia: 'NVIDIA', amd: 'AMD', intel: 'Intel' }[drv.vendor] || drv.vendor;
+        it = {
+          id: drv.id,
+          name: `${vendorName}: abrir página oficial de drivers`,
+          apply: { type: 'script', file: drv.file }
+        };
+      }
+    }
     if (!it || !it.apply) continue;
     items.push(it);
   }
@@ -110,15 +125,20 @@ async function applyItems(ids, opts = {}) {
     records.push({ id: it.id, name: it.name, backupReg });
   }
 
-  // 2) Ponto de restauração do Windows (opcional, melhor esforço).
-  let restorePoint = null;
+  // 2) Ponto de restauração do Windows (opcional). Checkpoint-Computer exige
+  //    administrador: entra como PRIMEIRO passo do orquestrador elevado,
+  //    dentro do mesmo UAC único — nunca antes dele.
+  const tmpFiles = [];
+  let restorePointIdx = -1;
   if (opts.createRestorePoint) {
-    restorePoint = await protection.createRestorePoint('Mainstreet BIOS Optimizer - ' + (opts.label || 'otimizações'));
+    const rpFile = path.join(opDir, 'restore-point.ps1');
+    fs.writeFileSync(rpFile, PS1_BOM + protection.buildRestorePointScript('Orion Optimizer - ' + (opts.label || 'otimizações')), 'utf8');
+    tmpFiles.push(rpFile);
+    restorePointIdx = 0;
   }
 
   // 3) Monta os passos: scripts do catálogo + PS inline viram arquivos .ps1
   //    temporários para entrarem no MESMO orquestrador (UAC único).
-  const tmpFiles = [];
   const steps = [];
   items.forEach((it, idx) => {
     const act = it.apply;
@@ -126,11 +146,14 @@ async function applyItems(ids, opts = {}) {
       steps.push({ name: it.name, path: catalog.resolveScript(act.file) });
     } else if (act.type === 'ps') {
       const psFile = path.join(opDir, `apply-${idx}.ps1`);
-      fs.writeFileSync(psFile, act.script, 'utf8');
+      fs.writeFileSync(psFile, PS1_BOM + act.script, 'utf8');
       tmpFiles.push(psFile);
       steps.push({ name: it.name, path: psFile });
     }
   });
+  if (restorePointIdx === 0) {
+    steps.unshift({ name: 'Ponto de restauração do Windows', path: tmpFiles[0] });
+  }
 
   const { results, logText, launchError } = await runner.runSteps(steps, {
     onStepEnd: (name, ok, message) => { if (opts.onStep) opts.onStep(name, ok, message); }
@@ -138,6 +161,20 @@ async function applyItems(ids, opts = {}) {
 
   // Limpa .ps1 temporários (o conteúdo já está no catálogo).
   for (const f of tmpFiles) { try { fs.rmSync(f, { force: true }); } catch (_) { /* ignora */ } }
+
+  // Resultado do ponto de restauração (fora da contagem das otimizações).
+  let restorePoint = null;
+  let itemResults = results;
+  if (restorePointIdx >= 0 && results.length > restorePointIdx && steps[0].name.startsWith('Ponto de restauração')) {
+    const rpRes = results[restorePointIdx];
+    restorePoint = {
+      ok: !!rpRes.ok,
+      message: rpRes.ok
+        ? 'Ponto de restauração criado.'
+        : 'Não foi possível criar o ponto de restauração (Proteção do Sistema pode estar desativada ou há um ponto recente nas últimas 24 h). As otimizações seguiram normalmente.'
+    };
+    itemResults = results.filter((_, i) => i !== restorePointIdx);
+  }
 
   // 4) Registra a operação para a Central de Restauração.
   const ops = _loadOperations();
@@ -147,12 +184,12 @@ async function applyItems(ids, opts = {}) {
     label: opts.label || `${items.length} otimização(ões)`,
     profile: opts.profile || null,
     items: records,
-    results
+    results: itemResults
   });
   _saveOperations(ops);
 
-  const allOk = results.length > 0 && results.every((r) => r.ok);
-  return { ok: allOk, results, opId, launchError, restorePoint };
+  const allOk = itemResults.length > 0 && itemResults.every((r) => r.ok);
+  return { ok: allOk, results: itemResults, opId, launchError, restorePoint };
 }
 
 /**
@@ -181,7 +218,7 @@ async function undoItem(id) {
   if (act.type === 'ps') {
     const tmp = path.join(stateDir, `undo-${Date.now()}.ps1`);
     fs.mkdirSync(stateDir, { recursive: true });
-    fs.writeFileSync(tmp, act.script, 'utf8');
+    fs.writeFileSync(tmp, PS1_BOM + act.script, 'utf8');
     try {
       const { result } = await runner.runSingle(`Desfazer: ${it.name}`, tmp);
       return { ok: !!result.ok, message: result.message };

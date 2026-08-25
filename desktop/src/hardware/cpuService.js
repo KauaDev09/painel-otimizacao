@@ -11,7 +11,7 @@ function detectCpu(raw) {
   const brand = /ryzen|amd|athlon|fx\b/i.test(name || '') ? 'AMD' : (/intel|celeron|pentium|core/i.test(name || '') ? 'Intel' : null);
   const unlocked = brand === 'AMD' && /ryzen/i.test(name || '')
     ? true
-    : Boolean(brand === 'Intel' && /\b(i[3579]|pentium gold|celeron)\b.*\bK[FS]?\b|\bK[FS]\b/i.test(name || ''));
+    : Boolean(brand === 'Intel' && /\b(i[3579]|pentium gold|celeron|ultra\s*[579])\b.*\dK[FS]?\b/i.test(name || ''));
 
   // Arquitetura WMI: 9=x64, 5=ARM, 6=IA64, 0=x86
   const archMap = { 9: 'x64', 5: 'ARM', 6: 'IA-64', 0: 'x86' };

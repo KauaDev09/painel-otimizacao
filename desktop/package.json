@@ -1,9 +1,9 @@
 {
-  "name": "mainstreet-bios-optimizer",
+  "name": "orion-optimizer",
   "version": "2.0.0",
-  "description": "MAINSTREET BIOS OPTIMIZER — análise de BIOS, otimização do Windows, game boost, limpeza e manutenção para Windows.",
+  "description": "ORION OPTIMIZER — análise de BIOS, otimização do Windows, game boost, limpeza e manutenção para Windows.",
   "main": "src/main.js",
-  "author": "Mainstreet",
+  "author": "Orion",
   "license": "Proprietary",
   "private": true,
   "scripts": {
@@ -16,9 +16,9 @@
     "electron-builder": "^25.1.8"
   },
   "build": {
-    "appId": "com.mainstreet.biosoptimizer",
-    "productName": "MAINSTREET BIOS OPTIMIZER",
-    "copyright": "Copyright © 2026 Mainstreet",
+    "appId": "com.orion.optimizer",
+    "productName": "ORION OPTIMIZER",
+    "copyright": "Copyright © 2026 Orion",
     "directories": {
       "output": "release",
       "buildResources": "build"
@@ -52,8 +52,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "MAINSTREET BIOS OPTIMIZER",
-      "uninstallDisplayName": "MAINSTREET BIOS OPTIMIZER"
+      "shortcutName": "ORION OPTIMIZER",
+      "uninstallDisplayName": "ORION OPTIMIZER"
     }
   },
   "allowScripts": {

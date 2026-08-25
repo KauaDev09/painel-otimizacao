@@ -1,7 +1,7 @@
 'use strict';
 
 // OptimizationRunner — execução silenciosa em lote com UAC único.
-// Porta para Node do motor do Mainstreet Optimizer (src/runner.py):
+// Porta para Node do motor do Orion Optimizer (src/runner.py):
 //   - Nenhum processo mostra janela de console (windowsHide).
 //   - Scripts de uma operação são agrupados num orquestrador .cmd temporário e
 //     executados com UMA ÚNICA elevação UAC quando necessário.
@@ -83,9 +83,12 @@ function buildOrchestrator(steps, logPath) {
 
 function launchElevated(orchPath) {
   // Elevação única e silenciosa via PowerShell (janela oculta).
+  // Aspas duplas normais ao redor do caminho: cmd.exe NÃO entende \" (barra
+  // invertida não é escape no cmd) e o Start-Process do PS 5.1 junta os
+  // argumentos sem reaspar — por isso o caminho já vai com aspas próprias.
   const psCommand =
     "$p = Start-Process -FilePath 'cmd.exe' " +
-    `-ArgumentList '/c','\\"${orchPath}\\"' ` +
+    `-ArgumentList '/c','"${orchPath}"' ` +
     '-Verb RunAs -WindowStyle Hidden -PassThru -Wait; exit $p.ExitCode';
   return spawnProc(psExe(), ['-NoProfile', '-NonInteractive', '-Command', psCommand], SEQUENCE_TIMEOUT_MS + 300000);
 }

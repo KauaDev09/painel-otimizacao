@@ -9,7 +9,7 @@
 const fs = require('fs');
 const path = require('path');
 
-let baseDir = null; // ex.: %APPDATA%/mainstreet-bios-optimizer/protection
+let baseDir = null; // ex.: %APPDATA%/orion-optimizer/protection
 
 function setBaseDir(dir) {
   baseDir = dir;
@@ -19,23 +19,35 @@ function setBaseDir(dir) {
 function getBaseDir() { return baseDir; }
 
 /**
- * Cria um ponto de restauração do Windows.
- * Retorna { ok, message } — nunca lança.
+ * Script que cria o ponto de restauração. Exportado para poder entrar como
+ * primeiro passo do orquestrador ELEVADO — Checkpoint-Computer exige admin,
+ * então rodar antes do UAC único sempre falharia para usuário comum.
+ * Sai 0 em sucesso e 1 em falha (o runner decide pelo código de saída).
  */
-async function createRestorePoint(description = 'Mainstreet BIOS Optimizer') {
-  const script = `
+function buildRestorePointScript(description = 'Orion Optimizer') {
+  const safeDesc = String(description).replace(/'/g, '').slice(0, 100);
+  return `
 $ErrorActionPreference = 'Stop'
 try {
   Enable-ComputerRestore -Drive "$env:SystemDrive" -ErrorAction SilentlyContinue | Out-Null
   New-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SystemRestore' `
 + `-Name 'SystemRestorePointCreationFrequency' -Value 0 -PropertyType DWord -Force -ErrorAction SilentlyContinue | Out-Null
-  Checkpoint-Computer -Description '${String(description).replace(/'/g, '')}' -RestorePointType 'MODIFY_SETTINGS'
+  Checkpoint-Computer -Description '${safeDesc}' -RestorePointType 'MODIFY_SETTINGS'
   Write-Output 'OK'
+  exit 0
 } catch {
   Write-Output ('FAIL:' + $_.Exception.Message)
+  exit 1
 }`;
+}
+
+/**
+ * Cria um ponto de restauração do Windows (uso direto/elevado).
+ * Retorna { ok, message } — nunca lança.
+ */
+async function createRestorePoint(description = 'Orion Optimizer') {
   const runner = require('./runner');
-  const { stdout } = await runner.runPowerShellInline(script, 180000);
+  const { stdout } = await runner.runPowerShellInline(buildRestorePointScript(description), 180000);
   const text = String(stdout || '').trim();
   if (text.includes('OK')) return { ok: true, message: 'Ponto de restauração criado.' };
   if (/FAIL:/i.test(text)) {
@@ -94,4 +106,4 @@ async function restoreRegistryBackup(backupFile) {
   return { ok: true, message: 'Configurações anteriores restauradas.' };
 }
 
-module.exports = { setBaseDir, getBaseDir, createRestorePoint, backupRegistryKeys, restoreRegistryBackup };
+module.exports = { setBaseDir, getBaseDir, createRestorePoint, buildRestorePointScript, backupRegistryKeys, restoreRegistryBackup };

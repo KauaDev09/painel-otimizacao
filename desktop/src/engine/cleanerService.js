@@ -116,7 +116,7 @@ async function clean(ids, opts = {}) {
 
   const steps = wanted.map((t, i) => {
     const f = path.join(tmpDir, `clean-${i}.ps1`);
-    fs.writeFileSync(f, t.clean, 'utf8');
+    fs.writeFileSync(f, '\ufeff' + t.clean, 'utf8');
     tmpFiles.push(f);
     return { name: t.name, path: f };
   });

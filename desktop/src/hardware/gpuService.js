@@ -6,7 +6,7 @@ const MB = 1024 * 1024;
 
 // GPUs com suporte oficial a Resizable BAR (evidencia: geracoes anunciadas pelos fabricantes).
 const REBAR_RE = /rtx\s*(20|30|40|50)\s*|gtx\s*16\s*|rx\s*[6-9]\d{3}|vega\s*(56|64)|radeon\s*(vii|rx)|arc\s*(a|b)\d|radeon\s*80[0-9][ms]?\b/i;
-const INTEGRATED_RE = /radeon\(tm\)|uhd graphics|iris|hd graphics|vega.*(graphics|mobile)|610m|780m|890m|arc\s*graphics|intel\(r\).*graphics/i;
+const INTEGRATED_RE = /radeon(?:\(tm\))?\s*(?:graphics\b|[3-9]\d0m\b)|uhd graphics|iris|hd graphics|vega.*(graphics|mobile)|arc\s*graphics|intel\(r\).*graphics/i;
 
 function gpuVendor(name, compat) {
   const s = `${name || ''} ${compat || ''}`;

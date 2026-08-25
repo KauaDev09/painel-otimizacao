@@ -161,12 +161,19 @@ async function setEnabled(entry, enable) {
 
   // Desativado = primeiro byte ímpar (0x03); Ativado = remove a entrada (padrão do Windows).
   const script = enable
-    ? `Remove-ItemProperty -LiteralPath '${target}' -Name '${safeName}' -ErrorAction SilentlyContinue`
-    : `$k='${target}'; if (-not (Test-Path $k)) { New-Item -Path $k -Force | Out-Null }; ` +
-      `Set-ItemProperty -LiteralPath $k -Name '${safeName}' -Value ([byte[]](3,0,0,0,0,0,0,0,0,0,0,0)) -Type Binary`;
+    ? `Remove-ItemProperty -LiteralPath '${target}' -Name '${safeName}' -ErrorAction Stop`
+    : `$k='${target}'; if (-not (Test-Path $k)) { New-Item -Path $k -Force -ErrorAction Stop | Out-Null }; ` +
+      `Set-ItemProperty -LiteralPath $k -Name '${safeName}' -Value ([byte[]](3,0,0,0,0,0,0,0,0,0,0,0)) -Type Binary -ErrorAction Stop`;
 
   const res = await runner.runPowerShellInline(script, 20000);
-  if (res.code !== 0 && res.error) throw new Error(res.error);
+  // runner.close() zera res.error: o código de saída é a única fonte confiável.
+  if (res.code !== 0) {
+    const detail = String(res.stderr || '').trim();
+    if (/acesso|access|denied/i.test(detail)) {
+      throw new Error('Acesso negado — entradas de todos os usuários exigem executar como administrador.');
+    }
+    throw new Error('Não foi possível alterar a entrada. ' + detail);
+  }
   return { ok: true, enabled: enable };
 }
 

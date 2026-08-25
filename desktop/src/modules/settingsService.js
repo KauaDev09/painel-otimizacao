@@ -1,7 +1,7 @@
 'use strict';
 
 // SettingsService — preferências do aplicativo persistidas em
-// %APPDATA%/mainstreet-bios-optimizer/settings.json.
+// %APPDATA%/orion-optimizer/settings.json.
 // Ações com efeito no sistema (iniciar com Windows) são aplicadas pelo
 // processo principal via app.setLoginItemSettings.
 

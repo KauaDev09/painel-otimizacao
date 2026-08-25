@@ -145,7 +145,7 @@
       "present_unknown": "PRESENTE — ESTADO NÃO DETERMINADO SEM ADMINISTRADOR",
       "unknown": "NÃO FOI POSSÍVEL DETERMINAR"
     },
-    "statusField": "tpm.stateLabel",
+    "statusField": "tpm.state",
     "recommendationText": "Manter ativado quando disponível (segurança/compatibilidade)",
     "reason": "O TPM armazena chaves criptográficas com segurança e é requisito do Windows 11. Em plataformas AMD o firmware chama-se fTPM; em Intel, PTT. Não influencia FPS.",
     "benefit": "Criptografia de disco (BitLocker), Windows Hello e conformidade com requisitos do Windows 11.",
@@ -178,7 +178,7 @@
       "off_or_hidden_by_hypervisor": "DESATIVADA OU OCULTA POR HIPERVISOR",
       "unknown": "NÃO FOI POSSÍVEL DETERMINAR"
     },
-    "statusField": "virtStatusLabel",
+    "statusField": "virtStatus",
     "recommendationText": "Essa configuração é relacionada à virtualização",
     "reason": "Essa configuração é relacionada à virtualização (WSL2, Hyper-V, Docker, máquinas virtuais, emuladores Android). Ativar ou desativar não deve ser feito simplesmente para tentar ganhar FPS.",
     "benefit": "Necessária para Hyper-V, WSL2, Docker Desktop, VMs e alguns emuladores. Sem necessidade desses recursos, o estado atual não representa problema.",

@@ -1,9 +1,9 @@
 'use strict';
 
 // Renderer — toda a lógica da interface. Não acessa Node diretamente;
-// comunica-se apenas via window.MainstreetAPI (contextIsolation).
+// comunica-se apenas via window.OrionAPI (contextIsolation).
 
-const api = () => window.MainstreetAPI;
+const api = () => window.OrionAPI;
 
 const state = {
   result: null,
@@ -46,14 +46,65 @@ const LEVEL_META = {
 const RISK_LABEL = { low: 'RISCO BAIXO', medium: 'RISCO MÉDIO', high: 'RISCO ALTO', info: 'INFORMATIVO' };
 const IMPACT_LABEL = { low: 'IMPACTO BAIXO', medium: 'IMPACTO MÉDIO', high: 'IMPACTO ALTO' };
 
+const PAGE_TITLES = {
+  home: 'Início',
+  progress: 'Analisando...',
+  dashboard: 'Sistema',
+  recs: 'BIOS',
+  optimize: 'Windows',
+  gameboost: 'Gaming',
+  security: 'Segurança',
+  maintenance: 'Limpeza',
+  restore: 'Restauração',
+  activation: 'Licença',
+  history: 'Histórico',
+  monitor: 'Monitoramento',
+  benchmark: 'Benchmark',
+  network: 'Rede',
+  startup: 'Inicialização',
+  processes: 'Processos',
+  settings: 'Configurações',
+  support: 'Suporte'
+};
+
+// ---------------- Sidebar Toggle ----------------
+function initSidebarToggle() {
+  const toggleBtn = $('#sidebarToggle');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', toggleSidebar);
+  }
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) sidebar.classList.toggle('collapsed');
+}
+
+// Ctrl+B to toggle sidebar
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.key === 'b') {
+    e.preventDefault();
+    toggleSidebar();
+  }
+});
+
 // ---------------- Navegação ----------------
 function showView(name) {
   $$('.view').forEach((v) => v.classList.remove('active'));
-  $(`#view-${name}`).classList.add('active');
-  $$('.tab').forEach((t) => t.classList.toggle('active', t.dataset.view === name));
+  const targetEl = $(`#view-${name}`);
+  if (targetEl) targetEl.classList.add('active');
+
+  $$('.sidebar-item').forEach((t) => t.classList.toggle('active', t.dataset.view === name));
+
+  const pageTitle = $('#pageTitle');
+  if (pageTitle) {
+    pageTitle.textContent = PAGE_TITLES[name] || name;
+  }
+
+  if (targetEl) targetEl.scrollTop = 0;
 }
 
-$$('.tab').forEach((t) => {
+$$('.sidebar-item').forEach((t) => {
   t.addEventListener('click', () => {
     const target = t.dataset.view;
     if ((target === 'dashboard' || target === 'recs') && !state.result) return;
@@ -74,7 +125,11 @@ $$('.tab').forEach((t) => {
     showView(target);
   });
 });
-$('#brand').addEventListener('click', () => showView('home'));
+
+const sidebarLogo = $('#sidebarLogo') || $('#brand');
+if (sidebarLogo) {
+  sidebarLogo.addEventListener('click', () => showView('home'));
+}
 
 // ---------------- Modo Técnico ----------------
 $('#techToggle').addEventListener('change', (e) => {
@@ -100,7 +155,7 @@ async function startAnalysis() {
     showView('dashboard');
     toast(`✅ Análise concluída — BIOS Optimization Score: <b>${summary.overall}/100</b>`);
   } catch (err) {
-    toast(`❌ Falha na análise: ${esc(err.message || err)}<br><br><a onclick="location.reload()">Tentar novamente</a>`);
+    toast(`❌ Falha na análise: ${esc(err.message || err)}<br><br><a data-action="reload">Tentar novamente</a>`);
     showView('home');
   } finally {
     $('#analyzeBtn').disabled = false;
@@ -408,7 +463,6 @@ async function renderHistory() {
         delete tr.dataset.sel;
       }
       if (state.historySelection.length > 2) {
-        // mantém os dois últimos marcados
         const first = document.querySelector(`tr[data-sel]:not([data-id="${tr.dataset.id}"])`);
         if (first && state.historySelection.length > 2) {
           state.historySelection.shift();
@@ -430,12 +484,12 @@ $('#refreshHistoryBtn').addEventListener('click', renderHistory);
 
 $('#compareBtn').addEventListener('click', async () => {
   if (state.historySelection.length !== 2) return;
-  const [before, after] = state.historySelection; // ordem cronológica correta:
+  const [before, after] = state.historySelection;
   let [a, b] = [before, after];
   const list = await api().historyList();
   const ia = list.findIndex((x) => x.id === before);
   const ib = list.findIndex((x) => x.id === after);
-  if (ia > ib) [a, b] = [after, before]; // a é mais antigo
+  if (ia > ib) [a, b] = [after, before];
 
   const cmp = await api().historyCompare(a, b);
   if (!cmp) { toast('❌ Não foi possível comparar.'); return; }
@@ -486,10 +540,9 @@ function applyLicenseState(st) {
   state.licensed = Boolean(st && st.active);
   state.licenseInfo = st;
   setLicenseBadge(st);
-  $$('.tab').forEach((t) => { t.disabled = !state.licensed; });
+  $$('.sidebar-item').forEach((t) => { t.disabled = !state.licensed; });
   $('#analyzeBtn').disabled = !state.licensed;
   if (state.licensed) {
-    // Se estava na tela de ativação, volta para o início.
     if ($('#view-activation').classList.contains('active')) showView('home');
   } else {
     showView('activation');
@@ -737,6 +790,12 @@ function toast(html, ms = 6000) {
   toastTimer = setTimeout(() => el.classList.add('hidden'), ms);
 }
 
+// Ações dentro do toast (CSP bloqueia onclick inline).
+$('#toast').addEventListener('click', (e) => {
+  const a = e.target.closest('a[data-action="reload"]');
+  if (a) location.reload();
+});
+
 // ================= OTIMIZAR =================
 let optLoaded = false;
 async function initOptimizeView() {
@@ -976,7 +1035,6 @@ $('#cleanBtn').addEventListener('click', async () => {
     toast(res.results.length && ok === res.results.length
       ? '🧹 Limpeza concluída!'
       : `⚠ Limpeza concluída com avisos (${ok}/${res.results.length}).`, 8000);
-    // Remedeia para refletir o novo estado
     setTimeout(() => $('#cleanMeasureBtn').click(), 1500);
   } catch (err) {
     toast(`❌ ${esc(err.message || err)}`, 9000);
@@ -1076,7 +1134,7 @@ function openOperationDetails(op) {
     </ul>
     <div style="margin-top:16px;display:flex;gap:10px">
       <button class="btn btn-primary" id="undoOpBtn">DESFAZER OPERAÇÃO COMPLETA</button>
-      <button class="btn btn-outline" onclick="document.querySelector('#modalClose').click()">FECHAR</button>
+      <button class="btn btn-outline" data-action="close-modal">FECHAR</button>
     </div>
     <p class="foot-disclaimer">Desfazer restaura as chaves do registro salvas antes da aplicação e executa as ações de reversão de cada item. Alguns itens (limpezas) não podem ser revertidos.</p>`;
 
@@ -1092,6 +1150,10 @@ function openOperationDetails(op) {
         btn.textContent = 'DESFAZER';
       }
     });
+  });
+
+  $$('#modalBody [data-action="close-modal"]').forEach((btn) => {
+    btn.addEventListener('click', () => $('#modalClose').click());
   });
 
   const fullBtn = $('#undoOpBtn');
@@ -1185,7 +1247,6 @@ async function pollMonitor() {
         fill.style.background = monValueColor(pct ?? -1);
       }
     }
-    // Sparkline com histórico real desta sessão.
     const spark = $(`#mons-${key}`);
     if (spark) {
       const hist = monitor.history[key].filter((x) => x !== null);
@@ -1218,7 +1279,6 @@ async function pollMonitor() {
   push('disk', snap.diskPercent);
   push('temp', snap.tempC);
 
-  // REDE: KB/s somados (não é percentual — barra oculta).
   const rx = snap.netRxKbps, tx = snap.netTxKbps;
   push('net', rx != null ? rx + tx : null);
   const netVal = $(`#monv-net`);
@@ -1421,7 +1481,6 @@ $('#netDnsBtn').addEventListener('click', async () => {
   }
 });
 
-/** Otimizações de rede = itens da categoria "rede" do catálogo do motor. */
 async function renderNetworkOpts() {
   try {
     const items = (await api().engineListItems()).filter((i) => i.category === 'rede');
@@ -1708,7 +1767,7 @@ async function initSupportView() {
   const vi = $('#supportVersionInfo');
   if (vi) {
     vi.innerHTML =
-      kv('Aplicativo', esc(appMeta ? appMeta.appName : 'MAINSTREET BIOS OPTIMIZER')) +
+      kv('Aplicativo', esc(appMeta ? appMeta.appName : 'ORION OPTIMIZER')) +
       kv('Versão instalada', appMeta ? `v${esc(appMeta.version)}` : '—') +
       kv('Modo de análise', 'Somente leitura (BIOS) · reversível (Windows)');
   }
@@ -1762,9 +1821,25 @@ function showUpdateToast(res) {
   }, 0);
 }
 
+// ---------------- Sidebar Version Display ----------------
+async function updateSidebarVersion() {
+  const versionEl = $('#sidebarVersion');
+  if (!versionEl) return;
+  try {
+    const meta = await api().getAppMeta();
+    if (meta && meta.version) {
+      versionEl.textContent = `v${meta.version}`;
+    }
+  } catch (_) { /* silencioso */ }
+}
+
 // ---------------- Init ----------------
 (async function init() {
+  initSidebarToggle();
   showView('home');
+
+  updateSidebarVersion();
+
   // Licença: bloqueia o app na tela de ativação quando não ativado.
   try {
     const st = await api().licenseGetState();

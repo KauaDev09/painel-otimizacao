@@ -140,8 +140,8 @@ function computeScores(profile) {
   let totalWeighted = 0; let totalWeights = 0;
   for (const [cat, items] of Object.entries(categories)) {
     const w = items.reduce((a, i) => a + i.weight, 0);
-    const s = items.reduce((a, i) => a + i.score * (i.weight / 100), 0);
-    const catPct = w > 0 ? Math.round((s / (w / 100)) ) : 0;
+    const s = items.reduce((a, i) => a + i.score, 0);
+    const catPct = w > 0 ? Math.round((s / w) * 100) : 0;
     details[cat] = {
       percent: Math.max(0, Math.min(100, catPct)),
       items: items.map(({ name, weight, score, note }) => ({ name, percent: pct(score, weight), note }))

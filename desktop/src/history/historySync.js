@@ -15,15 +15,15 @@ class HistorySync {
 
   _canSend() {
     const s = this.license.getState();
-    return s.active === true && s.key;
+    return s.active === true && this.license.getLicenseKey();
   }
 
   async _send(pathStr, payload) {
     if (!this._canSend()) return false;
-    const s = this.license.getState();
+    const key = this.license.getLicenseKey(); // chave real — getState() mascara
     try {
       await postJson(getApiBaseUrl(), pathStr, {
-        key: s.key,
+        key,
         ...payload
       }, {
         headers: {},

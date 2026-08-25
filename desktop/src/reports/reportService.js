@@ -39,7 +39,7 @@ function buildTxt(result) {
   const p = result.profile;
   const L = [];
   L.push('==============================================================');
-  L.push('  MAINSTREET BIOS OPTIMIZER — RELATÓRIO DE ANÁLISE DE BIOS');
+  L.push('  ORION OPTIMIZER — RELATÓRIO DE ANÁLISE DE BIOS');
   L.push('  Diagnóstico inteligente e recomendações personalizadas.');
   L.push('==============================================================');
   L.push(`Data da análise : ${fmtDate(p.meta.analyzedAt)}`);
@@ -129,7 +129,7 @@ function buildTxt(result) {
   L.push('Todas as alterações devem ser feitas manualmente pelo técnico, por conta');
   L.push('e risco do responsável, com backup prévio.');
   L.push('');
-  L.push(`Gerado por Mainstreet BIOS Optimizer v${p.meta.appVersion} em ${fmtDate(new Date().toISOString())}`);
+  L.push(`Gerado por Orion Optimizer v${p.meta.appVersion} em ${fmtDate(new Date().toISOString())}`);
   return L.join('\r\n');
 }
 
@@ -167,7 +167,7 @@ function buildHtml(result) {
   ).join('');
 
   return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
-<title>Mainstreet BIOS Optimizer — Relatório</title><style>
+<title>Orion Optimizer — Relatório</title><style>
  body{background:#0b0b0d;color:#ececf0;font-family:'Segoe UI',Arial,sans-serif;margin:0;padding:32px}
  h1{color:#e5484d;letter-spacing:2px;margin-bottom:4px}
  h2{border-bottom:2px solid #26272e;padding-bottom:6px;margin-top:36px}
@@ -180,7 +180,7 @@ function buildHtml(result) {
  .scorebox{display:inline-block;background:#15161a;border:1px solid #26272e;border-radius:12px;padding:18px 28px;font-size:42px;font-weight:800;color:#fff}
  .scorebox small{font-size:14px;color:#9a9aa3;font-weight:400}
 </style></head><body>
-<h1>MAINSTREET BIOS OPTIMIZER</h1>
+<h1>ORION OPTIMIZER</h1>
 <p class="sub">Diagnóstico inteligente e recomendações personalizadas para sua BIOS.</p>
 <p>Data da análise: <b>${fmtDate(p.meta.analyzedAt)}</b> · Computador: <b>${esc(p.meta.hostname)}</b></p>
 <p class="note">${esc(p.meta.disclaimer)}</p>
@@ -232,7 +232,7 @@ ${sec('AVANÇADAS — NÃO RECOMENDADAS PARA USUÁRIOS COMUNS', result.groups.ad
 
 <p class="note">Este aplicativo é um analisador e consultor. Ele NÃO escreve na BIOS, NÃO altera firmware,
 voltagens ou registro e NÃO executa comandos perigosos. Alterações devem ser manuais, com backup prévio.</p>
-<p class="dim">Gerado por Mainstreet BIOS Optimizer v${esc(p.meta.appVersion)} — ${fmtDate(new Date().toISOString())}</p>
+<p class="dim">Gerado por Orion Optimizer v${esc(p.meta.appVersion)} — ${fmtDate(new Date().toISOString())}</p>
 </body></html>`;
 }
 

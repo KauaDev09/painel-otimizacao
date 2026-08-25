@@ -1,4 +1,4 @@
-# Mainstreet BIOS Optimizer - Coletor de seguranca (Microsoft Defender e protecoes do Windows).
+# Orion Optimizer - Coletor de seguranca (Microsoft Defender e protecoes do Windows).
 # Consultas SOMENTE-LEITURA: cmdlets Get-Mp*, Get-NetFirewallProfile, CIM e leitura de registro.
 # Nenhuma alteracao de sistema e feita por este script.
 $ErrorActionPreference = 'SilentlyContinue'

@@ -4,92 +4,434 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'" />
-  <title>Mainstreet BIOS Optimizer — Painel Administrativo</title>
+  <link rel="icon" href="/favicon.ico" sizes="48x48" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#070812" />
+  <title>Orion Optimizer — Painel Administrativo</title>
   <style>
     :root {
-      --bg:#0b0b0d; --panel:#15161a; --panel2:#1c1d23; --border:#26272e;
-      --red:#e5484d; --red-bright:#ff5c5f; --text:#ececf0; --dim:#9a9aa3;
-      --green:#4ade80; --yellow:#fbbf24;
+      --bg: #070812;
+      --bg-elevated: #0A0B14;
+      --surface: #0D0F1C;
+      --surface-hover: #111321;
+      --surface-active: #141625;
+      --surface-2: #181A2A;
+      --border: #1E2035;
+      --border-hover: #2A2D4A;
+      --border-active: #3B3F5E;
+      --text: #E8E8F0;
+      --text-secondary: #A0A0B8;
+      --text-dim: #6B6B82;
+      --primary: #7C3AED;
+      --primary-hover: #8B5CF6;
+      --primary-bg: rgba(124,58,237,0.12);
+      --primary-border: rgba(124,58,237,0.35);
+      --green: #4ADE80;
+      --green-bg: rgba(74,222,128,0.1);
+      --yellow: #FBBF24;
+      --yellow-bg: rgba(251,191,36,0.1);
+      --red: #EF4444;
+      --red-bright: #F87171;
+      --red-bg: rgba(239,68,68,0.1);
+      --gradient-primary: linear-gradient(135deg, #7C3AED, #6366F1, #3B82F6);
+      --gradient-subtle: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(59,130,246,0.05));
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --transition-fast: 0.15s ease;
+      --transition-normal: 0.25s ease;
     }
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body { background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,sans-serif; min-height:100vh; }
-    header {
-      display:flex; align-items:center; gap:20px; padding:14px 22px;
-      background:linear-gradient(180deg,#101013,#0b0b0d); border-bottom:1px solid var(--border);
-      flex-wrap:wrap;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
-    .logo-main { color:var(--red); font-weight:900; letter-spacing:3px; }
-    .logo-sub { color:#fff; font-weight:300; letter-spacing:4px; font-size:11px; display:block; }
-    nav { display:flex; gap:6px; flex:1; flex-wrap:wrap; }
-    .tab {
-      background:transparent; border:1px solid transparent; color:var(--dim);
-      padding:8px 16px; cursor:pointer; border-radius:8px; text-transform:uppercase;
-      font-weight:600; font-size:12.5px; letter-spacing:.6px;
-    }
-    .tab:hover { color:var(--text); background:var(--panel); }
-    .tab.active { color:#fff; border-color:var(--border); background:var(--panel); }
-    main { padding:26px; max-width:1200px; margin:0 auto; }
-    section.view { display:none; animation:fadeIn .2s ease; }
-    section.view.active { display:block; }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1} }
 
-    .card { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:18px; }
-    h2 { font-size:15px; letter-spacing:1.5px; color:var(--red-bright); text-transform:uppercase; margin-bottom:14px; }
-    label { display:block; font-size:12px; color:var(--dim); margin:10px 0 5px; text-transform:uppercase; letter-spacing:.8px; }
-    input, select {
-      width:100%; max-width:320px; background:#101013; border:1px solid var(--border); color:var(--text);
-      border-radius:8px; padding:10px 12px; font-size:14px; color-scheme:dark;
+    /* ---------- LOGIN ---------- */
+    #loginWrap {
+      max-width: 420px;
+      margin: 80px auto;
+      padding: 0 20px;
     }
-    input:focus, select:focus { outline:none; border-color:var(--red); }
+    .login-header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .login-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .login-logo-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      background: var(--gradient-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .login-logo-text {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 2px;
+    }
+    .login-logo-sub {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 400;
+      color: var(--text-dim);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* ---------- CARDS ---------- */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      font-size: 0.85rem;
+      letter-spacing: 1.5px;
+      color: var(--primary-hover);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    /* ---------- FORMS ---------- */
+    label {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      margin: 12px 0 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 600;
+    }
+    label:first-child { margin-top: 0; }
+    input, select, textarea {
+      width: 100%;
+      max-width: 340px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      color-scheme: dark;
+      transition: border-color var(--transition-fast);
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-bg);
+    }
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    /* ---------- BUTTONS ---------- */
     .btn {
-      border:none; cursor:pointer; font-weight:700; letter-spacing:1px; border-radius:8px;
-      padding:10px 18px; font-size:12.5px; transition:all .15s; text-transform:uppercase;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      border-radius: var(--radius-sm);
+      padding: 10px 20px;
+      font-size: 0.78rem;
+      font-family: inherit;
+      transition: all var(--transition-fast);
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
-    .btn-primary { background:var(--red); color:#fff; box-shadow:0 0 20px rgba(229,72,77,.25); }
-    .btn-primary:hover { background:var(--red-bright); }
-    .btn-outline { background:transparent; border:1px solid var(--border); color:var(--text); padding:6px 11px; font-size:11px; }
-    .btn-outline:hover { border-color:var(--red); color:var(--red-bright); }
-    .btn-danger { background:transparent; border:1px solid var(--red); color:var(--red); padding:6px 11px; font-size:11px; }
-    .btn-danger:hover { background:var(--red); color:#fff; }
-    table { width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-top:14px; }
-    th { text-align:left; font-size:10.5px; letter-spacing:1px; color:var(--dim); text-transform:uppercase; padding:10px 12px; border-bottom:1px solid var(--border); white-space:nowrap; }
-    td { padding:9px 12px; font-size:13px; border-bottom:1px solid rgba(255,255,255,.04); word-break:break-word; }
-    tr:last-child td { border-bottom:none; }
-    .st-ativa{color:var(--green);font-weight:700} .st-bloqueada{color:var(--red-bright);font-weight:700}
-    .st-expirada{color:var(--yellow);font-weight:700} .st-inativa{color:var(--dim)}
-    .row-actions { display:flex; gap:6px; flex-wrap:wrap; }
-    .msg { min-height:18px; font-size:13px; margin-top:10px; }
-    .err{color:var(--red-bright)} .ok{color:var(--green)}
-    .key-mono { font-family:Consolas,monospace; letter-spacing:1px; color:#ffb3b5; }
-    #loginWrap { max-width:420px; margin:80px auto; }
-    .hint { color:var(--dim); font-size:12px; margin-top:8px; }
-    .toolbar { display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; }
-    .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:12px; margin-bottom:18px; }
-    .stat { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:16px 18px; }
-    .stat .n { font-size:26px; font-weight:800; font-family:Consolas,monospace; }
-    .stat .l { color:var(--dim); font-size:11px; text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(124,58,237,0.25);
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+      box-shadow: 0 0 28px rgba(124,58,237,0.35);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 6px 12px;
+      font-size: 0.72rem;
+    }
+    .btn-outline:hover:not(:disabled) {
+      border-color: var(--primary);
+      color: var(--primary-hover);
+      background: var(--primary-bg);
+    }
+    .btn-danger {
+      background: transparent;
+      border: 1px solid var(--red);
+      color: var(--red);
+      padding: 6px 12px;
+      font-size: 0.72rem;
+    }
+    .btn-danger:hover:not(:disabled) {
+      background: var(--red);
+      color: #fff;
+    }
+
+    /* ---------- HEADER ---------- */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 14px 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: var(--gradient-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .brand-text {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 2px;
+    }
+    .brand-sub {
+      font-size: 0.6rem;
+      font-weight: 400;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ---------- NAV TABS ---------- */
+    nav {
+      display: flex;
+      gap: 4px;
+      flex: 1;
+      flex-wrap: wrap;
+    }
+    .tab {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-dim);
+      padding: 8px 14px;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      font-weight: 600;
+      font-size: 0.72rem;
+      letter-spacing: 0.5px;
+      font-family: inherit;
+      transition: all var(--transition-fast);
+    }
+    .tab:hover { color: var(--text); background: var(--surface-hover); }
+    .tab.active {
+      color: var(--text);
+      border-color: var(--border);
+      background: var(--surface-hover);
+    }
+
+    /* ---------- MAIN ---------- */
+    main {
+      padding: 28px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    section.view { display: none; animation: fadeIn 0.25s ease; }
+    section.view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+
+    /* ---------- TABLE ---------- */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    th {
+      text-align: left;
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    td {
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      word-break: break-word;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface-hover); }
+
+    /* ---------- STATUS BADGES ---------- */
+    .st-ativa { color: var(--green); font-weight: 600; }
+    .st-bloqueada { color: var(--red-bright); font-weight: 600; }
+    .st-expirada { color: var(--yellow); font-weight: 600; }
+    .st-inativa { color: var(--text-dim); }
+
+    /* ---------- MISC ---------- */
+    .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .msg { min-height: 18px; font-size: 0.85rem; margin-top: 12px; }
+    .err { color: var(--red-bright); }
+    .ok { color: var(--green); }
+    .key-mono {
+      font-family: 'Consolas', 'Monaco', monospace;
+      letter-spacing: 1px;
+      color: var(--primary-hover);
+      background: var(--primary-bg);
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+    }
+    .hint {
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+    /* ---------- TOOLBAR ---------- */
+    .toolbar {
+      display: flex;
+      gap: 14px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .toolbar > div { display: flex; flex-direction: column; }
+
+    /* ---------- STAT CARDS ---------- */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      transition: border-color var(--transition-fast);
+    }
+    .stat:hover { border-color: var(--border-hover); }
+    .stat .n {
+      font-size: 28px;
+      font-weight: 800;
+      font-family: 'Consolas', 'Monaco', monospace;
+      line-height: 1;
+    }
+    .stat .l {
+      color: var(--text-dim);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 8px;
+    }
+
+    /* ---------- SPLIT PANELS ---------- */
+    .split {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .split > .card { flex: 1; min-width: 320px; }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width: 768px) {
+      main { padding: 16px; }
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .split { flex-direction: column; }
+      header { padding: 12px 16px; }
+    }
+    @media (max-width: 480px) {
+      .cards { grid-template-columns: 1fr; }
+    }
+
+    /* ---------- SCROLLBAR ---------- */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-elevated); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-active); }
   </style>
 </head>
 <body>
+  <!-- ===================== LOGIN ===================== -->
   <div id="loginWrap">
-    <header style="border:none;background:none;margin-bottom:30px;padding-left:0">
-      <div><span class="logo-main">MAINSTREET</span><span class="logo-sub">PAINEL ADMINISTRATIVO</span></div>
-    </header>
+    <div class="login-header">
+      <div class="login-logo">
+        <span class="login-logo-icon">&#x2B21;</span>
+        <span class="login-logo-text">ORION<span class="login-logo-sub">PAINEL ADMINISTRATIVO</span></span>
+      </div>
+    </div>
     <div class="card">
       <h2>Acessar painel</h2>
       <label>Usuário ou token mestre</label>
       <input id="loginUser" autocomplete="off" placeholder="admin" />
       <label>Senha</label>
-      <input id="loginPass" type="password" placeholder="••••••••" />
+      <input id="loginPass" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" />
       <p class="hint">Deixe a senha vazia para autenticar com o ADMIN_TOKEN no campo de usuário.</p>
-      <div style="margin-top:16px"><button id="loginBtn" class="btn btn-primary">ENTRAR</button></div>
+      <div style="margin-top:18px"><button id="loginBtn" class="btn btn-primary">ENTRAR</button></div>
       <div id="loginMsg" class="msg"></div>
     </div>
   </div>
 
+  <!-- ===================== APP ===================== -->
   <div id="appWrap" hidden>
     <header>
-      <div><span class="logo-main">MAINSTREET</span><span class="logo-sub">ADMIN</span></div>
+      <div class="brand">
+        <span class="brand-icon">&#x2B21;</span>
+        <div><span class="brand-text">ORION</span><span class="brand-sub">ADMIN</span></div>
+      </div>
       <nav id="nav">
         <button data-v="painel" class="tab">Painel</button>
         <button data-v="licencas" class="tab active">Licenças</button>
@@ -99,19 +441,18 @@
         <button data-v="updates" class="tab">Atualizações</button>
         <button data-v="logs" class="tab">Logs</button>
       </nav>
-      <button id="logoutBtn" class="btn btn-outline" style="padding:8px 14px">SAIR</button>
+      <button id="logoutBtn" class="btn btn-outline">SAIR</button>
     </header>
     <main>
       <!-- PAINEL -->
       <section id="v-painel" class="view">
-        <h2>Visão geral</h2>
         <div id="statsCards" class="cards"></div>
-        <div style="display:flex; gap:18px; flex-wrap:wrap; margin-top:6px;">
-          <div class="card" style="flex:1; min-width:300px;">
+        <div class="split">
+          <div class="card">
             <h2>Licenças por plano</h2>
             <table id="tblPlanos"><thead><tr><th>Plano</th><th>Chaves</th></tr></thead><tbody></tbody></table>
           </div>
-          <div class="card" style="flex:1; min-width:300px;">
+          <div class="card">
             <h2>Versões do app (últimas análises)</h2>
             <table id="tblVersoes"><thead><tr><th>Versão</th><th>Análises</th></tr></thead><tbody></tbody></table>
           </div>
@@ -125,15 +466,15 @@
           <div class="toolbar">
             <div><label>Plano</label>
               <select id="genPlano"><option value="mensal">Mensal</option><option value="semestral">Semestral</option><option value="anual">Anual</option><option value="vitalicia">Vitalícia</option></select></div>
-            <div><label>Dias de validade</label><input id="genDias" type="number" value="365" min="1" style="width:110px" /></div>
-            <div><label>Máx. dispositivos</label><input id="genDisp" type="number" value="2" min="1" style="width:90px" /></div>
-            <div><label>Quantidade</label><input id="genQtd" type="number" value="1" min="1" max="50" style="width:90px" /></div>
+            <div><label>Dias de validade</label><input id="genDias" type="number" value="365" min="1" style="max-width:120px" /></div>
+            <div><label>Máx. dispositivos</label><input id="genDisp" type="number" value="2" min="1" style="max-width:100px" /></div>
+            <div><label>Quantidade</label><input id="genQtd" type="number" value="1" min="1" max="50" style="max-width:100px" /></div>
             <div><label>Nome do cliente (opcional)</label><input id="genCliente" type="text" placeholder="Ex.: João Silva" maxlength="120" /></div>
             <div style="margin-bottom:1px"><button id="genBtn" class="btn btn-primary">GERAR</button></div>
           </div>
           <div id="genMsg" class="msg"></div>
         </div>
-        <h2>Licenças emitidas</h2>
+        <h2 style="font-size:0.85rem;letter-spacing:1.5px;color:var(--primary-hover);text-transform:uppercase;margin-bottom:4px;font-weight:600;">Licenças emitidas</h2>
         <table id="tblLic">
           <thead><tr><th>Chave</th><th>Plano</th><th>Status</th><th>Vence em</th><th>Dispositivos</th><th>Cliente</th><th>Ações</th></tr></thead>
           <tbody></tbody>
@@ -142,7 +483,7 @@
 
       <!-- USUÁRIOS -->
       <section id="v-usuarios" class="view">
-        <h2>Usuários</h2>
+        <h2 style="font-size:0.85rem;letter-spacing:1.5px;color:var(--primary-hover);text-transform:uppercase;margin-bottom:4px;font-weight:600;">Usuários</h2>
         <table id="tblUsr">
           <thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Licenças</th><th>Criado em</th><th>Ativo</th></tr></thead>
           <tbody></tbody>
@@ -151,7 +492,7 @@
 
       <!-- DISPOSITIVOS -->
       <section id="v-dispositivos" class="view">
-        <h2>Dispositivos ativados</h2>
+        <h2 style="font-size:0.85rem;letter-spacing:1.5px;color:var(--primary-hover);text-transform:uppercase;margin-bottom:4px;font-weight:600;">Dispositivos ativados</h2>
         <table id="tblDev">
           <thead><tr><th>Hostname</th><th>Licença</th><th>Status licença</th><th>Vence em</th><th>Primeiro visto</th><th>Último visto</th></tr></thead>
           <tbody></tbody>
@@ -160,12 +501,12 @@
 
       <!-- HISTÓRICO -->
       <section id="v-historico" class="view">
-        <h2>Histórico de otimizações (últimas análises)</h2>
+        <h2 style="font-size:0.85rem;letter-spacing:1.5px;color:var(--primary-hover);text-transform:uppercase;margin-bottom:4px;font-weight:600;">Histórico de otimizações (últimas análises)</h2>
         <table id="tblHist">
           <thead><tr><th>Data</th><th>Hostname</th><th>Licença</th><th>Score</th><th>Boot</th></tr></thead>
           <tbody></tbody>
         </table>
-        <h2 style="margin-top:26px">Análises de segurança</h2>
+        <h2 style="font-size:0.85rem;letter-spacing:1.5px;color:var(--primary-hover);text-transform:uppercase;margin:28px 0 4px;font-weight:600;">Análises de segurança</h2>
         <table id="TblSeg">
           <thead><tr><th>Data</th><th>Hostname</th><th>Licença</th><th>Score</th><th>Ameaças</th><th>Ativas</th></tr></thead>
           <tbody></tbody>
@@ -176,7 +517,7 @@
       <section id="v-updates" class="view">
         <div class="card">
           <h2>Publicar nova versão do aplicativo</h2>
-          <p class="hint" style="margin:0 0 6px">
+          <p class="hint" style="margin:0 0 12px">
             Ao publicar, a versão anterior é desativada e todos os apps instalados recebem
             o aviso de atualização na próxima verificação.
           </p>
@@ -188,11 +529,10 @@
             <div style="margin-bottom:1px"><button id="updBtn" class="btn btn-primary">PUBLICAR</button></div>
           </div>
           <label style="max-width:640px">Changelog / notas da versão (opcional)</label>
-          <textarea id="updChangelog" rows="3"
-            style="width:100%; max-width:640px; background:#101013; border:1px solid var(--border); color:var(--text); border-radius:8px; padding:10px 12px; font-size:13px; color-scheme:dark;"></textarea>
+          <textarea id="updChangelog" rows="3" style="max-width:640px;"></textarea>
           <div id="updMsg" class="msg"></div>
         </div>
-        <h2>Histórico de versões</h2>
+        <h2 style="font-size:0.85rem;letter-spacing:1.5px;color:var(--primary-hover);text-transform:uppercase;margin-bottom:4px;font-weight:600;">Histórico de versões</h2>
         <table id="tblUpd">
           <thead><tr><th>Versão</th><th>Situação</th><th>Obrigatória</th><th>Liberada em</th><th>Changelog</th><th>Ações</th></tr></thead>
           <tbody></tbody>
@@ -201,7 +541,7 @@
 
       <!-- LOGS -->
       <section id="v-logs" class="view">
-        <h2>Logs do sistema</h2>
+        <h2 style="font-size:0.85rem;letter-spacing:1.5px;color:var(--primary-hover);text-transform:uppercase;margin-bottom:4px;font-weight:600;">Logs do sistema</h2>
         <table id="tblLogs">
           <thead><tr><th>Data</th><th>Evento</th><th>Licença</th><th>Detalhe</th></tr></thead>
           <tbody></tbody>
@@ -248,9 +588,8 @@ $('#loginBtn').addEventListener('click', async () => {
   msg.className = 'msg'; msg.textContent = '';
   try {
     if (!p) {
-      // Token mestre
       TOKEN = u;
-      await call('/api/v1/admin/licenses'); // testa
+      await call('/api/v1/admin/licenses');
       sessionStorage.setItem('msAdminToken', u);
     } else {
       const r = await fetch(API + '/api/v1/admin/login', {
@@ -373,18 +712,18 @@ async function loadHistory() {
   $('#tblHist tbody').innerHTML = j.otimizacoes.map((h) => `
     <tr><td>${fmtDate(h.analisado_em)}</td><td>${esc(h.hostname||'—')}</td><td>${fmtKey(h.chave)}</td>
     <td><b>${h.score ?? '—'}/100</b></td><td>${esc(h.boot_mode||'—')}</td></tr>`).join('')
-    || '<tr><td colspan="5" style="color:var(--dim)">Nenhuma análise sincronizada.</td></tr>';
+    || '<tr><td colspan="5" style="color:var(--text-dim)">Nenhuma análise sincronizada.</td></tr>';
   document.querySelector('#TblSeg tbody').innerHTML = j.seguranca.map((s) => `
     <tr><td>${fmtDate(s.analisado_em)}</td><td>${esc(s.hostname||'—')}</td><td>${fmtKey(s.chave)}</td>
     <td><b>${s.score ?? '—'}/100</b></td><td>${s.ameacas_total ?? '—'}</td>
     <td style="color:${s.ameacas_ativas ? 'var(--red-bright)' : 'var(--green)'}">${s.ameacas_ativas ?? 0}</td></tr>`).join('')
-    || '<tr><td colspan="6" style="color:var(--dim)">Nenhuma análise de segurança sincronizada.</td></tr>';
+    || '<tr><td colspan="6" style="color:var(--text-dim)">Nenhuma análise de segurança sincronizada.</td></tr>';
 }
 async function loadLogs() {
   const j = await call('/api/v1/admin/logs?limit=200');
   $('#tblLogs tbody').innerHTML = j.logs.map((l) => `
     <tr><td>${fmtDate(l.criado_em)}</td><td>${esc(l.evento)}</td><td>${l.chave ? fmtKey(l.chave) : '—'}</td>
-    <td><code style="font-size:11px;color:var(--dim)">${esc(l.detalhe)}</code></td></tr>`).join('');
+    <td><code style="font-size:11px;color:var(--text-dim)">${esc(l.detalhe)}</code></td></tr>`).join('');
 }
 
 // ---------- Painel (estatísticas) ----------
@@ -404,10 +743,10 @@ async function loadStats() {
     statCard(s.usuarios, 'Usuários cadastrados');
   $('#tblPlanos tbody').innerHTML = (s.porPlano || []).map((p) =>
     `<tr><td><b>${esc(p.plano)}</b></td><td>${p.n}</td></tr>`).join('')
-    || '<tr><td colspan="2" style="color:var(--dim)">Sem dados.</td></tr>';
+    || '<tr><td colspan="2" style="color:var(--text-dim)">Sem dados.</td></tr>';
   $('#tblVersoes tbody').innerHTML = (s.versoes || []).map((v) =>
     `<tr><td>v${esc(v.versao)}</td><td>${v.n}</td></tr>`).join('')
-    || '<tr><td colspan="2" style="color:var(--dim)">Nenhuma análise sincronizada ainda.</td></tr>';
+    || '<tr><td colspan="2" style="color:var(--text-dim)">Nenhuma análise sincronizada ainda.</td></tr>';
 }
 
 // ---------- Atualizações ----------
@@ -419,11 +758,11 @@ async function loadUpdates() {
       <td>${u.ativa ? '<span class="st-ativa">ATIVA</span>' : '<span class="st-inativa">inativa</span>'}</td>
       <td>${u.obrigatoria ? 'Sim' : 'Não'}</td>
       <td>${fmtDate(u.liberada_em)}</td>
-      <td style="max-width:320px"><code style="font-size:11px;color:var(--dim)">${esc(u.changelog || '')}</code></td>
+      <td style="max-width:320px"><code style="font-size:11px;color:var(--text-dim)">${esc(u.changelog || '')}</code></td>
       <td><div class="row-actions">
         <button class="btn btn-outline" data-u="toggle" data-id="${u.id}">${u.ativa ? 'Desativar' : 'Publicar'}</button>
       </div></td>
-    </tr>`).join('') || '<tr><td colspan="6" style="color:var(--dim)">Nenhuma versão publicada.</td></tr>';
+    </tr>`).join('') || '<tr><td colspan="6" style="color:var(--text-dim)">Nenhuma versão publicada.</td></tr>';
 }
 
 $('#updBtn').addEventListener('click', async () => {

@@ -83,7 +83,13 @@ async function killProcess(pid, name) {
     `Stop-Process -Id ${Number(pid)} -Force -ErrorAction Stop`,
     15000
   );
-  if (res.code !== 0 && res.error) throw new Error(res.error);
+  // runner.close() zera res.error: o código de saída é a única fonte confiável.
+  if (res.code !== 0) {
+    if (/acesso|access|denied/i.test(String(res.stderr || ''))) {
+      throw new Error('Acesso negado — este processo pertence ao sistema ou a outro usuário.');
+    }
+    throw new Error('Não foi possível encerrar o processo. ' + String(res.stderr || '').trim());
+  }
   return { ok: true };
 }
 
@@ -102,12 +108,12 @@ async function setPriority(pid, name, level) {
     `if ($p.ProcessName -ne '${safeName}') { throw 'Processo mudou de identidade.' }; ` +
     `$p.PriorityClass = '${level}'`;
   const res = await runner.runPowerShellInline(script, 15000);
-  if (res.code !== 0 && res.error) {
+  if (res.code !== 0) {
     // Acesso negado em processos elevados — mensagem amigável.
-    if (/acesso|access|denied/i.test(String(res.stderr || res.error))) {
+    if (/acesso|access|denied/i.test(String(res.stderr || ''))) {
       throw new Error('Acesso negado — este processo pertence ao sistema ou a outro usuário.');
     }
-    throw new Error(res.error);
+    throw new Error('Não foi possível alterar a prioridade. ' + String(res.stderr || '').trim());
   }
   return { ok: true, level };
 }

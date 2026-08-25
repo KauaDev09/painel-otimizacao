@@ -73,11 +73,11 @@ function applyGeneralSettings(settings) {
 
 function initServices() {
   const docs = app.getPath('documents');
-  const reportsDir = path.join(docs, 'Mainstreet BIOS Optimizer', 'Relatorios');
-  const rawDir = path.join(docs, 'Mainstreet BIOS Optimizer', 'Dados');
+  const reportsDir = path.join(docs, 'Orion Optimizer', 'Relatorios');
+  const rawDir = path.join(docs, 'Orion Optimizer', 'Dados');
   reportService = new ReportService(reportsDir);
 
-  // Dados locais do aplicativo (%APPDATA%/mainstreet-bios-optimizer)
+  // Dados locais do aplicativo (%APPDATA%/orion-optimizer)
   const userData = app.getPath('userData');
   historyService = new HistoryService(path.join(userData, 'history'));
 
@@ -103,6 +103,8 @@ function initServices() {
   const stateDir = path.join(userData, 'engine');
   const logsDir = path.join(userData, 'engine', 'logs');
   const protectionDir = path.join(userData, 'engine', 'protection');
+  // Garante os scripts materializados no perfil do usuário antes de qualquer uso.
+  require('./engine/scriptsSync').ensure();
   runner.setLogsDir(logsDir);
   protection.setBaseDir(protectionDir);
   engineService.setStateDir(path.join(stateDir, 'operations'));
@@ -234,7 +236,7 @@ function registerIpc() {
 
   ipcMain.handle('raw:export', (e, payload) => {
     if (!lastResult) throw new Error('Nenhuma análise concluída.');
-    const dir = path.join(app.getPath('documents'), 'Mainstreet BIOS Optimizer', 'Dados');
+    const dir = path.join(app.getPath('documents'), 'Orion Optimizer', 'Dados');
     fs.mkdirSync(dir, { recursive: true });
     const stamp = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19);
     const file = path.join(dir, `dados-brutos-${stamp}.json`);

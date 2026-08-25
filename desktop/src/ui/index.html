@@ -3,52 +3,130 @@
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'" />
-  <title>MAINSTREET BIOS OPTIMIZER</title>
+  <title>ORION OPTIMIZER</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header id="topbar">
-    <div class="logo" id="brand">
-      <span class="logo-main">MAINSTREET</span>
-      <span class="logo-sub">BIOS OPTIMIZER</span>
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside id="sidebar" class="sidebar">
+    <div id="brand" class="sidebar-logo" data-view="home">
+      <span class="sidebar-logo-icon">⬡</span>
+      <div class="sidebar-logo-text">
+        <span class="sidebar-logo-main">ORION</span>
+        <span class="sidebar-logo-sub">OPTIMIZER</span>
+      </div>
     </div>
-    <nav id="nav">
-      <button data-view="home" class="tab active">Início</button>
-      <button data-view="dashboard" class="tab">Meu Computador</button>
-      <button data-view="recs" class="tab">Recomendações</button>
-      <button data-view="optimize" class="tab">Otimizar</button>
-      <button data-view="gameboost" class="tab">Game Boost</button>
-      <button data-view="monitor" class="tab">Monitor</button>
-      <button data-view="benchmark" class="tab">Benchmark</button>
-      <button data-view="network" class="tab">Rede</button>
-      <button data-view="startup" class="tab">Inicialização</button>
-      <button data-view="processes" class="tab">Processos</button>
-      <button data-view="maintenance" class="tab">Manutenção</button>
-      <button data-view="security" class="tab">Segurança</button>
-      <button data-view="restore" class="tab">Restauração</button>
-      <button data-view="history" class="tab">Histórico</button>
-      <button data-view="settings" class="tab">Configurações</button>
-      <button data-view="support" class="tab">Suporte</button>
+
+    <nav class="sidebar-nav">
+      <button data-view="home" class="sidebar-item active">
+        <span class="sidebar-icon">🏠</span>
+        <span class="sidebar-label">Início</span>
+      </button>
+
+      <div class="sidebar-section">OTIMIZAÇÃO</div>
+
+      <button data-view="optimize" class="sidebar-item">
+        <span class="sidebar-icon">🪟</span>
+        <span class="sidebar-label">Windows</span>
+      </button>
+      <button data-view="gameboost" class="sidebar-item">
+        <span class="sidebar-icon">🎮</span>
+        <span class="sidebar-label">Gaming</span>
+      </button>
+      <button data-view="dashboard" class="sidebar-item">
+        <span class="sidebar-icon">💻</span>
+        <span class="sidebar-label">Sistema</span>
+      </button>
+      <button data-view="maintenance" class="sidebar-item">
+        <span class="sidebar-icon">🧹</span>
+        <span class="sidebar-label">Limpeza</span>
+      </button>
+      <button data-view="recs" class="sidebar-item">
+        <span class="sidebar-icon">⚙️</span>
+        <span class="sidebar-label">BIOS</span>
+      </button>
+
+      <div class="sidebar-section">MONITORAMENTO</div>
+
+      <button data-view="monitor" class="sidebar-item">
+        <span class="sidebar-icon">📈</span>
+        <span class="sidebar-label">Monitor</span>
+      </button>
+      <button data-view="benchmark" class="sidebar-item">
+        <span class="sidebar-icon">⚡</span>
+        <span class="sidebar-label">Benchmark</span>
+      </button>
+      <button data-view="network" class="sidebar-item">
+        <span class="sidebar-icon">🌐</span>
+        <span class="sidebar-label">Rede</span>
+      </button>
+      <button data-view="security" class="sidebar-item">
+        <span class="sidebar-icon">🛡️</span>
+        <span class="sidebar-label">Segurança</span>
+      </button>
+
+      <div class="sidebar-section">FERRAMENTAS</div>
+
+      <button data-view="startup" class="sidebar-item">
+        <span class="sidebar-icon">🚀</span>
+        <span class="sidebar-label">Inicialização</span>
+      </button>
+      <button data-view="processes" class="sidebar-item">
+        <span class="sidebar-icon">📊</span>
+        <span class="sidebar-label">Processos</span>
+      </button>
+      <button data-view="restore" class="sidebar-item">
+        <span class="sidebar-icon">↩️</span>
+        <span class="sidebar-label">Restauração</span>
+      </button>
+      <button data-view="history" class="sidebar-item">
+        <span class="sidebar-icon">📋</span>
+        <span class="sidebar-label">Histórico</span>
+      </button>
+
+      <div class="sidebar-section">CONTA</div>
+
+      <button data-view="activation" class="sidebar-item">
+        <span class="sidebar-icon">🔑</span>
+        <span class="sidebar-label">Licença</span>
+      </button>
+      <button data-view="settings" class="sidebar-item">
+        <span class="sidebar-icon">⚙️</span>
+        <span class="sidebar-label">Config</span>
+      </button>
+      <button data-view="support" class="sidebar-item">
+        <span class="sidebar-icon">❓</span>
+        <span class="sidebar-label">Suporte</span>
+      </button>
     </nav>
-    <div class="top-actions">
-      <label class="switch" title="Exibe informações técnicas avançadas">
-        <input type="checkbox" id="techToggle" />
-        <span class="slider"></span>
-        <span class="switch-label">Modo Técnico</span>
-      </label>
-      <button id="reportBtn" class="btn btn-outline" disabled>GERAR RELATÓRIO</button>
+
+    <div class="sidebar-footer">
+      <span id="sidebarVersion" class="sidebar-version">Orion v2.0.0</span>
+    </div>
+  </aside>
+
+  <!-- ===================== HEADER ===================== -->
+  <header id="pageHeader" class="header">
+    <button id="sidebarToggle" class="sidebar-toggle" title="Alternar menu lateral">☰</button>
+    <h1 id="pageTitle" class="header-title">Início</h1>
+    <div class="header-actions">
+      <span id="headerLicense" class="header-license">● PRO</span>
+      <button id="headerProfile" class="header-profile" title="Perfil">👤</button>
     </div>
   </header>
 
-  <main>
+  <!-- ===================== CONTENT ===================== -->
+  <main class="content">
+
     <!-- ===================== HOME ===================== -->
     <section id="view-home" class="view active">
       <div class="hero">
         <div class="hero-glow"></div>
-        <h1><span>MAINSTREET</span> BIOS OPTIMIZER</h1>
-        <p class="tagline">Analise sua máquina e descubra o melhor perfil de BIOS.</p>
-        <p class="disclaimer">Somente diagnóstico e recomendação — nenhum ajuste é aplicado automaticamente.</p>
-        <button id="analyzeBtn" class="btn btn-primary btn-big">▶ ANALISAR COMPUTADOR</button>
+        <h1><span class="accent">ORION</span> OPTIMIZER</h1>
+        <p class="subtitle">Advanced PC Performance Suite</p>
+        <p class="tagline">Analise sua máquina e otimize o desempenho com precisão.</p>
+        <button id="analyzeBtn" class="btn btn-primary btn-big">▶ ANALISAR SISTEMA</button>
       </div>
       <div class="home-grid">
         <div class="feature"><h3>1 · Detecção real</h3><p>CPU, GPU, RAM, placa-mãe e BIOS lidos via CIM/WMI — nada é inventado.</p></div>
@@ -232,8 +310,8 @@
     <section id="view-activation" class="view">
       <div class="hero">
         <div class="hero-glow"></div>
-        <h1><span>ATIVAR</span> LICENÇA</h1>
-        <p class="tagline">Informe sua chave para liberar todos os recursos do BIOS Optimizer.</p>
+        <h1><span class="accent">ATIVAR</span> LICENÇA</h1>
+        <p class="tagline">Informe sua chave para liberar todos os recursos do Orion Optimizer.</p>
         <div class="activation-panel">
           <input id="licenseKeyInput" class="license-input" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="29" spellcheck="false" autocomplete="off" />
           <button id="activateBtn" class="btn btn-primary btn-big">ATIVAR AGORA</button>
@@ -341,6 +419,7 @@
       <div class="settings-grid">
         <div class="hw-card full">
           <h3>Geral</h3>
+          <label class="opt-item setting-row"><input type="checkbox" id="techToggle"/><div class="opt-body"><div class="opt-title">Modo Técnico</div><div class="opt-desc">Exibe informações técnicas avançadas em toda a aplicação.</div></div></label>
           <label class="opt-item setting-row"><input type="checkbox" id="setStartWin"/><div class="opt-body"><div class="opt-title">Iniciar com o Windows</div><div class="opt-desc">Abre o aplicativo minimizado ao ligar o computador.</div></div></label>
           <label class="opt-item setting-row"><input type="checkbox" id="setTray"/><div class="opt-body"><div class="opt-title">Minimizar para a bandeja</div><div class="opt-desc">Fechar a janela mantém o app ativo na bandeja.</div></div></label>
           <label class="opt-item setting-row"><input type="checkbox" id="setNotif"/><div class="opt-body"><div class="opt-title">Notificações do aplicativo</div><div class="opt-desc">Alertas sobre licença, atualizações e resultados.</div></div></label>
@@ -381,6 +460,13 @@
         <div class="hw-card full">
           <h3>Licença</h3>
           <div id="settingsLicenseInfo" class="kv-list"></div>
+          <button id="reportBtn" class="btn btn-outline" disabled>GERAR RELATÓRIO</button>
+          <span id="techExportWrap" class="hidden">
+            <a href="#" id="exportRawLink">Exportar dados brutos (JSON)</a>
+          </span>
+        </div>
+        <div class="hw-card full">
+          <span id="licBadge" class="lic-badge">LICENÇA: VERIFICANDO…</span>
         </div>
       </div>
     </section>
@@ -428,14 +514,6 @@
 
   <!-- ===================== TOAST ===================== -->
   <div id="toast" class="hidden"></div>
-
-    <footer>
-    <span id="licBadge" class="lic-badge">LICENÇA: VERIFICANDO…</span>
-    <span>v2.0.0 · A análise é somente leitura. Alterações só ocorrem quando você solicita — sempre com backup e opção de desfazer.</span>
-    <span id="techExportWrap" class="hidden">
-      <a href="#" id="exportRawLink">Exportar dados brutos (JSON)</a>
-    </span>
-  </footer>
 
   <script src="renderer.js"></script>
 </body>

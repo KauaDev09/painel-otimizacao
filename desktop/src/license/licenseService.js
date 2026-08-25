@@ -64,7 +64,7 @@ class LicenseService {
           );
           const guid = String(stdout || '').trim();
           if (guid) {
-            return 'm-' + crypto.createHash('sha256').update(`mainstreet::${guid}`).digest('hex').slice(0, 32);
+            return 'm-' + crypto.createHash('sha256').update(`orion::${guid}`).digest('hex').slice(0, 32);
           }
         } catch (_) { /* cai no fallback */ }
         const fallback = `${process.env.COMPUTERNAME || 'pc'}\\${process.env.USERNAME || 'user'}`;
@@ -131,14 +131,21 @@ class LicenseService {
   _applyFailure(err) {
     const code = err.code || 'SERVER_ERROR';
     if (['LICENSE_NOT_FOUND', 'LICENSE_EXPIRED', 'LICENSE_BLOCKED'].includes(code)) {
+      if (!this.cache) this.cache = {};
       this.cache.state = code === 'LICENSE_BLOCKED'
         ? 'blocked'
         : code === 'LICENSE_EXPIRED' ? 'expired' : 'inactive';
+      this.cache.key = this.cache.key || null;
       this.cache.lastValidatedAt = new Date().toISOString();
       this._save();
       this._emit();
     }
     throw err;
+  }
+
+  /** Chave real (não mascarada) para uso interno — sincronização/validação. */
+  getLicenseKey() {
+    return (this.cache && this.cache.key) || null;
   }
 
   async activate(keyRaw) {
