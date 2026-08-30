@@ -9,7 +9,12 @@
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder --win nsis",
-    "dist:dir": "electron-builder --win nsis --dir"
+    "dist:dir": "electron-builder --win nsis --dir",
+    "preview": "npx serve src/ui -p 3000 --no-clipboard",
+    "release": "node scripts/release.js patch",
+    "release:minor": "node scripts/release.js minor",
+    "release:major": "node scripts/release.js major",
+    "release:version": "node scripts/release.js"
   },
   "devDependencies": {
     "electron": "^31.7.7",

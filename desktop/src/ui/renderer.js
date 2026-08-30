@@ -1739,21 +1739,142 @@ async function loadLicenseInfoSettings() {
 
 async function checkUpdatesManual() {
   const msg = $('#updateCheckMsg');
-  msg.textContent = 'Consultando servidor…';
-  msg.style.color = 'var(--dim)';
+  const panel = $('#updatePanel');
+  const progressPanel = $('#updateProgressPanel');
+  const installingPanel = $('#updateInstallingPanel');
+
+  msg.textContent = 'Consultando servidor...';
+  msg.style.color = 'var(--text-dim)';
+  panel.classList.add('hidden');
+  progressPanel.classList.add('hidden');
+  installingPanel.classList.add('hidden');
+
   try {
     const res = await api().updateCheck();
     if (res.available) {
-      msg.innerHTML = `Nova versão disponível: <b>v${esc(res.update.version)}</b>`;
+      const u = res.update;
+      msg.innerHTML = `Nova versão disponível: <b style="color:var(--green)">v${esc(u.version)}</b>`;
       msg.style.color = 'var(--green)';
+
+      // Mostra o painel de atualização
+      $('#updateCurrentVer').textContent = res.currentVersion;
+      $('#updateNewVer').textContent = u.version;
+      $('#updateChangelog').textContent = u.changelog || 'Sem changelog disponível.';
+      $('#updateReleasedAt').textContent = u.releasedAt
+        ? `Liberada em: ${new Date(u.releasedAt).toLocaleDateString('pt-BR')}`
+        : '';
+      panel.classList.remove('hidden');
+
+      // Mostra toast também
       showUpdateToast(res);
     } else {
       msg.textContent = 'Você já está na versão mais recente.';
       msg.style.color = 'var(--green)';
+      panel.classList.add('hidden');
     }
   } catch (err) {
     msg.textContent = `Não foi possível verificar agora (${esc(err.code || 'erro de rede')}).`;
     msg.style.color = 'var(--red-bright)';
+    panel.classList.add('hidden');
+  }
+}
+
+let pendingUpdateUrl = null;
+let pendingUpdateVersion = null;
+
+function showUpdateToast(res) {
+  const u = res.update;
+  toast(
+    `<b>NOVA ATUALIZAÇÃO DISPONÍVEL</b><br>` +
+    `Instalada: v${esc(res.currentVersion)} · Nova: <b>v${esc(u.version)}</b><br>` +
+    (u.changelog ? `<small style="color:var(--text-dim)">${esc(u.changelog)}</small><br>` : '') +
+    `<a id="updateNowLink">ATUALIZAR AGORA</a> &nbsp;·&nbsp; <a id="updateLaterLink">MAIS TARDE</a>`,
+    u.mandatory ? 30000 : 15000
+  );
+  setTimeout(() => {
+    const now = $('#updateNowLink');
+    const later = $('#updateLaterLink');
+    if (now) now.addEventListener('click', (e) => {
+      e.preventDefault();
+      $('#toast').classList.add('hidden');
+      startUpdateDownload(u.url, u.version);
+    });
+    if (later) later.addEventListener('click', (e) => {
+      e.preventDefault();
+      $('#toast').classList.add('hidden');
+    });
+  }, 0);
+}
+
+async function startUpdateDownload(url, version) {
+  const panel = $('#updatePanel');
+  const progressPanel = $('#updateProgressPanel');
+  const installingPanel = $('#updateInstallingPanel');
+
+  pendingUpdateUrl = url;
+  pendingUpdateVersion = version;
+
+  panel.classList.add('hidden');
+  progressPanel.classList.remove('hidden');
+  installingPanel.classList.add('hidden');
+
+  $('#updateProgressLabel').textContent = 'Baixando atualização...';
+  $('#updateProgressBar').style.width = '0%';
+  $('#updateProgressPercent').textContent = '0%';
+  $('#updateProgressSize').textContent = 'Iniciando...';
+
+  try {
+    const result = await api().updateDownload(url);
+    if (result && result.ok) {
+      // Download concluído — instala
+      progressPanel.classList.add('hidden');
+      installingPanel.classList.remove('hidden');
+      $('#updateInstallingLabel').textContent = 'Instalando atualização...';
+
+      try {
+        await api().updateInstall(result.filePath);
+        // Se chegou aqui, o app vai reiniciar
+      } catch (installErr) {
+        installingPanel.classList.add('hidden');
+        toast(`❌ Erro na instalação: ${esc(installErr.message || installErr)}`);
+      }
+    }
+  } catch (err) {
+    progressPanel.classList.add('hidden');
+    if (err.message && err.message.includes('cancel')) {
+      toast('Download cancelado.');
+    } else {
+      toast(`❌ Falha ao baixar: ${esc(err.message || err)}`);
+    }
+  }
+}
+
+function bindUpdateButtons() {
+  const downloadBtn = $('#updateDownloadBtn');
+  const laterBtn = $('#updateLaterBtn');
+  const cancelBtn = $('#updateCancelBtn');
+
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', () => {
+      if (pendingUpdateUrl) {
+        startUpdateDownload(pendingUpdateUrl, pendingUpdateVersion);
+      }
+    });
+  }
+
+  if (laterBtn) {
+    laterBtn.addEventListener('click', () => {
+      $('#updatePanel').classList.add('hidden');
+      $('#updateCheckMsg').textContent = '';
+    });
+  }
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', () => {
+      api().updateCancel().catch(() => {});
+      $('#updateProgressPanel').classList.add('hidden');
+      toast('Download cancelado.');
+    });
   }
 }
 
@@ -1801,25 +1922,30 @@ api().onUpdateAvailable((res) => {
   if (res && res.available) showUpdateToast(res);
 });
 
-function showUpdateToast(res) {
-  const u = res.update;
-  toast(
-    `🚀 <b>NOVA ATUALIZAÇÃO DISPONÍVEL</b><br>` +
-    `Instalada: v${esc(res.currentVersion)} · Nova: <b>v${esc(u.version)}</b><br>` +
-    (u.changelog ? `<small style="color:var(--dim)">${esc(u.changelog)}</small><br>` : '') +
-    `<a id="updateNowLink">ATUALIZAR AGORA</a> &nbsp;·&nbsp; <a id="updateLaterLink">MAIS TARDE</a>`,
-    u.mandatory ? 30000 : 15000
-  );
-  setTimeout(() => {
-    const now = $('#updateNowLink');
-    const later = $('#updateLaterLink');
-    if (now) now.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (u.url) api().openExternal(u.url).catch(() => {});
-    });
-    if (later) later.addEventListener('click', (e) => { e.preventDefault(); $('#toast').classList.add('hidden'); });
-  }, 0);
-}
+// Progresso do download (em tempo real)
+api().onDownloadProgress((progress) => {
+  const bar = $('#updateProgressBar');
+  const percent = $('#updateProgressPercent');
+  const size = $('#updateProgressSize');
+  const label = $('#updateProgressLabel');
+
+  if (progress.percent >= 0) {
+    bar.style.width = `${progress.percent}%`;
+    percent.textContent = `${progress.percent}%`;
+  }
+  if (progress.total > 0) {
+    const receivedMB = (progress.received / (1024 * 1024)).toFixed(1);
+    const totalMB = (progress.total / (1024 * 1024)).toFixed(1);
+    size.textContent = `${receivedMB} MB / ${totalMB} MB`;
+  }
+  if (label) label.textContent = 'Baixando atualização...';
+});
+
+// Notificação de instalação em andamento
+api().onInstalling((info) => {
+  const label = $('#updateInstallingLabel');
+  if (label) label.textContent = info.message || 'Instalando...';
+});
 
 // ---------------- Sidebar Version Display ----------------
 async function updateSidebarVersion() {
@@ -1839,6 +1965,16 @@ async function updateSidebarVersion() {
   showView('home');
 
   updateSidebarVersion();
+  bindUpdateButtons();
+
+  // Mostra versão atual na seção de atualizações
+  try {
+    const meta = await api().getAppMeta();
+    const verLabel = $('#currentVersionLabel');
+    if (verLabel && meta && meta.version) {
+      verLabel.textContent = `v${meta.version}`;
+    }
+  } catch (_) { /* silencioso */ }
 
   // Licença: bloqueia o app na tela de ativação quando não ativado.
   try {

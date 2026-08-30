@@ -747,7 +747,7 @@ const ITEMS = [
     profiles: [],
     proOnly: true,
     vendor: 'amd',
-    apply: script('gpu/amd/Desativar AMD Crash Defender (serviços.bat'),
+    apply: script('gpu/amd/Desativar AMD Crash Defender (serviços).bat'),
     undo: null,
     undoNote: 'Reative manualmente em services.msc (AMD Crash Defender Service).'
   },
@@ -817,11 +817,19 @@ function getItem(id) {
 // leem dentro do app.asar) e alguns criam arquivos ao lado de si (%~dp0).
 // scriptsSync espelha a pasta do instalador (resources/engine/scripts) para
 // o AppData do usuário e devolve essa base gravável.
+//
+// IMPORTANTE: SCRIPTS_BASE é resolvido de forma lazy (sob demanda) para
+// garantir que app.whenReady() já foi chamado antes de acessar userData.
 const scriptsSync = require('./scriptsSync');
-const SCRIPTS_BASE = scriptsSync.getScriptsBase();
+let _scriptsBase = null;
+
+function getScriptsBase() {
+  if (!_scriptsBase) _scriptsBase = scriptsSync.getScriptsBase();
+  return _scriptsBase;
+}
 
 function resolveScript(relFile) {
-  return path.join(SCRIPTS_BASE, relFile);
+  return path.join(getScriptsBase(), relFile);
 }
 
 module.exports = { CATEGORIES, RISK_LABELS, ITEMS, DRIVER_DOWNLOAD_ITEMS, getItem, resolveScript };

@@ -1,0 +1,57 @@
+# Orion Store — site de vendas do Orion Optimizer
+
+Site público em português para apresentar o painel **Orion Optimizer**, permitir cadastro/login e a compra da licença. Visual roxo neon escuro, usando a marca e o mascote que você enviou.
+
+## Identidade visual
+
+- Fundo quase preto azulado (#08070F / #0E0B1A), cartões em roxo profundo com borda sutil.
+- Roxo principal #7C3AED com brilho #A78BFA, títulos em branco com a segunda palavra em roxo (padrão "ORION **STORE**" das suas artes).
+- Tipografia condensada e forte nos títulos (estilo das artes) + fonte limpa no corpo.
+- Detalhes: anel neon ao redor do mascote, grade/pontos de fundo, brilho suave nos botões.
+- Suas imagens (logo, mascote, banner) entram como assets do site; o print do painel serve só como referência de conteúdo, não é embutido.
+
+## Páginas
+
+1. **Home (/)** — landing de vendas
+   - Header fixo: logo Orion Store, links (Recursos, Preços, FAQ), botões Entrar / Comprar.
+   - Hero: "PODER PARA SUA MÁQUINA." + subtítulo, botão principal, mascote com anel neon.
+   - Faixa de selos: Rápido · Seguro · Completo · Confiável (ícones roxos).
+   - Recursos: cards com as categorias reais do painel (Windows, Gaming, Sistema, Limpeza, BIOS, Monitor, Benchmark, Rede, Segurança).
+   - "Como funciona": 3 passos (Detecção real / Recomendações guiadas / Pontuação clara).
+   - Prévia do painel: mockup do app dentro de uma janela estilizada.
+   - Preços: 2–3 planos com destaque no PRO.
+   - FAQ + rodapé com logo, links e suporte.
+
+2. **/auth** — entrar e criar conta (e-mail + senha), no mesmo visual escuro.
+
+3. **/painel** (área logada) — sidebar escura igual ao app (Início, Licença, Downloads, Histórico, Suporte, Config) com:
+   - status da licença e chave,
+   - botão de download do instalador,
+   - histórico de compras.
+
+4. **/comprar** — resumo do plano escolhido e finalização.
+
+## Backend
+
+Ativar o Lovable Cloud (banco + login já integrados, sem contas externas) para:
+- contas de usuário (cadastro, login, sessão),
+- tabela de perfis, licenças (chave, plano, status, validade) e pedidos,
+- regras de acesso: cada usuário só enxerga os próprios dados.
+
+Pagamento com Stripe fica como etapa seguinte, depois que o site e a área do cliente estiverem prontos; até lá o botão de compra registra o pedido como pendente.
+
+## Detalhes técnicos
+
+- Rotas TanStack: `src/routes/index.tsx` (substitui o placeholder), `auth.tsx`, `comprar.tsx` e subtree `_authenticated/painel`.
+- Tokens de cor/raio/sombra em `src/styles.css` (oklch), sem cores fixas nos componentes.
+- Imagens enviadas publicadas via Lovable Assets e importadas por ponteiro `.asset.json`.
+- Ícones da sidebar/recursos com lucide-react (posso trocar pelos seus PNGs quando enviar).
+- SEO por rota: título, descrição, og/twitter.
+
+## Fora do escopo desta etapa
+
+- Checkout real / cobrança recorrente.
+- Geração automática de chave de licença validada pelo executável.
+
+
+adicione as imagens no site que estão no C:\Users\sousa\ORION STORE\image

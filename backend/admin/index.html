@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'" />
-  <link rel="icon" href="/favicon.ico" sizes="48x48" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'unsafe-inline'; connect-src 'self'; img-src 'self'" />
+  <link rel="icon" href="/admin/favicon.ico" sizes="48x48" />
+  <link rel="apple-touch-icon" href="/admin/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <meta name="theme-color" content="#070812" />
   <title>Orion Optimizer — Painel Administrativo</title>
   <style>
@@ -48,7 +51,7 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+      font-family: 'Space Grotesk', system-ui, sans-serif;
       font-size: 14px;
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
@@ -73,13 +76,8 @@
       width: 44px;
       height: 44px;
       border-radius: var(--radius-sm);
-      background: var(--gradient-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      font-weight: 700;
-      color: #fff;
+      object-fit: cover;
+      flex-shrink: 0;
     }
     .login-logo-text {
       font-size: 1.4rem;
@@ -221,13 +219,7 @@
       width: 32px;
       height: 32px;
       border-radius: var(--radius-sm);
-      background: var(--gradient-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 700;
-      color: #fff;
+      object-fit: cover;
       flex-shrink: 0;
     }
     .brand-text {
@@ -409,7 +401,7 @@
   <div id="loginWrap">
     <div class="login-header">
       <div class="login-logo">
-        <span class="login-logo-icon">&#x2B21;</span>
+        <img src="/admin/logo.jpeg" alt="Orion" class="login-logo-icon" />
         <span class="login-logo-text">ORION<span class="login-logo-sub">PAINEL ADMINISTRATIVO</span></span>
       </div>
     </div>
@@ -429,7 +421,7 @@
   <div id="appWrap" hidden>
     <header>
       <div class="brand">
-        <span class="brand-icon">&#x2B21;</span>
+        <img src="/admin/logo.jpeg" alt="Orion" class="brand-icon" />
         <div><span class="brand-text">ORION</span><span class="brand-sub">ADMIN</span></div>
       </div>
       <nav id="nav">
@@ -485,7 +477,7 @@
       <section id="v-usuarios" class="view">
         <h2 style="font-size:0.85rem;letter-spacing:1.5px;color:var(--primary-hover);text-transform:uppercase;margin-bottom:4px;font-weight:600;">Usuários</h2>
         <table id="tblUsr">
-          <thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Licenças</th><th>Criado em</th><th>Ativo</th></tr></thead>
+          <thead><tr><th>ID</th><th>Nome</th><th>Usuário</th><th>Licenças</th><th>Criado em</th><th>Ativo</th></tr></thead>
           <tbody></tbody>
         </table>
       </section>
@@ -521,20 +513,29 @@
             Ao publicar, a versão anterior é desativada e todos os apps instalados recebem
             o aviso de atualização na próxima verificação.
           </p>
+          <div style="background:var(--surface-hover);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:18px;">
+            <p style="font-size:0.78rem;color:var(--text-secondary);margin:0 0 8px;font-weight:600;">Como publicar uma atualização:</p>
+            <ol style="font-size:0.78rem;color:var(--text-dim);margin:0;padding-left:18px;line-height:1.8;">
+              <li>Rode <code style="color:var(--primary-hover);background:var(--primary-bg);padding:1px 5px;border-radius:3px;">npm run release</code> na pasta <b>desktop/</b> (gera o .exe e bumpa a versão)</li>
+              <li>Faça upload do arquivo <code style="color:var(--primary-hover);background:var(--primary-bg);padding:1px 5px;border-radius:3px;">release/ORION OPTIMIZER Setup-X.Y.Z.exe</code> para um hosting público</li>
+              <li>Cole a URL de download abaixo e clique PUBLICAR</li>
+            </ol>
+            <p class="hint" style="margin:8px 0 0">Hosting recomendado: <b>GitHub Releases</b> (gratuito, permanente, links diretos).</p>
+          </div>
           <div class="toolbar">
             <div><label>Versão (X.Y.Z)</label><input id="updVersao" placeholder="2.1.0" /></div>
-            <div style="min-width:340px"><label>URL de download</label><input id="updUrl" type="url" placeholder="https://seusite.com/downloads/..." /></div>
+            <div style="min-width:340px"><label>URL de download do .exe</label><input id="updUrl" type="url" placeholder="https://github.com/user/repo/releases/download/v2.1.0/ORION+OPTIMIZER+Setup-2.1.0.exe" /></div>
             <div><label>Obrigatória</label>
               <select id="updObri"><option value="0">Não</option><option value="1">Sim</option></select></div>
             <div style="margin-bottom:1px"><button id="updBtn" class="btn btn-primary">PUBLICAR</button></div>
           </div>
           <label style="max-width:640px">Changelog / notas da versão (opcional)</label>
-          <textarea id="updChangelog" rows="3" style="max-width:640px;"></textarea>
+          <textarea id="updChangelog" rows="3" style="max-width:640px;" placeholder="Ex.: Corrigido crash ao analisar BIOS, novo modo de otimização para SSD..."></textarea>
           <div id="updMsg" class="msg"></div>
         </div>
         <h2 style="font-size:0.85rem;letter-spacing:1.5px;color:var(--primary-hover);text-transform:uppercase;margin-bottom:4px;font-weight:600;">Histórico de versões</h2>
         <table id="tblUpd">
-          <thead><tr><th>Versão</th><th>Situação</th><th>Obrigatória</th><th>Liberada em</th><th>Changelog</th><th>Ações</th></tr></thead>
+          <thead><tr><th>Versão</th><th>Situação</th><th>Obrigatória</th><th>Liberada em</th><th>Changelog</th><th>URL</th><th>Ações</th></tr></thead>
           <tbody></tbody>
         </table>
       </section>
@@ -696,7 +697,7 @@ document.addEventListener('click', async (e) => {
 async function loadUsers() {
   const j = await call('/api/v1/admin/users');
   $('#tblUsr tbody').innerHTML = j.users.map((u) => `
-    <tr><td>${u.id}</td><td>${esc(u.nome)}</td><td>${esc(u.email)}</td><td>${u.licencas}</td>
+    <tr><td>${u.id}</td><td>${esc(u.nome)}</td><td>${esc(u.nome)}</td><td>${u.licencas}</td>
     <td>${fmtDate(u.criado_em)}</td><td>${u.ativo ? 'Sim' : 'Não'}</td></tr>`).join('');
 }
 async function loadDevices() {
@@ -734,13 +735,15 @@ async function loadStats() {
   const j = await call('/api/v1/admin/stats');
   const s = j.stats;
   const lic = s.licencas || {};
+  const upd = s.latestUpdate;
   $('#statsCards').innerHTML =
     statCard(lic.total || 0, 'Licenças emitidas') +
     statCard(lic.ativas || 0, 'Ativas', 'var(--green)') +
     statCard(lic.bloqueadas || 0, 'Bloqueadas', 'var(--red-bright)') +
     statCard(lic.expiradas || 0, 'Expiradas', 'var(--yellow)') +
     statCard(s.dispositivosAtivos, 'Dispositivos ativos') +
-    statCard(s.usuarios, 'Usuários cadastrados');
+    statCard(s.usuarios, 'Usuários cadastrados') +
+    (upd ? statCard('v' + upd.versao, 'Versão publicada' + (upd.obrigatoria ? ' (obrigatória)' : ''), 'var(--primary-hover)') : '');
   $('#tblPlanos tbody').innerHTML = (s.porPlano || []).map((p) =>
     `<tr><td><b>${esc(p.plano)}</b></td><td>${p.n}</td></tr>`).join('')
     || '<tr><td colspan="2" style="color:var(--text-dim)">Sem dados.</td></tr>';
@@ -758,11 +761,13 @@ async function loadUpdates() {
       <td>${u.ativa ? '<span class="st-ativa">ATIVA</span>' : '<span class="st-inativa">inativa</span>'}</td>
       <td>${u.obrigatoria ? 'Sim' : 'Não'}</td>
       <td>${fmtDate(u.liberada_em)}</td>
-      <td style="max-width:320px"><code style="font-size:11px;color:var(--text-dim)">${esc(u.changelog || '')}</code></td>
+      <td style="max-width:260px"><code style="font-size:11px;color:var(--text-dim)">${esc(u.changelog || '—')}</code></td>
+      <td style="max-width:200px">${u.url_download ? '<a href="' + esc(u.url_download) + '" target="_blank" rel="noopener" style="color:var(--primary-hover);font-size:0.75rem;text-decoration:none;word-break:break-all;">' + esc(u.url_download.slice(0, 50)) + (u.url_download.length > 50 ? '...' : '') + '</a>' : '<span style="color:var(--text-dim)">—</span>'}</td>
       <td><div class="row-actions">
-        <button class="btn btn-outline" data-u="toggle" data-id="${u.id}">${u.ativa ? 'Desativar' : 'Publicar'}</button>
+        <button class="btn btn-outline" data-u="toggle" data-id="${u.id}">${u.ativa ? 'Desativar' : 'Reativar'}</button>
+        ${u.url_download ? '<button class="btn btn-outline" data-u="copy-url" data-url="' + esc(u.url_download) + '">Copiar URL</button>' : ''}
       </div></td>
-    </tr>`).join('') || '<tr><td colspan="6" style="color:var(--text-dim)">Nenhuma versão publicada.</td></tr>';
+    </tr>`).join('') || '<tr><td colspan="7" style="color:var(--text-dim)">Nenhuma versão publicada.</td></tr>';
 }
 
 $('#updBtn').addEventListener('click', async () => {
@@ -778,9 +783,9 @@ $('#updBtn').addEventListener('click', async () => {
         obrigatoria: $('#updObri').value === '1'
       }
     });
-    msg.textContent = 'Versão publicada — os apps receberão o aviso na próxima verificação.';
+    msg.innerHTML = '✅ Versão publicada! Os apps receberão o aviso de atualização na próxima verificação. Os usuários podem atualizar em Configurações → Atualizações.';
     msg.classList.add('ok');
-    $('#updVersao').value = ''; $('#updChangelog').value = '';
+    $('#updVersao').value = ''; $('#updChangelog').value = ''; $('#updUrl').value = '';
     loadUpdates();
   } catch (e) { msg.textContent = 'Erro: ' + e.message; msg.classList.add('err'); }
 });
@@ -788,6 +793,12 @@ $('#updBtn').addEventListener('click', async () => {
 document.addEventListener('click', async (e) => {
   const b = e.target.closest('button[data-u]');
   if (!b) return;
+  if (b.dataset.u === 'copy-url') {
+    navigator.clipboard.writeText(b.dataset.url);
+    b.textContent = 'Copiado!';
+    setTimeout(() => { b.textContent = 'Copiar URL'; }, 1200);
+    return;
+  }
   b.disabled = true;
   try {
     await call(`/api/v1/admin/updates/${b.dataset.id}/toggle`, { method: 'POST', body: {} });

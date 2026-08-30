@@ -104,7 +104,8 @@ function initServices() {
   const logsDir = path.join(userData, 'engine', 'logs');
   const protectionDir = path.join(userData, 'engine', 'protection');
   // Garante os scripts materializados no perfil do usuário antes de qualquer uso.
-  require('./engine/scriptsSync').ensure();
+  // reinit() invalida o cache e refaz a cópia para AppData (garante que app está pronto).
+  require('./engine/scriptsSync').reinit();
   runner.setLogsDir(logsDir);
   protection.setBaseDir(protectionDir);
   engineService.setStateDir(path.join(stateDir, 'operations'));
@@ -134,6 +135,9 @@ function createWindow() {
   });
   mainWindow.setMenuBarVisibility(false);
   mainWindow.loadFile(path.join(__dirname, 'ui', 'index.html'));
+
+  // Envia referência da janela ao updater para comunicação via IPC.
+  updaterService.setMainWindow(mainWindow);
 
   // Minimizar para a bandeja em vez de fechar (preferência do usuário).
   mainWindow.on('close', (e) => {
@@ -369,6 +373,9 @@ function registerIpc() {
 
   // ---- Atualizações ----
   ipcMain.handle('update:check', () => updaterService.checkForUpdate());
+  ipcMain.handle('update:download', (_e, url) => updaterService.downloadUpdate(url));
+  ipcMain.handle('update:install', (_e, filePath) => updaterService.installUpdate(filePath));
+  ipcMain.handle('update:cancel', () => updaterService.cancelDownload());
 
   // ---- Metadados do produto / saúde da API ----
   const { APP_VERSION, OFFICIAL_URL } = require('./config/appConfig');

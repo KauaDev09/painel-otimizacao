@@ -13,7 +13,7 @@ const SUPPORT_EMAIL = '';
 // Suporte oficial via Discord (aberto pelo botão de suporte da interface).
 const OFFICIAL_URL = 'https://discord.gg/zEWrvddVmZ';
 // URL pública da API de licenças/atualizações (não é segredo).
-const DEFAULT_API_URL = 'https://mainstreet-bios-optimizer.vercel.app';
+const DEFAULT_API_URL = 'https://orion-optimizer-ten.vercel.app';
 
 module.exports = {
   APP_NAME,

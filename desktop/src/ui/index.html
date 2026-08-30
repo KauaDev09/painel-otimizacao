@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self'" />
   <title>ORION OPTIMIZER</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -11,7 +11,7 @@
   <!-- ===================== SIDEBAR ===================== -->
   <aside id="sidebar" class="sidebar">
     <div id="brand" class="sidebar-logo" data-view="home">
-      <span class="sidebar-logo-icon">⬡</span>
+      <img src="../assets/logo.jpeg" alt="Orion" class="sidebar-logo-img" />
       <div class="sidebar-logo-text">
         <span class="sidebar-logo-main">ORION</span>
         <span class="sidebar-logo-sub">OPTIMIZER</span>
@@ -20,83 +20,83 @@
 
     <nav class="sidebar-nav">
       <button data-view="home" class="sidebar-item active">
-        <span class="sidebar-icon">🏠</span>
+        <span class="sidebar-icon"><img src="../assets/inicio.png" alt="Início" /></span>
         <span class="sidebar-label">Início</span>
       </button>
 
       <div class="sidebar-section">OTIMIZAÇÃO</div>
 
       <button data-view="optimize" class="sidebar-item">
-        <span class="sidebar-icon">🪟</span>
+        <span class="sidebar-icon"><img src="../assets/windows.png" alt="Windows" /></span>
         <span class="sidebar-label">Windows</span>
       </button>
       <button data-view="gameboost" class="sidebar-item">
-        <span class="sidebar-icon">🎮</span>
+        <span class="sidebar-icon"><img src="../assets/gaming.png" alt="Gaming" /></span>
         <span class="sidebar-label">Gaming</span>
       </button>
       <button data-view="dashboard" class="sidebar-item">
-        <span class="sidebar-icon">💻</span>
+        <span class="sidebar-icon"><img src="../assets/sistema.png" alt="Sistema" /></span>
         <span class="sidebar-label">Sistema</span>
       </button>
       <button data-view="maintenance" class="sidebar-item">
-        <span class="sidebar-icon">🧹</span>
+        <span class="sidebar-icon"><img src="../assets/limpeza.png" alt="Limpeza" /></span>
         <span class="sidebar-label">Limpeza</span>
       </button>
       <button data-view="recs" class="sidebar-item">
-        <span class="sidebar-icon">⚙️</span>
+        <span class="sidebar-icon"><img src="../assets/bios.png" alt="BIOS" /></span>
         <span class="sidebar-label">BIOS</span>
       </button>
 
       <div class="sidebar-section">MONITORAMENTO</div>
 
       <button data-view="monitor" class="sidebar-item">
-        <span class="sidebar-icon">📈</span>
+        <span class="sidebar-icon"><img src="../assets/monitor.png" alt="Monitor" /></span>
         <span class="sidebar-label">Monitor</span>
       </button>
       <button data-view="benchmark" class="sidebar-item">
-        <span class="sidebar-icon">⚡</span>
+        <span class="sidebar-icon"><img src="../assets/benchmark.png" alt="Benchmark" /></span>
         <span class="sidebar-label">Benchmark</span>
       </button>
       <button data-view="network" class="sidebar-item">
-        <span class="sidebar-icon">🌐</span>
+        <span class="sidebar-icon"><img src="../assets/rede.png" alt="Rede" /></span>
         <span class="sidebar-label">Rede</span>
       </button>
       <button data-view="security" class="sidebar-item">
-        <span class="sidebar-icon">🛡️</span>
+        <span class="sidebar-icon"><img src="../assets/seguranca.png" alt="Segurança" /></span>
         <span class="sidebar-label">Segurança</span>
       </button>
 
       <div class="sidebar-section">FERRAMENTAS</div>
 
       <button data-view="startup" class="sidebar-item">
-        <span class="sidebar-icon">🚀</span>
+        <span class="sidebar-icon"><img src="../assets/inicializacao.png" alt="Inicialização" /></span>
         <span class="sidebar-label">Inicialização</span>
       </button>
       <button data-view="processes" class="sidebar-item">
-        <span class="sidebar-icon">📊</span>
+        <span class="sidebar-icon"><img src="../assets/processos.png" alt="Processos" /></span>
         <span class="sidebar-label">Processos</span>
       </button>
       <button data-view="restore" class="sidebar-item">
-        <span class="sidebar-icon">↩️</span>
+        <span class="sidebar-icon"><img src="../assets/restauracao.png" alt="Restauração" /></span>
         <span class="sidebar-label">Restauração</span>
       </button>
       <button data-view="history" class="sidebar-item">
-        <span class="sidebar-icon">📋</span>
+        <span class="sidebar-icon"><img src="../assets/historico.png" alt="Histórico" /></span>
         <span class="sidebar-label">Histórico</span>
       </button>
 
       <div class="sidebar-section">CONTA</div>
 
       <button data-view="activation" class="sidebar-item">
-        <span class="sidebar-icon">🔑</span>
+        <span class="sidebar-icon"><img src="../assets/licenca.png" alt="Licença" /></span>
         <span class="sidebar-label">Licença</span>
       </button>
       <button data-view="settings" class="sidebar-item">
-        <span class="sidebar-icon">⚙️</span>
+        <span class="sidebar-icon"><img src="../assets/config.png" alt="Config" /></span>
         <span class="sidebar-label">Config</span>
       </button>
       <button data-view="support" class="sidebar-item">
-        <span class="sidebar-icon">❓</span>
+        <span class="sidebar-icon"><img src="../assets/suporte.png" alt="Suporte" /></span>
         <span class="sidebar-label">Suporte</span>
       </button>
     </nav>
@@ -122,11 +122,16 @@
     <!-- ===================== HOME ===================== -->
     <section id="view-home" class="view active">
       <div class="hero">
-        <div class="hero-glow"></div>
-        <h1><span class="accent">ORION</span> OPTIMIZER</h1>
-        <p class="subtitle">Advanced PC Performance Suite</p>
-        <p class="tagline">Analise sua máquina e otimize o desempenho com precisão.</p>
-        <button id="analyzeBtn" class="btn btn-primary btn-big">▶ ANALISAR SISTEMA</button>
+        <div class="hero-content">
+          <div class="hero-glow"></div>
+          <h1><span class="accent">ORION</span> OPTIMIZER</h1>
+          <p class="subtitle">Advanced PC Performance Suite</p>
+          <p class="tagline">Analise sua máquina e otimize o desempenho com precisão.</p>
+          <button id="analyzeBtn" class="btn btn-primary btn-big">▶ ANALISAR SISTEMA</button>
+        </div>
+        <div class="hero-mascot">
+          <img src="../assets/mascot-welcome.jpg" alt="Orion Mascot" />
+        </div>
       </div>
       <div class="home-grid">
         <div class="feature"><h3>1 · Detecção real</h3><p>CPU, GPU, RAM, placa-mãe e BIOS lidos via CIM/WMI — nada é inventado.</p></div>
@@ -309,15 +314,20 @@
     <!-- ===================== ATIVAÇÃO DE LICENÇA ===================== -->
     <section id="view-activation" class="view">
       <div class="hero">
-        <div class="hero-glow"></div>
-        <h1><span class="accent">ATIVAR</span> LICENÇA</h1>
-        <p class="tagline">Informe sua chave para liberar todos os recursos do Orion Optimizer.</p>
-        <div class="activation-panel">
-          <input id="licenseKeyInput" class="license-input" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="29" spellcheck="false" autocomplete="off" />
-          <button id="activateBtn" class="btn btn-primary btn-big">ATIVAR AGORA</button>
-          <div id="activationMsg" class="activation-msg"></div>
-          <p class="disclaimer" id="activationDevice"></p>
-          <p class="disclaimer">A licença é vinculada a este computador e validada com segurança no servidor — nenhum dado sensível é armazenado no aplicativo.</p>
+        <div class="hero-content">
+          <div class="hero-glow"></div>
+          <h1><span class="accent">ATIVAR</span> LICENÇA</h1>
+          <p class="tagline">Informe sua chave para liberar todos os recursos do Orion Optimizer.</p>
+          <div class="activation-panel">
+            <input id="licenseKeyInput" class="license-input" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="29" spellcheck="false" autocomplete="off" />
+            <button id="activateBtn" class="btn btn-primary btn-big">ATIVAR AGORA</button>
+            <div id="activationMsg" class="activation-msg"></div>
+            <p class="disclaimer" id="activationDevice"></p>
+            <p class="disclaimer">A licença é vinculada a este computador e validada com segurança no servidor — nenhum dado sensível é armazenado no aplicativo.</p>
+          </div>
+        </div>
+        <div class="hero-mascot">
+          <img src="../assets/mascot-pointing.jpg" alt="Orion" />
         </div>
       </div>
     </section>
@@ -453,9 +463,61 @@
         </div>
         <div class="hw-card full">
           <h3>Atualizações</h3>
-          <label class="opt-item setting-row"><input type="checkbox" id="setAutoUpdate"/><div class="opt-body"><div class="opt-title">Verificar atualizações automaticamente</div><div class="opt-desc">Consulta o servidor ao iniciar; nunca instala nada sozinho.</div></div></label>
-          <button id="checkUpdateBtn" class="btn btn-outline">VERIFICAR ATUALIZAÇÕES AGORA</button>
-          <span id="updateCheckMsg" class="dim-note" style="margin-left:10px"></span>
+          <div class="update-section">
+            <div class="update-current">
+              <span class="dim-note">Versão instalada: <strong id="currentVersionLabel">v2.0.0</strong></span>
+              <span id="updateCheckMsg" class="dim-note"></span>
+            </div>
+            <label class="opt-item setting-row"><input type="checkbox" id="setAutoUpdate"/><div class="opt-body"><div class="opt-title">Verificar atualizações automaticamente</div><div class="opt-desc">Consulta o servidor ao iniciar; avisa quando houver nova versão.</div></div></label>
+            <button id="checkUpdateBtn" class="btn btn-outline">VERIFICAR ATUALIZAÇÕES AGORA</button>
+          </div>
+
+          <!-- Painel de atualização disponível (escondido por padrão) -->
+          <div id="updatePanel" class="update-panel hidden">
+            <div class="update-info">
+              <div class="update-versions">
+                <span class="update-badge-current">INSTALADA: <strong id="updateCurrentVer"></strong></span>
+                <span class="update-badge-new">NOVA: <strong id="updateNewVer"></strong></span>
+              </div>
+              <p id="updateChangelog" class="update-changelog"></p>
+              <p id="updateReleasedAt" class="dim-note"></p>
+            </div>
+            <div class="update-actions">
+              <button id="updateDownloadBtn" class="btn btn-primary">BAIXAR ATUALIZAÇÃO</button>
+              <button id="updateLaterBtn" class="btn btn-outline">MAIS TARDE</button>
+            </div>
+          </div>
+
+          <!-- Painel de progresso do download (escondido por padrão) -->
+          <div id="updateProgressPanel" class="update-progress-panel hidden">
+            <div class="update-progress-header">
+              <span class="spinner spinner-sm"></span>
+              <span id="updateProgressLabel">Baixando atualização...</span>
+              <button id="updateCancelBtn" class="btn btn-outline btn-sm">CANCELAR</button>
+            </div>
+            <div class="progress-bar">
+              <div id="updateProgressBar" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="update-progress-details">
+              <span id="updateProgressPercent">0%</span>
+              <span id="updateProgressSize">0 MB / 0 MB</span>
+            </div>
+          </div>
+
+          <!-- Painel de instalação (escondido por padrão) -->
+          <div id="updateInstallingPanel" class="update-installing-panel hidden">
+            <div class="update-progress-header">
+              <span class="spinner spinner-sm"></span>
+              <span id="updateInstallingLabel">Instalando atualização...</span>
+            </div>
+            <p class="dim-note">O aplicativo será reiniciado automaticamente após a instalação.</p>
+          </div>
+
+          <!-- Mensagem de sucesso (escondido por padrão) -->
+          <div id="updateSuccessPanel" class="update-success-panel hidden">
+            <span class="update-success-icon">✓</span>
+            <span>Atualização instalada com sucesso!</span>
+          </div>
         </div>
         <div class="hw-card full">
           <h3>Licença</h3>
@@ -496,6 +558,7 @@
           </div>
           <div class="counts-panel">
             <h3>Contato</h3>
+            <div class="support-mascot"><img src="../assets/mascot-support.jpg" alt="Orion Suporte" /></div>
             <p class="empty-note">Precisa de ajuda com licença, ativação ou reembolso? Fale com o suporte oficial.</p>
             <button id="contactSupportBtn" class="btn btn-primary">ABRIR PÁGINA DE SUPORTE</button>
           </div>

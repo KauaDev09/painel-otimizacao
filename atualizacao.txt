@@ -1,0 +1,137 @@
+Refatore o layout visual de todo o aplicativo Orion Optimizer (Electron/React + TypeScript). Mantenha 100% das funcionalidades, rotas, estados e chamadas ao backend — altere apenas camada de apresentação: CSS/Tailwind, componentes de UI e composição de layout.
+
+
+
+
+1. Design system centralizado
+Crie/atualize um único arquivo de tokens (styles/theme.css ou globals.css) com variáveis semânticas e use-as em todo lugar. Proíba cores hardcoded (#fff, text-white, bg-black) nos componentes.
+
+
+
+--bg: #0A0A12          /* fundo base */
+--bg-elevated: #101018 /* cards, tabelas */
+--bg-hover: #16161F
+--border: #1F1F2E
+--fg: #E8E8F0
+--fg-muted: #8A8AA3
+--primary: #7C5CFF     /* roxo de marca */
+--primary-hover: #6B4AF0
+--primary-glow: rgba(124,92,255,.35)
+--success: #34D399  --warning: #FBBF24  --danger: #F87171
+--radius: 12px
+--shadow-card: 0 1px 0 rgba(255,255,255,.03), 0 8px 24px rgba(0,0,0,.45)
+
+
+
+
+Fundo do app com gradiente sutil: radial-gradient(1200px 600px at 20% -10%, rgba(124,92,255,.10), transparent) sobre --bg.
+
+
+
+
+2. Shell do app (aplicar a todas as telas)
+
+
+
+
+
+Sidebar fixa 240px: logo Orion no topo, grupos com labels em maiúsculas pequenas (OTIMIZAÇÃO, MONITORAMENTO, FERRAMENTAS, CONTA), itens com ícone + label. Item ativo = fundo --bg-hover, barra vertical roxa de 3px à esquerda, texto e ícone em --primary. Hover suave 150ms. Versão no rodapé em --fg-muted.
+
+
+Topbar 56px sticky com blur (backdrop-blur, borda inferior --border): botão de colapsar sidebar à esquerda, título da página centralizado, badge PRO + avatar à direita.
+
+
+Container de conteúdo: max-width: 1400px, padding 32px, centralizado.
+
+
+
+
+
+3. Padrão de página (usar em TODAS as telas)
+Crie um componente PageHeader reutilizável: título H1 (24px, semibold), subtítulo/descrição opcional em --fg-muted (14px), e slot de ações à direita (botões). Abaixo, SectionLabel para os títulos de seção (11px, uppercase, letter-spacing .08em, --fg-muted, com linha divisória fina).
+
+
+
+
+4. Componentes a padronizar
+
+
+
+
+
+Botões: primary (fundo --primary, sombra com --primary-glow no hover, sem uppercase forçado — usar Sentence case), secondary (fundo --bg-elevated + borda), ghost, danger. Altura 36px, radius 10px.
+
+
+Cards: --bg-elevated, borda --border, radius --radius, --shadow-card; hover eleva levemente a borda para roxo translúcido.
+
+
+Tabelas: header com fundo --bg-hover, texto uppercase 11px --fg-muted; linhas com borda inferior sutil e hover --bg-hover; densidade confortável (48px por linha); primeira coluna em semibold; estado vazio centralizado com ícone + texto em --fg-muted (não uma linha de tabela solta).
+
+
+Badges: pílulas 11px — PRO (roxo translúcido), GRÁTIS/RISCO BAIXO (verde), RISCO MÉDIO (âmbar), RISCO ALTO (vermelho), ADMIN/SISTEMA/PROTEGIDO (neutro). Todos com fundo color/12% + texto na cor + borda color/25%.
+
+
+Toggles/switches e checkboxes: estado ativo roxo com glow suave, transição 150ms.
+
+
+Selects: estilizados com o tema (não usar aparência nativa do sistema).
+
+
+Métricas (Monitor): cards com label uppercase, valor grande (28px, tabular-nums), barra de progresso 4px com preenchimento gradiente roxo→ciano e trilha --bg-hover; valor indisponível mostra "—" em --fg-muted.
+
+
+Score circular (Game Boost / Segurança): anel SVG com stroke-dasharray animado, gradiente roxo, número grande no centro, label ao lado.
+
+
+
+
+
+5. Correções específicas de layout observadas
+
+
+
+
+
+Telas com estado vazio (Game Boost, Segurança, Benchmark, Restauração) hoje deixam um vazio enorme: substitua por um empty state centralizado (ícone circular, título curto, descrição, botão de ação primário) ocupando a área útil.
+
+
+Na tela de Rede, os blocos "Ethernet 802.3" e "Servidores DNS" estão com títulos e valores grudados: use grid de pares label (uppercase 11px muted) + valor (14px semibold), com espaçamento de 12px e 2 colunas em telas largas.
+
+
+Na tela de Segurança, "Security Score" e "Ameaças" estão desalinhados à direita: mova para um painel lateral (grid 2 colunas: conteúdo 1fr + painel 320px) ou empilhe no topo.
+
+
+Limpeza: alinhe o tamanho ("— MB") à direita com tabular-nums; os cards de reparo SFC/DISM devem ter altura igual (grid com 1fr e botão fixado no rodapé do card).
+
+
+Sidebar: remova a barra de scroll horizontal visível no rodapé.
+
+
+
+
+
+6. Tipografia e responsividade
+
+
+
+
+
+Fonte: Inter (ou Geist) com font-feature-settings: "tnum" em números.
+
+
+Escala: H1 24px/600, H2 18px/600, body 14px/400, caption 12px, label 11px uppercase.
+
+
+Sidebar colapsa para ícones em <1100px e vira drawer em <768px; tabelas ganham scroll horizontal com sombra de borda indicando conteúdo cortado.
+
+
+
+
+
+7. Micro-interações
+Transições de 150–200ms em hover/focus, foco visível com anel --primary (acessibilidade), skeleton loaders em vez de telas vazias durante carregamento, e animação de entrada suave (fade+translate 8px) nas listas.
+
+
+
+
+Regras finais: não renomeie props nem quebre tipos existentes; extraia os componentes de UI para components/ui/ e reutilize-os em todas as páginas; nenhuma página deve conter estilos ad-hoc duplicados.

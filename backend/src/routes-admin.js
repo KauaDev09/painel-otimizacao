@@ -277,6 +277,8 @@ function register(router) {
           FROM historico_otimizacoes
          ORDER BY id DESC LIMIT 500
       ) h WHERE h.versao IS NOT NULL GROUP BY h.versao`);
+    const latestUpdate = await db.queryOne(config,
+      `SELECT versao, obrigatoria, liberada_em FROM atualizacoes WHERE ativa = 1 ORDER BY id DESC LIMIT 1`);
     return {
       ok: true,
       stats: {
@@ -285,7 +287,8 @@ function register(router) {
         usuarios: usuarios ? usuarios.n : 0,
         porPlano,
         ativacoesSemana,
-        versoes
+        versoes,
+        latestUpdate: latestUpdate || null
       }
     };
   });

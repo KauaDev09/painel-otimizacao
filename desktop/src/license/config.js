@@ -9,7 +9,7 @@
 const { DEFAULT_API_URL } = require('../config/appConfig');
 
 function getApiBaseUrl() {
-  return String(process.env.ORION_API_URL || process.env.MAINSTREET_API_URL || DEFAULT_API_URL).replace(/\/+$/, '');
+  return String(process.env.ORION_API_URL || DEFAULT_API_URL).replace(/\/+$/, '');
 }
 
 module.exports = { getApiBaseUrl };

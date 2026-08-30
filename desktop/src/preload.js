@@ -61,6 +61,15 @@ contextBridge.exposeInMainWorld('OrionAPI', {
   settingsGet: () => ipcRenderer.invoke('settings:get'),
   settingsSet: (patch) => ipcRenderer.invoke('settings:set', patch),
   updateCheck: () => ipcRenderer.invoke('update:check'),
+  updateDownload: (url) => ipcRenderer.invoke('update:download', url),
+  updateInstall: (filePath) => ipcRenderer.invoke('update:install', filePath),
+  updateCancel: () => ipcRenderer.invoke('update:cancel'),
+  onDownloadProgress: (cb) => {
+    ipcRenderer.on('update:download-progress', (_e, progress) => cb(progress));
+  },
+  onInstalling: (cb) => {
+    ipcRenderer.on('update:installing', (_e, info) => cb(info));
+  },
   getAppMeta: () => ipcRenderer.invoke('app:meta'),
   appHealth: () => ipcRenderer.invoke('app:health'),
   openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url),

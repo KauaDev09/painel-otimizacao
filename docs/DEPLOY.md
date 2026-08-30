@@ -83,9 +83,9 @@ normal criado acima.
 
 ## 4. Desktop apontando para produção
 
-O app já usa `https://orion-optimizer-six.vercel.app` como API padrão
-(`desktop/src/config/appConfig.js` → `DEFAULT_API_URL`). Ajuste para a URL
-final do seu projeto na Vercel e redistribua o instalador:
+O app usa a URL de produção como API padrão
+(`desktop/src/config/appConfig.js` → `DEFAULT_API_URL`). Ponto de produção atual:
+`https://orion-optimizer-ten.vercel.app`. Para mudar e redistribuir o instalador:
 
 ```bash
 cd desktop
@@ -103,3 +103,29 @@ npm run dist
 Não foi necessário: a Vercel já cobre backend+painel (serverless) e o TiDB Cloud
 substitui o banco. Railway só faria sentido se você quisesse um processo Node
 sempre ligado em vez de serverless — desnecessário para este volume.
+
+## Status do deploy (executado em conclusão)
+
+| Item | Valor |
+|------|-------|
+| GitHub repo | `https://github.com/KauaDev09/painel-otimizacao` (branch `main`) |
+| TiDB Cloud | Starter `gateway01.us-east-1.prod.aws.tidbcloud.com:4000`, DB `bios_optimizer` |
+| Schema | `database/schema.sql` carregado (10 tabelas) |
+| Admin | `haridade` criado no banco |
+| Vercel projeto | `orion-optimizer` (root: `backend`) |
+| Vercel env vars | `APP_SECRET`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `CORS_ORIGIN` |
+| URL produção | https://orion-optimizer-ten.vercel.app |
+| Painel admin | https://orion-optimizer-ten.vercel.app/admin |
+
+Envio de **novos deploys** (após alterações no backend):
+
+```bash
+cd backend
+vercel --prod --yes
+```
+
+Envio de código ao GitHub (após commits):
+
+```bash
+git push origin main
+```
