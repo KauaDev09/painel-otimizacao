@@ -15,4 +15,7 @@ backend/.env.local
 state/
 
 .vercel
-.env*
+.env
+.env.local
+.env.*
+!.env.example

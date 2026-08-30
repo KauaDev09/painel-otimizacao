@@ -1,5 +1,8 @@
--- MAINSTREET BIOS OPTIMIZER — Schema do banco (MySQL 8+ / InnoDB / utf8mb4)
--- Aplicar: mysql -u root -p < sql/schema.sql
+-- ORION OPTIMIZER — Schema do banco (MySQL 8+ / InnoDB / utf8mb4)
+-- Compatível com TiDB Cloud Serverless (MySQL-compatible).
+-- Aplicar: mysql -u root -p < sql/schema.sql  ou  colar no SQL Editor do TiDB.
+-- Nota TiDB: foreign keys são aceitas; se alguma versão antiga der warning,
+-- basta ignorar (o TiDB não aplica as restrições, o schema continua válido).
 
 CREATE DATABASE IF NOT EXISTS bios_optimizer
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
