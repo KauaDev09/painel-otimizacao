@@ -728,6 +728,41 @@ function logout() {
 
 $('#logoutBtn').addEventListener('click', logout);
 
+/* ---------- Login ---------- */
+$('#loginBtn').addEventListener('click', async () => {
+  const msg = $('#loginMsg');
+  msg.className = 'msg'; msg.textContent = '';
+  const usuario = $('#loginUser').value.trim();
+  const senha = $('#loginPass').value;
+
+  if (!usuario) { msg.textContent = 'Informe o usuário ou token mestre.'; msg.classList.add('err'); return; }
+
+  if (!senha) {
+    TOKEN = usuario;
+    sessionStorage.setItem('msAdminToken', TOKEN);
+    try { await call('/api/v1/admin/licenses'); } catch (e) { msg.textContent = 'Token inválido.'; msg.classList.add('err'); logout(); return; }
+    boot();
+    return;
+  }
+
+  msg.textContent = 'Autenticando…';
+  try {
+    const res = await fetch(API + '/api/v1/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario, senha })
+    });
+    const j = await res.json().catch(() => ({ ok: false }));
+    if (!j.ok) { msg.textContent = j.message || 'Credenciais inválidas.'; msg.classList.add('err'); return; }
+    TOKEN = j.token;
+    sessionStorage.setItem('msAdminToken', TOKEN);
+    boot();
+  } catch (e) { msg.textContent = 'Erro ao conectar: ' + e.message; msg.classList.add('err'); }
+});
+
+$('#loginPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#loginBtn').click(); });
+$('#loginUser').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#loginPass').focus(); });
+
 /* ---------- Sidebar toggle (desktop) ---------- */
 const sidebar = $('#sidebar');
 if (sidebar) {
