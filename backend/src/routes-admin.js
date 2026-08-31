@@ -22,18 +22,291 @@ function isAuthorized(req) {
 }
 
 async function listLicenses() {
-  return db.query(
+  try {
+    return await db.query(
+      config,
+      `SELECT l.id, l.chave, l.plano, l.status, l.max_dispositivos, l.criada_em, l.expira_em,
+              l.renovada_em, l.bloqueada_em, l.observacao, l.versao_autorizada, l.pedido_loja,
+              u.nome AS usuario_nome,
+              u.email AS usuario_email,
+              (SELECT COUNT(*) FROM dispositivos d WHERE d.licenca_id = l.id AND d.ativo = 1) AS dispositivos_ativos,
+              (SELECT d.hostname FROM dispositivos d WHERE d.licenca_id = l.id AND d.ativo = 1
+                ORDER BY d.ultimo_visto DESC LIMIT 1) AS maquina
+         FROM licencas l
+         LEFT JOIN usuarios u ON u.id = l.usuario_id
+        ORDER BY l.id DESC
+        LIMIT 500`
+    );
+  } catch (_) {
+    return db.query(
+      config,
+      `SELECT l.id, l.chave, l.plano, l.status, l.max_dispositivos, l.criada_em, l.expira_em,
+              l.renovada_em, l.bloqueada_em, l.observacao,
+              u.nome AS usuario_nome,
+              u.email AS usuario_email,
+              (SELECT COUNT(*) FROM dispositivos d WHERE d.licenca_id = l.id AND d.ativo = 1) AS dispositivos_ativos
+         FROM licencas l
+         LEFT JOIN usuarios u ON u.id = l.usuario_id
+        ORDER BY l.id DESC
+        LIMIT 500`
+    );
+  }
+}
+
+async function upsertUsuarioByEmail(nome, email) {
+  const mail = String(email || '').trim().toLowerCase();
+  if (!mail) return null;
+  let u = await db.queryOne(config, 'SELECT id FROM usuarios WHERE email = ? LIMIT 1', [mail]);
+  if (u) {
+    if (nome) {
+      await db.query(config, 'UPDATE usuarios SET nome = COALESCE(?, nome) WHERE id = ?', [nome, u.id]);
+    }
+    return u.id;
+  }
+  await db.query(
     config,
-    `SELECT l.id, l.chave, l.plano, l.status, l.max_dispositivos, l.criada_em, l.expira_em,
-            l.renovada_em, l.bloqueada_em, l.observacao,
-            u.nome AS usuario_nome,
-            u.email AS usuario_email,
-            (SELECT COUNT(*) FROM dispositivos d WHERE d.licenca_id = l.id AND d.ativo = 1) AS dispositivos_ativos
-       FROM licencas l
-       LEFT JOIN usuarios u ON u.id = l.usuario_id
-      ORDER BY l.id DESC
-      LIMIT 500`
+    'INSERT INTO usuarios (nome, email, criado_em) VALUES (?, ?, NOW())',
+    [nome || mail, mail]
   );
+  u = await db.queryOne(config, 'SELECT id FROM usuarios WHERE email = ? LIMIT 1', [mail]);
+  return u ? u.id : null;
+}
+
+async function currentPublishedVersion() {
+  try {
+    return await db.queryOne(
+      config,
+      `SELECT versao, exige_pagamento, preco, url_download FROM atualizacoes WHERE ativa = 1 ORDER BY id DESC LIMIT 1`
+    );
+  } catch (_) {
+    return db.queryOne(
+      config,
+      `SELECT versao, url_download FROM atualizacoes WHERE ativa = 1 ORDER BY id DESC LIMIT 1`
+    );
+  }
+}
+
+async function insertPagamento(licencaId, valor, storeOrderId) {
+  const amount = Number(valor);
+  const safeAmount = Number.isFinite(amount) ? amount : 0;
+  try {
+    await db.query(
+      config,
+      `INSERT INTO pagamentos (licenca_id, valor, moeda, provedor, ref_externa, status, pago_em, criado_em)
+       VALUES (?, ?, 'BRL', 'mercadopago', ?, 'aprovado', NOW(), NOW())`,
+      [licencaId, safeAmount, storeOrderId]
+    );
+  } catch (err) {
+    if (err && (err.code === 'ER_DUP_ENTRY' || err.errno === 1062)) return { duplicate: true };
+    throw err;
+  }
+  return { duplicate: false };
+}
+
+function licensePublic(lic, extra = {}) {
+  return {
+    key: lic.chave,
+    plano: lic.plano,
+    status: lic.status,
+    expiresAt: lic.expira_em ? new Date(lic.expira_em).toISOString() : null,
+    authorizedVersion: lic.versao_autorizada || null,
+    createdAt: lic.criada_em ? new Date(lic.criada_em).toISOString() : null,
+    ...extra
+  };
+}
+
+async function findCustomerLicense(usuarioId) {
+  if (!usuarioId) return null;
+  return db.queryOne(
+    config,
+    `SELECT * FROM licencas
+      WHERE usuario_id = ?
+      ORDER BY (status = 'ativa') DESC,
+               (expira_em IS NULL) DESC,
+               id DESC
+      LIMIT 1`,
+    [usuarioId]
+  );
+}
+
+/**
+ * Provisiona/renova licença a partir da loja após pagamento aprovado.
+ * Idempotente por storeOrderId (pagamentos.ref_externa).
+ */
+async function provisionFromStore(body) {
+  const storeOrderId = String((body && body.storeOrderId) || '').trim();
+  const email = String((body && body.email) || '').trim().toLowerCase();
+  const nome = String((body && body.name) || '').trim().slice(0, 120) || email;
+  const plano = String((body && body.plano) || '30d');
+  const diasRaw = body && body.dias;
+  const dias = diasRaw == null || diasRaw === '' ? null : Number(diasRaw);
+  const isUpdate = plano === 'update' || plano === 'atualizacao';
+  const isLifetime = plano === 'vitalicia' || plano === 'lifetime' || dias === 0;
+  const valor = body && body.valor;
+
+  if (!storeOrderId) return { ok: false, code: 'BAD_REQUEST', message: 'Pedido inválido.', status: 400 };
+  if (!email) return { ok: false, code: 'BAD_REQUEST', message: 'Email do cliente é obrigatório.', status: 400 };
+  if (!isUpdate && !isLifetime && (!Number.isFinite(dias) || dias < 1)) {
+    return { ok: false, code: 'BAD_REQUEST', message: 'Duração da licença inválida.', status: 400 };
+  }
+
+  const existingPay = await db.queryOne(
+    config,
+    "SELECT * FROM pagamentos WHERE ref_externa = ? LIMIT 1",
+    [storeOrderId]
+  );
+  if (existingPay && existingPay.licenca_id) {
+    const lic = await db.queryOne(config, 'SELECT * FROM licencas WHERE id = ? LIMIT 1', [existingPay.licenca_id]);
+    if (lic) {
+      return { ok: true, alreadyProcessed: true, action: 'duplicate', ...licensePublic(lic) };
+    }
+  }
+
+  const usuarioId = await upsertUsuarioByEmail(nome, email);
+  const latest = await currentPublishedVersion();
+  const latestVersion = (latest && latest.versao) || String((body && body.versaoAutorizada) || '1.0.0');
+
+  if (isUpdate) {
+    const lic = await findCustomerLicense(usuarioId);
+    if (!lic) {
+      return { ok: false, code: 'LICENSE_NOT_FOUND', message: 'Licença não encontrada para este cliente.', status: 404 };
+    }
+    const newVer = latestVersion;
+    try {
+      await db.query(config, 'UPDATE licencas SET versao_autorizada = ? WHERE id = ?', [newVer, lic.id]);
+    } catch (err) {
+      console.error('[provision] falha ao gravar versão autorizada', err.message || err);
+      return { ok: false, code: 'LICENSE_UPDATE_FAILED', message: 'Não foi possível liberar a atualização.', status: 500 };
+    }
+    const pay = await insertPagamento(lic.id, valor, storeOrderId);
+    if (pay.duplicate) {
+      const again = await db.queryOne(config, 'SELECT * FROM licencas WHERE id = ? LIMIT 1', [lic.id]);
+      return { ok: true, alreadyProcessed: true, action: 'duplicate', ...licensePublic(again) };
+    }
+    await db.query(config, 'INSERT INTO logs (evento, licenca_id, detalhe, criado_em) VALUES (?, ?, ?, NOW())',
+      ['license.update_granted', lic.id, JSON.stringify({ storeOrderId, versao: newVer })]);
+    const updated = await db.queryOne(config, 'SELECT * FROM licencas WHERE id = ? LIMIT 1', [lic.id]);
+    return { ok: true, action: 'update_granted', alreadyProcessed: false, ...licensePublic(updated) };
+  }
+
+  const current = await findCustomerLicense(usuarioId);
+
+  if (!current) {
+    const chave = generateLicenseKey();
+    try {
+      if (isLifetime) {
+        await db.query(
+          config,
+          `INSERT INTO licencas (chave, plano, status, max_dispositivos, criada_em, expira_em, observacao, usuario_id, versao_autorizada, pedido_loja)
+           VALUES (?, 'vitalicia', 'ativa', ?, NOW(), NULL, ?, ?, ?, ?)`,
+          [chave, config.license.defaultMaxDevices, 'loja:' + storeOrderId, usuarioId, latestVersion, storeOrderId]
+        );
+      } else {
+        await db.query(
+          config,
+          `INSERT INTO licencas (chave, plano, status, max_dispositivos, criada_em, expira_em, observacao, usuario_id, versao_autorizada, pedido_loja)
+           VALUES (?, ?, 'ativa', ?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY), ?, ?, ?, ?)`,
+          [chave, plano, config.license.defaultMaxDevices, dias, 'loja:' + storeOrderId, usuarioId, latestVersion, storeOrderId]
+        );
+      }
+    } catch (err) {
+      if (String(err.message || '').includes('versao_autorizada') || String(err.message || '').includes('pedido_loja')) {
+        if (isLifetime) {
+          await db.query(
+            config,
+            `INSERT INTO licencas (chave, plano, status, max_dispositivos, criada_em, expira_em, observacao, usuario_id)
+             VALUES (?, 'vitalicia', 'ativa', ?, NOW(), NULL, ?, ?)`,
+            [chave, config.license.defaultMaxDevices, 'loja:' + storeOrderId, usuarioId]
+          );
+        } else {
+          await db.query(
+            config,
+            `INSERT INTO licencas (chave, plano, status, max_dispositivos, criada_em, expira_em, observacao, usuario_id)
+             VALUES (?, ?, 'ativa', ?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY), ?, ?)`,
+            [chave, plano, config.license.defaultMaxDevices, dias, 'loja:' + storeOrderId, usuarioId]
+          );
+        }
+      } else {
+        console.error('[provision] falha ao criar licença', err);
+        return { ok: false, code: 'LICENSE_CREATE_FAILED', message: 'Erro ao gerar a licença.', status: 500 };
+      }
+    }
+    const created = await db.queryOne(config, 'SELECT * FROM licencas WHERE chave = ? LIMIT 1', [chave]);
+    await insertPagamento(created.id, valor, storeOrderId);
+    await db.query(config, 'INSERT INTO logs (evento, licenca_id, detalhe, criado_em) VALUES (?, ?, ?, NOW())',
+      ['license.store_created', created.id, JSON.stringify({ storeOrderId, plano, dias })]);
+    return { ok: true, action: 'created', alreadyProcessed: false, ...licensePublic(created) };
+  }
+
+  const expired = current.expira_em && new Date(current.expira_em).getTime() <= Date.now();
+  const currentIsLifetime = !current.expira_em || current.plano === 'vitalicia' || current.plano === 'lifetime';
+
+  if (currentIsLifetime && !expired) {
+    const pay = await insertPagamento(current.id, valor, storeOrderId);
+    await db.query(config, 'INSERT INTO logs (evento, licenca_id, detalhe, criado_em) VALUES (?, ?, ?, NOW())',
+      ['license.store_keep_lifetime', current.id, JSON.stringify({ storeOrderId, plano })]);
+    return {
+      ok: true,
+      action: isLifetime ? 'already_lifetime' : 'keep_lifetime',
+      alreadyProcessed: pay.duplicate,
+      ...licensePublic(current)
+    };
+  }
+
+  if (isLifetime) {
+    try {
+      await db.query(
+        config,
+        `UPDATE licencas
+            SET plano = 'vitalicia', expira_em = NULL, status = 'ativa',
+                versao_autorizada = COALESCE(versao_autorizada, ?),
+                renovada_em = NOW(), bloqueada_em = NULL
+          WHERE id = ?`,
+        [latestVersion, current.id]
+      );
+    } catch (_) {
+      await db.query(
+        config,
+        `UPDATE licencas SET plano = 'vitalicia', expira_em = NULL, status = 'ativa', renovada_em = NOW(), bloqueada_em = NULL WHERE id = ?`,
+        [current.id]
+      );
+    }
+    await insertPagamento(current.id, valor, storeOrderId);
+    const updated = await db.queryOne(config, 'SELECT * FROM licencas WHERE id = ? LIMIT 1', [current.id]);
+    await db.query(config, 'INSERT INTO logs (evento, licenca_id, detalhe, criado_em) VALUES (?, ?, ?, NOW())',
+      ['license.store_upgrade_lifetime', current.id, JSON.stringify({ storeOrderId })]);
+    return { ok: true, action: 'upgrade_lifetime', alreadyProcessed: false, ...licensePublic(updated) };
+  }
+
+  if (expired || current.status === 'expirada' || current.status === 'inativa') {
+    await db.query(
+      config,
+      `UPDATE licencas
+          SET plano = ?, expira_em = DATE_ADD(NOW(), INTERVAL ? DAY), status = 'ativa',
+              renovada_em = NOW(), bloqueada_em = NULL
+        WHERE id = ?`,
+      [plano, dias, current.id]
+    );
+    await insertPagamento(current.id, valor, storeOrderId);
+    const updated = await db.queryOne(config, 'SELECT * FROM licencas WHERE id = ? LIMIT 1', [current.id]);
+    await db.query(config, 'INSERT INTO logs (evento, licenca_id, detalhe, criado_em) VALUES (?, ?, ?, NOW())',
+      ['license.store_restarted', current.id, JSON.stringify({ storeOrderId, plano, dias })]);
+    return { ok: true, action: 'restarted', alreadyProcessed: false, ...licensePublic(updated) };
+  }
+
+  await db.query(
+    config,
+    `UPDATE licencas
+        SET plano = ?, expira_em = DATE_ADD(expira_em, INTERVAL ? DAY), status = 'ativa',
+            renovada_em = NOW(), bloqueada_em = NULL
+      WHERE id = ?`,
+    [plano, dias, current.id]
+  );
+  await insertPagamento(current.id, valor, storeOrderId);
+  const updated = await db.queryOne(config, 'SELECT * FROM licencas WHERE id = ? LIMIT 1', [current.id]);
+  await db.query(config, 'INSERT INTO logs (evento, licenca_id, detalhe, criado_em) VALUES (?, ?, ?, NOW())',
+    ['license.store_renewed', current.id, JSON.stringify({ storeOrderId, plano, dias })]);
+  return { ok: true, action: 'renewed', alreadyProcessed: false, ...licensePublic(updated) };
 }
 
 async function createLicenses(body) {
@@ -69,14 +342,24 @@ async function createLicenses(body) {
   }
 
   const created = [];
+  const isLifetime = plano === 'vitalicia' || plano === 'lifetime' || dias === 0;
   for (let i = 0; i < qtd; i++) {
     const chave = generateLicenseKey();
-    await db.query(
-      config,
-      `INSERT INTO licencas (chave, plano, status, max_dispositivos, criada_em, expira_em, observacao, usuario_id)
-       VALUES (?, ?, 'ativa', ?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY), ?, ?)`,
-      [chave, plano, maxDisp, dias, observacao, usuarioId]
-    );
+    if (isLifetime) {
+      await db.query(
+        config,
+        `INSERT INTO licencas (chave, plano, status, max_dispositivos, criada_em, expira_em, observacao, usuario_id)
+         VALUES (?, 'vitalicia', 'ativa', ?, NOW(), NULL, ?, ?)`,
+        [chave, maxDisp, observacao, usuarioId]
+      );
+    } else {
+      await db.query(
+        config,
+        `INSERT INTO licencas (chave, plano, status, max_dispositivos, criada_em, expira_em, observacao, usuario_id)
+         VALUES (?, ?, 'ativa', ?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY), ?, ?)`,
+        [chave, plano, maxDisp, dias, observacao, usuarioId]
+      );
+    }
     created.push(chave);
   }
   return { ok: true, created };
@@ -94,9 +377,21 @@ async function licenseAction(id, body) {
       break;
     case 'unblock':
     case 'activate':
-      await db.query(config, "UPDATE licencas SET status = IF(expira_em > NOW(), 'ativa', 'expirada'), bloqueada_em = NULL WHERE id = ?", [lic.id]);
+      await db.query(
+        config,
+        "UPDATE licencas SET status = IF(expira_em IS NULL OR expira_em > NOW(), 'ativa', 'expirada'), bloqueada_em = NULL WHERE id = ?",
+        [lic.id]
+      );
       break;
     case 'renew': {
+      if (!lic.expira_em) {
+        await db.query(
+          config,
+          "UPDATE licencas SET status = 'ativa', bloqueada_em = NULL, renovada_em = NOW() WHERE id = ?",
+          [lic.id]
+        );
+        break;
+      }
       const base = lic.expira_em && new Date(lic.expira_em) > new Date() ? new Date(lic.expira_em) : new Date();
       await db.query(
         config,
@@ -144,6 +439,7 @@ function register(router) {
 
   router.get('/api/v1/admin/licenses', async () => ({ ok: true, licenses: await listLicenses() }));
   router.post('/api/v1/admin/licenses', async (body) => createLicenses(body));
+  router.post('/api/v1/admin/licenses/provision', async (body) => provisionFromStore(body));
   router.post('/api/v1/admin/licenses/:id/action', async (body, params) => licenseAction(params.id, body));
 
   router.get('/api/v1/admin/users', async () => ({
@@ -202,20 +498,35 @@ function register(router) {
   });
 
   // ---- Atualizações do aplicativo ----
-  router.get('/api/v1/admin/updates', async () => ({
-    ok: true,
-    updates: await db.query(
-      config,
-      `SELECT id, versao, url_download, changelog, obrigatoria, ativa, liberada_em
-         FROM atualizacoes ORDER BY id DESC LIMIT 100`
-    )
-  }));
+  router.get('/api/v1/admin/updates', async () => {
+    try {
+      return {
+        ok: true,
+        updates: await db.query(
+          config,
+          `SELECT id, versao, url_download, changelog, obrigatoria, exige_pagamento, preco, ativa, liberada_em
+             FROM atualizacoes ORDER BY id DESC LIMIT 100`
+        )
+      };
+    } catch (_) {
+      return {
+        ok: true,
+        updates: await db.query(
+          config,
+          `SELECT id, versao, url_download, changelog, obrigatoria, ativa, liberada_em
+             FROM atualizacoes ORDER BY id DESC LIMIT 100`
+        )
+      };
+    }
+  });
 
   router.post('/api/v1/admin/updates', async (body) => {
     const versao = String((body && body.versao) || '').trim();
     const url = String((body && body.url) || '').trim();
     const changelog = body && body.changelog ? String(body.changelog).slice(0, 2000) : null;
     const obrigatoria = !!(body && body.obrigatoria);
+    const exigePagamento = !!(body && (body.exigePagamento || body.exige_pagamento));
+    const preco = Number((body && body.preco) != null ? body.preco : 15);
     if (!/^\d+\.\d+\.\d+$/.test(versao)) {
       return { ok: false, code: 'BAD_VERSION', message: 'Versão deve seguir o formato X.Y.Z (ex.: 2.1.0).', status: 400 };
     }
@@ -227,14 +538,23 @@ function register(router) {
       return { ok: false, code: 'BAD_URL', message: 'A URL deve ser http/https.', status: 400 };
     }
     await db.query(config, 'UPDATE atualizacoes SET ativa = 0 WHERE ativa = 1');
-    await db.query(
-      config,
-      `INSERT INTO atualizacoes (versao, url_download, changelog, obrigatoria, ativa, liberada_em)
-       VALUES (?, ?, ?, ?, 1, NOW())`,
-      [versao, url, changelog, obrigatoria ? 1 : 0]
-    );
+    try {
+      await db.query(
+        config,
+        `INSERT INTO atualizacoes (versao, url_download, changelog, obrigatoria, exige_pagamento, preco, ativa, liberada_em)
+         VALUES (?, ?, ?, ?, ?, ?, 1, NOW())`,
+        [versao, url, changelog, obrigatoria ? 1 : 0, exigePagamento ? 1 : 0, Number.isFinite(preco) ? preco : 15]
+      );
+    } catch (_) {
+      await db.query(
+        config,
+        `INSERT INTO atualizacoes (versao, url_download, changelog, obrigatoria, ativa, liberada_em)
+         VALUES (?, ?, ?, ?, 1, NOW())`,
+        [versao, url, changelog, obrigatoria ? 1 : 0]
+      );
+    }
     await db.query(config, 'INSERT INTO logs (evento, detalhe, criado_em) VALUES (?, ?, NOW())',
-      ['update.published', JSON.stringify({ versao, obrigatoria })]);
+      ['update.published', JSON.stringify({ versao, obrigatoria, exigePagamento })]);
     return { ok: true };
   });
 

@@ -37,8 +37,10 @@ CREATE TABLE IF NOT EXISTS licencas (
   max_dispositivos  INT UNSIGNED NOT NULL DEFAULT 2,
   usuario_id        INT UNSIGNED NULL,
   observacao        VARCHAR(255) NULL,
+  versao_autorizada VARCHAR(20)  NULL,     -- versão do app liberada (vitalício + pacote de atualização)
+  pedido_loja       VARCHAR(64)  NULL,     -- id do pedido na Orion Store (primeira compra)
   criada_em         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  expira_em         DATETIME     NOT NULL,
+  expira_em         DATETIME     NULL,     -- NULL = vitalício
   renovada_em       DATETIME NULL,
   bloqueada_em      DATETIME NULL,
   CONSTRAINT fk_lic_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL,
@@ -123,8 +125,10 @@ CREATE TABLE IF NOT EXISTS atualizacoes (
   versao        VARCHAR(20)  NOT NULL,             -- semântica X.Y.Z
   url_download  VARCHAR(500) NOT NULL,             -- página oficial de download
   changelog     TEXT NULL,
-  obrigatoria   TINYINT(1)   NOT NULL DEFAULT 0,
-  ativa         TINYINT(1)   NOT NULL DEFAULT 0,
+  obrigatoria     TINYINT(1)   NOT NULL DEFAULT 0,
+  exige_pagamento TINYINT(1)   NOT NULL DEFAULT 0,  -- vitalício precisa comprar pacote
+  preco           DECIMAL(10,2) NOT NULL DEFAULT 15.00,
+  ativa           TINYINT(1)   NOT NULL DEFAULT 0,
   liberada_em   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_upd_ativa (ativa),
   INDEX idx_upd_versao (versao)
@@ -137,7 +141,7 @@ CREATE TABLE IF NOT EXISTS pagamentos (
   valor        DECIMAL(10,2) NOT NULL,
   moeda        CHAR(3) NOT NULL DEFAULT 'BRL',
   provedor     VARCHAR(40) NOT NULL,           -- mercadopago | stripe | pix ...
-  ref_externa  VARCHAR(120) NULL,
+  ref_externa  VARCHAR(120) NULL UNIQUE,   -- orderId da loja (idempotência de webhook)
   status       ENUM('pendente','aprovado','recusado','reembolsado') NOT NULL DEFAULT 'pendente',
   pago_em      DATETIME NULL,
   criado_em    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

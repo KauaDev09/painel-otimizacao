@@ -32,6 +32,8 @@ module.exports = {
     database: env.DB_NAME || 'bios_optimizer'
   },
   corsOrigin: env.CORS_ORIGIN || '*',
+  // URL pública da loja (exibida no app quando a atualização é paga).
+  storePublicUrl: env.STORE_PUBLIC_URL || '',
   license: {
     defaultMaxDevices: Number(env.LICENSE_MAX_DEVICES || 2),
     defaultDays: Number(env.LICENSE_DAYS || 365)

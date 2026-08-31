@@ -572,7 +572,16 @@
               <h2>Gerar licenças</h2>
               <div class="toolbar">
                 <div><label>Plano</label>
-                  <select id="genPlano"><option value="mensal">Mensal</option><option value="semestral">Semestral</option><option value="anual">Anual</option><option value="vitalicia">Vitalícia</option></select></div>
+                  <select id="genPlano">
+                    <option value="3d">3 dias</option>
+                    <option value="7d">7 dias</option>
+                    <option value="15d">15 dias</option>
+                    <option value="30d">1 mês (30 dias)</option>
+                    <option value="mensal">Mensal</option>
+                    <option value="semestral">Semestral</option>
+                    <option value="anual">Anual</option>
+                    <option value="vitalicia">Vitalícia</option>
+                  </select></div>
                 <div><label>Dias de validade</label><input id="genDias" type="number" value="365" min="1" style="max-width:120px" /></div>
                 <div><label>Máx. dispositivos</label><input id="genDisp" type="number" value="2" min="1" style="max-width:100px" /></div>
                 <div><label>Quantidade</label><input id="genQtd" type="number" value="1" min="1" max="50" style="max-width:100px" /></div>
@@ -584,7 +593,7 @@
             <h2 style="font-size:0.8rem;letter-spacing:1.2px;color:var(--primary-3);text-transform:uppercase;margin-bottom:14px;font-weight:600;">Licenças emitidas</h2>
             <div class="table-wrap">
               <table id="tblLic">
-                <thead><tr><th>Chave</th><th>Plano</th><th>Status</th><th>Vence em</th><th>Dispositivos</th><th>Cliente</th><th>Ações</th></tr></thead>
+                <thead><tr><th>Chave</th><th>Plano</th><th>Status</th><th>Vence em</th><th>Versão</th><th>Dispositivos</th><th>Máquina</th><th>Cliente</th><th>Ações</th></tr></thead>
                 <tbody></tbody>
               </table>
             </div>
@@ -665,6 +674,8 @@
                 <div style="min-width:340px"><label>URL de download do .exe</label><input id="updUrl" type="url" placeholder="https://github.com/user/repo/releases/download/v2.1.0/ORION+OPTIMIZER+Setup-2.1.0.exe" /></div>
                 <div><label>Obrigatória</label>
                   <select id="updObri"><option value="0">Não</option><option value="1">Sim</option></select></div>
+                <div><label>Atualização paga (vitalício)</label>
+                  <select id="updPaga"><option value="0">Não</option><option value="1">Sim (R$ 15)</option></select></div>
                 <div style="margin-bottom:1px"><button id="updBtn" class="btn btn-primary">Publicar</button></div>
               </div>
               <label style="max-width:640px">Changelog / notas da versão (opcional)</label>
@@ -674,7 +685,7 @@
             <h2 style="font-size:0.8rem;letter-spacing:1.2px;color:var(--primary-3);text-transform:uppercase;margin:0 0 14px;font-weight:600;">Histórico de versões</h2>
             <div class="table-wrap">
               <table id="tblUpd">
-                <thead><tr><th>Versão</th><th>Situação</th><th>Obrigatória</th><th>Liberada em</th><th>Changelog</th><th>URL</th><th>Ações</th></tr></thead>
+                <thead><tr><th>Versão</th><th>Situação</th><th>Obrigatória</th><th>Paga</th><th>Liberada em</th><th>Changelog</th><th>URL</th><th>Ações</th></tr></thead>
                 <tbody></tbody>
               </table>
             </div>
@@ -817,7 +828,7 @@ function daysLeft(exp) {
   return Math.ceil((new Date(exp) - Date.now()) / 86400000);
 }
 function fmtExp(exp) {
-  if (!exp) return '—';
+  if (!exp) return '<span class="badge badge-ativa">Nunca</span>';
   const d = daysLeft(exp);
   const cls = d <= 7 ? 'st-expirada' : '';
   return `<span class="badge ${cls}">${new Date(exp).toLocaleDateString('pt-BR')} (${Math.max(0,d)} d)</span>`;
@@ -832,7 +843,9 @@ async function loadLicenses() {
       <td>${esc(l.plano)}</td>
       <td><span class="badge badge-${esc(l.status)}">${esc(l.status)}</span></td>
       <td>${fmtExp(l.expira_em)}</td>
+      <td>${l.versao_autorizada ? 'v' + esc(l.versao_autorizada) : '—'}</td>
       <td>${l.dispositivos_ativos}/${l.max_dispositivos}</td>
+      <td>${esc(l.maquina || '')}</td>
       <td>${esc(l.usuario_nome || l.usuario_email || '')}</td>
       <td><div class="row-actions">
         <button class="btn btn-outline" data-a="block"   data-id="${l.id}" data-k="${esc(l.chave)}">Bloquear</button>
@@ -946,6 +959,7 @@ async function loadUpdates() {
       <td><b>v${esc(u.versao)}</b></td>
       <td>${u.ativa ? '<span class="badge badge-ativa">Ativa</span>' : '<span class="badge badge-inativa">Inativa</span>'}</td>
       <td>${u.obrigatoria ? 'Sim' : 'Não'}</td>
+      <td>${u.exige_pagamento ? 'Sim · R$ ' + Number(u.preco || 15).toFixed(0) : 'Não'}</td>
       <td>${fmtDate(u.liberada_em)}</td>
       <td style="max-width:260px"><code style="font-size:11px;color:var(--text-dim)">${esc(u.changelog || '—')}</code></td>
       <td style="max-width:200px">${u.url_download ? '<a href="' + esc(u.url_download) + '" target="_blank" rel="noopener" style="color:var(--primary-3);font-size:0.75rem;text-decoration:none;word-break:break-all;">' + esc(u.url_download.slice(0, 50)) + (u.url_download.length > 50 ? '...' : '') + '</a>' : '<span style="color:var(--text-dim)">—</span>'}</td>
@@ -966,7 +980,8 @@ $('#updBtn').addEventListener('click', async () => {
         versao: $('#updVersao').value.trim(),
         url: $('#updUrl').value.trim(),
         changelog: $('#updChangelog').value.trim() || undefined,
-        obrigatoria: $('#updObri').value === '1'
+        obrigatoria: $('#updObri').value === '1',
+        exigePagamento: $('#updPaga') ? $('#updPaga').value === '1' : false
       }
     });
     msg.innerHTML = '✅ Versão publicada! Os apps receberão o aviso de atualização na próxima verificação. Os usuários podem atualizar em Configurações → Atualizações.';
