@@ -22,3 +22,8 @@ state/
 .env.local
 .env.*
 !.env.example
+
+# Prompts/referencias locais de trabalho (nao versionar)
+front.txt
+site.txt
+atualizacao.txt

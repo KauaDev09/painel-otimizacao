@@ -4,15 +4,18 @@
  * Script de release automatizado para o Orion Optimizer.
  *
  * Uso:
- *   node scripts/release.js patch    → 2.0.0 → 2.0.1
- *   node scripts/release.js minor    → 2.0.0 → 2.1.0
- *   node scripts/release.js major    → 2.0.0 → 3.0.0
- *   node scripts/release.js 2.3.1    → define versão específica
+ *   node scripts/release.js patch    -> 2.0.0 -> 2.0.1
+ *   node scripts/release.js minor    -> 2.0.0 -> 2.1.0
+ *   node scripts/release.js major    -> 2.0.0 -> 3.0.0
+ *   node scripts/release.js 2.3.1    -> define versão específica
  *
  * O que faz:
  *   1. Bump da versão em package.json + appConfig.js
  *   2. Build do instalador NSIS
- *   3. Imprime instruções para upload e publicação no painel admin
+ *   3. Commit + push da nova versão
+ *   4. Criação de tag e Release no GitHub com upload do .exe
+ *
+ * Obs: requer o GitHub CLI (gh) instalado e autenticado (gh auth login).
  */
 
 const fs = require('fs');
@@ -22,8 +25,10 @@ const { execSync } = require('child_process');
 const ROOT = path.resolve(__dirname, '..');
 const PKG_PATH = path.join(ROOT, 'package.json');
 const CONFIG_PATH = path.join(ROOT, 'src', 'config', 'appConfig.js');
+const OWNER = 'KauaDev09';
+const REPO = 'painel-otimizacao';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ================= Helpers =================
 
 function readJson(p) {
   return JSON.parse(fs.readFileSync(p, 'utf8'));
@@ -52,12 +57,30 @@ function bumpVersion(current, type) {
   return `${major}.${minor}.${patch}`;
 }
 
-function run(cmd) {
+function run(cmd, opts = {}) {
   console.log(`[release] $ ${cmd}`);
-  execSync(cmd, { cwd: ROOT, stdio: 'inherit' });
+  execSync(cmd, { cwd: opts.cwd || ROOT, stdio: opts.stdio || 'inherit', env: { ...process.env } });
 }
 
-// ── Main ─────────────────────────────────────────────────────────────────────
+function checkGitHubCLI() {
+  try {
+    execSync('gh --version', { stdio: 'ignore' });
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function checkGitAuth() {
+  try {
+    const out = execSync('gh auth status', { stdio: ['ignore', 'pipe', 'ignore'] }).toString();
+    return /Logged in to github\.com/.test(out);
+  } catch (_) {
+    return false;
+  }
+}
+
+// ================= Main =================
 
 const arg = process.argv[2] || 'patch';
 const pkg = readJson(PKG_PATH);
@@ -69,22 +92,27 @@ if (newVersion === currentVersion) {
   process.exit(0);
 }
 
+const tag = `v${newVersion}`;
+const installerName = `ORION OPTIMIZER Setup-${newVersion}.exe`;
+const installerPath = path.join(ROOT, 'release', installerName);
+
 console.log('');
-console.log('╔══════════════════════════════════════════════════════╗');
-console.log('║          ORION OPTIMIZER — NOVO RELEASE             ║');
-console.log('╠══════════════════════════════════════════════════════╣');
-console.log(`║  Versão atual:   ${currentVersion.padEnd(32)}║`);
-console.log(`║  Nova versão:    ${newVersion.padEnd(32)}║`);
-console.log('╚══════════════════════════════════════════════════════╝');
+console.log('-----------------------------------------------');
+console.log('       ORION OPTIMIZER - NOVO RELEASE');
+console.log('-----------------------------------------------');
+console.log(`  Versão atual:   ${currentVersion}`);
+console.log(`  Nova versão:    ${newVersion}`);
+console.log(`  Tag:            ${tag}`);
+console.log('-----------------------------------------------');
 console.log('');
 
 // Step 1: Bump version in package.json
-console.log('[release] 1/3 Atualizando package.json...');
+console.log('[release] 1/5 Atualizando package.json...');
 pkg.version = newVersion;
 writeJson(PKG_PATH, pkg);
 
 // Step 2: Bump version in appConfig.js
-console.log('[release] 2/3 Atualizando appConfig.js...');
+console.log('[release] 2/5 Atualizando appConfig.js...');
 let configSrc = fs.readFileSync(CONFIG_PATH, 'utf8');
 configSrc = configSrc.replace(
   /APP_VERSION\s*=\s*['"][\d.]+['"]/,
@@ -93,36 +121,87 @@ configSrc = configSrc.replace(
 fs.writeFileSync(CONFIG_PATH, configSrc, 'utf8');
 
 // Step 3: Build
-console.log('[release] 3/3 Gerando instalador NSIS...');
+console.log('[release] 3/5 Gerando instalador NSIS...');
 console.log('');
 run('npx electron-builder --win nsis');
 console.log('');
 
-// Done — print next steps
-const installerName = `ORION OPTIMIZER Setup-${newVersion}.exe`;
-const installerPath = path.join(ROOT, 'release', installerName);
+if (!fs.existsSync(installerPath)) {
+  console.error(`[release] Instalador não encontrado: ${installerPath}`);
+  console.error('[release] Verifique o build acima. Nada foi publicado no GitHub.');
+  process.exit(1);
+}
+
+// Step 4: Commit + push
+console.log('[release] 4/5 Commit e push da nova versão...');
+run('git add package.json src/config/appConfig.js');
+run(`git commit -m "chore: bump versão para ${newVersion}"`);
+run('git push origin main');
+
+// Step 5: Publicar no GitHub
+console.log('[release] 5/5 Publicando no GitHub...');
+
+if (!checkGitHubCLI()) {
+  console.error('[release] GitHub CLI (gh) não encontrado.');
+  console.error('[release] Instale em: https://cli.github.com e rode: gh auth login');
+  console.error(`[release] O instalador existe porém (${installerName}); publique manualmente em:`);
+  console.error(`[release]   https://github.com/${OWNER}/${REPO}/releases`);
+  process.exit(1);
+}
+
+if (!checkGitAuth()) {
+  console.error('[release] gh não está autenticado. Rode: gh auth login');
+  process.exit(1);
+}
+
+try { run(`git tag ${tag} -m "Release ${newVersion}"`); } catch (_) { console.log(`[release] Tag ${tag} já existe, reutilizando.`); }
+run(`git push origin ${tag}`);
+
+const changelogPath = path.join(ROOT, 'release', 'NOTES.md');
+let notes = `# Orion Optimizer v${newVersion}\n\nInstalador do Windows (NSIS). Publicado automaticamente pelo script de release.\n\nDownload: \`${installerName}\``;
+if (fs.existsSync(changelogPath)) {
+  notes = fs.readFileSync(changelogPath, 'utf8');
+}
+
+console.log(`[release] Criando release ${tag} e enviando ${installerPath}...`);
+const notesTemp = path.join(ROOT, 'release', '.notes.tmp.md');
+fs.writeFileSync(notesTemp, notes, 'utf8');
+
+const ghCmd =
+  `gh release create ${tag} "${installerPath}" ` +
+  `--repo ${OWNER}/${REPO} ` +
+  `--title "Orion Optimizer v${newVersion}" ` +
+  `--notes-file "${notesTemp}"`;
+
+try {
+  run(ghCmd, { stdio: 'inherit' });
+} catch (err) {
+  console.error('[release] Falha ao criar a release.');
+  console.error(`[release] Se a tag já existe, use: gh release delete ${tag} --yes`);
+  console.error('[release] Ou force o upload: gh release upload ' + tag + ' "' + installerPath + '" --repo ' + OWNER + '/' + REPO);
+  fs.unlinkSync(notesTemp);
+  process.exit(1);
+}
+
+fs.unlinkSync(notesTemp);
 
 console.log('');
-console.log('╔══════════════════════════════════════════════════════════════════╗');
-console.log('║                    RELEASE CONCLUÍDO!                          ║');
-console.log('╠══════════════════════════════════════════════════════════════════╣');
-console.log(`║  Instalador gerado: release/${installerName}`);
-console.log('║');
-console.log('║  Próximos passos:');
-console.log('║');
-console.log('║  1. Faça upload do .exe em um hosting acessível:');
-console.log('║     → GitHub Releases (recomendado)');
-console.log('║     → Google Drive (link direto)');
-console.log('║     → Cloudflare R2 / S3');
-console.log('║');
-console.log('║  2. Acesse o painel admin:');
-console.log('║     → https://orion-optimizer-ten.vercel.app/admin');
-console.log('║     → Aba "Atualizações"');
-console.log('║     → Preencha: versão, URL de download, changelog');
-console.log('║     → Clique "PUBLICAR"');
-console.log('║');
-console.log('║  3. Teste no app:');
-console.log('║     → Abra o app → Configurações → Atualizações');
-console.log('║     → Clique "VERIFICAR ATUALIZAÇÕES AGORA"');
-console.log('╚══════════════════════════════════════════════════════════════════╝');
+console.log('-----------------------------------------------');
+console.log('          RELEASE CONCLUÍDO COM SUCESSO!');
+console.log('-----------------------------------------------');
+console.log(`  Instalador: release/${installerName}`);
+console.log(`  Release:    https://github.com/${OWNER}/${REPO}/releases/tag/${tag}`);
+console.log('');
+console.log('  Próximos passos:');
+console.log('  1. Acesse o painel admin:');
+console.log('     https://orion-optimizer-ten.vercel.app/admin');
+console.log('     Aba "Atualizações"');
+console.log('  2. Preencha: versão, changelog e a URL de download:');
+console.log(`     https://github.com/${OWNER}/${REPO}/releases/download/${tag}/${encodeURIComponent(installerName)}`);
+console.log('  3. Clique "PUBLICAR"');
+console.log('');
+console.log('  4. Teste no app:');
+console.log('     Abra o app > Configurações > Atualizações');
+console.log('     Clique "VERIFICAR ATUALIZAÇÕES AGORA"');
+console.log('-----------------------------------------------');
 console.log('');
