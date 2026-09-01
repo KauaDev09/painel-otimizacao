@@ -38,6 +38,8 @@ class BiosManager {
     this.dir = path.join(userDataDir, 'bios');
     this.logger = new BiosOperationLogger(path.join(this.dir, 'logs.json'));
     this.store = new PendingStore(path.join(this.dir, 'pending.json'));
+    const { setBiosDir } = require('./efiVar');
+    setBiosDir(this.dir);
   }
 
   setMock(scenarioOrObject) {
@@ -77,6 +79,14 @@ class BiosManager {
       : await collectExtra();
 
     const scan = this._scanFromParts(profile, extra);
+    if (!this.mock) {
+      try {
+        const { probeCapabilities } = require('./efiVar');
+        scan.efiCap = await probeCapabilities(scan);
+      } catch (_) {
+        scan.efiCap = {};
+      }
+    }
     const board = profile.motherboard || {};
     const bios = profile.bios || {};
     const ram = profile.ram || {};
@@ -109,7 +119,7 @@ class BiosManager {
         continue;
       }
 
-      let evald = compat.evaluateItem(spec, scan, provider);
+      let evald = compat.evaluateItem(spec, scan, provider, scan.efiCap && scan.efiCap[spec.id]);
       if (this.mock && this.mock.allowAuto && this.mock.allowAuto.includes(spec.operation)) {
         evald = Object.assign({}, evald, {
           auto: true,
@@ -298,7 +308,7 @@ class BiosManager {
     }
 
     this.logger.log(`Operação ${spec.name} criada`);
-    const snapshot = snapshotFor(spec, scan);
+    const snapshot = await snapshotFor(spec, scan);
     let result;
     if (this.mock && this.mock.allowAuto && this.mock.allowAuto.includes(spec.operation) && spec.id !== 'high_performance_plan') {
       result = { ok: true, message: 'Aplicação simulada (mock).' };
@@ -310,6 +320,8 @@ class BiosManager {
       return { ok: false, dryRun: preview, applied: false, message: result.message };
     }
 
+    const effSnapshot = result.snapshot ? Object.assign({}, snapshot, result.snapshot) : snapshot;
+
     if (spec.requiresReboot) {
       const op = this.store.create({
         setting: spec.id,
@@ -320,8 +332,8 @@ class BiosManager {
         expectedState: item.expected,
         previousState: item.state,
         hardware: hardwareSummary(scan.profile),
-        rollbackSupported: canRollback(spec, snapshot),
-        rollbackSnapshot: snapshot
+        rollbackSupported: canRollback(spec, effSnapshot),
+        rollbackSnapshot: effSnapshot
       });
       this.logger.log('Aguardando reinicialização');
       let reboot = null;
@@ -356,8 +368,8 @@ class BiosManager {
       expectedState: item.expected,
       previousState: item.state,
       hardware: hardwareSummary(scan.profile),
-      rollbackSupported: canRollback(spec, snapshot),
-      rollbackSnapshot: snapshot
+      rollbackSupported: canRollback(spec, effSnapshot),
+      rollbackSnapshot: effSnapshot
     });
     this.logger.log(`${spec.name} confirmado como ativo`);
     return { ok: true, applied: true, verified: true, message: verify.detail, dryRun: preview };

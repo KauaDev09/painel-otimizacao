@@ -1,12 +1,28 @@
 'use strict';
 
-// GameBoostService — diagnóstico gamer somente-leitura.
-// Avalia recursos do Windows que afetam jogos (Game Mode, HAGS, Game Bar/DVR,
-// plano de energia, prioridades multimídia, apps em inicialização) e gera
-// recomendações no mesmo formato do motor de BIOS. Nada é alterado.
+// GameBoostService — diagnóstico gamer e MODO JOGO (sessão de boost).
+// 1) Diagnóstico somente-leitura dos recursos que afetam jogos.
+// 2) GameMode: inicia um jogo/app com boost — plano de energia de alto
+//    desempenho + prioridade "Alta" no processo — e desfaz tudo quando o
+//    jogo fecha, sem precisar de novo prompt de administrador.
 
+const fs = require('fs');
+const path = require('path');
+const { execFile } = require('child_process');
 const psRunner = require('../hardware/psRunner');
 const { asArray } = require('../utils/asArray');
+
+const HIGH_PERF_GUID = '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c';
+const BALANCED_GUID = '381b4222-f694-41f0-9685-ff5bb260df2e';
+const GUID_RX = '([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})';
+
+function psEscapeSingle(s) {
+  return String(s).replace(/'/g, "''");
+}
+
+// ---------------------------------------------------------------------------
+// Diagnóstico
+// ---------------------------------------------------------------------------
 
 function script() {
   return `
@@ -83,10 +99,7 @@ function buildResult(raw) {
   const schemeName = (schemeText.match(/\(([^)]+)\)/) || [null, null])[1] || (schemeText || '').trim() || null;
   const schemeGuidMatch = schemeText.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
   const schemeGuid = schemeGuidMatch ? schemeGuidMatch[1].toLowerCase() : null;
-  // GUIDs oficiais dos planos do Windows
-  const HIGH_PERF_GUID = '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c';
   const ULTIMATE_GUID = 'e9a42b02-d5df-448d-b5b2-5c8dc21de839';
-  const BALANCED_GUID = '381b4222-f694-41f0-9685-ff5bb260df2e';
   const nameLooksHighPerf = /high performance|alto desempenho|desempenho alto|ultimate/i.test(schemeName || '');
   const isUltimate = schemeGuid === ULTIMATE_GUID;
   const isBalanced = schemeGuid === BALANCED_GUID;
@@ -233,4 +246,275 @@ class GameBoostService {
   }
 }
 
-module.exports = { GameBoostService };
+// ---------------------------------------------------------------------------
+// MODO JOGO — sessão de boost com app/jogo escolhido pelo usuário
+// ---------------------------------------------------------------------------
+
+/**
+ * Gera o script PowerShell (elevado) de uma sessão de jogo.
+ * O helper roda ELEVADO e:
+ *   1) salva o plano de energia atual;
+ *   2) ativa o plano Alto Desempenho;
+ *   3) escreve session.json com stage=pending (sinal de "UAC aceito");
+ *   4) lança o jogo SEM elevação via explorer.exe (evita problemas com anti-cheat);
+ *   5) quando o processo aparece, seta prioridade "Alta";
+ *   6) aguarda o jogo fechar e restaura o plano anterior automaticamente;
+ *   7) escreve stage=ended em session.json e sai.
+ * Tudo isso com UM único prompt de administrador, no início da sessão.
+ */
+function buildSessionStartScript({ sessionFile, game }) {
+  const exe = game.path;
+  return [
+    "$ErrorActionPreference = 'SilentlyContinue'",
+    "$ProgressPreference = 'SilentlyContinue'",
+    '[Console]::OutputEncoding = [System.Text.Encoding]::UTF8',
+    'function Save-Stage([string]$stage, [int]$p, [string]$prev) {',
+    '  $o = [ordered]@{',
+    '    stage = $stage',
+    '    gameId = $gameId',
+    '    gameName = $gameName',
+    '    pid = $p',
+    '    processName = $baseName',
+    '    previousScheme = $prev',
+    '    startedAt = $startedAtStr',
+    '    endedAt = $null',
+    '  }',
+    '  $o | ConvertTo-Json -Compress | Set-Content -LiteralPath $sessionFile -Encoding UTF8',
+    '}',
+    `$sessionFile = '${psEscapeSingle(sessionFile)}'`,
+    `$exe = '${psEscapeSingle(exe)}'`,
+    `$gameId = '${psEscapeSingle(game.id)}'`,
+    `$gameName = '${psEscapeSingle(game.name)}'`,
+    '$baseName = [System.IO.Path]::GetFileNameWithoutExtension($exe)',
+    '$startedAt = Get-Date',
+    '$startedAtStr = $startedAt.ToString("o")',
+    // Plano de energia anterior
+    '$schemes = powercfg /getactivescheme 2>$null',
+    '$m = [regex]::Match("$schemes", "' + GUID_RX + '", "IgnoreCase")',
+    '$prev = if ($m.Success) { $m.Groups[1].Value.ToLower() } else { $null }',
+    // Ativa Alto Desempenho
+    `powercfg /setactive ${HIGH_PERF_GUID} 2>$null`,
+    'if ($LASTEXITCODE -ne 0) { $dup = powercfg /duplicatescheme ' + HIGH_PERF_GUID + ' 2>$null; $dm = [regex]::Match("$dup", "' + GUID_RX + '", "IgnoreCase"); if ($dm.Success) { powercfg /setactive $dm.Groups[1].Value } }',
+    // stage=pending = helper rodando (UAC aceito)
+    'Save-Stage "pending" 0 $prev',
+    // Lança o jogo SEM elevação, via shell do usuário (evita anti-cheat sensível)
+    'Start-Process -FilePath "explorer.exe" -ArgumentList $exe',
+    // Localiza o processo (até ~20s) e eleva a prioridade para "Alta"
+    '$found = $null',
+    'for ($i = 0; $i -lt 40; $i++) {',
+    '  Start-Sleep -Milliseconds 500',
+    '  $c = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -eq $baseName -and $_.StartTime -gt $startedAt.AddSeconds(-2) })',
+    '  if ($c.Count -gt 0) { $found = $c | Sort-Object StartTime | Select-Object -First 1; break }',
+    '}',
+    'if ($found) {',
+    '  try { $found.PriorityClass = "High" } catch {}',
+    '  Save-Stage "running" $found.Id $prev',
+    '  while (-not $found.HasExited) { Start-Sleep -Seconds 2; try { $found.Refresh() } catch { break } }',
+    '  Start-Sleep -Milliseconds 800',
+    '} else {',
+    '  Save-Stage "ended" 0 $prev',
+    '}',
+    // Restaura o plano anterior (mesmo processo elevado → sem novo UAC)
+    'if ($prev) { powercfg /setactive $prev 2>$null }',
+    '$endObj = [ordered]@{ stage="ended"; gameId=$gameId; gameName=$gameName; pid=0; processName=$baseName; previousScheme=$prev; startedAt=$startedAtStr; endedAt=(Get-Date).ToString("o") } | ConvertTo-Json -Compress | Set-Content -LiteralPath $sessionFile -Encoding UTF8',
+    'exit 0'
+  ].join('\n');
+}
+
+function buildSessionKillScript() {
+  return [
+    '$ErrorActionPreference = "SilentlyContinue"',
+    `powercfg /setactive ${HIGH_PERF_GUID} 2>$null`,
+    'exit 0'
+  ].join('\n');
+}
+
+function windowsPowershellPath() {
+  return path.join(
+    process.env.SystemRoot || 'C:\\Windows',
+    'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe'
+  );
+}
+
+/**
+ * Escreve um helper .ps1 temporário e o executa ELEVADO (UAC), sem esperar o
+ * processo terminar (detached). Usado pela sessão de jogo, que vive até o
+ * jogo fechar. Retorna { ok:true } imediatamente.
+ */
+function runElevatedDetached(scriptBody, baseDir) {
+  return new Promise((resolve) => {
+    try {
+      fs.mkdirSync(baseDir, { recursive: true });
+      const helper = path.join(baseDir, `gb-session-${Date.now()}.ps1`);
+      fs.writeFileSync(helper, '\ufeff' + scriptBody, 'utf8');
+      const psExe = windowsPowershellPath();
+      const launcher =
+        'Start-Process -FilePath ' + JSON.stringify(psExe) +
+        ' -ArgumentList ' + JSON.stringify(['-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-ExecutionPolicy', 'Bypass', '-File', helper]) +
+        ' -Verb RunAs -WindowStyle Hidden';
+      execFile(psExe, ['-NoProfile', '-NonInteractive', '-Command', launcher], { windowsHide: true }, (err) => {
+        if (err) console.error('[gameboost] Falha ao iniciar helper elevado (UAC cancelado?):', err.message);
+      });
+      resolve({ ok: true, helper });
+    } catch (err) {
+      resolve({ ok: false, error: err.message });
+    }
+  });
+}
+
+class GameMode {
+  constructor() {
+    this.dir = null;
+    this.win = null;
+    this.monitor = null;
+    this.pending = false;
+    this.pendingSince = null;
+    this.pendingNotified = false;
+    this.session = null; // { running, pid, processName, gameName, startedAt } — espelho main
+  }
+
+  setStoreDir(dir) { this.dir = dir; }
+  setMainWindow(win) { this.win = win; }
+
+  gamesFile() { return path.join(this.dir, 'games.json'); }
+  sessionFile() { return path.join(this.dir, 'session.json'); }
+
+  _emit(payload) {
+    if (this.win && !this.win.isDestroyed()) {
+      try { this.win.webContents.send('gameboost:session', payload); } catch (_) { /* ignora */ }
+    }
+  }
+
+  list() {
+    try {
+      return JSON.parse(fs.readFileSync(this.gamesFile(), 'utf8'));
+    } catch (_) {
+      return [];
+    }
+  }
+
+  add({ path: exe, name }) {
+    if (!exe || !fs.existsSync(exe)) throw new Error('O caminho do aplicativo não existe.');
+    const ext = path.extname(exe).toLowerCase();
+    if (ext !== '.exe' && ext !== '.lnk' && ext !== '.bat') {
+      throw new Error('Escolha um executável (.exe) ou atalho (.lnk) do jogo.');
+    }
+    const games = this.list();
+    const id = 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const friendly = name || path.basename(exe, path.extname(exe));
+    const item = { id, path: exe, name: friendly, addedAt: new Date().toISOString() };
+    games.push(item);
+    fs.mkdirSync(this.dir, { recursive: true });
+    fs.writeFileSync(this.gamesFile(), JSON.stringify(games, null, 2), 'utf8');
+    return item;
+  }
+
+  remove(id) {
+    const games = this.list().filter((g) => String(g.id) !== String(id));
+    fs.mkdirSync(this.dir, { recursive: true });
+    fs.writeFileSync(this.gamesFile(), JSON.stringify(games, null, 2), 'utf8');
+    return { ok: true };
+  }
+
+  status() {
+    let disk = null;
+    try { disk = JSON.parse(fs.readFileSync(this.sessionFile(), 'utf8')); } catch (_) { /* ausente */ }
+    return {
+      running: !!(this.session && this.session.running) || !!(disk && disk.stage === 'running'),
+      pending: !!(disk && disk.stage === 'pending'),
+      session: this.session || (disk && { running: disk.stage === 'running', pid: disk.pid, processName: disk.processName, gameName: disk.gameName })
+    };
+  }
+
+  clearStale() {
+    try { fs.unlinkSync(this.sessionFile()); } catch (_) { /* nenhum */ }
+    this.session = null;
+    this.pending = null;
+    this.pendingSince = null;
+    this.pendingNotified = false;
+  }
+
+  async start(gameId) {
+    if (!this.dir) throw new Error('GameMode não inicializado.');
+    const game = this.list().find((g) => String(g.id) === String(gameId));
+    if (!game) throw new Error('Jogo/app não encontrado na lista.');
+
+    const st = this.status();
+    if (st.running || st.pending) throw new Error('Já existe uma sessão de boost ativa. Encerre-a primeiro.');
+
+    this.clearStale();
+    const res = await runElevatedDetached(buildSessionStartScript({ sessionFile: this.sessionFile(), game }), this.dir);
+    if (!res.ok) throw new Error(res.error || 'Falha ao iniciar a sessão.');
+    this.pending = true;
+    this.pendingSince = Date.now();
+    this.startMonitor();
+    return { ok: true, pending: true, gameName: game.name, message: 'Aguardando permissão de administrador (UAC)...' };
+  }
+
+  async stop() {
+    const st = this.status();
+    const wasRunning = st.running;
+    this.stopMonitor();
+    this.clearStale();
+    this._emit({ state: 'stopped', message: 'Boost encerrado. O plano de energia será restaurado quando o jogo fechar.' });
+    if (wasRunning && process.platform === 'win32') {
+      // Garante o plano Alto Desempenho enquanto o jogo ainda roda (o helper
+      // só restaura quando o jogo sair) — verificação acessória, sem elevação.
+      try {
+        // Tenta apenas ativar alta performance SEM elevação (não deve exigir UAC
+        // se o helper já está elevado e mudou o esquema). Se falhar, ignora.
+        const ps = windowsPowershellPath();
+        execFile(ps, ['-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-Command', buildSessionKillScript()], { windowsHide: true }, () => {});
+      } catch (_) { /* ignora */ }
+    }
+    return { ok: true, message: 'Sessão encerrada.' };
+  }
+
+  startMonitor() {
+    if (this.monitor) return;
+    this.monitor = setInterval(() => {
+      let disk = null;
+      try { disk = JSON.parse(fs.readFileSync(this.sessionFile(), 'utf8')); } catch (_) { /* ausente */ }
+
+      // Aguardando UAC há mais de 60s sem sinal → assumir cancelamento.
+      if (this.pending && !disk && this.pendingSince && Date.now() - this.pendingSince > 60000) {
+        this.stopMonitor();
+        this.clearStale();
+        this._emit({ state: 'cancelled', message: 'Permissão de administrador não concedida. A sessão não foi iniciada.' });
+        return;
+      }
+
+      if (!disk) { this.session = null; return; }
+
+      if (disk.stage === 'running' && !(this.session && this.session.running)) {
+        this.session = { running: true, pid: disk.pid, processName: disk.processName, gameName: disk.gameName, startedAt: disk.startedAt };
+        this.pending = false;
+        this.pendingSince = null;
+        this._emit({ state: 'running', session: this.session, message: `${disk.gameName} rodando com boost de prioridade e energia.` });
+      }
+
+      if (disk.stage === 'pending') {
+        this.pending = true;
+        if (!this.pendingNotified) {
+          this.pendingNotified = true;
+          this._emit({ state: 'running', message: 'Sessão iniciada. Localizando o processo do jogo...' });
+        }
+      }
+
+      if (disk.stage === 'ended') {
+        this.stopMonitor();
+        this.session = null;
+        this.pending = false;
+        this.pendingNotified = false;
+        this._emit({ state: 'ended', message: 'Jogo encerrado. Plano de energia restaurado automaticamente.' });
+        try { fs.unlinkSync(this.sessionFile()); } catch (_) { /* limpo */ }
+      }
+    }, 3000);
+  }
+
+  stopMonitor() {
+    if (this.monitor) { clearInterval(this.monitor); this.monitor = null; }
+  }
+}
+
+module.exports = { GameBoostService, GameMode };

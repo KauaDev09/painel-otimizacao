@@ -30,6 +30,18 @@ contextBridge.exposeInMainWorld('OrionAPI', {
     ipcRenderer.on('security:step', (_e, step) => cb(step));
   },
 
+  // ---- Modo Jogo (Game Booster) ----
+  gameBoostListGames: () => ipcRenderer.invoke('gameboost:listGames'),
+  gameBoostAddGame: (payload) => ipcRenderer.invoke('gameboost:addGame', payload),
+  gameBoostRemoveGame: (id) => ipcRenderer.invoke('gameboost:removeGame', id),
+  gameBoostSessionStatus: () => ipcRenderer.invoke('gameboost:sessionStatus'),
+  gameBoostStartSession: (id) => ipcRenderer.invoke('gameboost:startSession', id),
+  gameBoostStopSession: () => ipcRenderer.invoke('gameboost:stopSession'),
+  gameBoostPickExe: () => ipcRenderer.invoke('gameboost:pickExe'),
+  onGameBoostSession: (cb) => {
+    ipcRenderer.on('gameboost:session', (_e, payload) => cb(payload));
+  },
+
   // ---- Motor de Otimização ----
   engineListItems: () => ipcRenderer.invoke('engine:listItems'),
   engineGetProfiles: () => ipcRenderer.invoke('engine:getProfiles'),

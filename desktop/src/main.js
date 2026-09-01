@@ -1,6 +1,6 @@
 'use strict';
 
-const { app, BrowserWindow, ipcMain, shell, Tray, Menu, nativeImage } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, Tray, Menu, nativeImage, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -9,7 +9,7 @@ const { ReportService } = require('./reports/reportService');
 const { HistoryService } = require('./history/historyService');
 const { LicenseService } = require('./license/licenseService');
 const { SecurityService } = require('./security/securityService');
-const { GameBoostService } = require('./gameboost/gameBoostService');
+const { GameBoostService, GameMode } = require('./gameboost/gameBoostService');
 const { HistorySync } = require('./history/historySync');
 const engineService = require('./engine/engineService');
 const cleanerService = require('./engine/cleanerService');
@@ -38,6 +38,7 @@ let historyService = null;
 let licenseService = null;
 let securityService = null;
 let gameBoostService = null;
+let gameMode = null;
 let historySync = null;
 
 function appIcon() {
@@ -98,6 +99,9 @@ function initServices() {
 
   securityService = new SecurityService();
   gameBoostService = new GameBoostService();
+  gameMode = new GameMode();
+  gameMode.setStoreDir(path.join(userData, 'gameboost'));
+  gameMode.clearStale();
   historySync = new HistorySync(licenseService);
 
   // Motor de otimização (catálogo + executor silencioso + proteção)
@@ -142,6 +146,7 @@ function createWindow() {
 
   // Envia referência da janela ao updater para comunicação via IPC.
   updaterService.setMainWindow(mainWindow);
+  if (gameMode) gameMode.setMainWindow(mainWindow);
 
   // Minimizar para a bandeja em vez de fechar (preferência do usuário).
   mainWindow.on('close', (e) => {
@@ -283,6 +288,32 @@ function registerIpc() {
   ipcMain.handle('gameboost:analyze', async () => {
     requireActiveLicense();
     return gameBoostService.analyze(sendSecurityStep);
+  });
+
+  // ---- Modo Jogo (Game Booster) ----
+  ipcMain.handle('gameboost:listGames', () => gameMode.list());
+  ipcMain.handle('gameboost:addGame', (_e, payload) => gameMode.add(payload || {}));
+  ipcMain.handle('gameboost:removeGame', (_e, id) => gameMode.remove(id));
+  ipcMain.handle('gameboost:sessionStatus', () => gameMode.status());
+  ipcMain.handle('gameboost:startSession', async (_e, id) => {
+    requireActiveLicense();
+    return gameMode.start(id);
+  });
+  ipcMain.handle('gameboost:stopSession', async () => {
+    requireActiveLicense();
+    return gameMode.stop();
+  });
+  ipcMain.handle('gameboost:pickExe', async () => {
+    const res = await dialog.showOpenDialog(mainWindow, {
+      title: 'Selecione o jogo ou aplicativo',
+      properties: ['openFile'],
+      filters: [
+        { name: 'Executáveis e atalhos', extensions: ['exe', 'lnk', 'bat'] },
+        { name: 'Todos os arquivos', extensions: ['*'] }
+      ]
+    });
+    if (res.canceled || !res.filePaths.length) return null;
+    return res.filePaths[0];
   });
 
   // ---- Motor de Otimização (catálogo) ----

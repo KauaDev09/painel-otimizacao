@@ -193,11 +193,28 @@ console.log(`  Instalador: release/${installerName}`);
 console.log(`  Release:    https://github.com/${OWNER}/${REPO}/releases/tag/${tag}`);
 console.log('');
 console.log('  Próximos passos:');
+console.log('  IMPORTANTE: o repositório precisa ser PÚBLICO para que o app');
+console.log('  consiga baixar o instalador (caso contrário o download retorna 404).');
+console.log('  Rode uma vez (se necessário): gh repo edit ' + OWNER + '/' + REPO + ' --visibility public');
+console.log('');
 console.log('  1. Acesse o painel admin:');
 console.log('     https://orion-optimizer-ten.vercel.app/admin');
 console.log('     Aba "Atualizações"');
-console.log('  2. Preencha: versão, changelog e a URL de download:');
-console.log(`     https://github.com/${OWNER}/${REPO}/releases/download/${tag}/${encodeURIComponent(installerName)}`);
+console.log('  2. Preencha: versão, changelog e a URL de download do .exe:');
+let canonicalAssetUrl = '';
+try {
+  // Busca a URL real do asset na release recém-criada (nome exato com hífens).
+  const json = execSync(
+    `gh release view ${tag} --repo ${OWNER}/${REPO} --json assets -q "[.assets[0].url]"`,
+    { stdio: ['ignore', 'pipe', 'ignore'], encoding: 'utf8' }
+  ).toString().trim();
+  if (json && json !== 'null') canonicalAssetUrl = json.replace(/^"|"$/g, '');
+} catch (_) { /* gh indisponível → usa fallback */ }
+if (!canonicalAssetUrl) {
+  // Fallback: nome do asset costuma trocar espaços por hífens no upload do gh.
+  canonicalAssetUrl = `https://github.com/${OWNER}/${REPO}/releases/download/${tag}/${installerName.replace(/ /g, '-')}`;
+}
+console.log('     ' + canonicalAssetUrl);
 console.log('  3. Clique "PUBLICAR"');
 console.log('');
 console.log('  4. Teste no app:');

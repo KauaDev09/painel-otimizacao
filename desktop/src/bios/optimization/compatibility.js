@@ -125,10 +125,10 @@ function expectedAfterEnable(item, scan) {
   }
 }
 
-function evaluateItem(item, scan, provider) {
+function evaluateItem(item, scan, provider, capOverride) {
   const hw = hardwareOk(item, scan);
   const state = currentState(item, scan);
-  const cap = provider ? provider.canApply(item, scan) : { ok: false, mode: 'manual', reason: 'Provider ausente.' };
+  const cap = capOverride || (provider ? provider.canApply(item, scan) : { ok: false, mode: 'manual', reason: 'Provider ausente.' });
   const firmwareOk = Boolean(scan.profile && scan.profile.bios && scan.profile.bios.detected !== false);
   const detectOk = state.key !== undefined;
   const verifyOk = item.id !== 'cpb'; // CPB não é verificável pelo Windows

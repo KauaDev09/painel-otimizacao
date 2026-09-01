@@ -124,7 +124,9 @@ async function handleRequest(req, res) {
     return;
   }
 
-  if (pathname === '/' || pathname === '/admin') return serveAdmin(res);
+  if (pathname === '/' || pathname === '/admin' || pathname === '/admin/' || pathname === '/admin/index.html') {
+    return serveAdmin(res);
+  }
 
   const match = router.match(req.method, pathname);
   if (!match) return sendJson(res, 404, { ok: false, code: 'NOT_FOUND', message: 'Rota não encontrada.' });

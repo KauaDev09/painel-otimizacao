@@ -169,6 +169,7 @@ $$('.sidebar-item').forEach((t) => {
       if (state.result) renderRecommendations();
     }
     if (target === 'gameboost' && !state.gameBoost) $('#gbEmpty').classList.remove('hidden');
+    if (target === 'gameboost') initGameBoostView();
     if (target === 'security' && !state.security) $('#secEmpty').classList.remove('hidden');
     if (target === 'history') renderHistory();
     if (target === 'optimize') initOptimizeView();
@@ -477,7 +478,7 @@ function biosCardHtml(item) {
     <div class="rec-path">${esc((item.paths || []).join(' · '))} · ${esc(item.compatibility || '')}</div>
     <div class="bios-card-actions">
       <button class="btn ${item.status === 'manual' || item.status === 'informational' ? 'btn-outline' : 'btn-primary'} btn-bios-action" type="button" ${disabled ? 'disabled' : ''}>${esc(btn)}</button>
-      <button class="btn btn-outline btn-bios-dry" type="button">Simular alteração</button>
+      <button class="btn btn-outline btn-bios-dry" type="button">${esc(item.auto ? 'OTIMIZAR BIOS' : 'Simular alteração')}</button>
       ${rollbackBtn}
     </div>
   </div>`;
@@ -559,11 +560,13 @@ function showPromptDialog({ title, html, okLabel, cancelLabel }) {
 }
 
 async function handleBiosDryRun(id) {
+  const item = state.bios && state.bios.items && state.bios.items.find((x) => x.id === id);
+  const isAuto = !!(item && item.auto);
   try {
     const preview = await api().biosDryRun(id);
     const go = await showPromptDialog({
-      title: 'Simular alteração',
-      okLabel: 'CONTINUAR',
+      title: isAuto ? 'Otimizar BIOS' : 'Simular alteração',
+      okLabel: isAuto ? 'OTIMIZAR BIOS' : 'CONTINUAR',
       html: `<p>O Orion pretende:</p>
         <p>Alteração: <b>${esc(preview.setting)}</b></p>
         <p>Atual: <b>${esc(preview.current)}</b></p>
@@ -571,7 +574,9 @@ async function handleBiosDryRun(id) {
         <p>Reboot: <b>${esc(preview.reboot)}</b></p>
         <p>Provider: <b>${esc(preview.provider)}</b></p>
         <p>Modo: <b>${esc(preview.mode)}</b></p>
-        ${preview.reason ? `<p class="disclaimer">${esc(preview.reason)}</p>` : ''}`
+        <p class="disclaimer">${isAuto
+          ? 'A otimização será aplicada automaticamente e verificada após a reinicialização.'
+          : 'Esta alteração exige configuração manual na BIOS — o botão acima apenas explica o procedimento.'}</p>`
     });
     if (go) await handleBiosAction(id);
   } catch (err) {
@@ -998,6 +1003,139 @@ function renderGameBoost() {
       const id = btn.closest('.rec-card').dataset.id;
       openDetails(r.recommendations.find((x) => x.id === id));
     });
+  });
+}
+
+// ---------------- Modo Jogo (Game Booster) ----------------
+let gbPicked = null;
+let gbList = [];
+let gbActive = { running: false, pending: false };
+
+function initGameBoostView(force) {
+  loadGbGames();
+  if (force || !api().gameBoostSessionStatus) return;
+  api().gameBoostSessionStatus()
+    .then((st) => {
+      if (st) {
+        gbActive = { running: !!st.running, pending: !!st.pending };
+        if (!st.running && !st.pending) return;
+        setGbSession(gbActive, st.running
+          ? `🎮 ${esc((st.session && st.session.gameName) || 'Jogo')} em execução — boost ativo.`
+          : 'Aguardando confirmação de administrador…');
+      }
+    })
+    .catch(() => { /* ignora */ });
+}
+
+async function loadGbGames() {
+  try {
+    gbList = await api().gameBoostListGames();
+  } catch (_) { gbList = []; }
+  renderGbGames();
+}
+
+function renderGbGames() {
+  const list = $('#gbGameList');
+  if (!list) return;
+  if (!gbList.length) {
+    list.innerHTML = '<p class="empty-note" style="text-align:left;margin:0;">Nenhum jogo adicionado ainda.</p>';
+    return;
+  }
+  list.innerHTML = gbList.map((g) => `
+    <div class="toolbar" style="border-top:1px solid var(--border);padding:10px 0;align-items:center;">
+      <div style="flex:1;min-width:0;">
+        <b style="font-size:0.9rem;">${esc(g.name)}</b>
+        <div style="font-size:0.72rem;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(g.path)}</div>
+      </div>
+      <button class="btn btn-primary" data-gb="start" data-id="${esc(g.id)}" ${gbActive.running ? 'disabled' : ''}>Iniciar boost</button>
+      <button class="btn btn-outline" data-gb="remove" data-id="${esc(g.id)}" ${gbActive.running ? 'disabled' : ''}>Remover</button>
+    </div>`).join('');
+}
+
+function setGbSession(status, text) {
+  gbActive = status;
+  const box = $('#gbSessionStatus');
+  const el = $('#gbSessionText');
+  if (!box || !el) return;
+  if (text) {
+    box.classList.remove('hidden');
+    el.innerHTML = text;
+  } else {
+    box.classList.add('hidden');
+    el.textContent = '';
+  }
+  renderGbGames();
+}
+
+function gbDefaultName(p) {
+  return p.split(/[\\/]/).pop().replace(/\.[^.]+$/, '') || p;
+}
+
+if ($('#gbPickBtn')) {
+  $('#gbPickBtn').addEventListener('click', async () => {
+    try {
+      const p = await api().gameBoostPickExe();
+      if (!p) { toast('Nenhum arquivo selecionado.'); return; }
+      gbPicked = p;
+      $('#gbGameName').value = gbDefaultName(p);
+      toast(`✅ Selecionado: <b>${esc(gbDefaultName(p))}</b>`);
+    } catch (err) { toast(`❌ ${esc(err.message || err)}`); }
+  });
+}
+
+if ($('#gbAddBtn')) {
+  $('#gbAddBtn').addEventListener('click', async () => {
+    if (!gbPicked) { toast('Primeiro clique em "Escolher jogo/app…".'); return; }
+    const name = $('#gbGameName').value.trim() || gbDefaultName(gbPicked);
+    try {
+      const item = await api().gameBoostAddGame({ path: gbPicked, name });
+      gbPicked = null;
+      $('#gbGameName').value = '';
+      toast(`✅ <b>${esc(item.name)}</b> adicionado.`);
+      loadGbGames();
+    } catch (err) { toast(`❌ ${esc(err.message || err)}`); }
+  });
+}
+
+if ($('#gbGameList')) {
+  $('#gbGameList').addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-gb]');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    btn.disabled = true;
+    try {
+      if (btn.dataset.gb === 'start') {
+        const res = await api().gameBoostStartSession(id);
+        setGbSession({ running: false, pending: true }, res.message || 'Aguardando permissão de administrador...');
+        toast(`🎮 <b>${esc(res.gameName || '')}</b> — ${esc(res.message || 'Boost iniciando...')}`);
+      } else if (btn.dataset.gb === 'remove') {
+        await api().gameBoostRemoveGame(id);
+        toast('Removido da lista.');
+        loadGbGames();
+      }
+    } catch (err) {
+      setGbSession({ running: false, pending: false }, null);
+      toast(`❌ ${esc(err.message || err)}`);
+    }
+  });
+}
+
+if (api().onGameBoostSession) {
+  api().onGameBoostSession((s) => {
+    const msg = s.message || '';
+    if (s.state === 'running') {
+      setGbSession({ running: true, pending: false }, `🎮 ${esc((s.session && s.session.gameName) || 'Jogo')} — ${esc(msg || 'boost ativo')}`);
+    } else if (s.state === 'ended') {
+      setGbSession({ running: false, pending: false }, null);
+      toast(`✅ ${esc(msg || 'Sessão encerrada. Plano de energia restaurado.')}`);
+      renderGbGames();
+    } else if (s.state === 'stopped') {
+      setGbSession({ running: false, pending: false }, null);
+      toast(`ℹ️ ${esc(msg || 'Sessão encerrada.')}`);
+    } else if (s.state === 'cancelled') {
+      setGbSession({ running: false, pending: false }, null);
+      toast(`❌ ${esc(msg || 'Permissão negada — sessão não iniciada.')}`);
+    }
   });
 }
 

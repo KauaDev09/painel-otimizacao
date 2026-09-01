@@ -51,6 +51,10 @@ class BaseBiosProvider {
   }
 
   async apply(item, scan, ctx) {
+    if (scan && scan.efiCap && scan.efiCap[item.id] && scan.efiCap[item.id].ok && scan.efiCap[item.id].mode === 'auto') {
+      const { applyEfi } = require('../efiVar');
+      return applyEfi(item.id, scan, ctx);
+    }
     const cap = this.canApply(item, scan);
     if (!cap.ok || cap.mode !== 'auto') {
       const err = new Error(cap.reason || 'Aplicação automática indisponível.');
@@ -86,6 +90,10 @@ class BaseBiosProvider {
   }
 
   async rollback(item, snapshot, ctx) {
+    if (snapshot && snapshot.type === 'efi_var') {
+      const { restoreEfi } = require('../efiVar');
+      return restoreEfi(snapshot, ctx);
+    }
     if (item.id !== 'high_performance_plan' || !snapshot || !snapshot.guid) {
       return { ok: false, manual: true, message: 'Rollback manual — reverta a opção na BIOS.' };
     }

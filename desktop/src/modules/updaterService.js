@@ -111,12 +111,22 @@ function _downloadFile(url, destPath) {
     const req = mod.get(u, { timeout: 120000 }, (res) => {
       // Segue redirecionamentos (301, 302, 307, 308)
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        if (currentDownload === req) currentDownload = null;
         _downloadFile(res.headers.location, destPath).then(resolve).catch(reject);
         return;
       }
 
       if (res.statusCode < 200 || res.statusCode >= 300) {
+        if (currentDownload === req) currentDownload = null;
         reject(new Error(`Servidor respondeu HTTP ${res.statusCode} ao baixar atualização.`));
+        return;
+      }
+
+      // Garante que a URL aponta para um arquivo binário, nunca para uma página.
+      const contentType = String(res.headers['content-type'] || '').toLowerCase();
+      if (contentType.includes('text/html') || contentType.includes('application/json')) {
+        if (currentDownload === req) currentDownload = null;
+        reject(new Error('A URL de download não apontou para um instalador válido (página web). Verifique a URL publicada.'));
         return;
       }
 
@@ -139,14 +149,29 @@ function _downloadFile(url, destPath) {
 
       fileStream.on('finish', () => {
         fileStream.close();
+        if (currentDownload === req) currentDownload = null;
+        if (!isWindowsExecutable(destPath)) {
+          try { fs.unlinkSync(destPath); } catch (_) { /* ignora */ }
+          reject(new Error('O arquivo baixado não é um instalador executável válido (.exe).'));
+          return;
+        }
         resolve();
       });
 
       fileStream.on('error', (err) => {
+        if (currentDownload === req) currentDownload = null;
         try { fs.unlinkSync(destPath); } catch (_) { /* ignora */ }
         reject(err);
       });
+
+      res.on('aborted', () => {
+        if (currentDownload === req) currentDownload = null;
+        try { fs.unlinkSync(destPath); } catch (_) { /* ignora */ }
+        reject(new Error('Download cancelado.'));
+      });
     });
+
+    currentDownload = req;
 
     req.on('timeout', () => {
       req.destroy();
@@ -154,14 +179,38 @@ function _downloadFile(url, destPath) {
     });
 
     req.on('error', (err) => {
+      if (currentDownload === req) currentDownload = null;
       reject(new Error(`Falha ao baixar: ${err.message}`));
     });
   });
 }
 
+// Executáveis Windows (PE) iniciam com os bytes "MZ".
+function isWindowsExecutable(file) {
+  try {
+    const buf = Buffer.alloc(2);
+    const fd = fs.openSync(file, 'r');
+    fs.readSync(fd, buf, 0, 2, 0);
+    fs.closeSync(fd);
+    return buf.toString('latin1').toUpperCase() === 'MZ';
+  } catch (_) {
+    return false;
+  }
+}
+
 /**
  * Instala a atualização silenciosamente e reinicia o app.
- * O NSIS installer com /S roda em background e substitui os arquivos.
+ *
+ * O instalador NSIS é perMachine (instala em Program Files) e pede UAC,
+ * então ele NÃO pode usar "/D" (que apontaria para o diretório errado) nem
+ * pode ser executado enquanto o app está aberto com arquivos em uso.
+ *
+ * Fluxo:
+ *  1) Inicia um helper PowerShell ELEVADO que:
+ *       - aguarda o app atual fechar (liberando os .exe em uso);
+ *       - roda o instalador em modo silencioso (/S, com UAC já aceito);
+ *       - relança o aplicativo atualizado via explorer.exe (fora de elevação).
+ *  2) O processo do app se encerra após ~2,5s para liberar os arquivos.
  */
 async function installUpdate(filePath) {
   if (!filePath || !fs.existsSync(filePath)) {
@@ -170,36 +219,63 @@ async function installUpdate(filePath) {
 
   sendToRenderer('update:installing', { message: 'Preparando instalação...' });
 
-  return new Promise((resolve, reject) => {
-    // Executa o instalador NSIS em modo silencioso
-    const args = [
-      '/S',                    // Modo silencioso
-      '/D=' + app.getPath('appData')  // Diretório de instalação (NSIS)
-    ];
+  const installerPath = path.resolve(filePath);
+  const exePath = process.execPath;
+  const appPid = process.pid;
+  const psExe = path.join(
+    process.env.SystemRoot || 'C:\\Windows',
+    'System32',
+    'WindowsPowerShell',
+    'v1.0',
+    'powershell.exe'
+  );
 
-    const child = execFile(filePath, args, { windowsHide: true }, (err) => {
-      if (err && err.code !== 0) {
-        // NSIS retorna 0 para sucesso; outros códigos podem ser cancelamento
-        if (err.killed) {
-          reject(new Error('Instalação cancelada.'));
-        } else {
-          // NSIS pode retornar não-zero mesmo em sucesso (caso o app feche)
-          resolve({ ok: true });
-        }
-      } else {
-        resolve({ ok: true });
-      }
-    });
+  const helperDir = path.join(app.getPath('temp'), APP_NAME.replace(/\s+/g, '_'));
+  fs.mkdirSync(helperDir, { recursive: true });
+  const helperPath = path.join(helperDir, `apply-update-${Date.now()}.ps1`);
 
-    // Espera 2 segundos para o instalador iniciar, depois fecha o app
+  const helper = [
+    '$ErrorActionPreference = "Stop"',
+    '$ProgressPreference = "SilentlyContinue"',
+    `$installer = '${String(installerPath).replace(/'/g, "''")}'`,
+    `$exe = '${String(exePath).replace(/'/g, "''")}'`,
+    `$appPid = ${Number(appPid)}`,
+    // 1) Aguarda o app atual sair (os .exe em Program Files são liberados)
+    'while (Get-Process -Id $appPid -ErrorAction SilentlyContinue) { Start-Sleep -Milliseconds 350 }',
+    'Start-Sleep -Milliseconds 900',
+    // 2) Instala silenciosamente (já elevado → sem novo prompt de UAC)
+    '$inst = Start-Process -FilePath $installer -ArgumentList "/S" -Wait -PassThru',
+    'Start-Sleep -Milliseconds 600',
+    // 3) Relança o app fora de elevação para não herdar privilégios elevados
+    'if (Test-Path -LiteralPath $exe) { Start-Process -FilePath "explorer.exe" -ArgumentList ("\"\"" + $exe + "\"\"") } else { Start-Process -FilePath $exe }',
+    'exit 0'
+  ].join('\n');
+
+  fs.writeFileSync(helperPath, '\ufeff' + helper, 'utf8');
+
+  const elevatedCmd =
+    'Start-Process -FilePath ' + JSON.stringify(psExe) +
+    " -ArgumentList '-NoProfile','-NonInteractive','-WindowStyle','Hidden','-ExecutionPolicy','Bypass','-File'," +
+    JSON.stringify(helperPath) + ' -Verb RunAs -WindowStyle Hidden';
+
+  sendToRenderer('update:installing', { message: 'Solicitando permissão de administrador...' });
+
+  execFile(psExe, ['-NoProfile', '-NonInteractive', '-Command', elevatedCmd], { windowsHide: true }, (err) => {
+    // Mesmo se o UAC for cancelado, o helper só não roda; o fluxo não quebra.
+    if (err) console.error('[updater] Falha ao iniciar helper (UAC cancelado?):', err.message);
+  });
+
+  sendToRenderer('update:installing', { message: 'Instalando... O aplicativo será fechado e reaberto automaticamente.' });
+
+  return new Promise((resolve) => {
+    // Dá tempo para o usuário aceitar o UAC e o helper iniciar; depois fecha o app
+    // para liberar os arquivos em uso e deixar o helper finalizar a instalação
+    // e relançar o aplicativo ATUALIZADO. NÃO usar app.relaunch() aqui:
+    // ele relançaria o executável antigo antes da instalação terminar.
     setTimeout(() => {
-      sendToRenderer('update:installing', { message: 'Instalando... O aplicativo será reiniciado.' });
-      // Dá tempo para o NSIS começar a copiar arquivos
-      setTimeout(() => {
-        app.relaunch();
-        app.exit(0);
-      }, 3000);
-    }, 2000);
+      resolve({ ok: true, message: 'Atualização aplicada. O aplicativo será reaberto automaticamente.' });
+      app.exit(0);
+    }, 2500);
   });
 }
 

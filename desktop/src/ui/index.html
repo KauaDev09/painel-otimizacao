@@ -245,6 +245,35 @@
         </aside>
       </div>
       <div id="gbRecList"></div>
+
+      <div class="group-title">Modo Jogo — Booster com seu jogo / app</div>
+      <div class="card" style="padding:18px;">
+        <p class="hint" style="margin:0 0 14px;">
+          Escolha um jogo ou programa do seu PC. O Game Booster ativa o plano de energia
+          <b>Alto Desempenho</b>, dá prioridade <b>Alta</b> ao processo e restaura o plano
+          de energia automaticamente quando o jogo fechar (o Windows pedirá permissão de
+          administrador apenas uma vez, no início).
+        </p>
+        <div class="toolbar" style="margin-bottom:14px;">
+          <div style="flex:1;min-width:220px">
+            <label>Nome (opcional)</label>
+            <input id="gbGameName" placeholder="Ex.: Fortnite" />
+          </div>
+          <div style="margin-bottom:1px">
+            <button id="gbPickBtn" class="btn btn-outline" title="Procurar o .exe do jogo no PC">Escolher jogo/app…</button>
+          </div>
+          <div style="margin-bottom:1px">
+            <button id="gbAddBtn" class="btn btn-primary" title="Adicionar à lista do boost">Adicionar</button>
+          </div>
+        </div>
+        <div id="gbGameList">
+          <p class="empty-note" id="gbGamesEmpty" style="text-align:left;margin:0;">Nenhum jogo adicionado ainda.</p>
+        </div>
+        <div id="gbSessionStatus" class="service-status hidden" style="margin-top:14px;">
+          <span class="spinner spinner-sm"></span>
+          <span id="gbSessionText">…</span>
+        </div>
+      </div>
     </section>
 
     <!-- ===================== SEGURANÇA ===================== -->

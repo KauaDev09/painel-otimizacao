@@ -569,6 +569,21 @@ window.OrionAPI = {
     };
   },
 
+  // ---- Modo Jogo (Game Booster) ----
+  gameBoostListGames: async () => [],
+  gameBoostAddGame: async (payload) => ({
+    id: 'mock-' + Date.now(),
+    path: payload.path,
+    name: payload.name || 'Jogo mockado',
+    addedAt: new Date().toISOString()
+  }),
+  gameBoostRemoveGame: async () => ({ ok: true }),
+  gameBoostSessionStatus: async () => ({ running: false, pending: false, session: null }),
+  gameBoostStartSession: async () => ({ ok: true, pending: true, gameName: 'Jogo mockado', message: 'O app está em modo de pré-visualização. O boost real é aplicado na versão instalada.' }),
+  gameBoostStopSession: async () => ({ ok: true, message: 'Sessão encerrada.' }),
+  gameBoostPickExe: async () => null,
+  onGameBoostSession: (cb) => cb,
+
   engineListItems: async () => MOCK_ITEMS,
   engineGetProfiles: async () => MOCK_PROFILES.map((p) => ({
     ...p,

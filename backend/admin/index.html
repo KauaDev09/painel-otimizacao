@@ -663,15 +663,15 @@
               <div style="background:var(--surface-hover);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px;margin-bottom:18px;">
                 <p style="font-size:0.78rem;color:var(--text-secondary);margin:0 0 8px;font-weight:600;">Como publicar uma atualização:</p>
                 <ol style="font-size:0.78rem;color:var(--text-dim);margin:0;padding-left:18px;line-height:1.9;">
-                  <li>Rode <code style="color:var(--primary-3);background:var(--primary-bg);padding:1px 6px;border-radius:4px;">npm run release</code> na pasta <b>desktop/</b> (gera o .exe e bumpa a versão)</li>
-                  <li>Faça upload do arquivo <code style="color:var(--primary-3);background:var(--primary-bg);padding:1px 6px;border-radius:4px;">release/ORION OPTIMIZER Setup-X.Y.Z.exe</code> para um hosting público</li>
-                  <li>Cole a URL de download abaixo e clique Publicar</li>
+                  <li>Rode <code style="color:var(--primary-3);background:var(--primary-bg);padding:1px 6px;border-radius:4px;">npm run release</code> na pasta <b>desktop/</b> (gera o .exe, cria a Release e imprime a URL de download)</li>
+                  <li>Confira que o repositório está <b>público</b> — <code style="color:var(--primary-3);background:var(--primary-bg);padding:1px 6px;border-radius:4px;">gh repo edit KauaDev09/painel-otimizacao --visibility public</code></li>
+                  <li>Preencha a versão, clique <b>Gerar URL</b> e clique Publicar</li>
                 </ol>
-                <p class="hint" style="margin:8px 0 0">Hosting recomendado: <b>GitHub Releases</b> (gratuito, permanente, links diretos).</p>
               </div>
               <div class="toolbar">
                 <div><label>Versão (X.Y.Z)</label><input id="updVersao" placeholder="2.1.0" /></div>
-                <div style="min-width:340px"><label>URL de download do .exe</label><input id="updUrl" type="url" placeholder="https://github.com/user/repo/releases/download/v2.1.0/ORION+OPTIMIZER+Setup-2.1.0.exe" /></div>
+                <div style="min-width:340px"><label>URL de download do .exe</label><input id="updUrl" type="url" placeholder="https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.0/ORION-OPTIMIZER-Setup-2.1.0.exe" /></div>
+                <div style="margin-bottom:1px"><button id="updGenUrl" class="btn btn-outline" title="Monta a URL padrão do GitHub Releases para a versão informada">Gerar URL GitHub</button></div>
                 <div><label>Obrigatória</label>
                   <select id="updObri"><option value="0">Não</option><option value="1">Sim</option></select></div>
                 <div><label>Atualização paga (vitalício)</label>
@@ -969,6 +969,20 @@ async function loadUpdates() {
       </div></td>
     </tr>`).join('') || '<tr><td colspan="7" style="color:var(--text-dim)">Nenhuma versão publicada.</td></tr>';
 }
+
+$('#updGenUrl').addEventListener('click', () => {
+  const v = $('#updVersao').value.trim();
+  const msg = $('#updMsg');
+  msg.className = 'msg'; msg.textContent = '';
+  if (!/^\d+\.\d+\.\d+$/.test(v)) {
+    msg.textContent = 'Informe a versão no formato X.Y.Z antes de gerar a URL.';
+    msg.classList.add('err');
+    return;
+  }
+  $('#updUrl').value = `https://github.com/KauaDev09/painel-otimizacao/releases/download/v${v}/ORION-OPTIMIZER-Setup-${v}.exe`;
+  msg.textContent = 'URL gerada. Confira o nome exato do asset na release (o script npm run release imprime a URL correta).';
+  msg.classList.add('ok');
+});
 
 $('#updBtn').addEventListener('click', async () => {
   const msg = $('#updMsg');
