@@ -47,20 +47,24 @@ function sendToRenderer(channel, data) {
  *   { available: false }                       — sem atualização
  *   { available: true, update: {...} }         — nova versão publicada
  */
-async function checkForUpdate() {
+async function checkForUpdate(licenseKey) {
   const base = getApiBaseUrl();
-  const res = await getJson(base, '/api/v1/app/updates/latest', { timeoutMs: 12000 });
+  const q = licenseKey ? `?key=${encodeURIComponent(licenseKey)}` : '';
+  const res = await getJson(base, '/api/v1/app/updates/latest' + q, { timeoutMs: 12000 });
   const upd = res.update;
   if (!upd || !upd.version) return { available: false };
   if (!isNewer(upd.version)) return { available: false };
   return {
     available: true,
+    requiresPurchase: !!upd.requiresPurchase,
     update: {
       version: String(upd.version),
       url: String(upd.downloadUrl || ''),
       changelog: String(upd.changelog || ''),
-      mandatory: !!upd.mandatory,
-      releasedAt: upd.releasedAt || null
+      mandatory: !!upd.mandatory && !upd.requiresPurchase,
+      releasedAt: upd.releasedAt || null,
+      price: upd.price || null,
+      storeUrl: upd.storeUrl || null
     },
     currentVersion: APP_VERSION
   };

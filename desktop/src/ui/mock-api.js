@@ -197,22 +197,23 @@ const MOCK_RECOMMENDATIONS = [
 ];
 
 const MOCK_ITEMS = [
-  { id: 'win-001', name: 'Desativar telemetria do Windows', description: 'Reduz a coleta de dados enviados à Microsoft.', benefit: 'Melhora privacidade e reduz uso de rede', category: 'windows', risk: 'low', profiles: ['performance', 'gaming'], proOnly: false, rebootRequired: false, requiresAdmin: true, confirm: false, riskLabel: 'RISCO BAIXO' },
-  { id: 'win-002', name: 'Desativar efeitos visuais', description: 'Remove animações e transições do Windows.', benefit: 'Libera recursos da GPU e reduz input lag', category: 'windows', risk: 'low', profiles: ['performance', 'gaming'], proOnly: false, rebootRequired: false, requiresAdmin: false, confirm: false, riskLabel: 'RISCO BAIXO' },
-  { id: 'win-003', name: 'Otimizar agenda de tarefas', description: 'Desativa tarefas agendadas desnecessárias.', benefit: 'Reduz uso de CPU em segundo plano', category: 'windows', risk: 'low', profiles: ['balanced', 'performance'], proOnly: false, rebootRequired: false, requiresAdmin: true, confirm: false, riskLabel: 'RISCO BAIXO' },
-  { id: 'gaming-001', name: 'Ativar Game Mode', description: 'Ativa o modo de jogos do Windows.', benefit: 'Prioriza recursos para jogos', category: 'jogos', risk: 'low', profiles: ['gaming'], proOnly: false, rebootRequired: false, requiresAdmin: false, confirm: false, riskLabel: 'RISCO BAIXO' },
-  { id: 'gaming-002', name: 'Otimizar plano de energia High Performance', description: 'Altera o plano de energia para máximo desempenho.', benefit: 'CPU opera em clocks mais altos', category: 'jogos', risk: 'low', profiles: ['gaming', 'performance'], proOnly: false, rebootRequired: false, requiresAdmin: true, confirm: false, riskLabel: 'RISCO BAIXO' },
-  { id: 'net-001', name: 'Otimizar TCP Auto Tuning', description: 'Ajusta o buffer de recepção TCP.', benefit: 'Melhora throughput de rede', category: 'rede', risk: 'low', profiles: ['performance', 'gaming'], proOnly: false, rebootRequired: false, requiresAdmin: true, confirm: false, riskLabel: 'RISCO BAIXO' },
-  { id: 'limpeza-001', name: 'Limpar cache de updates do Windows', description: 'Remove arquivos temporários de atualizações.', benefit: 'Libera espaço em disco', category: 'limpeza', risk: 'low', profiles: ['safe', 'balanced'], proOnly: false, rebootRequired: false, requiresAdmin: true, confirm: false, riskLabel: 'RISCO BAIXO' }
+  { id: 'win-001', name: 'Desativar telemetria do Windows', description: 'Reduz a coleta de dados enviados à Microsoft.', benefit: 'Melhora privacidade e reduz uso de rede', category: 'windows', risk: 'low', profiles: ['performance', 'gaming', 'safe', 'balanced'], proOnly: true, rebootRequired: false, requiresAdmin: true, confirm: false, riskLabel: 'Baixo', icon: 'privacy', applyHint: 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection', registryKeys: ['HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection'], applied: false },
+  { id: 'win-002', name: 'Desativar efeitos visuais', description: 'Remove animações e transições do Windows.', benefit: 'Libera recursos da GPU e reduz input lag', category: 'energia', risk: 'low', profiles: ['performance', 'gaming'], proOnly: false, rebootRequired: false, requiresAdmin: false, confirm: false, riskLabel: 'Baixo', icon: 'power', applyHint: 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VisualEffects', registryKeys: ['HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VisualEffects'], applied: false },
+  { id: 'win-003', name: 'Otimizar agenda de tarefas', description: 'Desativa tarefas agendadas desnecessárias.', benefit: 'Reduz uso de CPU em segundo plano', category: 'windows', risk: 'medium', profiles: ['balanced', 'performance'], proOnly: false, rebootRequired: false, requiresAdmin: true, confirm: false, riskLabel: 'Médio', icon: 'windows', applyHint: 'Agendador de Tarefas', registryKeys: [], applied: false },
+  { id: 'win-004', name: 'Desativar atualizações automáticas', description: 'Impede reinícios automáticos do Windows Update.', benefit: 'Controle total sobre quando atualizar.', category: 'windows', risk: 'high', profiles: [], proOnly: true, rebootRequired: false, requiresAdmin: true, confirm: true, riskLabel: 'Alto', icon: 'windows', applyHint: 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate', registryKeys: ['HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate'], applied: false },
+  { id: 'gaming-001', name: 'Ativar Game Mode', description: 'Ativa o modo de jogos do Windows.', benefit: 'Prioriza recursos para jogos', category: 'jogos', risk: 'low', profiles: ['gaming'], proOnly: false, rebootRequired: false, requiresAdmin: false, confirm: false, riskLabel: 'Baixo', icon: 'gaming', applyHint: 'HKCU\\Software\\Microsoft\\GameBar', registryKeys: ['HKCU\\Software\\Microsoft\\GameBar'], applied: false },
+  { id: 'gaming-002', name: 'Otimizar plano de energia High Performance', description: 'Altera o plano de energia para máximo desempenho.', benefit: 'CPU opera em clocks mais altos', category: 'jogos', risk: 'low', profiles: ['gaming', 'performance'], proOnly: false, rebootRequired: false, requiresAdmin: true, confirm: false, riskLabel: 'Baixo', icon: 'boost', applyHint: 'powercfg -setactive', registryKeys: [], applied: false },
+  { id: 'net-001', name: 'Otimizar TCP Auto Tuning', description: 'Ajusta o buffer de recepção TCP.', benefit: 'Melhora throughput de rede', category: 'rede', risk: 'low', profiles: ['performance', 'gaming'], proOnly: true, rebootRequired: false, requiresAdmin: true, confirm: false, riskLabel: 'Baixo', icon: 'network', applyHint: 'netsh int tcp', registryKeys: [], applied: false },
+  { id: 'limpeza-001', name: 'Limpar cache de updates do Windows', description: 'Remove arquivos temporários de atualizações.', benefit: 'Libera espaço em disco', category: 'limpeza', risk: 'low', profiles: ['safe', 'balanced'], proOnly: false, rebootRequired: false, requiresAdmin: true, confirm: false, riskLabel: 'Baixo', icon: 'cleaning', applyHint: 'C:\\Windows\\SoftwareDistribution\\Download', registryKeys: [], applied: true }
 ];
 
 const MOCK_PROFILES = [
-  { id: 'safe', name: 'Seguro', description: 'Apenas otimizações de baixo risco.', icon: '🛡️' },
-  { id: 'balanced', name: 'Equilibrado', description: 'Boa relação entre desempenho e estabilidade.', icon: '⚖️' },
-  { id: 'performance', name: 'Desempenho', description: 'Maximiza FPS e throughput.', icon: '⚡' },
-  { id: 'gaming', name: 'Gamer', description: 'Ideal para jogos competitivos.', icon: '🎮' },
-  { id: 'work', name: 'Trabalho', description: 'Estabilidade para produtividade.', icon: '💼' },
-  { id: 'laptop', name: 'Notebook', description: 'Equilíbrio entre bateria e desempenho.', icon: '💻' }
+  { id: 'safe', name: 'Seguro', description: 'Apenas otimizações de baixo risco.', icon: 'security', count: 2 },
+  { id: 'balanced', name: 'Equilibrado', description: 'Boa relação entre desempenho e estabilidade.', icon: 'scale', count: 3 },
+  { id: 'performance', name: 'Desempenho', description: 'Maximiza FPS e throughput.', icon: 'boost', count: 5 },
+  { id: 'gaming', name: 'Gamer', description: 'Ideal para jogos competitivos.', icon: 'gaming', count: 5 },
+  { id: 'work', name: 'Trabalho', description: 'Estabilidade para produtividade.', icon: 'briefcase', count: 0 },
+  { id: 'laptop', name: 'Notebook', description: 'Equilíbrio entre bateria e desempenho.', icon: 'power', count: 0 }
 ];
 
 const MOCK_CLEAN_TARGETS = [
@@ -364,8 +365,86 @@ const _listeners = {
   engineStep: [],
   step: [],
   downloadProgress: [],
-  installing: []
+  installing: [],
+  biosBootVerify: []
 };
+
+const MOCK_BIOS_ITEMS = [
+  {
+    id: 'xmp', operation: 'enable_xmp', name: 'XMP',
+    description: 'Ativar o perfil XMP dos módulos para usar a frequência anunciada.',
+    category: 'memory', level: 'recommended', risk: 'low', impact: 'medium',
+    requiresReboot: true, rollbackSupported: false, rollbackManual: true,
+    status: 'manual', button: 'CONFIGURAÇÃO MANUAL', auto: false,
+    state: { key: 'disabled', label: 'DESATIVADO', currentMhz: 3200, ratedMhz: 3600 },
+    expected: { key: 'enabled', minConfigMHz: 3600 },
+    compatibility: 'Não é possível alterar automaticamente nesta placa.',
+    provider: 'asus', paths: ['AI Tweaker → Ai Overclock Tuner → XMP'],
+    steps: ['Entre na BIOS', 'Ative XMP Profile 1', 'Salve e reinicie'],
+    currentMhz: 3200, ratedMhz: 3600
+  },
+  {
+    id: 'resizable_bar', operation: 'enable_resizable_bar', name: 'Resizable BAR',
+    description: 'Permitir que a CPU acesse toda a VRAM de uma vez.',
+    category: 'gpu', level: 'recommended', risk: 'low', impact: 'medium',
+    requiresReboot: true, rollbackSupported: false, rollbackManual: true,
+    status: 'manual', button: 'CONFIGURAÇÃO MANUAL', auto: false,
+    state: { key: 'disabled', label: 'DESATIVADO' },
+    expected: { key: 'enabled' },
+    compatibility: 'Não é possível alterar automaticamente nesta placa.',
+    provider: 'asus', paths: ['Advanced → PCI Subsystem Settings → Re-Size BAR Support'],
+    steps: ['Ative Above 4G', 'Ative Re-Size BAR', 'Salve e reinicie']
+  },
+  {
+    id: 'above_4g', operation: 'enable_above_4g', name: 'Above 4G Decoding',
+    description: 'Pré-requisito do Resizable BAR.',
+    category: 'gpu', level: 'recommended', risk: 'low', impact: 'medium',
+    requiresReboot: true, rollbackSupported: false, rollbackManual: true,
+    status: 'manual', button: 'CONFIGURAÇÃO MANUAL', auto: false,
+    state: { key: 'unknown', label: 'NÃO CONFIGURADO' },
+    expected: { key: 'likely_enabled' },
+    compatibility: 'Não é possível alterar automaticamente nesta placa.',
+    provider: 'asus', paths: ['Advanced → PCI Subsystem Settings → Above 4G Decoding'],
+    steps: ['Ative Above 4G Decoding na BIOS']
+  },
+  {
+    id: 'high_performance_plan', operation: 'enable_high_performance_plan',
+    name: 'Plano de energia Alto desempenho',
+    description: 'Aplicar o plano de energia de alto desempenho do Windows.',
+    category: 'power', level: 'optional', risk: 'low', impact: 'medium',
+    requiresReboot: false, rollbackSupported: true, rollbackManual: false,
+    status: 'available', button: 'ATIVAR', auto: true,
+    state: { key: 'disabled', label: 'Equilibrado' },
+    expected: { key: 'enabled' },
+    compatibility: 'Método automático disponível via Windows.',
+    provider: 'asus', paths: ['Windows → Opções de energia → Alto desempenho'],
+    steps: ['O Orion aplica via powercfg.']
+  }
+];
+
+let _biosLogs = ['[20:40:01] Scanner iniciado (preview)'];
+let _biosPending = false;
+
+function mockBiosPayload() {
+  return {
+    provider: 'asus',
+    providerName: 'ASUS',
+    elevated: false,
+    extra: { power: { name: 'Equilibrado', isHighPerformance: false }, rebar: { state: 'unknown' } },
+    hardware: { cpu: MOCK_HARDWARE.cpu.name, board: 'ASUS ROG STRIX B550-F', vendorKey: 'asus' },
+    items: MOCK_BIOS_ITEMS,
+    counts: {
+      all: MOCK_BIOS_ITEMS.length,
+      available: MOCK_BIOS_ITEMS.filter((i) => i.status === 'available').length,
+      manual: MOCK_BIOS_ITEMS.filter((i) => i.status === 'manual').length,
+      active: 0,
+      pending: _biosPending ? 1 : 0,
+      found: MOCK_BIOS_ITEMS.filter((i) => i.status === 'available' || i.status === 'manual').length
+    },
+    pending: [],
+    logs: _biosLogs
+  };
+}
 
 window.OrionAPI = {
   analyze: async () => {
@@ -491,17 +570,31 @@ window.OrionAPI = {
   },
 
   engineListItems: async () => MOCK_ITEMS,
-  engineGetProfiles: async () => MOCK_PROFILES,
+  engineGetProfiles: async () => MOCK_PROFILES.map((p) => ({
+    ...p,
+    count: MOCK_ITEMS.filter((i) => (i.profiles || []).includes(p.id)).length
+  })),
   engineGetDrivers: async () => [
     { id: 'driver-nvidia', vendor: 'nvidia' },
     { id: 'driver-amd', vendor: 'amd' },
     { id: 'driver-intel', vendor: 'intel' }
   ],
-  engineApply: async () => {
-    await delay(800);
-    return { ok: true, restorePoint: { ok: true, message: 'Ponto de restauração criado.' }, results: MOCK_ITEMS.slice(0, 3).map(() => ({ ok: true, message: 'Aplicado' })) };
+  engineApply: async (payload) => {
+    const ids = (payload && payload.ids) || [];
+    const items = MOCK_ITEMS.filter((i) => ids.includes(i.id));
+    const list = items.length ? items : MOCK_ITEMS.slice(0, 3);
+    for (let i = 0; i < list.length; i++) {
+      await delay(350);
+      _listeners.engineStep.forEach((cb) => cb({ name: list[i].name, ok: true, message: 'Aplicado' }));
+      list[i].applied = true;
+    }
+    return { ok: true, restorePoint: { ok: true, message: 'Ponto de restauração criado.' }, results: list.map((i) => ({ ok: true, name: i.name, message: 'Aplicado' })) };
   },
-  engineUndoItem: async () => ({ ok: true, message: 'Item revertido com sucesso.' }),
+  engineUndoItem: async (id) => {
+    const item = MOCK_ITEMS.find((i) => i.id === id);
+    if (item) item.applied = false;
+    return { ok: true, message: 'Item revertido com sucesso.' };
+  },
   engineUndoOperation: async () => ({ ok: true, message: 'Operação revertida.' }),
   engineListOperations: async () => MOCK_OPERATIONS,
   engineGetOperation: async () => MOCK_OPERATIONS[0],
@@ -579,7 +672,53 @@ window.OrionAPI = {
   onDownloadProgress: (cb) => { _listeners.downloadProgress.push(cb); },
   onInstalling: (cb) => { _listeners.installing.push(cb); },
   getAppMeta: async () => ({ version: '2.0.0', buildDate: '2026-08-20', electron: '31.7.7', node: '20.x' }),
-  appHealth: async () => ({ ok: true, api: 'online', license: 'valid' })
+  appHealth: async () => ({ ok: true, api: 'online', license: 'valid' }),
+
+  biosScan: async () => { await delay(400); _biosLogs.push('[preview] Scanner concluído'); return mockBiosPayload(); },
+  biosList: async () => mockBiosPayload(),
+  biosDryRun: async (id) => {
+    const it = MOCK_BIOS_ITEMS.find((x) => x.id === id) || MOCK_BIOS_ITEMS[0];
+    return {
+      setting: it.name, operation: it.operation, current: it.state.label,
+      next: 'ATIVADO', reboot: it.requiresReboot ? 'SIM' : 'NÃO',
+      provider: 'ASUS', mode: it.auto ? 'automático' : 'manual',
+      reason: it.compatibility, currentMhz: it.currentMhz, ratedMhz: it.ratedMhz
+    };
+  },
+  biosGuide: async (id) => {
+    const it = MOCK_BIOS_ITEMS.find((x) => x.id === id) || MOCK_BIOS_ITEMS[0];
+    return {
+      id: it.id, name: it.name, description: it.description, current: it.state,
+      recommended: 'Ativado', paths: it.paths, steps: it.steps,
+      requiresReboot: it.requiresReboot, rollbackManual: it.rollbackManual
+    };
+  },
+  biosApply: async (payload) => {
+    await delay(400);
+    const it = MOCK_BIOS_ITEMS.find((x) => x.id === (payload && payload.id));
+    if (!it || !it.auto) {
+      return { ok: false, manual: true, message: 'Não é possível alterar automaticamente nesta placa.' };
+    }
+    it.status = 'active';
+    it.button = 'ATIVO';
+    it.state = { key: 'enabled', label: 'Alto desempenho' };
+    _biosLogs.push('[preview] Plano Alto desempenho confirmado');
+    return { ok: true, applied: true, verified: true, message: 'Plano Alto desempenho aplicado.' };
+  },
+  biosScheduleVerify: async () => { _biosPending = true; return { ok: true }; },
+  biosVerifyPending: async () => ({ checked: [], payload: mockBiosPayload() }),
+  biosRollback: async (id) => {
+    const it = MOCK_BIOS_ITEMS.find((x) => x.id === id);
+    if (it && it.rollbackSupported) {
+      it.status = 'available';
+      it.state = { key: 'disabled', label: 'Equilibrado' };
+      return { ok: true, message: 'Plano anterior restaurado (preview).' };
+    }
+    return { ok: false, manual: true, message: 'Rollback manual — reverta a opção na BIOS.' };
+  },
+  biosReboot: async () => ({ ok: true, message: 'Reinício simulado (preview).' }),
+  biosLogs: async () => _biosLogs,
+  onBiosBootVerify: (cb) => { _listeners.biosBootVerify.push(cb); }
 };
 
 // Simulate initial license state

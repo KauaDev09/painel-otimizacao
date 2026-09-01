@@ -78,5 +78,19 @@ contextBridge.exposeInMainWorld('OrionAPI', {
   },
   onEngineStep: (cb) => {
     ipcRenderer.on('engine:step', (_e, step) => cb(step));
+  },
+
+  biosScan: () => ipcRenderer.invoke('bios:scan'),
+  biosList: () => ipcRenderer.invoke('bios:list'),
+  biosDryRun: (id) => ipcRenderer.invoke('bios:dryRun', id),
+  biosGuide: (id) => ipcRenderer.invoke('bios:guide', id),
+  biosApply: (payload) => ipcRenderer.invoke('bios:apply', payload),
+  biosScheduleVerify: (id) => ipcRenderer.invoke('bios:scheduleVerify', id),
+  biosVerifyPending: () => ipcRenderer.invoke('bios:verifyPending'),
+  biosRollback: (id) => ipcRenderer.invoke('bios:rollback', id),
+  biosReboot: () => ipcRenderer.invoke('bios:reboot'),
+  biosLogs: () => ipcRenderer.invoke('bios:logs'),
+  onBiosBootVerify: (cb) => {
+    ipcRenderer.on('bios:boot-verify', (_e, res) => cb(res));
   }
 });

@@ -22,6 +22,20 @@ const CATEGORIES = {
   seguranca: 'Segurança'
 };
 
+const CATEGORY_ICONS = {
+  windows: 'windows',
+  cpu: 'cpu',
+  gpu: 'gpu',
+  ram: 'ram',
+  rede: 'network',
+  armazenamento: 'storage',
+  energia: 'power',
+  inicializacao: 'startup',
+  jogos: 'gaming',
+  limpeza: 'cleaning',
+  seguranca: 'security'
+};
+
 const RISK_LABELS = {
   low: 'Baixo',
   medium: 'Médio',
@@ -832,4 +846,4 @@ function resolveScript(relFile) {
   return path.join(getScriptsBase(), relFile);
 }
 
-module.exports = { CATEGORIES, RISK_LABELS, ITEMS, DRIVER_DOWNLOAD_ITEMS, getItem, resolveScript };
+module.exports = { CATEGORIES, CATEGORY_ICONS, RISK_LABELS, ITEMS, DRIVER_DOWNLOAD_ITEMS, getItem, resolveScript };

@@ -13,6 +13,7 @@ const crypto = require('crypto');
 const psRunner = require('../hardware/psRunner');
 const { postJson } = require('./apiClient');
 const { getApiBaseUrl } = require('./config');
+const { APP_VERSION } = require('../config/appConfig');
 
 const GRACE_MS = 72 * 60 * 60 * 1000; // 72 horas
 const REFRESH_MS = 6 * 60 * 60 * 1000; // revalida a cada 6h com o app aberto
@@ -91,6 +92,8 @@ class LicenseService {
       reason = 'LICENSE_BLOCKED';
     } else if (expiredLocally) {
       reason = 'LICENSE_EXPIRED';
+    } else if (c.canRunVersion === false) {
+      reason = 'VERSION_NOT_AUTHORIZED';
     } else if (c.state === 'active') {
       active = age < GRACE_MS; // fora da tolerância, exige nova validação online
       if (!active) reason = 'VALIDATION_REQUIRED';
@@ -109,6 +112,13 @@ class LicenseService {
       daysLeft,
       lastValidatedAt: c.lastValidatedAt || null,
       offlineGrace: active && age > 0,
+      authorizedVersion: c.authorizedVersion || null,
+      serverVersion: c.serverVersion || null,
+      canRunVersion: c.canRunVersion !== false,
+      updateAvailable: !!c.updateAvailable,
+      updateRequiresPurchase: !!c.updateRequiresPurchase,
+      updatePrice: c.updatePrice || null,
+      storeUrl: c.storeUrl || null,
       key: c.key ? c.key.replace(/(.{4})[A-Z0-9-]+$/, '$1-••••-••••') : null
     };
   }
@@ -121,7 +131,14 @@ class LicenseService {
       expiresAt: data.expiresAt || null,
       lastValidatedAt: new Date().toISOString(),
       token: data.token || (this.cache && this.cache.token) || null,
-      machineId: data.machineId
+      machineId: data.machineId,
+      authorizedVersion: data.authorizedVersion || null,
+      serverVersion: data.serverVersion || null,
+      canRunVersion: data.canRunVersion !== false,
+      updateAvailable: !!data.updateAvailable,
+      updateRequiresPurchase: !!data.updateRequiresPurchase,
+      updatePrice: data.updatePrice || null,
+      storeUrl: data.storeUrl || null
     };
     this._save();
     this._emit();
@@ -157,7 +174,11 @@ class LicenseService {
     }
     const dev = await this._deviceInfo();
     try {
-      const res = await postJson(getApiBaseUrl(), '/api/v1/license/activate', { ...dev, key });
+      const res = await postJson(getApiBaseUrl(), '/api/v1/license/activate', {
+        ...dev,
+        key,
+        appVersion: APP_VERSION
+      });
       return this._applySuccess({ ...res, key, machineId: dev.machineId });
     } catch (err) {
       return this._applyFailure(err);
@@ -172,7 +193,7 @@ class LicenseService {
       const res = await postJson(
         getApiBaseUrl(),
         '/api/v1/license/validate',
-        { ...dev, key: c.key },
+        { ...dev, key: c.key, appVersion: APP_VERSION },
         { headers: c.token ? { Authorization: `Bearer ${c.token}` } : {} }
       );
       return this._applySuccess({ ...res, key: c.key, machineId: dev.machineId });

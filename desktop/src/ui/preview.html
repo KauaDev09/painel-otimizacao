@@ -27,95 +27,100 @@
 </head>
 <body>
 
+  <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
   <!-- ===================== SIDEBAR ===================== -->
   <aside id="sidebar" class="sidebar">
     <div id="brand" class="sidebar-logo" data-view="home">
-      <img src="../assets/logo.jpeg" alt="Orion" class="sidebar-logo-img" />
+      <img src="assets/logo.jpeg" alt="Orion" class="sidebar-logo-img" />
       <div class="sidebar-logo-text">
         <span class="sidebar-logo-main">ORION</span>
         <span class="sidebar-logo-sub">OPTIMIZER</span>
       </div>
+      <button id="sidebarClose" class="sidebar-close" aria-label="Fechar menu" type="button">
+        <span data-icon="close" data-size="18"></span>
+      </button>
     </div>
 
     <nav class="sidebar-nav">
-      <button data-view="home" class="sidebar-item active">
-        <span class="sidebar-icon"><img src="../assets/inicio.png" alt="Início" /></span>
+      <button data-view="home" class="sidebar-item active" type="button">
+        <span class="sidebar-icon" data-icon="home" data-size="20"></span>
         <span class="sidebar-label">Início</span>
       </button>
 
       <div class="sidebar-section">OTIMIZAÇÃO</div>
 
-      <button data-view="optimize" class="sidebar-item">
-        <span class="sidebar-icon"><img src="../assets/windows.png" alt="Windows" /></span>
+      <button data-view="optimize" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="windows" data-size="20"></span>
         <span class="sidebar-label">Windows</span>
       </button>
-      <button data-view="gameboost" class="sidebar-item">
-        <span class="sidebar-icon"><img src="../assets/gaming.png" alt="Gaming" /></span>
+      <button data-view="gameboost" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="gaming" data-size="20"></span>
         <span class="sidebar-label">Gaming</span>
       </button>
-      <button data-view="dashboard" class="sidebar-item">
-        <span class="sidebar-icon"><img src="../assets/sistema.png" alt="Sistema" /></span>
+      <button data-view="dashboard" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="monitoring" data-size="20"></span>
         <span class="sidebar-label">Sistema</span>
       </button>
-      <button data-view="maintenance" class="sidebar-item">
-        <span class="sidebar-icon"><img src="../assets/limpeza.png" alt="Limpeza" /></span>
+      <button data-view="maintenance" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="cleaning" data-size="20"></span>
         <span class="sidebar-label">Limpeza</span>
       </button>
-      <button data-view="recs" class="sidebar-item">
-        <span class="sidebar-icon"><img src="../assets/bios.png" alt="BIOS" /></span>
+      <button data-view="recs" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="bios" data-size="20"></span>
         <span class="sidebar-label">BIOS</span>
       </button>
 
       <div class="sidebar-section">MONITORAMENTO</div>
 
-      <button data-view="monitor" class="sidebar-item">
-        <span class="sidebar-icon"><img src="../assets/monitor.png" alt="Monitor" /></span>
+      <button data-view="monitor" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="monitoring" data-size="20"></span>
         <span class="sidebar-label">Monitor</span>
       </button>
-      <button data-view="benchmark" class="sidebar-item">
-        <span class="sidebar-icon"><img src="../assets/benchmark.png" alt="Benchmark" /></span>
+      <button data-view="benchmark" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="benchmark" data-size="20"></span>
         <span class="sidebar-label">Benchmark</span>
       </button>
-      <button data-view="network" class="sidebar-item">
-        <span class="sidebar-icon"><img src="../assets/rede.png" alt="Rede" /></span>
+      <button data-view="network" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="network" data-size="20"></span>
         <span class="sidebar-label">Rede</span>
       </button>
-      <button data-view="security" class="sidebar-item">
-        <span class="sidebar-icon"><img src="../assets/seguranca.png" alt="Segurança" /></span>
+      <button data-view="security" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="security" data-size="20"></span>
         <span class="sidebar-label">Segurança</span>
       </button>
 
       <div class="sidebar-section">FERRAMENTAS</div>
 
-      <button data-view="startup" class="sidebar-item">
-        <span class="sidebar-icon"><img src="../assets/inicializacao.png" alt="Inicialização" /></span>
+      <button data-view="startup" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="startup" data-size="20"></span>
         <span class="sidebar-label">Inicialização</span>
       </button>
-      <button data-view="processes" class="sidebar-item">
-        <span class="sidebar-icon"><img src="../assets/processos.png" alt="Processos" /></span>
+      <button data-view="processes" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="cpu" data-size="20"></span>
         <span class="sidebar-label">Processos</span>
       </button>
-      <button data-view="restore" class="sidebar-item">
-        <span class="sidebar-icon"><img src="../assets/restauracao.png" alt="Restauração" /></span>
+      <button data-view="restore" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="restore" data-size="20"></span>
         <span class="sidebar-label">Restauração</span>
       </button>
-      <button data-view="history" class="sidebar-item">
-        <span class="sidebar-icon"><img src="../assets/historico.png" alt="Histórico" /></span>
+      <button data-view="history" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="history" data-size="20"></span>
         <span class="sidebar-label">Histórico</span>
       </button>
 
       <div class="sidebar-section">CONTA</div>
 
-      <button data-view="activation" class="sidebar-item">
-        <span class="sidebar-icon"><img src="../assets/licenca.png" alt="Licença" /></span>
+      <button data-view="activation" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="license" data-size="20"></span>
         <span class="sidebar-label">Licença</span>
       </button>
-      <button data-view="settings" class="sidebar-item">
-        <span class="sidebar-icon"><img src="../assets/config.png" alt="Config" /></span>
+      <button data-view="settings" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="system" data-size="20"></span>
         <span class="sidebar-label">Config</span>
       </button>
-      <button data-view="support" class="sidebar-item">
-        <span class="sidebar-icon"><img src="../assets/suporte.png" alt="Suporte" /></span>
+      <button data-view="support" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="support" data-size="20"></span>
         <span class="sidebar-label">Suporte</span>
       </button>
     </nav>
@@ -127,11 +132,23 @@
 
   <!-- ===================== HEADER ===================== -->
   <header id="pageHeader" class="header">
-    <button id="sidebarToggle" class="sidebar-toggle" title="Alternar menu lateral">☰</button>
-    <h1 id="pageTitle" class="header-title">Início</h1>
+    <div class="header-left">
+      <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Abrir menu">
+        <span data-icon="menu" data-size="20"></span>
+      </button>
+      <nav class="breadcrumb" aria-label="Tela atual">
+        <span class="breadcrumb-root">Orion</span>
+        <span class="breadcrumb-sep" aria-hidden="true">/</span>
+        <h1 id="pageTitle" class="header-title">Início</h1>
+      </nav>
+    </div>
     <div class="header-actions">
-      <span id="headerLicense" class="header-license">● PRO</span>
-      <button id="headerProfile" class="header-profile" title="Perfil">👤</button>
+      <span id="headerLicense" class="header-license">
+        <span data-icon="pro" data-size="14"></span> PRO
+      </span>
+      <button id="headerProfile" class="header-profile" type="button" aria-label="Perfil">
+        <span data-icon="user" data-size="18"></span>
+      </button>
     </div>
   </header>
 
@@ -146,10 +163,10 @@
           <h1><span class="accent">ORION</span> OPTIMIZER</h1>
           <p class="subtitle">Advanced PC Performance Suite</p>
           <p class="tagline">Analise sua máquina e otimize o desempenho com precisão.</p>
-          <button id="analyzeBtn" class="btn btn-primary btn-big">▶ ANALISAR SISTEMA</button>
+          <button id="analyzeBtn" class="btn btn-primary btn-big"><span data-icon="run" data-size="18"></span> ANALISAR SISTEMA</button>
         </div>
         <div class="hero-mascot">
-          <img src="../assets/mascot-welcome.jpg" alt="Orion Mascot" />
+          <img src="assets/mascot-welcome.jpg" alt="Orion Mascot" />
         </div>
       </div>
       <div class="home-grid">
@@ -189,18 +206,34 @@
 
     <!-- ===================== RECOMENDAÇÕES ===================== -->
     <section id="view-recs" class="view">
+      <div class="history-head">
+        <div>
+          <h2>BIOS Optimization</h2>
+          <p id="biosFoundLabel" class="dim-note">Analise o computador para detectar otimizações de firmware.</p>
+        </div>
+        <div>
+          <button id="biosScanBtn" class="btn btn-primary" type="button">ANALISAR</button>
+        </div>
+      </div>
+      <div id="biosPendingBanner" class="banner hidden">Há otimizações aguardando reinicialização. O Orion confirmará o resultado na próxima inicialização.</div>
+      <div id="biosVerifyBanner" class="banner hidden"></div>
       <div class="filters" id="recFilters">
-        <button data-f="all" class="chip active">Todas</button>
-        <button data-f="critical" class="chip">🔴 Críticas</button>
-        <button data-f="recommended" class="chip">🟢 Recomendadas</button>
-        <button data-f="optional" class="chip">🟡 Opcionais</button>
-        <button data-f="informational" class="chip">⚪ Informativas</button>
-        <button data-f="advanced" class="chip tech-only hidden">⚙️ Avançadas</button>
+        <button data-f="all" class="chip active" type="button">Todas</button>
+        <button data-f="critical" class="chip" type="button"><span data-icon="risk" data-size="14" class="text-destructive"></span> Críticas</button>
+        <button data-f="recommended" class="chip" type="button"><span data-icon="ok" data-size="14" class="text-success"></span> Recomendadas</button>
+        <button data-f="optional" class="chip" type="button"><span data-icon="risk" data-size="14" class="text-warning"></span> Opcionais</button>
+        <button data-f="informational" class="chip" type="button"><span data-icon="scan" data-size="14"></span> Informativas</button>
+        <button data-f="advanced" class="chip tech-only hidden" type="button"><span data-icon="system" data-size="14"></span> Avançadas</button>
       </div>
       <div id="advancedBanner" class="banner hidden">
         ⚙️ CONFIGURAÇÕES AVANÇADAS — não recomendadas para usuários comuns. Alterações manuais por sua conta e risco.
       </div>
+      <div id="biosList"></div>
       <div id="recList"></div>
+      <details id="biosLogWrap" class="bios-log-wrap">
+        <summary>Logs de BIOS</summary>
+        <pre id="biosLog" class="bios-log"></pre>
+      </details>
     </section>
 
     <!-- ===================== GAME BOOST ===================== -->
@@ -271,29 +304,77 @@
 
     <!-- ===================== OTIMIZAR ===================== -->
     <section id="view-optimize" class="view">
-      <div class="history-head">
-        <h2>Otimizações do Sistema</h2>
-        <div class="opt-actions">
-          <label class="switch" title="Cria um ponto de restauração do Windows antes de aplicar">
-            <input type="checkbox" id="optRestorePoint" checked />
-            <span class="slider"></span>
-            <span class="switch-label">Ponto de restauração</span>
-          </label>
-          <button id="optApplyBtn" class="btn btn-primary">APLICAR SELECIONADAS</button>
+      <div id="optActionBar" class="action-bar">
+        <div class="action-bar-inner">
+          <div class="action-bar-left">
+            <h2>Otimizações do Sistema</h2>
+            <span id="optSelectedCount" class="action-count">0 selecionadas</span>
+          </div>
+          <div class="action-bar-right">
+            <button id="optSelectAllBtn" class="btn btn-outline" type="button">Selecionar tudo</button>
+            <button id="optClearBtn" class="btn btn-outline" type="button">Limpar seleção</button>
+            <label class="switch" title="Cria um ponto de restauração do Windows antes de aplicar">
+              <input type="checkbox" id="optRestorePoint" checked />
+              <span class="slider"></span>
+              <span class="switch-label">Ponto de restauração</span>
+            </label>
+            <button id="optApplyBtn" class="btn btn-primary" type="button">
+              <span data-icon="run" data-size="16"></span> APLICAR SELECIONADAS
+            </button>
+          </div>
+        </div>
+        <div id="optProgress" class="action-progress hidden">
+          <div class="progress-bar"><div id="optProgressFill" class="progress-fill" style="width:0%"></div></div>
+          <span id="optProgressLabel" class="action-progress-label"></span>
         </div>
       </div>
-      <p class="disclaimer">Selecione otimizações individuais ou use um perfil pronto. Tudo é aplicado com backup do registro e pode ser desfeito em <b>Restauração</b>.</p>
 
-      <div class="group-title">Perfis prontos</div>
-      <div id="profileRow" class="profile-row"></div>
+      <div class="page-container">
+        <p class="disclaimer">Selecione otimizações individuais ou use um perfil pronto. Tudo é aplicado com backup do registro e pode ser desfeito em <b>Restauração</b>.</p>
 
-      <div class="filters" id="optFilters">
-        <button data-f="all" class="chip active">Todas</button>
+        <div class="group-title">Perfis prontos</div>
+        <div id="profileRow" class="profile-row"></div>
+        <div id="profileDiff" class="profile-diff hidden"></div>
+
+        <div class="opt-toolbar">
+          <label class="opt-search" for="optSearch">
+            <span data-icon="search" data-size="16" class="text-muted-foreground"></span>
+            <input id="optSearch" type="search" placeholder="Buscar por título ou descrição…" spellcheck="false" autocomplete="off" />
+          </label>
+          <select id="optRiskFilter" class="opt-select" aria-label="Filtrar por risco">
+            <option value="all">Risco: todos</option>
+            <option value="low">Risco baixo</option>
+            <option value="medium">Risco médio</option>
+            <option value="high">Risco alto</option>
+          </select>
+          <select id="optPlanFilter" class="opt-select" aria-label="Filtrar por plano">
+            <option value="all">Plano: todos</option>
+            <option value="free">Grátis</option>
+            <option value="pro">PRO</option>
+          </select>
+          <label class="opt-check">
+            <input type="checkbox" id="optUnappliedOnly" />
+            Somente não aplicadas
+          </label>
+          <select id="optSort" class="opt-select" aria-label="Ordenar lista">
+            <option value="name">Ordenar: nome</option>
+            <option value="risk">Ordenar: risco</option>
+            <option value="category">Ordenar: categoria</option>
+          </select>
+        </div>
+
+        <div class="filters" id="optFilters">
+          <button data-f="all" class="chip active" type="button">Todas</button>
+        </div>
+        <div id="optItemList" class="opt-grid"></div>
+        <div id="optRunLog" class="run-log hidden">
+          <h3>Log de execução</h3>
+          <ul id="optRunLogList"></ul>
+        </div>
+
+        <div class="group-title">Drivers oficiais</div>
+        <div id="driverCards" class="profile-row"></div>
       </div>
-      <div id="optItemList"></div>
-
-      <div class="group-title">Drivers oficiais</div>
-      <div id="driverCards" class="profile-row"></div>
     </section>
 
     <!-- ===================== MANUTENÇÃO ===================== -->
@@ -346,7 +427,7 @@
           </div>
         </div>
         <div class="hero-mascot">
-          <img src="../assets/mascot-pointing.jpg" alt="Orion" />
+          <img src="assets/mascot-pointing.jpg" alt="Orion" />
         </div>
       </div>
     </section>
@@ -361,7 +442,7 @@
         </div>
       </div>
       <table class="history-table" id="historyTable">
-        <thead><tr><th></th><th>Data</th><th>Score</th><th>CPU</th><th>RAM</th><th>Placa-mãe</th><th>BIOS</th><th>🟢</th><th>🟡</th><th>🔴</th></tr></thead>
+        <thead><tr><th></th><th>Data</th><th>Score</th><th>CPU</th><th>RAM</th><th>Placa-mãe</th><th>BIOS</th><th>OK</th><th>Méd</th><th>Alto</th></tr></thead>
         <tbody></tbody>
       </table>
       <div id="compareResult"></div>
@@ -556,7 +637,7 @@
           <div class="group-title">Perguntas frequentes</div>
           <details class="faq"><summary>Por que algumas otimizações pedem senha de administrador?</summary><p>Alterações no registro e nos serviços do Windows exigem permissão de administrador. O aplicativo agrupa tudo em um único pedido de UAC, com backup prévio para permitir desfazer.</p></details>
           <details class="faq"><summary>As otimizações podem ser revertidas?</summary><p>Sim. Itens com backup do registro podem ser revertidos individualmente na aba Restauração. Limpezas de arquivos apagam definitivamente e não são reversíveis — isso é sempre avisado antes.</p></details>
-          <details class="faq"><summary>A análise altera alguma configuração da BIOS?</summary><p>Não. A análise é somente leitura e orienta manualmente onde ajustar cada opção dentro da BIOS da sua placa-mãe.</p></details>
+          <details class="faq"><summary>A análise altera alguma configuração da BIOS?</summary><p>A análise é somente leitura. Aplicações automáticas só ocorrem quando existe um método documentado e verificável, sempre com confirmação. Sem suporte seguro, o Orion mostra o guia de configuração manual — nunca finge que aplicou algo.</p></details>
           <details class="faq"><summary>Posso usar em mais de um computador?</summary><p>Cada licença possui um limite de dispositivos definido na compra. Ativar em outra máquina usa uma das vagas — o suporte pode liberar dispositivos antigos.</p></details>
           <details class="faq"><summary>O Monitor mostra temperatura?</summary><p>Somente quando o fabricante expõe os sensores ACPI ao Windows. Quando não há sensor disponível, o campo fica como indisponível — nunca inventamos valores.</p></details>
           <details class="faq"><summary>O Benchmark promete aumento de FPS?</summary><p>Não. O benchmark mede CPU, memória e disco com cargas reais e serve para comparar antes/depois das otimizações neste mesmo aplicativo.</p></details>
@@ -573,7 +654,7 @@
           </div>
           <div class="counts-panel">
             <h3>Contato</h3>
-            <div class="support-mascot"><img src="../assets/mascot-support.jpg" alt="Orion Suporte" /></div>
+            <div class="support-mascot"><img src="assets/mascot-support.jpg" alt="Orion Suporte" /></div>
             <p class="empty-note">Precisa de ajuda com licença, ativação ou reembolso? Fale com o suporte oficial.</p>
             <button id="contactSupportBtn" class="btn btn-primary">ABRIR PÁGINA DE SUPORTE</button>
           </div>
@@ -585,18 +666,34 @@
   <!-- ===================== MODAL DETALHES ===================== -->
   <div id="modal" class="modal-backdrop hidden">
     <div class="modal">
-      <button class="modal-close" id="modalClose">✕</button>
+      <button class="modal-close" id="modalClose" type="button" aria-label="Fechar">
+        <span data-icon="close" data-size="16"></span>
+      </button>
       <div id="modalBody"></div>
     </div>
   </div>
 
+  <!-- ===================== CONFIRMAÇÃO DE APLICAÇÃO ===================== -->
+  <div id="confirmDialog" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="modal confirm-modal">
+      <h2 id="confirmTitle">Confirmar aplicação</h2>
+      <div id="confirmBody" class="modal-body"></div>
+      <div class="modal-actions">
+        <button id="confirmCancel" class="btn btn-outline" type="button">Cancelar</button>
+        <button id="confirmOk" class="btn btn-primary" type="button">Aplicar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===================== TOAST ===================== -->
+  <div id="toastStack" class="toast-container" aria-live="polite"></div>
   <div id="toast" class="hidden"></div>
 
   <!-- PREVIEW BANNER -->
   <div class="preview-banner">PREVIEW — Dados simulados</div>
 
   <!-- Mock API first, then renderer -->
+  <script src="icons.js"></script>
   <script src="mock-api.js"></script>
   <script src="renderer.js"></script>
 </body>

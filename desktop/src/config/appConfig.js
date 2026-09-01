@@ -8,7 +8,7 @@
 
 const APP_NAME = 'ORION OPTIMIZER';
 const APP_NAME_SHORT = 'Orion Optimizer';
-const APP_VERSION = '2.0.1';
+const APP_VERSION = '2.0.2';
 const SUPPORT_EMAIL = '';
 // Suporte oficial via Discord (aberto pelo botão de suporte da interface).
 const OFFICIAL_URL = 'https://discord.gg/zEWrvddVmZ';

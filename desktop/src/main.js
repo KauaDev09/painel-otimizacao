@@ -25,6 +25,7 @@ const networkService = require('./modules/networkService');
 const benchmarkService = require('./modules/benchmarkService');
 const settingsService = require('./modules/settingsService');
 const updaterService = require('./modules/updaterService');
+const { biosManager } = require('./bios/optimization/biosManager');
 const { APP_NAME } = require('./config/appConfig');
 
 let mainWindow = null;
@@ -112,6 +113,9 @@ function initServices() {
 
   // Benchmarks locais (comparação antes/depois)
   benchmarkService.setStoreDir(path.join(userData, 'benchmarks'));
+
+  // Módulo de BIOS Optimization (scanner, pending, verificação pós-reboot)
+  biosManager.init(userData);
   return rawDir;
 }
 
@@ -151,7 +155,7 @@ function createWindow() {
 
 function checkUpdatesOnStartup() {
   if (!settingsService.get().updates.autoCheck) return;
-  updaterService.checkForUpdate()
+  updaterService.checkForUpdate(licenseService.getLicenseKey())
     .then((res) => {
       if (res.available && mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send('update:available', res);
@@ -164,6 +168,13 @@ app.whenReady().then(() => {
   initServices();
   registerIpc();
   createWindow();
+  setTimeout(() => {
+    biosManager.verifyPending().then((res) => {
+      if (res && res.checked && res.checked.length && mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('bios:boot-verify', res);
+      }
+    }).catch(() => { /* verificação best-effort */ });
+  }, 1200);
   setTimeout(checkUpdatesOnStartup, 8000); // não atrasa a inicialização
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -217,6 +228,7 @@ function registerIpc() {
     analyzing = true;
     try {
       lastResult = await runAnalysis(sendStep);
+      try { await biosManager.evaluateProfile(lastResult.profile); } catch (_) { /* módulo BIOS não deve derrubar a análise */ }
       const entry = historyService.saveFromResult(lastResult);
       lastResult.historyId = entry.id;
 
@@ -372,7 +384,7 @@ function registerIpc() {
   });
 
   // ---- Atualizações ----
-  ipcMain.handle('update:check', () => updaterService.checkForUpdate());
+  ipcMain.handle('update:check', () => updaterService.checkForUpdate(licenseService.getLicenseKey()));
   ipcMain.handle('update:download', (_e, url) => updaterService.downloadUpdate(url));
   ipcMain.handle('update:install', (_e, filePath) => updaterService.installUpdate(filePath));
   ipcMain.handle('update:cancel', () => updaterService.cancelDownload());
@@ -391,6 +403,34 @@ function registerIpc() {
   });
 
   // ---- Links externos (somente URLs http/https) ----
+  // ---- BIOS Optimization ----
+  ipcMain.handle('bios:scan', async () => {
+    return biosManager.scan(sendStep, { profile: lastResult && lastResult.profile });
+  });
+  ipcMain.handle('bios:list', () => biosManager.list());
+  ipcMain.handle('bios:dryRun', (_e, id) => biosManager.dryRun(String(id || '')));
+  ipcMain.handle('bios:guide', (_e, id) => biosManager.guide(String(id || '')));
+  ipcMain.handle('bios:apply', async (_e, payload) => {
+    const id = payload && payload.id;
+    if (payload && payload.dryRunOnly) return biosManager.apply(String(id || ''), { dryRunOnly: true });
+    requireActiveLicense();
+    return biosManager.apply(String(id || ''), {
+      reboot: !!(payload && payload.reboot),
+      dryRunOnly: false
+    });
+  });
+  ipcMain.handle('bios:scheduleVerify', (_e, id) => biosManager.scheduleVerify(String(id || '')));
+  ipcMain.handle('bios:verifyPending', () => biosManager.verifyPending());
+  ipcMain.handle('bios:rollback', async (_e, id) => {
+    requireActiveLicense();
+    return biosManager.rollback(String(id || ''));
+  });
+  ipcMain.handle('bios:reboot', async () => {
+    requireActiveLicense();
+    return biosManager.requestReboot();
+  });
+  ipcMain.handle('bios:logs', () => biosManager.getLogs());
+
   ipcMain.handle('shell:openExternal', (_e, url) => {
     let u;
     try { u = new URL(String(url)); } catch (_) { throw new Error('URL inválida.'); }

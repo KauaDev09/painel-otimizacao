@@ -16,12 +16,12 @@ const runner = require('./runner');
 const protection = require('./restorePoint');
 
 const PROFILES = {
-  safe: { name: 'Seguro', icon: '🛡️', description: 'Só ajustes de baixo risco, totalmente reversíveis.' },
-  balanced: { name: 'Equilibrado', icon: '⚖️', description: 'Melhor custo-benefício para uso diário.' },
-  performance: { name: 'Desempenho', icon: '⚡', description: 'Máxima responsividade do sistema.' },
-  gaming: { name: 'Gamer', icon: '🎮', description: 'Foco em FPS e latência em jogos.' },
-  work: { name: 'Trabalho', icon: '💼', description: 'Estabilidade para produtividade; sem mudanças agressivas.' },
-  laptop: { name: 'Notebook', icon: '🔋', description: 'Equilíbrio entre desempenho e bateria.' }
+  safe: { name: 'Seguro', icon: 'security', description: 'Só ajustes de baixo risco, totalmente reversíveis.' },
+  balanced: { name: 'Equilibrado', icon: 'scale', description: 'Melhor custo-benefício para uso diário.' },
+  performance: { name: 'Desempenho', icon: 'boost', description: 'Máxima responsividade do sistema.' },
+  gaming: { name: 'Gamer', icon: 'gaming', description: 'Foco em FPS e latência em jogos.' },
+  work: { name: 'Trabalho', icon: 'briefcase', description: 'Estabilidade para produtividade; sem mudanças agressivas.' },
+  laptop: { name: 'Notebook', icon: 'power', description: 'Equilíbrio entre desempenho e bateria.' }
 };
 
 let stateDir = null;
@@ -49,8 +49,45 @@ function _saveOperations(ops) {
   fs.writeFileSync(operationsFile, JSON.stringify(ops.slice(-100), null, 2), 'utf8');
 }
 
+function _appliedFile() {
+  return path.join(stateDir, 'applied.json');
+}
+
+function _loadApplied() {
+  if (!stateDir) return new Set();
+  try { return new Set(JSON.parse(fs.readFileSync(_appliedFile(), 'utf8'))); } catch (_) { return new Set(); }
+}
+
+function _saveApplied(set) {
+  if (!stateDir) return;
+  fs.writeFileSync(_appliedFile(), JSON.stringify([...set]), 'utf8');
+}
+
+function markItemsApplied(ids) {
+  const set = _loadApplied();
+  (ids || []).forEach((id) => set.add(id));
+  _saveApplied(set);
+}
+
+function markItemsUndone(ids) {
+  const set = _loadApplied();
+  (ids || []).forEach((id) => set.delete(id));
+  _saveApplied(set);
+}
+
+function applyHint(it) {
+  if (Array.isArray(it.registryKeys) && it.registryKeys.length) {
+    return it.registryKeys.join('\n');
+  }
+  if (it.apply && it.apply.type === 'script' && it.apply.file) {
+    return it.apply.file;
+  }
+  return '';
+}
+
 /** Lista itens sanitizados para a interface. */
 function listItems() {
+  const applied = _loadApplied();
   return catalog.ITEMS.map((it) => ({
     id: it.id,
     name: it.name,
@@ -64,12 +101,20 @@ function listItems() {
     profiles: it.profiles || [],
     proOnly: it.proOnly !== false,
     vendor: it.vendor || null,
-    rebootRequired: !!it.rebootRequired
+    rebootRequired: !!it.rebootRequired,
+    icon: it.icon || catalog.CATEGORY_ICONS[it.category] || 'system',
+    registryKeys: it.registryKeys || [],
+    applyHint: applyHint(it),
+    applied: applied.has(it.id)
   }));
 }
 
 function getProfiles() {
-  return Object.entries(PROFILES).map(([id, p]) => ({ id, ...p }));
+  return Object.entries(PROFILES).map(([id, p]) => ({
+    id,
+    ...p,
+    count: catalog.ITEMS.filter((i) => (i.profiles || []).includes(id)).length
+  }));
 }
 
 function getDrivers() {
@@ -188,6 +233,9 @@ async function applyItems(ids, opts = {}) {
   });
   _saveOperations(ops);
 
+  const okIds = items.filter((_, i) => itemResults[i] && itemResults[i].ok).map((it) => it.id);
+  markItemsApplied(okIds);
+
   const allOk = itemResults.length > 0 && itemResults.every((r) => r.ok);
   return { ok: allOk, results: itemResults, opId, launchError, restorePoint };
 }
@@ -201,6 +249,10 @@ async function undoItem(id) {
     return { ok: false, message: 'Este item não possui ação de desfazer automática.' };
   }
   const act = it.undo;
+  const done = (res) => {
+    if (res && res.ok) markItemsUndone([it.id]);
+    return res;
+  };
 
   if (act.type === 'backup') {
     // Restaura o .reg mais recente que contém este item.
@@ -209,7 +261,7 @@ async function undoItem(id) {
       const rec = (ops[i].items || []).find((x) => x.id === it.id);
       if (rec && rec.backupReg && fs.existsSync(rec.backupReg)) {
         const r = await protection.restoreRegistryBackup(rec.backupReg);
-        return r;
+        return done(r);
       }
     }
     return { ok: false, message: 'Nenhum backup encontrado para este item.' };
@@ -221,7 +273,7 @@ async function undoItem(id) {
     fs.writeFileSync(tmp, PS1_BOM + act.script, 'utf8');
     try {
       const { result } = await runner.runSingle(`Desfazer: ${it.name}`, tmp);
-      return { ok: !!result.ok, message: result.message };
+      return done({ ok: !!result.ok, message: result.message });
     } finally {
       try { fs.rmSync(tmp, { force: true }); } catch (_) { /* ignora */ }
     }
@@ -229,7 +281,7 @@ async function undoItem(id) {
 
   if (act.type === 'script') {
     const { result } = await runner.runSingle(`Desfazer: ${it.name}`, catalog.resolveScript(act.file));
-    return { ok: !!result.ok, message: result.message };
+    return done({ ok: !!result.ok, message: result.message });
   }
 
   return { ok: false, message: 'Ação de desfazer desconhecida.' };
