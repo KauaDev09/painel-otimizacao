@@ -14,6 +14,7 @@ class MSIProvider extends BaseBiosProvider {
   canApply(item, scan) {
     const base = super.canApply(item, scan);
     if (item.id === 'high_performance_plan') return base;
+    if (base.ok) return base;
     return {
       ok: false,
       mode: 'manual',

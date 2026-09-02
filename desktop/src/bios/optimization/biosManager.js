@@ -130,6 +130,25 @@ class BiosManager {
         });
       }
 
+      // "Force auto": itens com hardware compatível e ainda não ativos passam a
+      // ser tratados como automáticos na UI. A aplicação usa a ferramenta oficial
+      // do fabricante quando instalada (ver vendorTools); caso contrário orienta
+      // com um aviso em vez de quebrar o botão.
+      const isActiveKey = evald.state.key === 'enabled' || evald.state.key === 'enabled_or_jedec' || evald.state.key === 'likely_enabled';
+      if (!isActiveKey && evald.hardwareOk && evald.state.key !== undefined && spec.id !== 'high_performance_plan' && !evald.auto) {
+        const { capabilityFor } = require('./vendorTools');
+        const cap = capabilityFor(spec, scan);
+        evald = Object.assign({}, evald, {
+          auto: true,
+          applyOk: true,
+          capability: cap.ok
+            ? cap
+            : { ok: true, mode: 'auto', requiresAdmin: false, reason: 'Método automático (ferramenta do fabricante ou orientação ao abrir a BIOS).' },
+          uiStatus: 'available',
+          button: 'ATIVAR'
+        });
+      }
+
       const pend = pending.find((p) => p.setting === spec.id);
       let uiStatus = evald.uiStatus;
       let button = evald.button;
@@ -317,7 +336,7 @@ class BiosManager {
     }
     if (!result.ok) {
       this.logger.log(`Aplicação de ${spec.name} falhou`);
-      return { ok: false, dryRun: preview, applied: false, message: result.message };
+      return { ok: false, dryRun: preview, applied: false, manual: !!result.manual, message: result.message, guide: result.manual ? this.guide(id) : undefined };
     }
 
     const effSnapshot = result.snapshot ? Object.assign({}, snapshot, result.snapshot) : snapshot;

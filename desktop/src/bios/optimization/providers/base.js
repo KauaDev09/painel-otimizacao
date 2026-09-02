@@ -39,10 +39,13 @@ class BaseBiosProvider {
     return out;
   }
 
-  canApply(item, _scan) {
+  canApply(item, scan) {
     if (item.id === 'high_performance_plan') {
       return { ok: true, mode: 'auto', requiresAdmin: true, reason: 'powercfg nativo do Windows.' };
     }
+    const { capabilityFor } = require('../vendorTools');
+    const vendor = capabilityFor(item, scan);
+    if (vendor.ok) return vendor;
     return {
       ok: false,
       mode: 'manual',
@@ -54,6 +57,10 @@ class BaseBiosProvider {
     if (scan && scan.efiCap && scan.efiCap[item.id] && scan.efiCap[item.id].ok && scan.efiCap[item.id].mode === 'auto') {
       const { applyEfi } = require('../efiVar');
       return applyEfi(item.id, scan, ctx);
+    }
+    if (item.id !== 'high_performance_plan') {
+      const { apply: applyVendorTool } = require('../vendorTools');
+      return applyVendorTool(item, scan, ctx);
     }
     const cap = this.canApply(item, scan);
     if (!cap.ok || cap.mode !== 'auto') {

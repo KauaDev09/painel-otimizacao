@@ -15,6 +15,7 @@ class GigabyteProvider extends BaseBiosProvider {
   canApply(item, scan) {
     const base = super.canApply(item, scan);
     if (item.id === 'high_performance_plan') return base;
+    if (base.ok) return base;
     const board = (scan.profile && scan.profile.motherboard && scan.profile.motherboard.boardProduct) || '';
     const note = /A520M\s*K\s*V2/i.test(board)
       ? 'Gigabyte A520M K V2: a UEFI não expõe API documentada para XMP/ReBAR a partir do Windows. Use o caminho Tweaker / Settings → IO Ports.'
