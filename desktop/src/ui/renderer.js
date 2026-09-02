@@ -478,7 +478,7 @@ function biosCardHtml(item) {
     <div class="rec-path">${esc((item.paths || []).join(' · '))} · ${esc(item.compatibility || '')}</div>
     <div class="bios-card-actions">
       <button class="btn ${item.status === 'manual' || item.status === 'informational' ? 'btn-outline' : 'btn-primary'} btn-bios-action" type="button" ${disabled ? 'disabled' : ''}>${esc(btn)}</button>
-      <button class="btn btn-outline btn-bios-dry" type="button">${esc(item.auto ? 'OTIMIZAR BIOS' : 'Simular alteração')}</button>
+      <button class="btn btn-outline btn-bios-dry" type="button">${esc(item.auto ? 'OTIMIZAR BIOS' : 'Otimizar BIOS')}</button>
       ${rollbackBtn}
     </div>
   </div>`;
@@ -565,8 +565,8 @@ async function handleBiosDryRun(id) {
   try {
     const preview = await api().biosDryRun(id);
     const go = await showPromptDialog({
-      title: isAuto ? 'Otimizar BIOS' : 'Simular alteração',
-      okLabel: isAuto ? 'OTIMIZAR BIOS' : 'CONTINUAR',
+      title: isAuto ? 'Otimizar BIOS' : 'Otimizar BIOS',
+      okLabel: isAuto ? 'OTIMIZAR BIOS' : 'OTIMIZAR BIOS',
       html: `<p>O Orion pretende:</p>
         <p>Alteração: <b>${esc(preview.setting)}</b></p>
         <p>Atual: <b>${esc(preview.current)}</b></p>
