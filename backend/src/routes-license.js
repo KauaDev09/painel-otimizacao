@@ -143,14 +143,12 @@ async function resolveLicense(body, { bind }) {
   const latestVersion = latest ? latest.versao : null;
   const lifetime = isLifetimePlan(lic);
 
-  if (!lifetime && latestVersion && lic.versao_autorizada !== latestVersion) {
-    try {
-      await db.query(config, 'UPDATE licencas SET versao_autorizada = ? WHERE id = ?', [latestVersion, lic.id]);
-      lic.versao_autorizada = latestVersion;
-    } catch (_) { /* coluna pode não existir antes da migração */ }
-  }
-
-  if (lifetime && !lic.versao_autorizada && latestVersion) {
+  // Planos vitalícios têm direito às versões gratuitas — alinha automaticamente à mais
+  // nova quando ela não exigir pagamento. Versões pagas mantêm a versão autorizada até
+  // o pagamento ser registrado.
+  const lifetimeFreeUpgrade =
+    lifetime && latestVersion && !(latest && latest.exige_pagamento);
+  if ((!lifetime || lifetimeFreeUpgrade) && latestVersion && lic.versao_autorizada !== latestVersion) {
     try {
       await db.query(config, 'UPDATE licencas SET versao_autorizada = ? WHERE id = ?', [latestVersion, lic.id]);
       lic.versao_autorizada = latestVersion;
