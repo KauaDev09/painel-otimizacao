@@ -11,9 +11,9 @@ loadEnv();
 
 const mysql = require('mysql2/promise');
 
-const TARGET_VERSION = '2.0.2';
+const TARGET_VERSION = '2.0.3';
 const CANONICAL_URL =
-  'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.2/ORION-OPTIMIZER-Setup-2.0.2.exe';
+  'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.3/ORION.OPTIMIZER.Setup-2.0.3.exe';
 
 (async () => {
   const conn = await mysql.createConnection({

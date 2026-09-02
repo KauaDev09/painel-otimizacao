@@ -1,4 +1,5 @@
-.env
-.env.*
-*.log
 node_modules
+.vercel
+*.log
+*.tmp
+.env.example

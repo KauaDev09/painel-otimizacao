@@ -1,0 +1,20 @@
+# Root project — only backend/ is deployed (Vercel root directory = backend)
+desktop/
+release/
+Windows Boost - Essential/
+Icons Navegations/
+node_modules/
+.git/
+.vercel/
+*.exe
+*.blockmap
+*.zip
+*.ps1
+*.ini
+*.sys
+*.log
+*.tmp
+README.md
+.gitignore
+**/release/
+**/node_modules/
