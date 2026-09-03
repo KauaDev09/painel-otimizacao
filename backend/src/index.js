@@ -19,7 +19,8 @@ const adminRoutes = require('./routes-admin');
 const appRoutes = require('./routes-app');
 const storefrontRoutes = require('./routes-storefront');
 
-const ADMIN_HTML = path.join(__dirname, '..', 'admin', 'index.html');
+const ADMIN_DIR = path.join(__dirname, '..', 'admin');
+const ADMIN_HTML = path.join(ADMIN_DIR, 'index.html');
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
 const PUBLIC_PAGES = {
@@ -43,6 +44,8 @@ const CONTENT_TYPES = {
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
   '.woff2': 'font/woff2',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
   '.txt': 'text/plain; charset=utf-8'
 };
 
@@ -165,6 +168,17 @@ async function handleRequest(req, res) {
   // ---- Painel administrativo mantém-se em /admin ----
   if (pathname === '/admin' || pathname === '/admin/' || pathname === '/admin/index.html') {
     return serveAdmin(res);
+  }
+
+  // ---- Assets estáticos do painel admin (/admin/imagem.png etc.) ----
+  if (pathname.startsWith('/admin/')) {
+    const route = pathname.replace(/^\/admin\//, '');
+    const safe = path.normalize(route).replace(/^(\.\.[\/\\])+/, '');
+    const filePath = path.join(ADMIN_DIR, safe);
+    const ext = path.extname(filePath).toLowerCase() || '.png';
+    if (filePath.startsWith(ADMIN_DIR) && /\.(png|jpg|jpeg|svg|ico|webp|gif|txt)$/i.test(filePath)) {
+      return serveStatic(res, filePath, CONTENT_TYPES[ext] || 'application/octet-stream');
+    }
   }
 
   // ---- Páginas públicas do SaaS (landing, planos, etc.) ----
