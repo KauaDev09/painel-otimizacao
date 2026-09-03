@@ -15,6 +15,7 @@
 // Status normalizado do gateway (para o domínio):
 //   pending | approved | rejected | refunded | in_process
 
+const crypto = require('crypto');
 const config = require('../config');
 
 const NORMALIZE = {
@@ -49,13 +50,15 @@ class MercadoPagoProvider {
     return this.ready;
   }
 
-  async _post(pathname, data) {
+  async _post(pathname, data, extraHeaders) {
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: this.authorization
+    };
+    if (extraHeaders) Object.assign(headers, extraHeaders);
     const res = await fetch(this.base + pathname, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: this.authorization
-      },
+      headers,
       body: JSON.stringify(data)
     });
     const json = await res.json().catch(() => ({}));
@@ -108,7 +111,7 @@ class MercadoPagoProvider {
         external_reference: externalRef,
         notification_url: notificationUrl,
         payer
-      });
+      }, { 'X-Idempotency-Key': crypto.randomUUID() });
       const td = (pay && pay.point_of_interaction && pay.point_of_interaction.transaction_data) || {};
       return {
         qr_code: td.qr_code_base64 ? `data:image/png;base64,${td.qr_code_base64}` : null,
