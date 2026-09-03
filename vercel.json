@@ -1,10 +1,23 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    { "source": "/", "destination": "/backend/admin/index.html" },
-    { "source": "/admin", "destination": "/backend/admin/index.html" },
-    { "source": "/admin/", "destination": "/backend/admin/index.html" },
-    { "source": "/admin/:path*", "destination": "/backend/admin/:path*" },
+    { "source": "/", "destination": "/api/[...path]" },
+    { "source": "/planos", "destination": "/api/[...path]" },
+    { "source": "/planos/", "destination": "/api/[...path]" },
+    { "source": "/checkout", "destination": "/api/[...path]" },
+    { "source": "/checkout/", "destination": "/api/[...path]" },
+    { "source": "/login", "destination": "/api/[...path]" },
+    { "source": "/login/", "destination": "/api/[...path]" },
+    { "source": "/conta", "destination": "/api/[...path]" },
+    { "source": "/conta/", "destination": "/api/[...path]" },
+    { "source": "/sucesso", "destination": "/api/[...path]" },
+    { "source": "/sucesso/", "destination": "/api/[...path]" },
+    { "source": "/suporte", "destination": "/api/[...path]" },
+    { "source": "/suporte/", "destination": "/api/[...path]" },
+    { "source": "/admin", "destination": "/api/[...path]" },
+    { "source": "/admin/", "destination": "/api/[...path]" },
+    { "source": "/admin/:path*", "destination": "/api/[...path]" },
+    { "source": "/assets/:path*", "destination": "/api/[...path]" },
     { "source": "/api/:path*", "destination": "/api/[...path]" }
   ]
 }
