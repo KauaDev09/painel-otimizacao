@@ -73,11 +73,10 @@
       btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Gerando pagamento...';
       try {
         const res = await API.post('/api/v1/store/checkout', { plan: plan.slug, method }, true);
-        // success: link gerado
-        if (res.payment && res.payment.external_link) {
-          location.href = res.payment.external_link;
-        } else if (res.payment && res.payment.qr_code) {
+        if (res.payment && res.payment.qr_code) {
           renderPix(res);
+        } else if (res.payment && (res.payment.external_link || res.payment.checkoutUrl)) {
+          location.href = res.payment.external_link || res.payment.checkoutUrl;
         } else {
           toast('Pagamento gerado. Acompanhe em Minha conta.', 'ok');
           setTimeout(() => location.href = '/conta', 1200);

@@ -81,26 +81,58 @@ class MercadoPagoProvider {
     return json;
   }
 
-  // Cria uma preferência de pagamento (PIX e/ou cartão de crédito).
-  async createCheckout({ order, customer, plan }) {
+  // Cria o pagamento. Para PIX, gera um QR Code (imagem) + chave copiável
+  // diretamente. Para cartão, cria uma preferência com redirecionamento ao gateway.
+  async createCheckout({ order, customer, plan, method }) {
     if (!this.ready) {
       const e = new Error('MERCADOPAGO_NOT_CONFIGURED');
       e.code = 'PAYMENT_NOT_CONFIGURED';
       throw e;
     }
     const externalRef = order.order_uuid;
+    const amount = Number(order.amount);
+    const notificationUrl = (config.appUrl || '') + '/api/v1/public/webhooks/mercadopago';
+
+    if (method === 'pix') {
+      const payer = { email: 'comprador@example.com' };
+      if (customer && customer.email) {
+        const nameParts = String(customer.name || '').trim().split(/\s+/);
+        payer.email = customer.email;
+        if (nameParts[0]) payer.first_name = nameParts[0];
+        if (nameParts.slice(1).join(' ')) payer.last_name = nameParts.slice(1).join(' ');
+      }
+      const pay = await this._post('/v1/payments', {
+        transaction_amount: amount,
+        description: `Orion Optimizer — Plano ${plan.name}`,
+        payment_method_id: 'pix',
+        external_reference: externalRef,
+        notification_url: notificationUrl,
+        payer
+      });
+      const td = (pay && pay.point_of_interaction && pay.point_of_interaction.transaction_data) || {};
+      return {
+        qr_code: td.qr_code_base64 ? `data:image/png;base64,${td.qr_code_base64}` : null,
+        qr_code_text: td.qr_code || null,
+        paymentId: String(pay.id || ''),
+        paymentMethod: 'pix',
+        checkoutUrl: null,
+        status: normalize(pay.status)
+      };
+    }
+
+    // Cartão de crédito (ou padrão): preferência com redirecionamento.
     const item = {
       id: String(order.id || externalRef),
       title: `Orion Optimizer — Plano ${plan.name}`,
       quantity: 1,
-      unit_price: Number(order.amount),
+      unit_price: amount,
       currency_id: String(order.currency || 'BRL'),
       description: plan.description || 'Licença Orion Optimizer'
     };
     const body = {
       items: [item],
       external_reference: externalRef,
-      notification_url: (config.appUrl || '') + '/api/v1/public/webhooks/mercadopago'
+      notification_url: notificationUrl
     };
     if (customer && customer.email) {
       body.payer = {
@@ -109,7 +141,6 @@ class MercadoPagoProvider {
         identification: customer.identification || {}
       };
     }
-    // Permite PIX e cartão quando não há preferência restrita.
     const pref = await this._post('/checkout/preferences', body);
     return {
       checkoutUrl: pref.init_point || pref.sandbox_init_point || null,

@@ -111,7 +111,8 @@ async function createCheckout(body, customer) {
     payment = await provider.createCheckout({
       order,
       customer: user ? users.publicUser(user) : { name: body && body.name, email: body && body.email },
-      plan: { name: plan.name, description: plan.description, price: amount, currency: plan.currency }
+      plan: { name: plan.name, description: plan.description, price: amount, currency: plan.currency },
+      method: String(body && body.method || '').toLowerCase()
     });
   } catch (err) {
     if (err.code === 'PAYMENT_NOT_CONFIGURED') {
