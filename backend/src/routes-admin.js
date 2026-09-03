@@ -767,6 +767,53 @@ function register(router) {
     await db.query(config, 'UPDATE downloads SET active = ? WHERE id = ?', [d.active ? 0 : 1, d.id]);
     return { ok: true };
   });
+
+  // ---- CUPONS (admin) ----
+  router.get('/api/v1/admin/coupons', async () => {
+    const coupons = await db.query(
+      config,
+      `SELECT c.*, (SELECT COUNT(*) FROM orders o WHERE o.coupon_id = c.id) AS orders_count
+         FROM coupons c ORDER BY c.id DESC LIMIT 500`
+    );
+    return { ok: true, coupons };
+  });
+
+  router.post('/api/v1/admin/coupons', async (body) => {
+    const code = String((body && body.code) || '').trim().toUpperCase().slice(0, 60);
+    const discountValue = Number(body && body.discountValue);
+    const description = body && body.description ? String(body.description).slice(0, 255) : null;
+    if (!code) return { ok: false, code: 'BAD_REQUEST', message: 'Informe o nome/código do cupom.', status: 400 };
+    if (!Number.isFinite(discountValue) || discountValue <= 0 || discountValue > 100) {
+      return { ok: false, code: 'BAD_REQUEST', message: 'A porcentagem deve estar entre 1 e 100.', status: 400 };
+    }
+    const dup = await db.queryOne(config, 'SELECT id FROM coupons WHERE code = ? LIMIT 1', [code]);
+    if (dup) return { ok: false, code: 'DUPLICATE', message: 'Já existe um cupom com esse nome.', status: 409 };
+    const maxUses = (body && body.maxUses != null) ? Math.max(0, Math.floor(Number(body.maxUses))) : null;
+    const expiresAt = (body && body.expiresAt) ? body.expiresAt : null;
+    const res = await db.query(
+      config,
+      `INSERT INTO coupons (code, discount_type, discount_value, description, active, max_uses, expires_at)
+       VALUES (?, 'percent', ?, ?, 1, ?, ?)`,
+      [code, discountValue, description, maxUses, expiresAt]
+    );
+    await db.query(config, 'INSERT INTO logs (evento, detalhe, criado_em) VALUES (?, ?, NOW())',
+      ['coupon.created', JSON.stringify({ code, discount_value: discountValue })]);
+    return { ok: true, id: Number(res.insertId), code };
+  });
+
+  router.post('/api/v1/admin/coupons/:id/toggle', async (_b, params) => {
+    const c = await db.queryOne(config, 'SELECT * FROM coupons WHERE id = ? LIMIT 1', [Number(params.id)]);
+    if (!c) return { ok: false, code: 'NOT_FOUND', message: 'Cupom não encontrado.', status: 404 };
+    await db.query(config, 'UPDATE coupons SET active = ? WHERE id = ?', [c.active ? 0 : 1, c.id]);
+    return { ok: true };
+  });
+
+  router.post('/api/v1/admin/coupons/:id/delete', async (_b, params) => {
+    const c = await db.queryOne(config, 'SELECT * FROM coupons WHERE id = ? LIMIT 1', [Number(params.id)]);
+    if (!c) return { ok: false, code: 'NOT_FOUND', message: 'Cupom não encontrado.', status: 404 };
+    await db.query(config, 'DELETE FROM coupons WHERE id = ?', [c.id]);
+    return { ok: true };
+  });
 }
 
 module.exports = { register };

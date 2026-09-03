@@ -505,6 +505,7 @@
             <button data-v="orders" class="tab"><span class="tab-ico">🧾</span><span class="tab-label">Pedidos</span></button>
             <button data-v="payments" class="tab"><span class="tab-ico">💳</span><span class="tab-label">Pagamentos</span></button>
             <button data-v="downloads" class="tab"><span class="tab-ico">⬇️</span><span class="tab-label">Downloads</span></button>
+            <button data-v="coupons" class="tab"><span class="tab-ico">🏷️</span><span class="tab-label">Cupons</span></button>
             <button data-v="logs" class="tab"><span class="tab-ico">📄</span><span class="tab-label">Logs</span></button>
           </nav>
         </div>
@@ -786,6 +787,34 @@
             </div>
           </section>
 
+          <!-- CUPONS -->
+          <section id="v-coupons" class="view">
+            <div class="page-heading">
+              <h2>Cupons de desconto</h2>
+              <p>Crie e gerencie cupons de desconto percentual para a loja</p>
+            </div>
+            <div class="card">
+              <h2>Criar cupom</h2>
+              <div class="toolbar" style="flex-wrap:wrap">
+                <div><label>Nome / código do cupom</label><input id="cpnCode" placeholder="Ex.: BEMVINDO10" style="text-transform:uppercase"></div>
+                <div><label>Desconto (%)</label><input id="cpnPercent" type="number" min="1" max="100" step="1" style="max-width:110px" placeholder="10"></div>
+                <div><label>Limite de usos (opcional)</label><input id="cpnMaxUses" type="number" min="1" step="1" style="max-width:120px" placeholder="Ilimitado"></div>
+                <div><label>Válido até (opcional)</label><input id="cpnExpires" type="date" style="max-width:170px"></div>
+                <div style="margin-bottom:1px;align-self:flex-end"><button id="cpnSave" class="btn btn-primary">Criar cupom</button></div>
+              </div>
+              <label style="max-width:520px">Descrição (opcional)</label>
+              <input id="cpnDesc" type="text" style="max-width:520px" placeholder="Ex.: 10% de boas-vindas">
+              <div id="cpnMsg" class="msg"></div>
+            </div>
+            <h2 style="font-size:0.8rem;letter-spacing:1.2px;color:var(--primary-3);text-transform:uppercase;margin-bottom:14px;font-weight:600;">Cupons cadastrados</h2>
+            <div class="table-wrap">
+              <table id="tblCoupons">
+                <thead><tr><th>ID</th><th>Código</th><th>Desconto</th><th>Usos</th><th>Limite</th><th>Validade</th><th>Status</th><th>Pedidos</th><th>Ações</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
           <!-- LOGS -->
           <section id="v-logs" class="view">
             <div class="page-heading">
@@ -914,6 +943,7 @@ $$('#nav .tab').forEach((t) => t.addEventListener('click', () => {
   if (t.dataset.v === 'orders') loadOrders().catch(()=>{});
   if (t.dataset.v === 'payments') loadPayments().catch(()=>{});
   if (t.dataset.v === 'downloads') loadDownloads().catch(()=>{});
+  if (t.dataset.v === 'coupons') loadCoupons().catch(()=>{});
   /* fecha a sidebar mobile após navegar */
   if (window.innerWidth <= 860) {
     sidebar.classList.remove('open'); $('#overlay').classList.remove('show');
@@ -1311,6 +1341,83 @@ document.addEventListener('click', async (e) => {
   b.disabled = true;
   try { await call('/api/v1/admin/downloads/' + b.dataset.id + '/toggle', { method: 'POST', body: {} }); loadDownloads(); }
   catch (err) { alert('Erro: ' + err.message); b.disabled = false; }
+});
+
+// ---------- Cupons (SaaS) ----------
+function cpnExp(exp) {
+  if (!exp) return '<span style="color:var(--text-dim)">—</span>';
+  const d = new Date(exp);
+  const expired = d.getTime() < Date.now();
+  return `${d.toLocaleDateString('pt-BR')}${expired ? ' <span class="badge badge-bloqueada">venceu</span>' : ''}`;
+}
+async function loadCoupons() {
+  const j = await call('/api/v1/admin/coupons');
+  $('#tblCoupons tbody').innerHTML = (j.coupons || []).map((c) => {
+    const reachedLimit = c.max_uses != null && Number(c.used_count) >= Number(c.max_uses);
+    const active = c.active && !reachedLimit;
+    return `<tr>
+      <td>${c.id}</td>
+      <td><span class="key-mono">${esc(c.code)}</span></td>
+      <td><b>${Number(c.discount_value).toFixed(0)}%</b></td>
+      <td>${Number(c.used_count)}</td>
+      <td>${c.max_uses != null ? esc(c.max_uses) : '∞'}</td>
+      <td>${cpnExp(c.expires_at)}</td>
+      <td>${active ? '<span class="badge badge-ativa">Ativo</span>' : (reachedLimit ? '<span class="badge badge-bloqueada">Limite atingido</span>' : '<span class="badge badge-inativa">Inativo</span>')}</td>
+      <td>${Number(c.orders_count || 0)}</td>
+      <td><div class="row-actions">
+        <button class="btn btn-outline" data-cpn-toggle data-id="${c.id}" data-active="${c.active ? '1':'0'}">${c.active ? 'Desativar' : 'Ativar'}</button>
+        <button class="btn btn-danger" data-cpn-delete data-id="${c.id}" data-code="${esc(c.code)}">Excluir</button>
+      </div></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="9" style="color:var(--text-dim)">Nenhum cupom cadastrado.</td></tr>';
+}
+
+$('#cpnSave').addEventListener('click', async () => {
+  const msg = $('#cpnMsg');
+  msg.className = 'msg'; msg.textContent = 'Criando…';
+  const code = $('#cpnCode').value.trim().toUpperCase();
+  const discountValue = Number($('#cpnPercent').value);
+  if (!code) { msg.textContent = 'Informe o nome/código do cupom.'; msg.classList.add('err'); return; }
+  if (!Number.isFinite(discountValue) || discountValue <= 0 || discountValue > 100) {
+    msg.textContent = 'Informe a porcentagem de desconto (1 a 100).'; msg.classList.add('err'); return;
+  }
+  const maxUsesRaw = $('#cpnMaxUses').value.trim();
+  const expiresRaw = $('#cpnExpires').value;
+  try {
+    const res = await call('/api/v1/admin/coupons', {
+      method: 'POST',
+      body: {
+        code,
+        discountValue,
+        description: $('#cpnDesc').value.trim() || undefined,
+        maxUses: maxUsesRaw ? Number(maxUsesRaw) : null,
+        expiresAt: expiresRaw ? new Date(expiresRaw + 'T23:59:59').toISOString().slice(0, 19).replace('T', ' ') : null
+      }
+    });
+    msg.textContent = '✅ Cupom ' + res.code + ' criado (' + discountValue.toFixed(0) + '% de desconto).';
+    msg.classList.add('ok');
+    $('#cpnCode').value = ''; $('#cpnPercent').value = ''; $('#cpnMaxUses').value = ''; $('#cpnExpires').value = ''; $('#cpnDesc').value = '';
+    loadCoupons();
+  } catch (e) { msg.textContent = 'Erro: ' + e.message; msg.classList.add('err'); }
+});
+
+document.addEventListener('click', async (e) => {
+  const tg = e.target.closest('button[data-cpn-toggle]');
+  const del = e.target.closest('button[data-cpn-delete]');
+  if (tg) {
+    tg.disabled = true;
+    try { await call('/api/v1/admin/coupons/' + tg.dataset.id + '/toggle', { method: 'POST', body: {} }); loadCoupons(); }
+    catch (err) { alert('Erro: ' + err.message); tg.disabled = false; }
+    return;
+  }
+  if (del) {
+    const ok = confirm('Excluir PERMANENTEMENTE o cupom ' + del.dataset.code + '?');
+    if (!ok) return;
+    del.disabled = true;
+    try { await call('/api/v1/admin/coupons/' + del.dataset.id + '/delete', { method: 'POST', body: {} }); loadCoupons(); }
+    catch (err) { alert('Erro: ' + err.message); del.disabled = false; }
+    return;
+  }
 });
 
 function toastMsg(id, txt, err) {
