@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planos — ORION OPTIMIZER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <nav class="nav"><div class="nav-inner">
+    <a href="/" class="brand"><span class="dot"></span>ORION<span class="accent">OPTIMIZER</span></a>
+    <div class="nav-menu" data-nav-menu></div>
+    <div class="nav-actions" data-nav-actions></div>
+  </div></nav>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="kicker">Planos</div>
+        <h2>Escolha o seu plano</h2>
+        <p>Assinaturas mensais. Pagamento via PIX ou cartão. A chave é enviada automaticamente após a confirmação e renovada a cada mês.</p>
+      </div>
+      <div id="plans-grid" class="plans">
+        <div class="plan-card"><div class="skeleton" style="height:320px"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <a href="/" class="brand"><span class="dot"></span>ORION<span class="accent">OPTIMIZER</span></a>
+      <p>© <span data-year></span> ORION OPTIMIZER.</p>
+    </div>
+  </footer>
+
+  <script src="/assets/app.js"></script>
+  <script>
+    document.querySelector('[data-year]').textContent = new Date().getFullYear();
+    const pretty = (f) => ({ system_monitoring:'Monitoramento do sistema', basic_cleanup:'Limpeza essencial', advanced_cleanup:'Limpeza avançada', fps_boost:'FPS Boost', gaming_mode:'Modo gamer', process_optimizer:'Otimizador de processos', startup_optimizer:'Otimizador de inicialização', bios_optimizer:'Otimizador de BIOS', xmp_optimizer:'Otimizador XMP', advanced_memory_optimizer:'Otimização avançada de memória', advanced_windows_optimizer:'Otimização avançada do Windows', realtime_telemetry:'Telemetria em tempo real', priority_features:'Recursos prioritários' }[f] || f.replace(/_/g,' '));
+
+    (async () => {
+      try {
+        const { plans } = await API.get('/api/v1/public/plans');
+        const featured = plans.find(p => p.slug === 'ultra') || plans[Math.floor(plans.length/2)];
+        document.getElementById('plans-grid').innerHTML = plans.map(p => {
+          const isF = p.id === featured.id;
+          return `
+          <div class="plan-card ${isF?'featured':''}">
+            ${isF?'<div class="tag">Mais popular</div>':''}
+            <div class="name">${p.name}</div>
+            <div class="price">${brl(p.price)}<small> mensal</small></div>
+            <div class="desc">${p.description||''}</div>
+            <ul>${(p.features||[]).map(f=>`<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>${pretty(f)}</li>`).join('')}</ul>
+            <a class="btn ${isF?'btn-primary':''} btn-block" href="/checkout?plan=${p.slug}">Adquirir</a>
+          </div>`;
+        }).join('');
+      } catch (e) {
+        document.getElementById('plans-grid').innerHTML = '<p class="muted text-center">Não foi possível carregar os planos.</p>';
+      }
+    })();
+  </script>
+</body>
+</html>

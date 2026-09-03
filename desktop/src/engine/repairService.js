@@ -61,7 +61,7 @@ async function runRepair(optionId, opts = {}) {
   if (!opt) return { ok: false, error: 'Opção de reparo inválida.', results: [] };
 
   const fs = require('fs');
-  const tmpDir = path.join(process.env.TEMP || process.env.TMP || __dirname, `msorepair-${Date.now()}`);
+  const tmpDir = path.join(runner.getWorkDir(), `msorepair-${Date.now()}-${process.pid}`);
   fs.mkdirSync(tmpDir, { recursive: true });
 
   const tmpFiles = [];

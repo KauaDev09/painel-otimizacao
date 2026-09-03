@@ -12,6 +12,7 @@
 
 const { spawn } = require('child_process');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 const ALLOWED_SUFFIXES = new Set(['.bat', '.cmd', '.reg', '.ps1']);
@@ -22,9 +23,43 @@ const stepStartMark = (i) => `@@MSO_STEP_${i}_START@@`;
 const stepEndMark = (i) => `@@MSO_STEP_${i}_END@@`;
 
 let logsDir = null;
+let workDir = null;
+
+function underDir(p, root) {
+  if (!p || !root) return false;
+  const resolved = path.resolve(p).toLowerCase();
+  const base = path.resolve(root).toLowerCase();
+  return resolved === base || resolved.startsWith(base + path.sep);
+}
+
+function isTempPath(p) {
+  const systemTemp = path.join(process.env.SystemRoot || 'C:\\Windows', 'Temp');
+  return underDir(p, process.env.TEMP) || underDir(p, process.env.TMP) ||
+    underDir(p, os.tmpdir()) || underDir(p, systemTemp);
+}
+
+function fallbackWorkDir() {
+  const base = process.env.LOCALAPPDATA || process.env.APPDATA;
+  const dir = base
+    ? path.join(base, 'orion-optimizer', 'engine', 'work')
+    : path.join(__dirname, '..', '..', 'state', 'engine-work');
+  fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
 function setLogsDir(dir) {
   logsDir = dir;
   fs.mkdirSync(dir, { recursive: true });
+  const candidate = path.join(path.dirname(dir), 'work');
+  workDir = isTempPath(candidate) ? fallbackWorkDir() : candidate;
+  fs.mkdirSync(workDir, { recursive: true });
+}
+
+/** Pasta de scripts temporários FORA do %TEMP% (a limpeza nativa apaga o TEMP). */
+function getWorkDir() {
+  if (workDir && !isTempPath(workDir)) return workDir;
+  workDir = fallbackWorkDir();
+  return workDir;
 }
 
 function validatePath(file) {
@@ -70,7 +105,7 @@ function buildOrchestrator(steps, logPath) {
     let command;
     if (ext === '.reg') command = `reg import "${step.path}"`;
     else if (ext === '.ps1') {
-      command = `powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "${step.path}"`;
+      command = `"${psExe()}" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "${step.path}"`;
     } else command = `call "${step.path}"`;
     // < nul evita travar em scripts com pause/choice; saída só no log.
     lines.push(`${command} < nul >> "%MSO_LOG%" 2>&1`);
@@ -248,4 +283,4 @@ function pruneLogs(max = 30) {
   } catch (_) { /* ignora */ }
 }
 
-module.exports = { setLogsDir, runSteps, runSingle, runPowerShellInline, isElevated, ALLOWED_SUFFIXES };
+module.exports = { setLogsDir, getWorkDir, runSteps, runSingle, runPowerShellInline, isElevated, ALLOWED_SUFFIXES };

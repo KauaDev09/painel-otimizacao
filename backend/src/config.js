@@ -34,8 +34,33 @@ module.exports = {
   corsOrigin: env.CORS_ORIGIN || '*',
   // URL pública da loja (exibida no app quando a atualização é paga).
   storePublicUrl: env.STORE_PUBLIC_URL || '',
+  appUrl: env.APP_URL || '',
   license: {
     defaultMaxDevices: Number(env.LICENSE_MAX_DEVICES || 2),
-    defaultDays: Number(env.LICENSE_DAYS || 365)
+    defaultDays: Number(env.LICENSE_DAYS || 365),
+    // Segredo compartilhado entre o painel desktop e a API de licença.
+    // Garante que a resposta de validação não possa ser forjada no cliente.
+    apiSecret: env.LICENSE_API_SECRET || ''
+  },
+  // Gateway de pagamento — isolamento via PaymentProvider.
+  payment: {
+    provider: env.PAYMENT_PROVIDER || 'mercadopago',
+    mercadopago: {
+      accessToken: env.MERCADOPAGO_ACCESS_TOKEN || '',
+      publicKey: env.MERCADOPAGO_PUBLIC_KEY || '',
+      webhookSecret: env.MERCADOPAGO_WEBHOOK_SECRET || ''
+    }
+  },
+  // Segurança — limites de taxa (rate limiting) contra abuso e brute-force.
+  security: {
+    // validar-key: por IP.
+    keyRateLimit: Number(env.RATE_LIMIT_KEY || 30),
+    keyRateWindowMs: 60000,
+    // license/activate|validate|heartbeat: por IP.
+    licenseRateLimit: Number(env.RATE_LIMIT_LICENSE || 60),
+    licenseRateWindowMs: 60000,
+    // history/sync: por IP.
+    historyRateLimit: Number(env.RATE_LIMIT_HISTORY || 120),
+    historyRateWindowMs: 60000
   }
 };

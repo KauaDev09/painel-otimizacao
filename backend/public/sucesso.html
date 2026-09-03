@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compra aprovada — ORION OPTIMIZER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <nav class="nav"><div class="nav-inner">
+    <a href="/" class="brand"><span class="dot"></span>ORION<span class="accent">OPTIMIZER</span></a>
+    <div class="nav-actions" data-nav-actions></div>
+  </div></nav>
+
+  <div class="success-wrap" id="success-wrap">
+    <div class="check-big" id="check-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
+    <h2 id="title">Verificando pagamento...</h2>
+    <p class="dim" id="subtitle">Consultando o servidor para confirmarmos sua compra.</p>
+
+    <div id="key-block" style="display:none">
+      <div class="success-key" id="success-key">...</div>
+      <button class="btn" id="copy-key">Copiar chave</button>
+    </div>
+
+    <div id="pending-block" style="display:none">
+      <div class="muted" style="line-height:1.7;margin-top:8px">Seu pagamento ainda está sendo processado. Assim que o gateway confirmar, sua chave aparece aqui automaticamente.<br>Você pode acompanhar em <a href="/conta" style="color:var(--purple-2)">Minha conta</a>.</div>
+      <div class="mt-3 flex center" style="justify-content:center">
+        <a href="/conta" class="btn">Minha conta</a>
+      </div>
+    </div>
+
+    <div id="error-block" style="display:none">
+      <div class="muted" style="line-height:1.7;margin-top:8px">Não foi possível confirmar seu pagamento agora. Verifique em <a href="/conta" style="color:var(--purple-2)">Minha conta</a> ou tente novamente.</div>
+      <div class="mt-3 flex center" style="justify-content:center">
+        <a href="/planos" class="btn">Planos</a>
+        <a href="/conta" class="btn btn-primary">Minha conta</a>
+      </div>
+    </div>
+
+    <div class="mt-3 flex center" id="bottom-actions" style="justify-content:center;display:none">
+      <a href="/conta" class="btn">Minha conta</a>
+      <a href="/" class="btn btn-primary">Voltar ao início</a>
+    </div>
+  </div>
+
+  <script src="/assets/app.js"></script>
+  <script>
+    document.querySelector('[data-year]').textContent = new Date().getFullYear();
+
+    function showKey(key) {
+      document.getElementById('title').textContent = 'Pagamento confirmado!';
+      document.getElementById('subtitle').textContent = 'Sua licença foi gerada automaticamente. Use a chave abaixo no aplicativo ORION OPTIMIZER.';
+      document.getElementById('key-block').style.display = 'block';
+      document.getElementById('bottom-actions').style.display = 'flex';
+      document.getElementById('success-key').textContent = key;
+      const saved = localStorage.getItem('orion_last_key');
+      if (saved !== key) { try { localStorage.setItem('orion_last_key', key); } catch(e){} }
+      document.getElementById('copy-key').addEventListener('click', (e) => {
+        navigator.clipboard.writeText(key).then(() => { e.target.textContent='Copiado!'; setTimeout(()=>e.target.textContent='Copiar chave',1500); });
+      });
+    }
+
+    function showPending() {
+      document.getElementById('title').textContent = 'Pagamento pendente';
+      document.getElementById('subtitle').textContent = 'Estamos aguardando a confirmação do gateway.';
+      document.getElementById('check-icon').style.background = 'linear-gradient(135deg, var(--yellow), #d97706)';
+      document.getElementById('pending-block').style.display = 'block';
+      document.getElementById('bottom-actions').style.display = 'none';
+    }
+
+    function showError(msg) {
+      document.getElementById('title').textContent = 'Não foi possível confirmar';
+      document.getElementById('subtitle').textContent = msg || 'Ocorreu um erro ao buscar seu pagamento.';
+      document.getElementById('check-icon').style.background = 'linear-gradient(135deg, var(--red), #b91c1c)';
+      document.getElementById('error-block').style.display = 'block';
+      document.getElementById('bottom-actions').style.display = 'none';
+    }
+
+    (async () => {
+      const params = new URLSearchParams(location.search);
+      let key = params.get('key');
+      const order = params.get('order') || params.get('order_id') || params.get('preference_id');
+      let foundOrderInfo = null;
+
+      // Sempre valida com o backend (não confia apenas no redirect do gateway).
+      if (isAuthed()) {
+        try {
+          const me = await API.get('/api/v1/store/account/me', true);
+          const orders = me.orders || [];
+          foundOrderInfo = order
+            ? (orders.find(o => String(o.uuid || o.order_id) === String(order)) || null)
+            : null;
+          if (key) {
+            const lic = (me.licenses || []).find(l => l.key === key);
+            if (lic) key = lic.key;
+          } else if (foundOrderInfo && foundOrderInfo.status === 'paid') {
+            const lic = (me.licenses || []).find(l => String(l.order_id) === String(order)) || (me.licenses || [])[0];
+            if (lic) key = lic.key;
+          }
+        } catch (e) { /* segue abaixo */ }
+      }
+
+      setTimeout(() => {
+        if (key) {
+          showKey(key);
+        } else if (foundOrderInfo && (foundOrderInfo.status === 'pending' || foundOrderInfo.status === 'pending_payment')) {
+          showPending();
+        } else {
+          showError('O pagamento ainda não foi confirmado pelo servidor.');
+        }
+      }, 600);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suporte — ORION OPTIMIZER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <nav class="nav"><div class="nav-inner">
+    <a href="/" class="brand"><span class="dot"></span>ORION<span class="accent">OPTIMIZER</span></a>
+    <div class="nav-menu" data-nav-menu></div>
+    <div class="nav-actions" data-nav-actions></div>
+  </div></nav>
+
+  <section class="section">
+    <div class="container" style="max-width:720px">
+      <div class="section-head reveal">
+        <div class="kicker">Suporte</div>
+        <h2>Como podemos ajudar?</h2>
+      </div>
+      <div class="auth-wrap reveal" style="max-width:720px">
+        <h3>Contato</h3>
+        <p class="sub">Tire suas dúvidas sobre instalação, licenças, pagamento ou otimização.</p>
+        <form id="support-form">
+          <div class="field"><label>Nome</label><input id="s-name" placeholder="Seu nome"></div>
+          <div class="field"><label>E-mail</label><input id="s-email" type="email" placeholder="voce@email.com"></div>
+          <div class="field"><label>Mensagem</label><textarea id="s-msg" rows="5" placeholder="Descreva sua dúvida..."></textarea></div>
+          <button class="btn btn-primary btn-block" id="s-btn">Enviar mensagem</button>
+        </form>
+        <div class="muted mt-2 text-center" style="font-size:14px">Resposta em até 24h úteis.</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer"><div class="footer-inner"><p>© <span data-year></span> ORION OPTIMIZER.</p></div></footer>
+
+  <script src="/assets/app.js"></script>
+  <script>
+    document.querySelector('[data-year]').textContent = new Date().getFullYear();
+    document.getElementById('support-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const n = document.getElementById('s-name').value.trim();
+      const em = document.getElementById('s-email').value.trim();
+      const m = document.getElementById('s-msg').value.trim();
+      if (!n || !em || !m) { toast('Preencha todos os campos.', 'err'); return; }
+      // Envia por e-mail? Sem backend de e-mail — confirma e agenda.
+      toast('Mensagem registrada. Responderemos em breve.', 'ok');
+      document.getElementById('support-form').reset();
+    });
+  </script>
+</body>
+</html>

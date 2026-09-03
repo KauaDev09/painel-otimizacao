@@ -243,6 +243,26 @@ function kv(k, v, tech = false) {
 }
 const dash = (s) => (s === null || s === undefined || s === '' ? '<i>não foi possível determinar</i>' : esc(String(s)));
 
+function featureNames(slugs) {
+  const map = {
+    system_monitoring: 'Monitoramento do sistema',
+    basic_cleanup: 'Limpeza essencial',
+    advanced_cleanup: 'Limpeza avançada',
+    fps_boost: 'FPS Boost',
+    basic_fps_boost: 'FPS Boost essencial',
+    gaming_mode: 'Modo gamer',
+    process_optimizer: 'Otimizador de processos',
+    startup_optimizer: 'Otimizador de inicialização',
+    bios_optimizer: 'Otimizador de BIOS',
+    xmp_optimizer: 'Otimizador XMP',
+    advanced_memory_optimizer: 'Otimização avançada de memória',
+    advanced_windows_optimizer: 'Otimização avançada do Windows',
+    realtime_telemetry: 'Telemetria em tempo real',
+    priority_features: 'Recursos prioritários'
+  };
+  return (Array.isArray(slugs) ? slugs : []).map((s) => map[s] || String(s).replace(/_/g, ' '));
+}
+
 function hwCard(title, sub, body, full = false) {
   return `<div class="hw-card${full ? ' full' : ''}"><h3>${title}<em>${sub}</em></h3>${body}</div>`;
 }
@@ -1835,7 +1855,7 @@ $('#cleanMeasureBtn').addEventListener('click', async () => {
     state.cleanSizes = await api().cleanerMeasure(state.cleanTargets.map((t) => t.id));
     for (const t of state.cleanTargets) {
       const v = state.cleanSizes[t.id];
-      const el = $(`#size-${t.id}`);
+      const el = document.getElementById(`size-${t.id}`);
       if (el) el.textContent = v == null ? '— MB' : v >= 1024 ? `${(v / 1024).toFixed(1)} GB` : `${Math.round(v)} MB`;
     }
     updateCleanTotal();
@@ -1864,10 +1884,15 @@ $('#cleanBtn').addEventListener('click', async () => {
   btn.textContent = 'LIMPANDO…';
   try {
     const res = await api().cleanerClean(ids);
-    const ok = res.results.filter((r) => r.ok).length;
-    toast(res.results.length && ok === res.results.length
-      ? '🧹 Limpeza concluída!'
-      : `⚠ Limpeza concluída com avisos (${ok}/${res.results.length}).`, 8000);
+    const ok = (res.results || []).filter((r) => r.ok).length;
+    const total = (res.results || []).length;
+    if (res.launchError && !ok) {
+      toast(`❌ ${esc(res.launchError)}`, 9000);
+    } else if (total && ok === total) {
+      toast('🧹 Limpeza concluída!', 8000);
+    } else {
+      toast(`⚠ Limpeza concluída com avisos (${ok}/${total}).`, 8000);
+    }
     setTimeout(() => $('#cleanMeasureBtn').click(), 1500);
   } catch (err) {
     toast(`❌ ${esc(err.message || err)}`, 9000);
@@ -2564,13 +2589,16 @@ async function loadLicenseInfoSettings() {
   const el = $('#settingsLicenseInfo');
   if (!el) return;
   if (st && st.active) {
+    const feats = Array.isArray(st.features) && st.features.length
+      ? featureNames(st.features).map((n) => `<span class="feat-chip">✅ ${esc(n)}</span>`).join('')
+      : '<span style="color:var(--dim)">Nenhum recurso extra liberado.</span>';
     el.innerHTML =
       kv('Situação', `<b style="color:var(--green)">ATIVA</b>`) +
       kv('Plano', esc((st.plan || '—').toUpperCase())) +
       kv('Chave', `<span style="font-family:Consolas,monospace">${esc(st.key || '—')}</span>`) +
       kv('Válida até', st.expiresAt ? new Date(st.expiresAt).toLocaleDateString('pt-BR') : 'Nunca (vitalícia)') +
       (st.authorizedVersion ? kv('Versão autorizada', 'v' + esc(st.authorizedVersion)) : '') +
-      kv('Dispositivo registrado', st.deviceName || 'Este computador');
+      kv('Recursos do plano', `<div class="feat-list">${feats}</div>`);
   } else if (st && st.key) {
     el.innerHTML =
       kv('Situação', '<b style="color:var(--red-bright)">INATIVA</b>') +

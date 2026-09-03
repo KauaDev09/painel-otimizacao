@@ -9,6 +9,8 @@
 const db = require('./db');
 const config = require('./config');
 const { signToken } = require('./util');
+const rateLimit = require('./rateLimit');
+const licensing = require('./services/licensing');
 
 const DAY_MS = 86400000;
 
@@ -76,6 +78,27 @@ async function logEvent(evento, licencaId, detalhe) {
   } catch (_) { /* logging nunca derruba a API */ }
 }
 
+function clientIp(req) {
+  const fwd = req && req.headers ? String(req.headers['x-forwarded-for'] || '') : '';
+  if (fwd) {
+    const first = fwd.split(',')[0].trim();
+    if (first) return first;
+  }
+  return (req && req.socket && req.socket.remoteAddress) || 'unknown';
+}
+
+function applyRateLimit(req, bucket, limit, windowMs) {
+  const key = `${bucket}:${clientIp(req)}`;
+  const rl = rateLimit.hit(key, limit, windowMs);
+  if (!rl.allowed) {
+    return {
+      ok: false, code: 'RATE_LIMITED', message: 'Muitas tentativas. Tente novamente mais tarde.',
+      status: 429, retryAfter: rl.retryAfter
+    };
+  }
+  return null;
+}
+
 function cmpVer(a, b) {
   const pa = String(a || '0').split('.').map((n) => parseInt(n, 10) || 0);
   const pb = String(b || '0').split('.').map((n) => parseInt(n, 10) || 0);
@@ -122,11 +145,15 @@ function licensePayload(lic, extra = {}) {
 }
 
 // Resolve o estado da licença para um dispositivo.
-async function resolveLicense(body, { bind }) {
+async function resolveLicense(body, req, { bind }) {
   const key = String((body && body.key) || '').trim().toUpperCase();
   const machineId = String((body && body.machineId) || '').trim();
   const hostname = (body && body.hostname) || null;
   if (!key || !machineId) return fail('BAD_REQUEST', 'Chave e identificação da máquina são obrigatórias.');
+
+  // Rate limit por IP — protege validate/activate/heartbeat contra abuso e brute-force.
+  const rl = applyRateLimit(req, 'license', config.security.licenseRateLimit, config.security.licenseRateWindowMs);
+  if (rl) return rl;
 
   const lic = await loadLicense(key);
   if (!lic) return fail('LICENSE_NOT_FOUND', 'Licença não encontrada.', 404);
@@ -186,6 +213,7 @@ async function resolveLicense(body, { bind }) {
 
   await logEvent(bind ? 'license.activate' : 'license.validate', lic.id, { machineId, appVersion });
   const token = signToken({ lic: lic.id, mid: machineId, typ: 'client' }, config.appSecret, 60 * 60 * 24 * 30);
+  const features = await licensing.featuresForLicense(lic);
   return licensePayload(lic, {
     key,
     token,
@@ -196,15 +224,20 @@ async function resolveLicense(body, { bind }) {
     updateRequiresPurchase,
     updatePrice: updateRequiresPurchase ? Number(latest.preco || 15) : null,
     storeUrl: config.storePublicUrl || null,
+    planSlug: lic.plan_slug || null,
+    features,
     ...deviceInfo
   });
 }
 
-async function syncHistory(body) {
+async function syncHistory(body, req) {
   const key = String((body && body.key) || '').trim().toUpperCase();
   const machineId = String((body && body.machineId) || '').trim();
   const type = String((body && body.type) || 'analysis');
   const entry = (body && body.entry) || {};
+
+  const rl = applyRateLimit(req, 'history', config.security.historyRateLimit, config.security.historyRateWindowMs);
+  if (rl) return rl;
 
   const lic = await loadLicense(key);
   if (!lic || lic.status !== 'ativa') return fail('LICENSE_INVALID', 'Licença inválida.', 403);
@@ -254,10 +287,10 @@ async function syncHistory(body) {
 }
 
 function register(router) {
-  router.post('/api/v1/license/activate', async (body) => resolveLicense(body, { bind: true }));
-  router.post('/api/v1/license/validate', async (body) => resolveLicense(body, { bind: true }));
-  router.post('/api/v1/license/heartbeat', async (body) => resolveLicense(body, { bind: false }));
-  router.post('/api/v1/history/sync', async (body) => syncHistory(body));
+  router.post('/api/v1/license/activate', async (body, _p, _u, req) => resolveLicense(body, req, { bind: true }));
+  router.post('/api/v1/license/validate', async (body, _p, _u, req) => resolveLicense(body, req, { bind: true }));
+  router.post('/api/v1/license/heartbeat', async (body, _p, _u, req) => resolveLicense(body, req, { bind: false }));
+  router.post('/api/v1/history/sync', async (body, _p, _u, req) => syncHistory(body, req));
 }
 
 module.exports = { register };

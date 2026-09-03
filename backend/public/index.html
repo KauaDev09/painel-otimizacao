@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ORION OPTIMIZER — Otimize seu PC ao máximo</title>
+  <meta name="description" content="Otimize seu Windows, monitore seu sistema e desbloqueie ferramentas avançadas de performance com o Orion Optimizer.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#05020f">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://orionoptimizer.com.br">
+  <meta property="og:title" content="Orion Optimizer — Performance para Windows">
+  <meta property="og:description" content="Otimize seu Windows, monitore seu sistema e desbloqueie ferramentas avançadas de performance com o Orion Optimizer.">
+  <meta property="og:image" content="/assets/og-image.png">
+  <meta property="og:site_name" content="Orion Optimizer">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Orion Optimizer — Performance para Windows">
+  <meta name="twitter:description" content="Otimize seu Windows, monitore seu sistema e desbloqueie ferramentas avançadas de performance com o Orion Optimizer.">
+  <meta name="twitter:image" content="/assets/og-image.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Orion Optimizer",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Windows 10, Windows 11",
+    "description": "Otimização profissional de Windows, monitoramento em tempo real, FPS Boost e otimizador de BIOS.",
+    "offers": {
+      "@type": "AggregateOffer",
+      "priceCurrency": "BRL",
+      "lowPrice": "29.90"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <!-- ================= NAVBAR ================= -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="brand"><span class="dot"></span>ORION<span class="accent">OPTIMIZER</span></a>
+      <div class="nav-menu" data-nav-menu></div>
+      <div class="nav-actions" data-nav-actions></div>
+    </div>
+  </nav>
+
+  <!-- ================= HERO ================= -->
+  <header class="hero">
+    <div class="container">
+      <div class="hero-badge reveal"><span>⚡</span> Otimização profissional · Windows 10/11</div>
+      <h1 class="reveal">Transforme seu PC em<br><span class="grad">uma máquina de guerra</span></h1>
+      <p class="sub reveal">Limpeza profunda, monitoramento em tempo real, FPS Boost, otimizador de processo e até ajuste de BIOS. Tudo em um único software.</p>
+      <div class="hero-ctas reveal">
+        <a href="/planos" class="btn btn-primary btn-lg">Adquirir licença</a>
+        <a href="/#download" class="btn btn-lg">Baixar grátis</a>
+      </div>
+    </div>
+
+    <!-- Telemetry mock -->
+    <div class="container">
+      <div class="telemetry reveal">
+        <div class="bar">
+          <span class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></span>
+          <span>orion://telemetry — em tempo real</span>
+        </div>
+        <div class="tele-grid">
+          <div class="tele-card">
+            <div class="lab">CPU</div>
+            <div class="val" id="m-cpu">42%</div>
+            <div class="meter"><i style="width:42%"></i></div>
+          </div>
+          <div class="tele-card">
+            <div class="lab">GPU</div>
+            <div class="val" id="m-gpu">61%</div>
+            <div class="meter"><i style="width:61%"></i></div>
+          </div>
+          <div class="tele-card">
+            <div class="lab">RAM</div>
+            <div class="val" id="m-ram">3.4 / 16 GB</div>
+            <div class="meter"><i style="width:34%"></i></div>
+          </div>
+          <div class="tele-card">
+            <div class="lab">Temperatura</div>
+            <div class="val" id="m-temp">58 °C</div>
+            <div class="meter"><i style="width:58%"></i></div>
+          </div>
+          <div class="tele-card">
+            <div class="lab">FPS</div>
+            <div class="val" id="m-fps">144</div>
+            <div class="meter"><i style="width:100%"></i></div>
+          </div>
+          <div class="tele-card">
+            <div class="lab">BIOS</div>
+            <div class="val" id="m-bios" style="font-size:16px">ATIVADO</div>
+            <div class="meter"><i style="width:100%"></i></div>
+          </div>
+          <div class="tele-card">
+            <div class="lab">XMP</div>
+            <div class="val" id="m-xmp" style="font-size:16px">PERFIL 1</div>
+            <div class="meter"><i style="width:100%"></i></div>
+          </div>
+          <div class="tele-card">
+            <div class="lab">Processos otimizados</div>
+            <div class="val" id="m-proc">12</div>
+            <div class="meter"><i style="width:72%"></i></div>
+          </div>
+        </div>
+        <div class="bar" style="border-top:1px solid var(--border); border-bottom:none;">
+          <span class="mono">estado: </span><span style="color:var(--green)">OTIMIZADO</span>
+          <span class="mono" style="margin-left:auto">latência 8ms</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= METRICS STRIP ================= -->
+  <div class="container">
+    <div class="metrics reveal">
+      <div class="metric"><div class="num"><span>Até +35%*</span></div><div class="desc">aumento médio de FPS</div></div>
+      <div class="metric"><div class="num"><span>Até −41%*</span></div><div class="desc">tempo de inicialização</div></div>
+      <div class="metric"><div class="num"><span>Até +22%*</span></div><div class="desc">desempenho em jogos</div></div>
+      <div class="metric"><div class="num"><span>50k+</span></div><div class="desc">PCs otimizados</div></div>
+    </div>
+    <p class="metrics-disclaimer text-center">* Resultados variam conforme hardware e configuração do sistema.</p>
+  </div>
+
+  <!-- ================= RECURSOS ================= -->
+  <section class="section" id="recursos">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="kicker">Recursos</div>
+        <h2>Potência total, em um clique</h2>
+        <p>Cada módulo foi construído pensando em performance real e segurança dos seus dados.</p>
+      </div>
+      <div class="grid features">
+        <div class="feature-card reveal">
+          <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+          <h3>Limpeza Profunda</h3>
+          <p>Remoção de cache, arquivos temporários e lixo do sistema em até 8 categorias, liberando espaço e velocidade.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+          <h3>Monitoramento em tempo real</h3>
+          <p>CPU, GPU, RAM, temperatura e FPS com telemetria ao vivo, direto no overlay do jogo ou em tempo real na sua tela.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <h3>FPS Boost</h3>
+          <p>Ajustes automáticos de prioridade e GPU que elevam os quadros por segundo nos seus jogos favoritos.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 6 6 6 6 0 0 0-6 6 6 6 0 0 0-6-6 6 6 0 0 0 6-6z"/></svg></div>
+          <h3>Otimizador de BIOS</h3>
+          <p>Perfis seguros de otimização de BIOS, XMP de memória e prioridades de energia para extrair cada watt de performance.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.2 4.2l2.8 2.8M17 17l2.8 2.8M1 12h4M19 12h4M4.2 19.8l2.8-2.8M17 7l2.8-2.8"/></svg></div>
+          <h3>Gaming Mode</h3>
+          <p>Priorização automática de processos do jogo, silêncio de notificações e máximo desempenho de GPU.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/></svg></div>
+          <h3>Otimizador de inicialização</h3>
+          <p>Controle completo de programas que iniciam com o Windows para acelerar o boot e liberar recursos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PLANOS ================= -->
+  <section class="section" id="planos">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="kicker">Planos</div>
+        <h2>Escolha o seu plano</h2>
+        <p>Licenças vitalícias. Pagamento via PIX ou cartão. Chave enviada automaticamente após a confirmação.</p>
+      </div>
+      <div id="plans-grid" class="plans">
+        <div class="plan-card"><div class="skeleton" style="height:300px"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DOWNLOAD ================= -->
+  <section class="section" id="download">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="kicker">Download</div>
+        <h2>Baixe o ORION</h2>
+        <p>Teste grátis e, quando estiver pronto, adquira sua licença para liberar todos os recursos.</p>
+      </div>
+      <div class="download-panel reveal" id="download-panel">
+        <div class="skeleton" style="height:200px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <a href="/" class="brand"><span class="dot"></span>ORION<span class="accent">OPTIMIZER</span></a>
+      <p>© <span data-year></span> ORION OPTIMIZER. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="/assets/app.js"></script>
+  <script>
+    document.querySelector('[data-year]').textContent = new Date().getFullYear();
+
+    /* animação do mock de telemetria */
+    setInterval(() => {
+      const cpu = 30 + Math.floor(Math.random() * 45);
+      const gpu = 40 + Math.floor(Math.random() * 50);
+      const ram = 3 + Math.floor(Math.random() * 3);
+      const temp = 48 + Math.floor(Math.random() * 18);
+      document.getElementById('m-cpu').textContent = cpu + '%';
+      document.getElementById('m-cpu').nextElementSibling.querySelector('i').style.width = cpu + '%';
+      document.getElementById('m-gpu').textContent = gpu + '%';
+      document.getElementById('m-gpu').nextElementSibling.querySelector('i').style.width = gpu + '%';
+      document.getElementById('m-ram').textContent = ram.toFixed(1) + ' / 16 GB';
+      document.getElementById('m-ram').nextElementSibling.querySelector('i').style.width = Math.round(ram / 16 * 100) + '%';
+      document.getElementById('m-temp').textContent = temp + ' °C';
+      document.getElementById('m-temp').nextElementSibling.querySelector('i').style.width = temp + '%';
+    }, 1600);
+
+    initReveal();
+  </script>
+  <script>
+    (async () => {
+      try {
+        const { plans } = await API.get('/api/v1/public/plans');
+        const featured = plans.find(p => p.slug === 'ultra') || plans[Math.floor(plans.length / 2)];
+        document.getElementById('plans-grid').innerHTML = plans.map(p => {
+          const isFeatured = p.id === featured.id;
+          const feats = Array.isArray(p.features) ? p.features : [];
+          return `
+            <div class="plan-card ${isFeatured ? 'featured' : ''}">
+              ${isFeatured ? '<div class="tag">Mais popular</div>' : ''}
+              <div class="name">${p.name}</div>
+              <div class="price">${brl(p.price)}<small> mensal</small></div>
+              <div class="desc">${p.description || ''}</div>
+              <ul>
+                ${feats.map(f => `<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>${pretty(f)}</li>`).join('')}
+              </ul>
+              <a class="btn ${isFeatured ? 'btn-primary' : ''} btn-block" href="/checkout?plan=${p.slug}">Adquirir</a>
+            </div>`;
+        }).join('');
+      } catch (e) {
+        document.getElementById('plans-grid').innerHTML = '<p class="muted text-center">Não foi possível carregar os planos.</p>';
+      }
+    })();
+
+    async function loadDownload() {
+      try {
+        const { download } = await API.get('/api/v1/public/download');
+        document.getElementById('download-panel').innerHTML = `
+          <div class="ver">v${download.version}</div>
+          <h3>ORION OPTIMIZER</h3>
+          <p>Windows 10 / 11 · 64 bits</p>
+          <div class="dl-meta">
+            <div><div class="k">Versão</div><div class="v">${download.version}</div></div>
+            <div><div class="k">Tamanho</div><div class="v">${download.size || '~15 MB'}</div></div>
+            <div><div class="k">Plataforma</div><div class="v">Windows</div></div>
+          </div>
+          <div class="dl-reqs">
+            <h4>Requisitos mínimos</h4>
+            <ul>
+              <li>Windows 10 ou 11 (64 bits)</li>
+              <li>2 GB de RAM livre</li>
+              <li>150 MB de espaço em disco</li>
+              <li>Conexão com a internet (validação de licença)</li>
+            </ul>
+          </div>
+          <a class="btn btn-primary btn-lg" href="${download.url}" download>Baixar agora</a>
+          ${download.releaseNotes ? `<div class="changelog"><h4>Novidades</h4><pre>${escapeHtml(download.releaseNotes)}</pre></div>` : ''}`;
+      } catch (e) {
+        document.getElementById('download-panel').innerHTML = '<p class="muted">Nenhuma versão disponível no momento.</p>';
+      }
+    }
+    loadDownload();
+
+    function pretty(f) {
+      const map = {
+        system_monitoring: 'Monitoramento do sistema', basic_cleanup: 'Limpeza essencial',
+        advanced_cleanup: 'Limpeza avançada', fps_boost: 'FPS Boost', gaming_mode: 'Modo gamer',
+        process_optimizer: 'Otimizador de processos', startup_optimizer: 'Otimizador de inicialização',
+        bios_optimizer: 'Otimizador de BIOS', xmp_optimizer: 'Otimizador XMP',
+        advanced_memory_optimizer: 'Otimização avançada de memória',
+        advanced_windows_optimizer: 'Otimização avançada do Windows',
+        realtime_telemetry: 'Telemetria em tempo real', priority_features: 'Recursos prioritários',
+      };
+      return map[f] || f.replace(/_/g, ' ');
+    }
+    function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  </script>
+</body>
+</html>

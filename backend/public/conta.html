@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minha conta — ORION OPTIMIZER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <nav class="nav"><div class="nav-inner">
+    <a href="/" class="brand"><span class="dot"></span>ORION<span class="accent">OPTIMIZER</span></a>
+    <div class="nav-actions" data-nav-actions></div>
+  </div></nav>
+
+  <div class="account-layout">
+    <div class="account-head">
+      <div class="flex center">
+        <div class="avatar" id="avatar">?</div>
+        <div>
+          <h2 id="user-name" style="margin-bottom:2px">Carregando...</h2>
+          <div class="muted" id="user-email" style="font-size:14px">&nbsp;</div>
+        </div>
+      </div>
+      <a href="/planos" class="btn">Adquirir outro plano</a>
+    </div>
+
+    <!-- LICENÇAS -->
+    <h3 class="mt-3">Minhas licenças</h3>
+    <div id="licenses" style="margin-top:14px">
+      <div class="skeleton" style="height:90px"></div>
+    </div>
+
+    <!-- PEDIDOS -->
+    <h3 class="mt-3">Meus pedidos</h3>
+    <div id="orders" style="margin-top:14px">
+      <div class="skeleton" style="height:60px"></div>
+    </div>
+  </div>
+
+  <footer class="footer" style="margin-bottom:40px">
+    <div class="footer-inner"><p>© <span data-year></span> ORION OPTIMIZER.</p></div>
+  </footer>
+
+  <script src="/assets/app.js"></script>
+  <script>
+    document.querySelector('[data-year]').textContent = new Date().getFullYear();
+
+    if (!isAuthed()) { location.href = '/login?next=/conta'; }
+
+    function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+    function keyLabel(f) {
+      return { system_monitoring:'Monitoramento', basic_cleanup:'Limpeza essencial', advanced_cleanup:'Limpeza avançada', fps_boost:'FPS Boost', gaming_mode:'Modo gamer', process_optimizer:'Processos', startup_optimizer:'Inicialização', bios_optimizer:'BIOS', xmp_optimizer:'XMP', advanced_memory_optimizer:'Memória avançada', advanced_windows_optimizer:'Windows avançado', realtime_telemetry:'Telemetria', priority_features:'Prioritário' }[f] || f;
+    }
+    function statusBadge(s) {
+      const val = String(s || '');
+      const bad = val === 'ativa' || val === 'ativo' || val === 'active' || val === 'paid' ? 'ativo'
+        : (val === 'expirada' || val === 'bloqueada' || val === 'revogada' || val === 'expired' || val === 'revoked' ? 'expirada' : 'pending');
+      return `<span class="badge ${bad}">${esc(s)}</span>`;
+    }
+    function statusHint(s) {
+      const val = String(s || '');
+      if (val === 'pending' || val === 'pendente') return 'Seu pagamento está sendo processado. Assim que for confirmado, sua licença aparece aqui automaticamente.';
+      if (val === 'expirada' || val === 'expired') return 'Esta licença expirou. Adquira um novo plano para continuar usando os recursos premium.';
+      if (val === 'bloqueada' || val === 'revogada' || val === 'revoked') return 'Esta licença foi revogada. Entre em contato pelo suporte se acha que houve engano.';
+      if (val === 'ativa' || val === 'ativo' || val === 'active') return 'Licença ativa e válida.';
+      return '';
+    }
+
+    (async () => {
+      try {
+        const me = await API.get('/api/v1/store/account/me', true);
+        const u = me.user;
+        document.getElementById('avatar').textContent = (u.name || u.email || '?')[0].toUpperCase();
+        document.getElementById('user-name').textContent = u.name || 'Usuário';
+        document.getElementById('user-email').textContent = u.email || '';
+
+        const lics = me.licenses || [];
+        document.getElementById('licenses').innerHTML = lics.length ? lics.map(l => `
+          <div class="license-row">
+            <div>
+              <div class="key">${esc(l.key || l.chave)}</div>
+              <div class="muted" style="font-size:13px;margin-top:4px">Plano: <strong>${esc((l.plan||'').toUpperCase())}</strong></div>
+              <div class="muted" style="font-size:12.5px;margin-top:6px">${esc(statusHint(l.status))}</div>
+            </div>
+            <div class="meta-grid">
+              <div class="m"><div class="k">Status</div><span class="v">${statusBadge(l.status)}</span></div>
+              <div class="m"><div class="k">Ativações</div><div class="v">${l.activations || 0} / ${(l.maxActivations == null ? '∞' : l.maxActivations)}</div></div>
+              ${l.expiresAt ? `<div class="m"><div class="k">Validade</div><div class="v">${new Date(l.expiresAt).toLocaleDateString('pt-BR')}</div></div>` : ''}
+            </div>
+          </div>`).join('')
+          : '<div class="muted">Você ainda não possui licenças. <a href="/planos" style="color:var(--purple-2)">Adquirir agora</a>.</div>';
+
+        const ord = me.orders || [];
+        document.getElementById('orders').innerHTML = ord.length ? ord.map(o => `
+          <div class="license-row">
+            <div>
+              <div class="key" style="font-size:14px">#${esc(o.uuid || o.order_uuid)}</div>
+              <div class="muted" style="font-size:13px;margin-top:4px">${esc(o.plan || o.plan_name)} · ${brl(o.amount || 0)}</div>
+              <div class="muted" style="font-size:12.5px;margin-top:6px">${esc(statusHint(o.status))}</div>
+            </div>
+            <div class="meta-grid">
+              <div class="m"><div class="k">Status</div><span class="v">${statusBadge(o.status)}</span></div>
+              <div class="m"><div class="k">Data</div><div class="v">${new Date(o.createdAt || o.created_at).toLocaleDateString('pt-BR')}</div></div>
+            </div>
+          </div>`).join('')
+          : '<div class="muted">Nenhum pedido ainda.</div>';
+      } catch (e) {
+        document.getElementById('licenses').innerHTML = e.status === 401
+          ? '<div class="muted">Sua sessão expirou. <a href="/login" style="color:var(--purple-2)">Entrar novamente</a>.</div>'
+          : '<div class="muted">Não foi possível conectar ao servidor. Tente novamente em instantes.</div>';
+        document.getElementById('orders').innerHTML = '';
+      }
+    })();
+  </script>
+</body>
+</html>

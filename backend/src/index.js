@@ -17,8 +17,45 @@ const config = require('./config');
 const licenseRoutes = require('./routes-license');
 const adminRoutes = require('./routes-admin');
 const appRoutes = require('./routes-app');
+const storefrontRoutes = require('./routes-storefront');
 
 const ADMIN_HTML = path.join(__dirname, '..', 'admin', 'index.html');
+const PUBLIC_DIR = path.join(__dirname, '..', 'public');
+
+const PUBLIC_PAGES = {
+  '/': 'index.html',
+  '/planos': 'planos.html',
+  '/checkout': 'checkout.html',
+  '/login': 'login.html',
+  '/conta': 'conta.html',
+  '/sucesso': 'sucesso.html',
+  '/suporte': 'suporte.html'
+};
+
+const CONTENT_TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.woff2': 'font/woff2',
+  '.txt': 'text/plain; charset=utf-8'
+};
+
+function serveStatic(res, filePath, contentType) {
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      sendJson(res, 404, { ok: false, message: 'Arquivo não encontrado.' });
+      return;
+    }
+    res.writeHead(200, { 'Content-Type': contentType });
+    res.end(data);
+  });
+}
 
 // ---------- Roteador mínimo ----------
 class Router {
@@ -63,6 +100,7 @@ router.get('/api/v1/health', async () => ({ ok: true, service: 'bios-optimizer-a
 licenseRoutes.register(router);
 adminRoutes.register(router);
 appRoutes.register(router);
+storefrontRoutes.register(router);
 
 // ---------- Helpers HTTP ----------
 function sendJson(res, status, payload) {
@@ -124,8 +162,25 @@ async function handleRequest(req, res) {
     return;
   }
 
-  if (pathname === '/' || pathname === '/admin' || pathname === '/admin/' || pathname === '/admin/index.html') {
+  // ---- Painel administrativo mantém-se em /admin ----
+  if (pathname === '/admin' || pathname === '/admin/' || pathname === '/admin/index.html') {
     return serveAdmin(res);
+  }
+
+  // ---- Páginas públicas do SaaS (landing, planos, etc.) ----
+  if (PUBLIC_PAGES[pathname]) {
+    return serveStatic(res, path.join(PUBLIC_DIR, PUBLIC_PAGES[pathname]), CONTENT_TYPES['.html']);
+  }
+
+  // ---- Arquivos estáticos (/assets/*) ----
+  if (pathname.startsWith('/assets/')) {
+    const route = pathname.replace(/^\/assets\//, '');
+    const safe = path.normalize(route).replace(/^(\.\.[\/\\])+/, '');
+    const filePath = path.join(PUBLIC_DIR, 'assets', safe);
+    const ext = path.extname(filePath).toLowerCase() || '.js';
+    if (filePath.startsWith(PUBLIC_DIR) && /\.(css|js|svg|png|jpg|jpeg|ico|json|txt|woff2)$/i.test(filePath)) {
+      return serveStatic(res, filePath, CONTENT_TYPES[ext] || 'application/octet-stream');
+    }
   }
 
   const match = router.match(req.method, pathname);

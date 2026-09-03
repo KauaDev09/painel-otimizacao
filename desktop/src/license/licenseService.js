@@ -18,6 +18,15 @@ const { APP_VERSION } = require('../config/appConfig');
 const GRACE_MS = 72 * 60 * 60 * 1000; // 72 horas
 const REFRESH_MS = 6 * 60 * 60 * 1000; // revalida a cada 6h com o app aberto
 
+// Recursos do plano ULTRA — usados como fallback para licenças legadas
+// (vitalícias) que ainda não têm o plan_slug SaaS definido no banco.
+const FULL_FEATURES = [
+  'system_monitoring', 'basic_cleanup', 'advanced_cleanup', 'fps_boost',
+  'gaming_mode', 'process_optimizer', 'startup_optimizer', 'bios_optimizer',
+  'xmp_optimizer', 'advanced_memory_optimizer', 'advanced_windows_optimizer',
+  'realtime_telemetry', 'priority_features'
+];
+
 class LicenseService {
   constructor(dir) {
     this.dir = dir;
@@ -103,11 +112,18 @@ class LicenseService {
     const daysLeft = c.expiresAt
       ? Math.max(0, Math.ceil((Date.parse(c.expiresAt) - Date.now()) / 86400000))
       : null;
+    const isLegacyLifetime = !c.planSlug && (c.plan === 'vitalicia' || c.plan === 'lifetime' || !c.plan);
+    const features = Array.isArray(c.features) && c.features.length
+      ? c.features.slice()
+      : (isLegacyLifetime ? FULL_FEATURES.slice() : []);
     return {
       active,
       state: c.state,
       reason,
-      plan: c.plan || null,
+      plan: (c.planSlug || c.plan) || null,
+      planSlug: c.planSlug || null,
+      features,
+      isLegacyLifetime,
       expiresAt: c.expiresAt || null,
       daysLeft,
       lastValidatedAt: c.lastValidatedAt || null,
@@ -124,10 +140,15 @@ class LicenseService {
   }
 
   _applySuccess(data) {
+    const features = Array.isArray(data.features)
+      ? data.features.map(String)
+      : (this.cache && Array.isArray(this.cache.features) ? this.cache.features : []);
     this.cache = {
       key: data.key,
       state: data.status === 'active' ? 'active' : data.status,
       plan: data.plan || null,
+      planSlug: data.planSlug || (this.cache && this.cache.planSlug) || null,
+      features,
       expiresAt: data.expiresAt || null,
       lastValidatedAt: new Date().toISOString(),
       token: data.token || (this.cache && this.cache.token) || null,

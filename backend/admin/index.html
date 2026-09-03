@@ -379,6 +379,9 @@
     .st-bloqueada, .badge-bloqueada { color: var(--red-bright); background: var(--red-bg); }
     .st-expirada, .badge-expirada { color: var(--yellow); background: var(--yellow-bg); }
     .st-inativa, .badge-inativa { color: var(--text-dim); background: var(--surface-2); }
+    .badge-pendente { color: var(--yellow); background: var(--yellow-bg); }
+    table.mini { font-size: 0.82rem; }
+    table.mini th { font-size: 0.66rem; }
 
     /* ================= MISC ================= */
     .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -498,6 +501,10 @@
             <button data-v="dispositivos" class="tab"><span class="tab-ico">💻</span><span class="tab-label">Dispositivos</span></button>
             <button data-v="historico" class="tab"><span class="tab-ico">📈</span><span class="tab-label">Histórico</span></button>
             <button data-v="updates" class="tab"><span class="tab-ico">🔄</span><span class="tab-label">Atualizações</span></button>
+            <button data-v="plans" class="tab"><span class="tab-ico">💎</span><span class="tab-label">Planos</span></button>
+            <button data-v="orders" class="tab"><span class="tab-ico">🧾</span><span class="tab-label">Pedidos</span></button>
+            <button data-v="payments" class="tab"><span class="tab-ico">💳</span><span class="tab-label">Pagamentos</span></button>
+            <button data-v="downloads" class="tab"><span class="tab-ico">⬇️</span><span class="tab-label">Downloads</span></button>
             <button data-v="logs" class="tab"><span class="tab-ico">📄</span><span class="tab-label">Logs</span></button>
           </nav>
         </div>
@@ -691,6 +698,94 @@
             </div>
           </section>
 
+          <!-- PLANOS -->
+          <section id="v-plans" class="view">
+            <div class="page-heading">
+              <h2>Planos</h2>
+              <p>Planos de venda do SaaS e seus recursos</p>
+            </div>
+            <div class="card">
+              <h2>Criar / editar plano</h2>
+              <div class="toolbar" style="flex-wrap:wrap">
+                <div><label>Nome</label><input id="plansName" placeholder="Ex.: Pro"></div>
+                <div><label>Slug</label><input id="plansSlug" placeholder="pro"></div>
+                <div><label>Preço (R$)</label><input id="plansPrice" type="number" step="0.01" min="0" value="49.90" style="max-width:110px"></div>
+                <div><label>Ordem</label><input id="plansOrder" type="number" value="0" style="max-width:80px"></div>
+                <div style="margin-bottom:1px"><label>Ativo</label><select id="plansActive"><option value="1">Sim</option><option value="0">Não</option></select></div>
+                <div style="margin-bottom:1px;align-self:flex-end"><button id="plansSave" class="btn btn-primary">Salvar plano</button></div>
+              </div>
+              <label style="max-width:640px">Descrição</label>
+              <textarea id="plansDesc" rows="2" style="max-width:640px" placeholder="Breve descrição exibida na página de planos."></textarea>
+              <label style="max-width:640px">Recursos (feats) — separados por vírgula</label>
+              <textarea id="plansFeats" rows="3" style="max-width:640px" placeholder="system_monitoring, basic_cleanup, fps_boost"></textarea>
+              <div id="plansMsg" class="msg"></div>
+            </div>
+            <h2 style="font-size:0.8rem;letter-spacing:1.2px;color:var(--primary-3);text-transform:uppercase;margin-bottom:14px;font-weight:600;">Planos cadastrados</h2>
+            <div class="table-wrap">
+              <table id="tblPlans">
+                <thead><tr><th>ID</th><th>Plano</th><th>Slug</th><th>Preço</th><th>Recursos</th><th>Ativo</th><th>Ordem</th><th>Ações</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- PEDIDOS -->
+          <section id="v-orders" class="view">
+            <div class="page-heading">
+              <h2>Pedidos</h2>
+              <p>Compras realizadas na loja</p>
+            </div>
+            <div class="table-wrap">
+              <table id="tblOrders">
+                <thead><tr><th>ID</th><th>Pedido</th><th>Plano</th><th>Valor</th><th>Status</th><th>Cliente</th><th>Data</th><th>Ações</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div id="orderDetail" class="card" style="display:none"></div>
+          </section>
+
+          <!-- PAGAMENTOS -->
+          <section id="v-payments" class="view">
+            <div class="page-heading">
+              <h2>Pagamentos</h2>
+              <p>Transações registradas via gateway</p>
+            </div>
+            <div class="table-wrap">
+              <table id="tblPayments">
+                <thead><tr><th>ID</th><th>Pedido</th><th>Provedor</th><th>Valor</th><th>Status</th><th>Ref. externa</th><th>Data</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- DOWNLOADS -->
+          <section id="v-downloads" class="view">
+            <div class="page-heading">
+              <h2>Downloads</h2>
+              <p>Versões disponíveis para download na página do produto</p>
+            </div>
+            <div class="card">
+              <h2>Cadastrar / atualizar versão</h2>
+              <div class="toolbar" style="flex-wrap:wrap">
+                <div><label>Versão (X.Y.Z)</label><input id="dlVersion" placeholder="2.1.0"></div>
+                <div><label>Arquivo</label><input id="dlFilename" placeholder="ORION-OPTIMIZER-Setup-2.1.0.exe"></div>
+                <div style="min-width:320px"><label>URL do download</label><input id="dlUrl" type="url" placeholder="https://.../ORION-OPTIMIZER-Setup-2.1.0.exe"></div>
+                <div style="margin-bottom:1px"><label>Última versão</label><select id="dlLatest"><option value="1">Sim</option><option value="0">Não</option></select></div>
+                <div style="margin-bottom:1px;align-self:flex-end"><button id="dlSave" class="btn btn-primary">Salvar</button></div>
+              </div>
+              <label style="max-width:640px">Notas da versão (changelog)</label>
+              <textarea id="dlNotes" rows="3" style="max-width:640px" placeholder="Liste as novidades desta versão..."></textarea>
+              <div id="dlMsg" class="msg"></div>
+            </div>
+            <h2 style="font-size:0.8rem;letter-spacing:1.2px;color:var(--primary-3);text-transform:uppercase;margin-bottom:14px;font-weight:600;">Versões publicadas</h2>
+            <div class="table-wrap">
+              <table id="tblDownloads">
+                <thead><tr><th>Versão</th><th>Arquivo</th><th>Última</th><th>Ativo</th><th>Criado em</th><th>URL</th><th>Ações</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
           <!-- LOGS -->
           <section id="v-logs" class="view">
             <div class="page-heading">
@@ -815,6 +910,10 @@ $$('#nav .tab').forEach((t) => t.addEventListener('click', () => {
   $('#v-' + t.dataset.v).classList.add('active');
   if (t.dataset.v === 'painel') loadStats().catch(()=>{});
   if (t.dataset.v === 'updates') loadUpdates().catch(()=>{});
+  if (t.dataset.v === 'plans') loadPlans().catch(()=>{});
+  if (t.dataset.v === 'orders') loadOrders().catch(()=>{});
+  if (t.dataset.v === 'payments') loadPayments().catch(()=>{});
+  if (t.dataset.v === 'downloads') loadDownloads().catch(()=>{});
   /* fecha a sidebar mobile após navegar */
   if (window.innerWidth <= 860) {
     sidebar.classList.remove('open'); $('#overlay').classList.remove('show');
@@ -1020,6 +1119,203 @@ document.addEventListener('click', async (e) => {
     loadUpdates();
   } catch (err) { alert('Erro: ' + err.message); b.disabled = false; }
 });
+
+// ---------- Planos (SaaS) ----------
+const FEAT_NAMES = {
+  system_monitoring: 'Monitoramento do sistema', basic_cleanup: 'Limpeza essencial',
+  advanced_cleanup: 'Limpeza avançada', fps_boost: 'FPS Boost', basic_fps_boost: 'FPS Boost essencial',
+  gaming_mode: 'Modo gamer', process_optimizer: 'Otimizador de processos',
+  startup_optimizer: 'Otimizador de inicialização', bios_optimizer: 'Otimizador de BIOS',
+  xmp_optimizer: 'Otimizador XMP', advanced_memory_optimizer: 'Memória avançada',
+  advanced_windows_optimizer: 'Windows avançado', realtime_telemetry: 'Telemetria em tempo real',
+  priority_features: 'Recursos prioritários'
+};
+function featLabel(f) { return FEAT_NAMES[f] || String(f).replace(/_/g, ' '); }
+function parseFeats(v) {
+  return String(v || '').split(',').map(s => s.trim()).filter(Boolean);
+}
+
+async function loadPlans() {
+  const j = await call('/api/v1/admin/plans');
+  $('#tblPlans tbody').innerHTML = (j.plans || []).map((p) => {
+    const feats = Array.isArray(p.features) ? p.features : (() => { try { return JSON.parse(p.features); } catch (_) { return []; } })();
+    return `<tr>
+      <td>${p.id}</td>
+      <td><b>${esc(p.name)}</b></td>
+      <td><span class="key-mono">${esc(p.slug)}</span></td>
+      <td>R$ ${Number(p.price).toFixed(2)}</td>
+      <td style="max-width:320px">${feats.map(f => `<span class="badge badge-ativa" style="margin:1px">${esc(featLabel(f))}</span>`).join('') || '<span style="color:var(--text-dim)">—</span>'}</td>
+      <td>${p.active ? '<span class="badge badge-ativa">Ativo</span>' : '<span class="badge badge-inativa">Inativo</span>'}</td>
+      <td>${p.sort_order ?? 0}</td>
+      <td><div class="row-actions">
+        <button class="btn btn-outline" data-plan-edit='${JSON.stringify({ id:p.id, name:p.name, slug:p.slug, price:p.price, active:p.active, order:(p.sort_order||0), desc:p.description||'', feats:feats.join(', ') }).replace(/'/g, '&#39;')}'>Editar</button>
+        <button class="btn btn-outline" data-plan-toggle data-id="${p.id}" data-active="${p.active ? '1':'0'}">${p.active ? 'Desativar' : 'Ativar'}</button>
+      </div></td>
+    </tr>`; }).join('') || '<tr><td colspan="8" style="color:var(--text-dim)">Nenhum plano cadastrado.</td></tr>';
+}
+
+async function savePlan(body) {
+  const msg = $('#plansMsg');
+  msg.className = 'msg'; msg.textContent = body.id ? 'Salvando…' : 'Criando…';
+  try {
+    if (body.id) {
+      await call('/api/v1/admin/plans/' + body.id, { method: 'POST', body });
+    } else {
+      await call('/api/v1/admin/plans', { method: 'POST', body });
+    }
+    msg.textContent = '✅ Plano salvo.'; msg.classList.add('ok');
+    $('#plansName').value = ''; $('#plansSlug').value = ''; $('#plansDesc').value = ''; $('#plansFeats').value = '';
+    $('#plansPrice').value = '49.90'; $('#plansOrder').value = '0'; $('#plansActive').value = '1';
+    loadPlans();
+  } catch (e) { msg.textContent = 'Erro: ' + e.message; msg.classList.add('err'); }
+}
+
+$('#plansSave').addEventListener('click', () => {
+  const slug = $('#plansSlug').value.trim().toLowerCase();
+  if (!$('#plansName').value.trim()) { toastMsg('plansMsg', 'Informe o nome do plano.', true); return; }
+  if (!slug) { toastMsg('plansMsg', 'Informe o slug do plano.', true); return; }
+  savePlan({
+    id: $('#plansSave').dataset.id ? Number($('#plansSave').dataset.id) : undefined,
+    name: $('#plansName').value.trim(),
+    slug,
+    price: Number($('#plansPrice').value || 0),
+    description: $('#plansDesc').value.trim() || undefined,
+    features: parseFeats($('#plansFeats').value),
+    active: $('#plansActive').value === '1',
+    sortOrder: Number($('#plansOrder').value || 0)
+  });
+});
+
+document.addEventListener('click', (e) => {
+  const edit = e.target.closest('button[data-plan-edit]');
+  if (edit) {
+    const p = JSON.parse(edit.dataset.planEdit);
+    $('#plansName').value = p.name; $('#plansSlug').value = p.slug;
+    $('#plansDesc').value = p.desc || ''; $('#plansFeats').value = (p.feats || '');
+    $('#plansPrice').value = p.price; $('#plansOrder').value = p.order;
+    $('#plansActive').value = p.active ? '1' : '0';
+    const btn = $('#plansSave');
+    btn.dataset.id = p.id; btn.textContent = 'Salvar alterações (#' + p.id + ')';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+  const tg = e.target.closest('button[data-plan-toggle]');
+  if (tg) {
+    const next = tg.dataset.active === '1' ? 0 : 1;
+    call('/api/v1/admin/plans/' + tg.dataset.id, { method: 'POST', body: { active: next === 1 } })
+      .then(loadPlans).catch(err => alert('Erro: ' + err.message));
+    return;
+  }
+});
+
+// ---------- Pedidos (SaaS) ----------
+const ORDER_STATUS = { pending: 'badge-pendente', paid: 'badge-ativa', cancelled: 'badge-inativa', failed: 'badge-bloqueada' };
+function statusBadge(st) {
+  const cls = ORDER_STATUS[st] || 'badge-inativa';
+  return `<span class="badge ${cls}">${esc(st)}</span>`;
+}
+
+async function loadOrders() {
+  const j = await call('/api/v1/admin/orders');
+  $('#tblOrders tbody').innerHTML = (j.orders || []).map((o) => `
+    <tr>
+      <td>${o.id}</td>
+      <td><span class="key-mono">${esc(o.order_uuid)}</span></td>
+      <td>${esc(o.plan_name)}</td>
+      <td>R$ ${Number(o.amount).toFixed(2)}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td>${esc(o.user_email || o.user_name || '—')}</td>
+      <td>${fmtDate(o.created_at)}</td>
+      <td><div class="row-actions"><button class="btn btn-outline" data-order-detail="${o.id}">Detalhes</button></div></td>
+    </tr>`).join('') || '<tr><td colspan="8" style="color:var(--text-dim)">Nenhum pedido ainda.</td></tr>';
+}
+
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('button[data-order-detail]');
+  if (!b) return;
+  b.disabled = true;
+  try {
+    const j = await call('/api/v1/admin/orders/' + b.dataset.orderDetail);
+    const o = j.order; const pay = j.payments || []; const lic = j.license;
+    $('#orderDetail').style.display = '';
+    $('#orderDetail').innerHTML = `
+      <h2>Pedido #${esc(o.order_uuid)}</h2>
+      <div style="display:flex;flex-wrap:wrap;gap:24px;margin-bottom:14px">
+        <div><div style="font-size:0.7rem;color:var(--text-dim)">Plano</div><b>${esc(o.plan_name)}</b></div>
+        <div><div style="font-size:0.7rem;color:var(--text-dim)">Valor</div><b>R$ ${Number(o.amount).toFixed(2)}</b></div>
+        <div><div style="font-size:0.7rem;color:var(--text-dim)">Status</div>${statusBadge(o.status)}</div>
+        <div><div style="font-size:0.7rem;color:var(--text-dim)">Provedor</div>${esc(o.payment_provider || '—')}</div>
+        <div><div style="font-size:0.7rem;color:var(--text-dim)">Data</div>${fmtDate(o.created_at)}</div>
+      </div>
+      ${lic ? `<div style="margin-bottom:12px"><div style="font-size:0.7rem;color:var(--text-dim)">Licença gerada</div><span class="key-mono">${esc(lic.chave)}</span> <span class="badge badge-${esc(lic.status)}">${esc(lic.status)}</span> · plano <b>${esc(lic.plan_slug || lic.plano)}</b></div>` : ''}
+      <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:8px;font-weight:600">Pagamentos / transações</div>
+      <table class="mini"><thead><tr><th>Provedor</th><th>Ref.</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+      <tbody>${pay.map(p=>`<tr><td>${esc(p.provedor)}</td><td><span class="key-mono">${esc(p.ref_externa||'—')}</span></td><td>R$ ${Number(p.valor).toFixed(2)}</td><td>${statusBadge(p.status)}</td><td>${fmtDate(p.pago_em||p.criado_em)}</td></tr>`).join('') || '<tr><td colspan="5" style="color:var(--text-dim)">Nenhuma transação registrada.</td></tr>'}</tbody></table>`;
+  } catch (err) { alert('Erro: ' + err.message); }
+  b.disabled = false;
+});
+
+// ---------- Pagamentos (SaaS) ----------
+async function loadPayments() {
+  const j = await call('/api/v1/admin/payments');
+  $('#tblPayments tbody').innerHTML = (j.payments || []).map((p) => `
+    <tr>
+      <td>${p.id}</td>
+      <td>${p.order_uuid ? `<span class="key-mono">${esc(p.order_uuid)}</span>` : '—'}</td>
+      <td>${esc(p.provedor || '—')}</td>
+      <td>R$ ${Number(p.valor).toFixed(2)}</td>
+      <td>${statusBadge(p.status)}${p.raw_status && p.raw_status !== p.status ? `<div style="font-size:0.7rem;color:var(--text-dim)">${esc(p.raw_status)}</div>` : ''}</td>
+      <td><span class="key-mono">${esc(p.provider_payment_id || p.ref_externa || '—')}</span></td>
+      <td>${fmtDate(p.criado_em)}</td>
+    </tr>`).join('') || '<tr><td colspan="7" style="color:var(--text-dim)">Nenhum pagamento registrado.</td></tr>';
+}
+
+// ---------- Downloads (SaaS) ----------
+async function loadDownloads() {
+  const j = await call('/api/v1/admin/downloads');
+  $('#tblDownloads tbody').innerHTML = (j.downloads || []).map((d) => `
+    <tr>
+      <td><b>v${esc(d.version)}</b></td>
+      <td>${esc(d.filename || '—')}</td>
+      <td>${d.is_latest ? '<span class="badge badge-ativa">Última</span>' : '—'}</td>
+      <td>${d.active ? '<span class="badge badge-ativa">Ativo</span>' : '<span class="badge badge-inativa">Inativo</span>'}</td>
+      <td>${fmtDate(d.created_at)}</td>
+      <td style="max-width:220px">${d.url ? '<a href="' + esc(d.url) + '" target="_blank" rel="noopener" style="color:var(--primary-3);font-size:0.75rem;text-decoration:none;word-break:break-all;">' + esc(d.url.slice(0, 40)) + (d.url.length > 40 ? '...' : '') + '</a>' : '<span style="color:var(--text-dim)">—</span>'}</td>
+      <td><div class="row-actions"><button class="btn btn-outline" data-dl-toggle data-id="${d.id}">${d.active ? 'Desativar' : 'Reativar'}</button></div></td>
+    </tr>`).join('') || '<tr><td colspan="7" style="color:var(--text-dim)">Nenhuma versão cadastrada.</td></tr>';
+}
+
+$('#dlSave').addEventListener('click', async () => {
+  const msg = $('#dlMsg');
+  msg.className = 'msg'; msg.textContent = 'Salvando…';
+  try {
+    await call('/api/v1/admin/downloads', {
+      method: 'POST',
+      body: {
+        version: $('#dlVersion').value.trim(),
+        filename: $('#dlFilename').value.trim() || undefined,
+        url: $('#dlUrl').value.trim(),
+        releaseNotes: $('#dlNotes').value.trim() || undefined,
+        isLatest: $('#dlLatest').value === '1'
+      }
+    });
+    msg.textContent = '✅ Versão salva.'; msg.classList.add('ok');
+    $('#dlVersion').value=''; $('#dlFilename').value=''; $('#dlUrl').value=''; $('#dlNotes').value='';
+    loadDownloads();
+  } catch (e) { msg.textContent = 'Erro: ' + e.message; msg.classList.add('err'); }
+});
+
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('button[data-dl-toggle]');
+  if (!b) return;
+  b.disabled = true;
+  try { await call('/api/v1/admin/downloads/' + b.dataset.id + '/toggle', { method: 'POST', body: {} }); loadDownloads(); }
+  catch (err) { alert('Erro: ' + err.message); b.disabled = false; }
+});
+
+function toastMsg(id, txt, err) {
+  const el = $('#' + id); el.textContent = txt; el.className = 'msg' + (err ? ' err' : ' ok');
+}
 
 async function boot() {
   $('#loginWrap').style.display = 'none';

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — ORION OPTIMIZER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <nav class="nav"><div class="nav-inner">
+    <a href="/" class="brand"><span class="dot"></span>ORION<span class="accent">OPTIMIZER</span></a>
+    <div class="nav-actions" data-nav-actions></div>
+  </div></nav>
+
+  <div class="container" style="max-width:760px">
+    <div class="auth-wrap" style="max-width:760px">
+      <h2>Finalizar compra</h2>
+      <p class="sub">Revise seu pedido e escolha como pagar.</p>
+
+      <div id="checkout-body">
+        <div class="skeleton" style="height:240px"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/app.js"></script>
+  <script>
+    const planSlug = new URLSearchParams(location.search).get('plan') || 'pro';
+    let plan = null;
+
+    (async () => {
+      if (!isAuthed()) {
+        location.href = '/login?next=' + encodeURIComponent('/checkout?plan=' + planSlug);
+        return;
+      }
+      try {
+        const { plans } = await API.get('/api/v1/public/plans');
+        plan = plans.find(p => p.slug === planSlug);
+        if (!plan) throw new Error('Plano não encontrado.');
+        renderOrder();
+      } catch (e) {
+        toast(e.message, 'err');
+      }
+    })();
+
+    function renderOrder() {
+      document.getElementById('checkout-body').innerHTML = `
+        <div class="summary">
+          <div class="row"><span class="k">Plano</span><span>${plan.name}</span></div>
+          <div class="row"><span class="k">Faturamento</span><span>Mensal</span></div>
+          <div class="row"><span class="k">Método</span><span>PIX / Cartão</span></div>
+          <div class="row total"><span class="k">Total</span><span>${brl(plan.price)}</span></div>
+        </div>
+        <div class="methods">
+          <label class="method">
+            <input type="radio" name="method" value="pix" checked>
+            <div><div class="lbl">PIX</div><div class="muted" style="font-size:13px">Pagamento instantâneo via QR Code</div></div>
+          </label>
+          <label class="method">
+            <input type="radio" name="method" value="card">
+            <div><div class="lbl">Cartão de crédito</div><div class="muted" style="font-size:13px">Você será redirecionado para o gateway</div></div>
+          </label>
+        </div>
+        <button class="btn btn-primary btn-lg btn-block mt-2" id="pay-btn">Gerar pagamento</button>`;
+      document.getElementById('pay-btn').addEventListener('click', startCheckout);
+    }
+
+    async function startCheckout() {
+      const method = document.querySelector('input[name="method"]:checked').value;
+      const btn = document.getElementById('pay-btn');
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Gerando pagamento...';
+      try {
+        const res = await API.post('/api/v1/store/checkout', { plan: plan.slug, method }, true);
+        // success: link gerado
+        if (res.payment && res.payment.external_link) {
+          location.href = res.payment.external_link;
+        } else if (res.payment && res.payment.qr_code) {
+          renderPix(res);
+        } else {
+          toast('Pagamento gerado. Acompanhe em Minha conta.', 'ok');
+          setTimeout(() => location.href = '/conta', 1200);
+        }
+      } catch (err) {
+        const msg = err.message || 'Não foi possível gerar o pagamento.';
+        if (err.code === 'PAYMENT_NOT_CONFIGURED') {
+          document.getElementById('checkout-body').innerHTML = `
+            <div class="text-center muted" style="padding:20px 0">
+              <h3 style="color:var(--yellow)">Pagamento temporariamente indisponível</h3>
+              <p style="margin-top:8px">Estamos configurando o sistema de pagamento. Tente novamente mais tarde.</p>
+              <a href="/planos" class="btn mt-2">Voltar aos planos</a>
+            </div>`;
+        } else if (err.code === 'RATE_LIMITED') {
+          toast('Muitas tentativas. Aguarde um instante antes de tentar novamente.', 'err');
+        } else {
+          toast(msg, 'err');
+        }
+        btn.remove();
+      }
+    }
+
+    function renderPix(res) {
+      const p = res.payment;
+      document.getElementById('checkout-body').innerHTML = `
+        <div class="text-center">
+          <h3>Pague com PIX</h3>
+          <p class="dim">Escaneie o QR Code ou copie o código abaixo. Sua chave será liberada automaticamente.</p>
+          <div style="background:#fff;border-radius:12px;padding:14px;margin:20px auto;max-width:260px">
+            <img src="${p.qr_code}" style="width:100%;display:block" alt="QR Code PIX">
+          </div>
+          <button class="btn" id="copy-pix">Copiar código PIX</button>
+          <div class="muted mt-1" style="font-size:13px">Valor: ${brl(plan.price)}</div>
+          <p class="muted mt-2" style="font-size:13px">Pode demorar alguns segundos para confirmar. <a href="/conta">Acompanhe aqui</a>.</p>
+          <input id="pix-copy-val" type="hidden" value="${p.qr_code_text || ''}">
+        </div>`;
+      document.getElementById('copy-pix').addEventListener('click', (e) => {
+        const v = document.getElementById('pix-copy-val').value;
+        navigator.clipboard.writeText(v).then(() => {
+          e.target.textContent = 'Copiado!';
+          setTimeout(() => (e.target.textContent = 'Copiar código PIX'), 1500);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

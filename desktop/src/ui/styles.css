@@ -697,6 +697,26 @@ main.content.shifted {
   gap: 10px;
 }
 
+/* ---------- Plan features ---------- */
+.feat-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 4px;
+}
+.feat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(37, 99, 235, 0.3);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
 /* ---------- SCORE RING ---------- */
 .score-ring {
   --pct: 0;

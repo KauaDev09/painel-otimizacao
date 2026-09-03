@@ -10,6 +10,7 @@
 const db = require('./db');
 const config = require('./config');
 const { signToken, verifyToken, hashPassword, verifyPassword, generateLicenseKey } = require('./util');
+const licensing = require('./services/licensing');
 
 function isAuthorized(req) {
   const header = req.headers['authorization'] || '';
@@ -599,6 +600,23 @@ function register(router) {
       ) h WHERE h.versao IS NOT NULL GROUP BY h.versao`);
     const latestUpdate = await db.queryOne(config,
       `SELECT versao, obrigatoria, liberada_em FROM atualizacoes WHERE ativa = 1 ORDER BY id DESC LIMIT 1`);
+
+    // ---- Métricas SaaS ----
+    let saas = { totalVendas: 0, faturamento: 0, pedidosPendentes: 0, pagamentosAprovados: 0 };
+    try {
+      const vendas = await db.queryOne(config,
+        `SELECT COUNT(*) AS n, COALESCE(SUM(amount),0) AS total FROM orders WHERE status = 'paid'`);
+      const pend = await db.queryOne(config, "SELECT COUNT(*) AS n FROM orders WHERE status = 'pending'");
+      const pag = await db.queryOne(config,
+        "SELECT COUNT(*) AS n FROM pagamentos WHERE status = 'aprovado'");
+      saas = {
+        totalVendas: vendas ? vendas.n : 0,
+        faturamento: vendas ? Number(vendas.total) : 0,
+        pedidosPendentes: pend ? pend.n : 0,
+        pagamentosAprovados: pag ? pag.n : 0
+      };
+    } catch (_) { /* tabelas podem não existir em alguns deploys*/ }
+
     return {
       ok: true,
       stats: {
@@ -608,9 +626,146 @@ function register(router) {
         porPlano,
         ativacoesSemana,
         versoes,
-        latestUpdate: latestUpdate || null
+        latestUpdate: latestUpdate || null,
+        saas
       }
     };
+  });
+
+  // ---- PLANOS (admin) ----
+  router.get('/api/v1/admin/plans', async () => ({
+    ok: true,
+    plans: await db.query(config, 'SELECT * FROM plans ORDER BY sort_order ASC, id ASC')
+  }));
+
+  router.post('/api/v1/admin/plans', async (body) => {
+    const name = String((body && body.name) || '').trim().slice(0, 80);
+    const slug = String((body && body.slug) || '').trim().toLowerCase().slice(0, 80);
+    const description = body && body.description ? String(body.description).slice(0, 1000) : null;
+    const price = Number((body && body.price) != null ? body.price : 0);
+    const features = Array.isArray(body && body.features) ? body.features.map(String) : [];
+    const active = !!(body && body.active);
+    const sortOrder = Number((body && body.sortOrder) || 0);
+    if (!name || !slug) return { ok: false, code: 'BAD_REQUEST', message: 'Nome e slug obrigatórios.', status: 400 };
+    if (!Number.isFinite(price) || price < 0) return { ok: false, code: 'BAD_PRICE', message: 'Preço inválido.', status: 400 };
+    await db.query(
+      config,
+      `INSERT INTO plans (name, slug, description, price, billing_type, features, active, sort_order)
+       VALUES (?, ?, ?, ?, 'one_time', ?, ?, ?)`,
+      [name, slug, description, price, JSON.stringify(features), active ? 1 : 0, sortOrder]
+    );
+    return { ok: true };
+  });
+
+  router.post('/api/v1/admin/plans/:id', async (body, params) => {
+    const id = Number(params.id);
+    const plan = await db.queryOne(config, 'SELECT * FROM plans WHERE id = ? LIMIT 1', [id]);
+    if (!plan) return { ok: false, code: 'NOT_FOUND', message: 'Plano não encontrado.', status: 404 };
+    const fields = {};
+    if (body && body.name !== undefined) fields.name = String(body.name).slice(0, 80);
+    if (body && body.description !== undefined) fields.description = String(body.description).slice(0, 1000);
+    if (body && body.price !== undefined) fields.price = Number(body.price);
+    if (body && body.active !== undefined) fields.active = body.active ? 1 : 0;
+    if (body && body.sortOrder !== undefined) fields.sort_order = Number(body.sortOrder);
+    if (body && Array.isArray(body.features)) fields.features = JSON.stringify(body.features.map(String));
+    const sets = Object.keys(fields).map((k) => `${k} = ?`);
+    if (!sets.length) return { ok: true };
+    await db.query(config, `UPDATE plans SET ${sets.join(', ')} WHERE id = ?`,
+      Object.keys(fields).map((k) => fields[k]).concat([id]));
+    return { ok: true };
+  });
+
+  // ---- PEDIDOS (admin) ----
+  router.get('/api/v1/admin/orders', async () => ({
+    ok: true,
+    orders: await db.query(
+      config,
+      `SELECT o.id, o.order_uuid, o.plan_name, o.amount, o.currency, o.status,
+              o.payment_provider, o.created_at, u.email AS user_email, u.nome AS user_name
+         FROM orders o LEFT JOIN usuarios u ON u.id = o.user_id
+        ORDER BY o.id DESC LIMIT 500`
+    )
+  }));
+
+  router.get('/api/v1/admin/orders/:id', async (_b, params) => {
+    const order = await db.queryOne(config, 'SELECT * FROM orders WHERE id = ? LIMIT 1', [Number(params.id)]);
+    if (!order) return { ok: false, code: 'NOT_FOUND', message: 'Pedido não encontrado.', status: 404 };
+    const payments = await db.query(config, 'SELECT * FROM pagamentos WHERE order_id = ? ORDER BY id DESC',
+      [order.id]);
+    const license = await db.queryOne(config,
+      'SELECT id, chave, plano, plan_slug, status FROM licencas WHERE order_id = ? LIMIT 1', [order.id]);
+    return { ok: true, order, payments, license };
+  });
+
+  // ---- PAGAMENTOS (admin) ----
+  router.get('/api/v1/admin/payments', async () => ({
+    ok: true,
+    payments: await db.query(
+      config,
+      `SELECT p.id, p.valor, p.moeda, p.provedor, p.status, p.raw_status, p.ref_externa,
+              p.provider_payment_id, p.criado_em, p.pago_em, o.order_uuid, o.plan_name
+         FROM pagamentos p LEFT JOIN orders o ON o.id = p.order_id
+        ORDER BY p.id DESC LIMIT 500`
+    )
+  }));
+
+  // ---- LICENÇAS em formato SaaS (features por plano) ----
+  router.get('/api/v1/admin/licenses/features/:id', async (_b, params) => {
+    const lic = await db.queryOne(config, 'SELECT * FROM licencas WHERE id = ? LIMIT 1', [Number(params.id)]);
+    if (!lic) return { ok: false, code: 'NOT_FOUND', message: 'Licença não encontrada.', status: 404 };
+    const features = await licensing.featuresForLicense(lic);
+    return { ok: true, features };
+  });
+
+  // ---- DOWNLOADS (admin) ----
+  router.get('/api/v1/admin/downloads', async () => ({
+    ok: true,
+    downloads: await db.query(config, 'SELECT * FROM downloads ORDER BY id DESC LIMIT 100')
+  }));
+
+  router.post('/api/v1/admin/downloads', async (body) => {
+    const version = String((body && body.version) || '').trim().slice(0, 20);
+    const filename = String((body && body.filename) || '').trim().slice(0, 255);
+    const url = String((body && body.url) || '').trim().slice(0, 500);
+    const releaseNotes = body && body.releaseNotes ? String(body.releaseNotes).slice(0, 2000) : null;
+    const isLatest = !!(body && body.isLatest);
+    if (!version || !url) {
+      return { ok: false, code: 'BAD_REQUEST', message: 'Versão e URL são obrigatórias.', status: 400 };
+    }
+    const parsed = new URL(url);
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      return { ok: false, code: 'BAD_URL', message: 'URL deve ser http/https.', status: 400 };
+    }
+    let dup = null;
+    try {
+      dup = await db.queryOne(config, 'SELECT id FROM downloads WHERE version = ? LIMIT 1', [version]);
+    } catch (_) { /* sem unique */ }
+    let toggledLatest = false;
+    if (isLatest) {
+      await db.query(config, 'UPDATE downloads SET is_latest = 0 WHERE is_latest = 1');
+      toggledLatest = true;
+    }
+    if (dup) {
+      await db.query(
+        config,
+        'UPDATE downloads SET filename=?, url=?, release_notes=COALESCE(?, release_notes), is_latest=?, active=1 WHERE id=?',
+        [filename, url, releaseNotes, isLatest ? 1 : 0, dup.id]
+      );
+    } else {
+      await db.query(
+        config,
+        'INSERT INTO downloads (version, filename, url, release_notes, is_latest, active) VALUES (?,?,?,?,?,1)',
+        [version, filename, url, releaseNotes, isLatest ? 1 : 0]
+      );
+    }
+    return { ok: true, toggledLatest };
+  });
+
+  router.post('/api/v1/admin/downloads/:id/toggle', async (_b, params) => {
+    const d = await db.queryOne(config, 'SELECT * FROM downloads WHERE id = ? LIMIT 1', [Number(params.id)]);
+    if (!d) return { ok: false, code: 'NOT_FOUND', message: 'Download não encontrado.', status: 404 };
+    await db.query(config, 'UPDATE downloads SET active = ? WHERE id = ?', [d.active ? 0 : 1, d.id]);
+    return { ok: true };
   });
 }
 
