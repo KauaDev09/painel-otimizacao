@@ -193,10 +193,10 @@ class MercadoPagoProvider {
 // Factory — devolve o adapter do provedor configurado
 // ---------------------------------------------------------------
 function createProvider() {
-  const name = String(config.payment.provider || 'mercadopago').toLowerCase();
+  const name = String(config.payment.provider || 'mercadopago').toLowerCase().trim();
   if (name === 'mercadopago') return new MercadoPagoProvider(config.payment);
   // Futuros gateways: Stripe, PIX alternativo, etc.
-  throw new Error(`PaymentProvider desconhecido: ${name}`);
+  throw new Error(`PaymentProvider desconhecido: [${name}] len=${name.length}`);
 }
 
 module.exports = { createProvider, normalize };
