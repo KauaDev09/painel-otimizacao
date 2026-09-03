@@ -79,6 +79,28 @@ async function handleLogin(body) {
 }
 
 // ---------- Criação de checkout ----------
+async function validateCoupon(code) {
+  const clean = String(code || '').trim().toUpperCase();
+  if (!clean) return fail('COUPON_REQUIRED', 'Informe um código de cupom.', 400);
+  const c = await db.queryOne(config, 'SELECT * FROM coupons WHERE code = ? LIMIT 1', [clean]);
+  if (!c) return fail('COUPON_INVALID', 'Cupom inválido ou inexistente.', 404);
+  if (!c.active) return fail('COUPON_INACTIVE', 'Este cupom está inativo.', 400);
+  if (c.expires_at) {
+    const exp = new Date(c.expires_at);
+    if (isNaN(exp.getTime()) || exp.getTime() < Date.now()) {
+      return fail('COUPON_EXPIRED', 'Este cupom expirou.', 400);
+    }
+  }
+  if (c.max_uses != null && Number(c.used_count || 0) >= Number(c.max_uses)) {
+    return fail('COUPON_LIMIT', 'Este cupom atingiu o limite de usos.', 400);
+  }
+  const discountValue = Number(c.discount_value);
+  if (!Number.isFinite(discountValue) || discountValue < 0 || discountValue > 100) {
+    return fail('COUPON_INVALID', 'Cupom inválido.', 400);
+  }
+  return { ok: true, coupon: c, discountPercent: discountValue, couponId: Number(c.id) };
+}
+
 async function createCheckout(body, customer) {
   const planSlug = String((body && body.plan) || '').toLowerCase();
   const plan = await licensing.getPlanBySlug(planSlug);
@@ -94,13 +116,31 @@ async function createCheckout(body, customer) {
     user = await users.ensureUser({ name: body.name, email: body.email });
   }
 
+  // Cupom de desconto (opcional).
+  let coupon = null;
+  let discountPercent = 0;
+  if (body && body.coupon) {
+    const r = await validateCoupon(body.coupon);
+    if (!r.ok) return r;
+    coupon = r;
+    discountPercent = r.discountPercent;
+    if (plan.billing_type === 'subscription' && discountPercent >= 100) {
+      return fail('COUPON_INVALID', 'O desconto não pode ser de 100% para assinatura.', 400);
+    }
+  }
+
   const orderUuid = crypto.randomUUID().replace(/-/g, '').slice(0, 32);
-  const amount = Number(plan.price);
+  const baseAmount = Number(plan.price);
+  const discount = Math.round((baseAmount * discountPercent) / 100 * 100) / 100;
+  const amount = Math.max(0, Math.round((baseAmount - discount) * 100) / 100);
+
   const res = await db.query(
     config,
-    `INSERT INTO orders (order_uuid, user_id, plan_id, plan_name, amount, currency, status, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, 'pending', NOW())`,
-    [orderUuid, user ? user.id : null, plan.id, plan.name, amount, String(plan.currency || 'BRL')]
+    `INSERT INTO orders (order_uuid, user_id, plan_id, plan_name, coupon_id, discount_percent, amount, currency, status, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())`,
+    [orderUuid, user ? user.id : null, plan.id, plan.name,
+      coupon ? coupon.couponId : null, discountPercent, amount,
+      String(plan.currency || 'BRL')]
   );
   const order = await db.queryOne(config, 'SELECT * FROM orders WHERE id = ? LIMIT 1', [Number(res.insertId)]);
 
@@ -126,7 +166,7 @@ async function createCheckout(body, customer) {
     [config.payment.provider, order.id]);
 
   await db.query(config, 'INSERT INTO logs (evento, detalhe, criado_em) VALUES (?, ?, NOW())',
-    ['checkout.created', JSON.stringify({ order: orderUuid, plan: planSlug, amount })]);
+    ['checkout.created', JSON.stringify({ order: orderUuid, plan: planSlug, amount, discountPercent })]);
 
   return {
     ok: true,
@@ -136,7 +176,9 @@ async function createCheckout(body, customer) {
       plan: plan.name,
       amount: Number(order.amount),
       currency: order.currency,
-      status: order.status
+      status: order.status,
+      discountPercent,
+      originalAmount: Math.round(baseAmount * 100) / 100
     },
     checkout: payment,
     paymentMethods: ['pix', 'credit_card']
@@ -209,6 +251,11 @@ async function handleWebhook(body, headers) {
       [payment.paymentId, order.id]);
     await licensing.registerOrderPayment(config.payment.provider, payment.paymentId, order,
       'approved', payment.rawStatus, payment.amount);
+
+    // Registra o uso do cupom quando o pedido com desconto é pago.
+    if (order.coupon_id) {
+      await db.query(config, 'UPDATE coupons SET used_count = used_count + 1 WHERE id = ?', [order.coupon_id]);
+    }
 
     const customer = order.user_id
       ? await db.queryOne(config, 'SELECT * FROM usuarios WHERE id = ? LIMIT 1', [order.user_id])
@@ -354,6 +401,17 @@ function register(router) {
   router.post('/api/v1/store/checkout', async (body, _params, _urlObj, req) => {
     const customer = getCustomer(req);
     return createCheckout(body, customer);
+  });
+
+  // Valida um cupom de desconto (retorna o percentual e o código, sem consumir).
+  router.post('/api/v1/public/validate-coupon', async (body) => {
+    const r = await validateCoupon(body && body.coupon);
+    if (!r.ok) return r;
+    return {
+      ok: true,
+      coupon: { code: r.coupon.code, discountPercent: r.discountPercent },
+      message: `Cupom aplicado: ${Number(r.discountPercent).toFixed(0)}% de desconto`
+    };
   });
 
   // ---- Webhook Mercado Pago (isolado do resto) ----

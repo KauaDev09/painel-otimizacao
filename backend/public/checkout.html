@@ -29,6 +29,7 @@
   <script>
     const planSlug = new URLSearchParams(location.search).get('plan') || 'pro';
     let plan = null;
+    let appliedCoupon = null; // { code, discountPercent }
 
     (async () => {
       if (!isAuthed()) {
@@ -45,13 +46,34 @@
       }
     })();
 
+    function discounted() {
+      const base = Number(plan.price || 0);
+      const pct = appliedCoupon ? appliedCoupon.discountPercent : 0;
+      const final = Math.round(base * (1 - pct / 100) * 100) / 100;
+      return final;
+    }
+
     function renderOrder() {
       document.getElementById('checkout-body').innerHTML = `
         <div class="summary">
           <div class="row"><span class="k">Plano</span><span>${plan.name}</span></div>
           <div class="row"><span class="k">Faturamento</span><span>Mensal</span></div>
-          <div class="row"><span class="k">Método</span><span>PIX / Cartão</span></div>
-          <div class="row total"><span class="k">Total</span><span>${brl(plan.price)}</span></div>
+          <div class="row">
+            <span class="k">Total</span>
+            <span id="sum-total">
+              ${appliedCoupon ? `<span style="text-decoration:line-through;opacity:.55">${brl(plan.price)}</span> <b style="color:var(--green)">${brl(discounted())}</b>` : brl(plan.price)}
+            </span>
+          </div>
+          ${appliedCoupon ? `<div class="row"><span class="k">Cupom</span><span class="muted" style="color:var(--green)">${appliedCoupon.code} (−${appliedCoupon.discountPercent}%)</span></div>` : ''}
+        </div>
+        <div class="coupon-box" style="margin-top:14px">
+          <div class="muted" style="font-size:13px;margin-bottom:8px">Tem um cupom de desconto?</div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input id="coupon-input" type="text" placeholder="Ex.: BEMVINDO10" value="${appliedCoupon ? appliedCoupon.code : ''}" ${appliedCoupon ? 'disabled' : ''} style="flex:1;max-width:none">
+            <button class="btn" id="coupon-btn" ${appliedCoupon ? 'disabled' : ''}>${appliedCoupon ? 'Aplicado' : 'Aplicar'}</button>
+            ${appliedCoupon ? '<button class="btn btn-outline" id="coupon-clear">Remover</button>' : ''}
+          </div>
+          <div id="coupon-msg" class="muted" style="font-size:13px;margin-top:8px"></div>
         </div>
         <div class="methods">
           <label class="method">
@@ -63,8 +85,42 @@
             <div><div class="lbl">Cartão de crédito</div><div class="muted" style="font-size:13px">Você será redirecionado para o gateway</div></div>
           </label>
         </div>
-        <button class="btn btn-primary btn-lg btn-block mt-2" id="pay-btn">Gerar pagamento</button>`;
+        <button class="btn btn-primary btn-lg btn-block mt-2" id="pay-btn">${appliedCoupon ? 'Gerar pagamento com desconto' : 'Gerar pagamento'}</button>`;
       document.getElementById('pay-btn').addEventListener('click', startCheckout);
+      if (document.getElementById('coupon-btn')) {
+        document.getElementById('coupon-btn').addEventListener('click', applyCoupon);
+        document.getElementById('coupon-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') applyCoupon(); });
+      }
+      if (document.getElementById('coupon-clear')) {
+        document.getElementById('coupon-clear').addEventListener('click', clearCoupon);
+      }
+    }
+
+    async function applyCoupon() {
+      const msg = document.getElementById('coupon-msg');
+      const btn = document.getElementById('coupon-btn');
+      const input = document.getElementById('coupon-input');
+      const code = (input.value || '').trim().toUpperCase();
+      msg.className = 'muted'; msg.textContent = 'Validando...';
+      msg.style.fontSize = '13px'; msg.style.marginTop = '8px';
+      if (!code) { msg.textContent = 'Informe um código de cupom.'; msg.style.color = 'var(--yellow)'; return; }
+      btn.disabled = true;
+      try {
+        const res = await API.post('/api/v1/public/validate-coupon', { coupon: code });
+        appliedCoupon = { code: res.coupon.code, discountPercent: res.coupon.discountPercent };
+        msg.textContent = res.message;
+        msg.style.color = 'var(--green)';
+        renderOrder();
+      } catch (err) {
+        msg.textContent = err.message || 'Cupom inválido.';
+        msg.style.color = 'var(--yellow)';
+        btn.disabled = false;
+      }
+    }
+
+    function clearCoupon() {
+      appliedCoupon = null;
+      renderOrder();
     }
 
     async function startCheckout() {
@@ -72,7 +128,7 @@
       const btn = document.getElementById('pay-btn');
       btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Gerando pagamento...';
       try {
-        const res = await API.post('/api/v1/store/checkout', { plan: plan.slug, method }, true);
+        const res = await API.post('/api/v1/store/checkout', { plan: plan.slug, method, coupon: appliedCoupon ? appliedCoupon.code : undefined }, true);
         if (res.payment && res.payment.qr_code) {
           renderPix(res);
         } else if (res.payment && (res.payment.external_link || res.payment.checkoutUrl)) {
@@ -109,7 +165,7 @@
             <img src="${p.qr_code}" style="width:100%;display:block" alt="QR Code PIX">
           </div>
           <button class="btn" id="copy-pix">Copiar código PIX</button>
-          <div class="muted mt-1" style="font-size:13px">Valor: ${brl(plan.price)}</div>
+          <div class="muted mt-1" style="font-size:13px">Valor: ${brl(res.order && res.order.amount != null ? res.order.amount : discounted())}</div>
           <p class="muted mt-2" style="font-size:13px">Pode demorar alguns segundos para confirmar. <a href="/conta">Acompanhe aqui</a>.</p>
           <input id="pix-copy-val" type="hidden" value="${p.qr_code_text || ''}">
         </div>`;
