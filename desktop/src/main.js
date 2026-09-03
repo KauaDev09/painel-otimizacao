@@ -207,7 +207,7 @@ function sendSecurityStep(step) {
 function requireActiveLicense() {
   const s = licenseService.getState();
   if (!s.active) {
-    const e = new Error('Licença inválida, expirada ou não ativada. Ative o produto para usar este recurso.');
+    const e = new Error('Este recurso faz parte dos planos pagos. Ative sua licença na aba Licença para continuar.');
     e.code = 'LICENSE_REQUIRED';
     throw e;
   }
@@ -338,7 +338,6 @@ function registerIpc() {
   ipcMain.handle('engine:listOperations', () => engineService.listOperations());
   ipcMain.handle('engine:getOperation', (_e, opId) => engineService.getOperation(opId));
   ipcMain.handle('engine:undoOperation', async (_e, opId) => {
-    requireActiveLicense();
     return engineService.undoOperation(opId, { onStep: sendEngineStep });
   });
 
@@ -346,7 +345,6 @@ function registerIpc() {
   ipcMain.handle('cleaner:targets', () => cleanerService.listTargets());
   ipcMain.handle('cleaner:measure', (_e, ids) => cleanerService.measureTargets(Array.isArray(ids) ? ids.map(String) : undefined));
   ipcMain.handle('cleaner:clean', async (_e, ids) => {
-    requireActiveLicense();
     return cleanerService.clean(Array.isArray(ids) ? ids.map(String) : [], { onStep: sendEngineStep });
   });
 

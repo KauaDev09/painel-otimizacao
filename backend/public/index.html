@@ -33,7 +33,7 @@
     "offers": {
       "@type": "AggregateOffer",
       "priceCurrency": "BRL",
-      "lowPrice": "29.90"
+      "lowPrice": "19.99"
     }
   }
   </script>
@@ -57,7 +57,7 @@
       <p class="sub reveal">Limpeza profunda, monitoramento em tempo real, FPS Boost, otimizador de processo e até ajuste de BIOS. Tudo em um único software.</p>
       <div class="hero-ctas reveal">
         <a href="/planos" class="btn btn-primary btn-lg">Adquirir licença</a>
-        <a href="/#download" class="btn btn-lg">Baixar grátis</a>
+        <a href="/download" class="btn btn-lg">Baixar grátis</a>
       </div>
     </div>
 
@@ -178,7 +178,7 @@
       <div class="section-head reveal">
         <div class="kicker">Planos</div>
         <h2>Escolha o seu plano</h2>
-        <p>Licenças vitalícias. Pagamento via PIX ou cartão. Chave enviada automaticamente após a confirmação.</p>
+        <p>Assinaturas mensais. Pagamento via PIX ou cartão. A chave é enviada automaticamente após a confirmação.</p>
       </div>
       <div id="plans-grid" class="plans">
         <div class="plan-card"><div class="skeleton" style="height:300px"></div></div>
@@ -192,7 +192,7 @@
       <div class="section-head reveal">
         <div class="kicker">Download</div>
         <h2>Baixe o ORION</h2>
-        <p>Teste grátis e, quando estiver pronto, adquira sua licença para liberar todos os recursos.</p>
+        <p>Instale agora, sem chave e sem cadastro. Use o app grátis; os planos liberam os recursos avançados.</p>
       </div>
       <div class="download-panel reveal" id="download-panel">
         <div class="skeleton" style="height:200px"></div>
@@ -255,34 +255,7 @@
       }
     })();
 
-    async function loadDownload() {
-      try {
-        const { download } = await API.get('/api/v1/public/download');
-        document.getElementById('download-panel').innerHTML = `
-          <div class="ver">v${download.version}</div>
-          <h3>ORION OPTIMIZER</h3>
-          <p>Windows 10 / 11 · 64 bits</p>
-          <div class="dl-meta">
-            <div><div class="k">Versão</div><div class="v">${download.version}</div></div>
-            <div><div class="k">Tamanho</div><div class="v">${download.size || '~15 MB'}</div></div>
-            <div><div class="k">Plataforma</div><div class="v">Windows</div></div>
-          </div>
-          <div class="dl-reqs">
-            <h4>Requisitos mínimos</h4>
-            <ul>
-              <li>Windows 10 ou 11 (64 bits)</li>
-              <li>2 GB de RAM livre</li>
-              <li>150 MB de espaço em disco</li>
-              <li>Conexão com a internet (validação de licença)</li>
-            </ul>
-          </div>
-          <a class="btn btn-primary btn-lg" href="${download.url}" download>Baixar agora</a>
-          ${download.releaseNotes ? `<div class="changelog"><h4>Novidades</h4><pre>${escapeHtml(download.releaseNotes)}</pre></div>` : ''}`;
-      } catch (e) {
-        document.getElementById('download-panel').innerHTML = '<p class="muted">Nenhuma versão disponível no momento.</p>';
-      }
-    }
-    loadDownload();
+    loadDownloadPanel(document.getElementById('download-panel'));
 
     function pretty(f) {
       const map = {
@@ -296,7 +269,6 @@
       };
       return map[f] || f.replace(/_/g, ' ');
     }
-    function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
   </script>
 </body>
 </html>

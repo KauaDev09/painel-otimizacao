@@ -5,6 +5,7 @@
     { "source": "/admin/:path*", "destination": "/api/[...path]" },
     { "source": "/assets/:path*", "destination": "/api/[...path]" },
     { "source": "/planos", "destination": "/api/[...path]" },
+    { "source": "/download", "destination": "/api/[...path]" },
     { "source": "/checkout", "destination": "/api/[...path]" },
     { "source": "/login", "destination": "/api/[...path]" },
     { "source": "/conta", "destination": "/api/[...path]" },

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download — ORION OPTIMIZER</title>
+  <meta name="description" content="Baixe o Orion Optimizer para Windows. Instalação grátis, sem cadastro e sem chave de licença.">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <nav class="nav"><div class="nav-inner">
+    <a href="/" class="brand"><span class="dot"></span>ORION<span class="accent">OPTIMIZER</span></a>
+    <div class="nav-menu" data-nav-menu></div>
+    <div class="nav-actions" data-nav-actions></div>
+  </div></nav>
+
+  <section class="section" id="download">
+    <div class="container">
+      <div class="section-head reveal">
+        <div class="kicker">Download</div>
+        <h2>Baixe o ORION</h2>
+        <p>Instale agora, sem chave e sem cadastro. Use o app grátis; os planos liberam os recursos avançados.</p>
+      </div>
+      <div class="download-panel reveal" id="download-panel">
+        <div class="skeleton" style="height:200px"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <a href="/" class="brand"><span class="dot"></span>ORION<span class="accent">OPTIMIZER</span></a>
+      <p>© <span data-year></span> ORION OPTIMIZER.</p>
+    </div>
+  </footer>
+
+  <script src="/assets/app.js"></script>
+  <script>
+    document.querySelector('[data-year]').textContent = new Date().getFullYear();
+    loadDownloadPanel(document.getElementById('download-panel'));
+  </script>
+</body>
+</html>

@@ -26,6 +26,7 @@ const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 const PUBLIC_PAGES = {
   '/': 'index.html',
   '/planos': 'planos.html',
+  '/download': 'download.html',
   '/checkout': 'checkout.html',
   '/login': 'login.html',
   '/conta': 'conta.html',

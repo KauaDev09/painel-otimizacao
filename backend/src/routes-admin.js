@@ -26,7 +26,7 @@ async function listLicenses() {
   try {
     return await db.query(
       config,
-      `SELECT l.id, l.chave, l.plano, l.status, l.max_dispositivos, l.criada_em, l.expira_em,
+      `SELECT l.id, l.chave, l.plano, l.plan_slug, l.status, l.max_dispositivos, l.criada_em, l.expira_em,
               l.renovada_em, l.bloqueada_em, l.observacao, l.versao_autorizada, l.pedido_loja,
               u.nome AS usuario_nome,
               u.email AS usuario_email,
@@ -311,26 +311,45 @@ async function provisionFromStore(body) {
 }
 
 async function createLicenses(body) {
-  const plano = String(body.plano || 'mensal');
-  const maxDisp = Number(body.maxDispositivos || config.license.defaultMaxDevices);
-  const dias = Number(body.dias || config.license.defaultDays);
+  const requestedSlug = String(body.plano || body.planSlug || 'starter').trim().toLowerCase();
+  const maxDisp = Number(body.maxDispositivos != null ? body.maxDispositivos : config.license.defaultMaxDevices);
+  const dias = body.dias === undefined || body.dias === null || body.dias === ''
+    ? 30
+    : Number(body.dias);
   const qtd = Math.min(50, Math.max(1, Number(body.quantidade || 1)));
   const observacao = body.observacao ? String(body.observacao).slice(0, 255) : null;
-  let nome = body.nome ? String(body.nome).trim().slice(0, 120) : null;
+  const nome = body.nome ? String(body.nome).trim().slice(0, 120) : null;
+
+  if (!Number.isFinite(maxDisp) || maxDisp < 1) {
+    return { ok: false, code: 'BAD_DEVICES', message: 'Quantidade de dispositivos inválida.', status: 400 };
+  }
+  if (!Number.isFinite(dias) || dias < 0) {
+    return { ok: false, code: 'BAD_DAYS', message: 'Dias de validade inválidos.', status: 400 };
+  }
+
+  let plan = null;
+  try {
+    plan = await db.queryOne(config, 'SELECT * FROM plans WHERE slug = ? LIMIT 1', [requestedSlug]);
+  } catch (_) { /* instalações antigas sem tabela plans */ }
+  if (!plan && !['starter', 'pro', 'ultra'].includes(requestedSlug)) {
+    return { ok: false, code: 'PLAN_NOT_FOUND', message: 'Plano não encontrado. Use Starter, Pro ou Ultra.', status: 400 };
+  }
+  const plano = plan ? String(plan.slug) : requestedSlug;
+  const planSlug = plano;
 
   // Vincula a licença a um cliente identificado pelo nome.
   // O schema exige e-mail único: gera um endereço interno a partir do nome.
   let usuarioId = null;
   if (nome) {
-    const slug = nome
+    const nomeSlug = nome
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .toLowerCase().replace(/[^a-z0-9]+/g, '.')
       .replace(/^\.+|\.+$/g, '') || 'cliente';
     let u = await db.queryOne(config, 'SELECT id FROM usuarios WHERE nome = ? LIMIT 1', [nome]);
     if (!u) {
-      let email = `${slug}@clientes.local`;
+      let email = `${nomeSlug}@clientes.local`;
       if (await db.queryOne(config, 'SELECT id FROM usuarios WHERE email = ? LIMIT 1', [email])) {
-        email = `${slug}.${Date.now()}@clientes.local`;
+        email = `${nomeSlug}.${Date.now()}@clientes.local`;
       }
       await db.query(
         config,
@@ -343,23 +362,41 @@ async function createLicenses(body) {
   }
 
   const created = [];
-  const isLifetime = plano === 'vitalicia' || plano === 'lifetime' || dias === 0;
+  const isLifetime = dias === 0;
   for (let i = 0; i < qtd; i++) {
     const chave = generateLicenseKey();
-    if (isLifetime) {
-      await db.query(
-        config,
-        `INSERT INTO licencas (chave, plano, status, max_dispositivos, criada_em, expira_em, observacao, usuario_id)
-         VALUES (?, 'vitalicia', 'ativa', ?, NOW(), NULL, ?, ?)`,
-        [chave, maxDisp, observacao, usuarioId]
-      );
-    } else {
-      await db.query(
-        config,
-        `INSERT INTO licencas (chave, plano, status, max_dispositivos, criada_em, expira_em, observacao, usuario_id)
-         VALUES (?, ?, 'ativa', ?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY), ?, ?)`,
-        [chave, plano, maxDisp, dias, observacao, usuarioId]
-      );
+    try {
+      if (isLifetime) {
+        await db.query(
+          config,
+          `INSERT INTO licencas (chave, plano, plan_slug, status, max_dispositivos, criada_em, expira_em, observacao, usuario_id)
+           VALUES (?, ?, ?, 'ativa', ?, NOW(), NULL, ?, ?)`,
+          [chave, plano, planSlug, maxDisp, observacao, usuarioId]
+        );
+      } else {
+        await db.query(
+          config,
+          `INSERT INTO licencas (chave, plano, plan_slug, status, max_dispositivos, criada_em, expira_em, observacao, usuario_id)
+           VALUES (?, ?, ?, 'ativa', ?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY), ?, ?)`,
+          [chave, plano, planSlug, maxDisp, dias, observacao, usuarioId]
+        );
+      }
+    } catch (_) {
+      if (isLifetime) {
+        await db.query(
+          config,
+          `INSERT INTO licencas (chave, plano, status, max_dispositivos, criada_em, expira_em, observacao, usuario_id)
+           VALUES (?, ?, 'ativa', ?, NOW(), NULL, ?, ?)`,
+          [chave, plano, maxDisp, observacao, usuarioId]
+        );
+      } else {
+        await db.query(
+          config,
+          `INSERT INTO licencas (chave, plano, status, max_dispositivos, criada_em, expira_em, observacao, usuario_id)
+           VALUES (?, ?, 'ativa', ?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY), ?, ?)`,
+          [chave, plano, maxDisp, dias, observacao, usuarioId]
+        );
+      }
     }
     created.push(chave);
   }

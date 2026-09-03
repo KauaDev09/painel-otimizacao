@@ -91,9 +91,9 @@ async function main() {
     const [count] = await conn.execute('SELECT COUNT(*) AS n FROM plans');
     if (count[0].n === 0) {
       const defs = [
-        ['STARTER', 'starter', 'Monitoramento e limpeza essencial para o dia a dia.', 29.90, '["system_monitoring","basic_cleanup","basic_fps_boost"]', 1],
-        ['PRO', 'pro', 'Monitoramento completo, limpeza avançada e FPS Boost.', 59.90, '["system_monitoring","basic_cleanup","advanced_cleanup","fps_boost","gaming_mode","process_optimizer","startup_optimizer"]', 2],
-        ['ULTRA', 'ultra', 'Tudo do PRO + otimizador de BIOS, XMP e telemetria em tempo real.', 99.90, '["system_monitoring","basic_cleanup","advanced_cleanup","fps_boost","gaming_mode","process_optimizer","startup_optimizer","bios_optimizer","xmp_optimizer","advanced_memory_optimizer","advanced_windows_optimizer","realtime_telemetry","priority_features"]', 3]
+        ['STARTER', 'starter', 'Monitoramento e limpeza essencial para o dia a dia.', 19.99, '["system_monitoring","basic_cleanup","basic_fps_boost"]', 1],
+        ['PRO', 'pro', 'Monitoramento completo, limpeza avançada e FPS Boost.', 39.99, '["system_monitoring","basic_cleanup","advanced_cleanup","fps_boost","gaming_mode","process_optimizer","startup_optimizer"]', 2],
+        ['ULTRA', 'ultra', 'Tudo do PRO + otimizador de BIOS, XMP e telemetria em tempo real.', 69.99, '["system_monitoring","basic_cleanup","advanced_cleanup","fps_boost","gaming_mode","process_optimizer","startup_optimizer","bios_optimizer","xmp_optimizer","advanced_memory_optimizer","advanced_windows_optimizer","realtime_telemetry","priority_features"]', 3]
       ];
       for (const d of defs) {
         await conn.execute(
@@ -154,6 +154,22 @@ async function main() {
       console.log('[ok] tabela downloads criada');
     } else {
       console.log('[skip] downloads já existe');
+    }
+
+    const [dlCount] = await conn.execute('SELECT COUNT(*) AS n FROM downloads');
+    if (dlCount[0].n === 0) {
+      await conn.execute(
+        'INSERT INTO downloads (version, filename, url, release_notes, is_latest, active) VALUES (?,?,?,?,1,1)',
+        [
+          '2.0.3',
+          'ORION.OPTIMIZER.Setup-2.0.3.exe',
+          'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.3/ORION.OPTIMIZER.Setup-2.0.3.exe',
+          'Instalador oficial para Windows 10/11. Use o aplicativo grátis, sem chave. Os planos desbloqueiam recursos avançados.'
+        ]
+      );
+      console.log('[ok] download público 2.0.3 inserido');
+    } else {
+      console.log('[skip] downloads já populada');
     }
 
     // ---- license_activations ----

@@ -151,12 +151,12 @@ INSERT INTO plans (name, slug, description, price, currency, billing_type, featu
 SELECT * FROM (
   SELECT 'STARTER' AS name, 'starter' AS slug,
          'Base de monitoramento e limpeza essencial.' AS description,
-         29.90 AS price, 'BRL' AS currency, 'subscription' AS billing_type,
+         19.99 AS price, 'BRL' AS currency, 'subscription' AS billing_type,
          JSON_ARRAY('system_monitoring','basic_cleanup','basic_fps_boost') AS features,
          1 AS active, 1 AS sort_order
-  UNION ALL SELECT 'PRO','pro','Monitoramento completo, limpeza avançada e FPS Boost.',59.90,'BRL','subscription',
+  UNION ALL SELECT 'PRO','pro','Monitoramento completo, limpeza avançada e FPS Boost.',39.99,'BRL','subscription',
          JSON_ARRAY('system_monitoring','basic_cleanup','advanced_cleanup','fps_boost','gaming_mode','process_optimizer','startup_optimizer'),1,2
-  UNION ALL SELECT 'ULTRA','ultra','Tudo do PRO + otimizador de BIOS, XMP e telemetria em tempo real.',99.90,'BRL','subscription',
+  UNION ALL SELECT 'ULTRA','ultra','Tudo do PRO + otimizador de BIOS, XMP e telemetria em tempo real.',69.99,'BRL','subscription',
          JSON_ARRAY('system_monitoring','basic_cleanup','advanced_cleanup','fps_boost','gaming_mode','process_optimizer','startup_optimizer','bios_optimizer','xmp_optimizer','advanced_memory_optimizer','advanced_windows_optimizer','realtime_telemetry','priority_features'),1,3
 ) AS s
 WHERE NOT EXISTS (SELECT 1 FROM plans);

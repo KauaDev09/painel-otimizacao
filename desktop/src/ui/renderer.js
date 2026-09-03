@@ -889,29 +889,32 @@ function setLicenseBadge(st) {
     el.textContent = `LICENÇA ${st.offlineGrace ? '(OFFLINE) ' : ''}${st.plan ? st.plan.toUpperCase() + ' · ' : ''}${st.expiresAt ? 'VÁLIDA ATÉ ' + exp : exp}`;
     el.className = 'lic-badge ' + (warn ? 'warn' : 'ok');
   } else {
-    const msgs = {
-      PRODUCT_NOT_ACTIVATED: 'LICENÇA NÃO ATIVADA',
-      VALIDATION_REQUIRED: 'LICENÇA: REVALIDAÇÃO NECESSÁRIA',
-      LICENSE_EXPIRED: 'LICENÇA EXPIRADA',
-      LICENSE_BLOCKED: 'LICENÇA BLOQUEADA',
-      VERSION_NOT_AUTHORIZED: 'VERSÃO NÃO AUTORIZADA'
-    };
-    el.textContent = msgs[st.reason] || 'LICENÇA INATIVA';
-    el.className = 'lic-badge bad';
+    el.textContent = st.reason === 'PRODUCT_NOT_ACTIVATED' ? 'MODO GRÁTIS' : (st.reason === 'LICENSE_EXPIRED' ? 'LICENÇA EXPIRADA' : 'LICENÇA INATIVA');
+    el.className = 'lic-badge' + (st.reason === 'PRODUCT_NOT_ACTIVATED' ? '' : ' warn');
   }
+}
+
+function setHeaderLicense(st) {
+  const el = $('#headerLicense');
+  if (!el) return;
+  if (st && st.active) {
+    const plan = String(st.plan || 'PRO').toUpperCase();
+    el.innerHTML = `<span data-icon="pro" data-size="14"></span> ${esc(plan)}`;
+  } else {
+    el.innerHTML = '<span data-icon="ok" data-size="14"></span> GRÁTIS';
+  }
+  if (typeof hydrateIcons === 'function') hydrateIcons(el);
 }
 
 function applyLicenseState(st) {
   state.licensed = Boolean(st && st.active);
   state.licenseInfo = st;
   setLicenseBadge(st);
-  $$('.sidebar-item').forEach((t) => { t.disabled = !state.licensed; });
-  $('#analyzeBtn').disabled = !state.licensed;
-  if (state.licensed) {
-    if ($('#view-activation').classList.contains('active')) showView('home');
-  } else {
-    showView('activation');
-    renderActivationDevice();
+  setHeaderLicense(st);
+  $$('.sidebar-item').forEach((t) => { t.disabled = false; });
+  if ($('#analyzeBtn')) $('#analyzeBtn').disabled = false;
+  if (state.licensed && $('#view-activation') && $('#view-activation').classList.contains('active')) {
+    showView('home');
   }
 }
 
@@ -1740,10 +1743,24 @@ function appendRunLog(status, name, message) {
 
 if ($('#optApplyBtn')) {
   $('#optApplyBtn').addEventListener('click', async () => {
-    const ids = [...state.optSelected];
+    let ids = [...state.optSelected];
     if (!ids.length) { toast('⚠ Selecione pelo menos uma otimização.'); return; }
 
-    const chosen = state.optItems.filter((i) => ids.includes(i.id));
+    const chosenAll = state.optItems.filter((i) => ids.includes(i.id));
+    let chosen = chosenAll;
+    if (!state.licensed) {
+      const locked = chosenAll.filter((i) => i.proOnly);
+      chosen = chosenAll.filter((i) => !i.proOnly);
+      if (!chosen.length) {
+        toast('🔒 Esses recursos exigem um plano. Ative sua licença para continuar.');
+        showView('activation');
+        return;
+      }
+      if (locked.length) {
+        toast(`🔒 ${locked.length} item(ns) PRO ignorado(s). Ative a licença para usá-los.`);
+      }
+      ids = chosen.map((i) => i.id);
+    }
     const rp = $('#optRestorePoint').checked;
     const okConfirm = await confirmApplyDialog(chosen, rp);
     if (!okConfirm) return;
@@ -2604,7 +2621,8 @@ async function loadLicenseInfoSettings() {
       kv('Situação', '<b style="color:var(--red-bright)">INATIVA</b>') +
       kv('Chave', `<span style="font-family:Consolas,monospace">${esc(st.key)}</span>`);
   } else {
-    el.innerHTML = kv('Situação', '<i>Nenhuma licença ativada neste computador.</i>');
+    el.innerHTML = kv('Situação', '<b>MODO GRÁTIS</b>') +
+      kv('Licença', 'Nenhuma chave ativada. O app funciona; recursos PRO exigem um plano.');
   }
 }
 
@@ -2869,7 +2887,7 @@ async function updateSidebarVersion() {
     }
   } catch (_) { /* silencioso */ }
 
-  // Licença: bloqueia o app na tela de ativação quando não ativado.
+  // Licença: o app abre em modo grátis. Recursos PRO continuam exigindo chave.
   try {
     const st = await api().licenseGetState();
     applyLicenseState(st);

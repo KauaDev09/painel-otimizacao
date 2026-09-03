@@ -50,12 +50,28 @@ async function listPlans() {
   return rows.map(serializePlan);
 }
 
+// Instalador público: o site sempre oferece o .exe, mesmo se a tabela
+// downloads estiver vazia. Sem login, sem chave, sem liberação.
+const PUBLIC_INSTALLER = {
+  version: '2.0.3',
+  filename: 'ORION.OPTIMIZER.Setup-2.0.3.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.3/ORION.OPTIMIZER.Setup-2.0.3.exe',
+  release_notes: 'Instalador oficial para Windows 10/11. Use o aplicativo grátis, sem chave. Os planos desbloqueiam recursos avançados.',
+  is_latest: 1,
+  created_at: '2026-09-02T19:11:00.000Z',
+  size: '~78 MB'
+};
+
 // Retorna o download atual (mais recente e ativo).
 async function latestDownload() {
-  return db.queryOne(
-    config,
-    'SELECT * FROM downloads WHERE active = 1 ORDER BY is_latest DESC, id DESC LIMIT 1'
-  );
+  try {
+    const row = await db.queryOne(
+      config,
+      'SELECT * FROM downloads WHERE active = 1 ORDER BY is_latest DESC, id DESC LIMIT 1'
+    );
+    if (row) return row;
+  } catch (_) { /* cai no instalador público */ }
+  return PUBLIC_INSTALLER;
 }
 
 function serializeDownload(d) {
@@ -64,9 +80,10 @@ function serializeDownload(d) {
     version: d.version,
     filename: d.filename,
     url: d.url,
-    releaseNotes: d.release_notes || '',
-    isLatest: !!d.is_latest,
-    releasedAt: d.created_at ? new Date(d.created_at).toISOString() : null
+    releaseNotes: d.release_notes || d.releaseNotes || '',
+    isLatest: !!(d.is_latest || d.isLatest),
+    releasedAt: d.created_at ? new Date(d.created_at).toISOString() : (d.releasedAt || null),
+    size: d.size || '~78 MB'
   };
 }
 
@@ -386,8 +403,7 @@ function register(router) {
 
   router.get('/api/v1/public/download', async () => {
     const d = await latestDownload();
-    if (!d) return { ok: true, download: null };
-    return { ok: true, download: serializeDownload(d) };
+    return { ok: true, download: serializeDownload(d || PUBLIC_INSTALLER) };
   });
 
   // Resgate de chave: valida a key devolvendo plano + features (desktop).
