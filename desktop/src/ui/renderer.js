@@ -2682,6 +2682,8 @@ async function checkUpdatesManual() {
       msg.style.color = 'var(--green)';
 
       // Mostra o painel de atualização
+      pendingUpdateUrl = u.url;
+      pendingUpdateVersion = u.version;
       $('#updateCurrentVer').textContent = res.currentVersion;
       $('#updateNewVer').textContent = u.version;
       $('#updateChangelog').textContent = u.changelog || 'Sem changelog disponível.';
