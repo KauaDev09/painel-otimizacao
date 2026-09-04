@@ -97,7 +97,7 @@ async function loadDownloadPanel(el) {
     <div class="ver">v${escapeHtml(download.version)}</div>
     <h3>ORION OPTIMIZER</h3>
     <p>Windows 10 / 11 · 64 bits</p>
-    <p class="dl-free">Grátis · sem cadastro · sem chave</p>
+    <p class="dl-free">Download grátis · chave de licença necessária</p>
     <div class="dl-meta">
       <div><div class="k">Versão</div><div class="v">${escapeHtml(download.version)}</div></div>
       <div><div class="k">Tamanho</div><div class="v">${escapeHtml(download.size || '~78 MB')}</div></div>
@@ -109,7 +109,7 @@ async function loadDownloadPanel(el) {
         <li>Windows 10 ou 11 (64 bits)</li>
         <li>2 GB de RAM livre</li>
         <li>150 MB de espaço em disco</li>
-        <li>Internet só se quiser ativar um plano depois</li>
+        <li>Internet necessária para ativar e validar a chave de licença</li>
       </ul>
     </div>
     <a class="btn btn-primary btn-lg" href="${escapeHtml(download.url)}" download>Baixar instalador</a>
