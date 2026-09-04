@@ -5,30 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Entrar — ORION OPTIMIZER</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body>
   <nav class="nav"><div class="nav-inner">
-    <a href="/" class="brand"><span class="dot"></span>ORION<span class="accent">OPTIMIZER</span></a>
+    <a href="/" class="brand"><span class="brand-mark" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="6"/><path d="M12 9v3l2 2"/></svg></span>ORION<span class="accent">OPTIMIZER</span></a>
     <div class="nav-actions" data-nav-actions></div>
   </div></nav>
 
-  <div class="auth-wrap">
-    <div id="mode-label">
-      <h2>Acessar conta</h2>
-      <p class="sub">Informe sua chave de licença para acessar.</p>
-    </div>
-
-    <form id="auth-form">
-      <div class="field">
-        <label for="key">Chave de licença</label>
-        <input type="text" id="key" required autocomplete="off" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="29" spellcheck="false" style="font-family:'JetBrains Mono',Consolas,monospace;text-transform:uppercase;letter-spacing:0.08em">
+  <div class="page-wrap">
+    <div class="auth-wrap">
+      <div id="mode-label">
+        <h2>Acessar conta</h2>
+        <p class="sub">Informe sua chave de licença para acessar.</p>
       </div>
-      <button type="submit" class="btn btn-primary btn-block" id="submit-btn">Acessar</button>
-    </form>
 
-    <p style="text-align:center;margin-top:20px;font-size:0.82rem;color:var(--text-dim)">Não tem uma licença? <a href="/planos" style="color:var(--purple-2)">Adquira agora</a>.</p>
+      <form id="auth-form">
+        <div class="field">
+          <label for="key">Chave de licença</label>
+          <input type="text" id="key" required autocomplete="off" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="29" spellcheck="false" style="font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.08em">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="submit-btn">Acessar</button>
+      </form>
+
+      <p class="auth-switch">Não tem uma licença? <a href="/planos">Adquira agora</a>.</p>
+    </div>
   </div>
 
   <script src="/assets/app.js"></script>

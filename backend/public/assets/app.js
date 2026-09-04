@@ -123,39 +123,49 @@ function renderNav() {
   const navInner = document.querySelector('.nav-inner');
   if (!actions) return;
 
-  let toggle = navInner.querySelector('.nav-toggle');
-  if (!toggle) {
-    toggle = document.createElement('button');
-    toggle.className = 'nav-toggle';
-    toggle.setAttribute('aria-label', 'Menu');
-    toggle.innerHTML = '<span></span><span></span><span></span>';
-    navInner.appendChild(toggle);
-  }
-
   if (isAuthed()) {
-    actions.innerHTML = '<a href="/conta" class="btn">Minha conta</a><button class="btn btn-ghost" data-logout>Sair</button>';
+    actions.innerHTML = '<a href="/conta" class="btn btn-ghost">Minha conta</a><button class="btn" data-logout>Sair</button>';
     const logout = actions.querySelector('[data-logout]');
     if (logout) logout.addEventListener('click', () => { clearToken(); location.href = '/'; });
   } else {
-    actions.innerHTML = '<a href="/login" class="btn">Entrar</a><a href="/planos" class="btn btn-primary">Adquirir</a>';
+    actions.innerHTML = '<a href="/login" class="btn btn-ghost">Entrar</a><a href="/planos" class="btn btn-primary">Comprar licença</a>';
   }
+
   if (menu) {
     menu.innerHTML =
+      '<a href="/#produto">Produto</a>' +
       '<a href="/#recursos">Recursos</a>' +
+      '<a href="/#como-funciona">Como funciona</a>' +
       '<a href="/planos">Planos</a>' +
-      '<a href="/download">Download</a>' +
-      '<a href="/suporte">Suporte</a>';
+      '<a href="/download">Download</a>';
+
+    let toggle = navInner.querySelector('.nav-toggle');
+    if (!toggle) {
+      toggle = document.createElement('button');
+      toggle.className = 'nav-toggle';
+      toggle.setAttribute('aria-label', 'Menu');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.innerHTML = '<span></span><span></span><span></span>';
+      navInner.appendChild(toggle);
+    }
+    toggle.addEventListener('click', () => {
+      const expanded = navInner.classList.toggle('nav-open');
+      toggle.setAttribute('aria-expanded', expanded);
+    });
+    menu.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        navInner.classList.remove('nav-open');
+        toggle.setAttribute('aria-expanded', 'false');
+      });
+    });
   }
 
-  toggle.addEventListener('click', () => {
-    const expanded = navInner.classList.toggle('nav-open');
-    toggle.setAttribute('aria-expanded', expanded);
-  });
-
-  if (menu) {
-    menu.querySelectorAll('a').forEach(a => {
-      a.addEventListener('click', () => navInner.classList.remove('nav-open'));
-    });
+  // Navbar com superfície translúcida ao rolar
+  const nav = document.querySelector('.nav');
+  if (nav) {
+    const onScroll = () => nav.classList.toggle('scrolled', (window.scrollY || 0) > 20);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
   }
 }
 

@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Compra aprovada — ORION OPTIMIZER</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body>
   <nav class="nav"><div class="nav-inner">
-    <a href="/" class="brand"><span class="dot"></span>ORION<span class="accent">OPTIMIZER</span></a>
+    <a href="/" class="brand"><span class="brand-mark" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="6"/><path d="M12 9v3l2 2"/></svg></span>ORION<span class="accent">OPTIMIZER</span></a>
     <div class="nav-actions" data-nav-actions></div>
   </div></nav>
 
@@ -25,14 +26,14 @@
     </div>
 
     <div id="pending-block" style="display:none">
-      <div class="muted" style="line-height:1.7;margin-top:8px">Seu pagamento ainda está sendo processado. Assim que o gateway confirmar, sua chave aparece aqui automaticamente.<br>Você pode acompanhar em <a href="/conta" style="color:var(--purple-2)">Minha conta</a>.</div>
+      <div class="muted" style="line-height:1.7;margin-top:8px">Seu pagamento ainda está sendo processado. Assim que o gateway confirmar, sua chave aparece aqui automaticamente.<br>Você pode acompanhar em <a href="/conta" style="color:var(--accent-text)">Minha conta</a>.</div>
       <div class="mt-3 flex center" style="justify-content:center">
         <a href="/conta" class="btn">Minha conta</a>
       </div>
     </div>
 
     <div id="error-block" style="display:none">
-      <div class="muted" style="line-height:1.7;margin-top:8px">Não foi possível confirmar seu pagamento agora. Verifique em <a href="/conta" style="color:var(--purple-2)">Minha conta</a> ou tente novamente.</div>
+      <div class="muted" style="line-height:1.7;margin-top:8px">Não foi possível confirmar seu pagamento agora. Verifique em <a href="/conta" style="color:var(--accent-text)">Minha conta</a> ou tente novamente.</div>
       <div class="mt-3 flex center" style="justify-content:center">
         <a href="/planos" class="btn">Planos</a>
         <a href="/conta" class="btn btn-primary">Minha conta</a>
