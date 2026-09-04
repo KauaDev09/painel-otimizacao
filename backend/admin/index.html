@@ -606,8 +606,6 @@
   <!-- ===================== LOGIN ===================== -->
   <div id="loginWrap">
     <div class="login-orb"></div>
-    <img src="/admin/mascot-waving.jpg" alt="Orion" class="login-mascot"
-         onerror="this.style.display='none';" />
     <div class="login-header">
       <div class="login-brand">
         <img src="/admin/logo.jpeg" alt="Orion" class="login-logo-icon"
@@ -617,22 +615,16 @@
       </div>
     </div>
     <div class="login-welcome">
-      <h1>Bem-vindo de volta, <em>Admin</em></h1>
-      <p>Acesse o painel do Orion e mantenha sua plataforma sob controle.</p>
+      <h1>Painel Administrativo</h1>
+      <p>Insira o token de acesso para continuar.</p>
     </div>
     <div class="card">
       <h2>Acessar painel</h2>
       <div class="login-field">
-        <span class="ico" data-ico="user"></span>
-        <input id="loginUser" autocomplete="off" placeholder="admin" />
+        <span class="ico" data-ico="key"></span>
+        <input id="loginUser" autocomplete="off" placeholder="Token de acesso" />
       </div>
-      <label>Usuário ou token mestre</label>
-      <div class="login-field">
-        <span class="ico" data-ico="lock"></span>
-        <input id="loginPass" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" />
-      </div>
-      <label>Senha</label>
-      <p class="hint">Deixe a senha vazia para autenticar com o ADMIN_TOKEN no campo de usuário.</p>
+      <label>Token mestre</label>
       <div style="margin-top:20px"><button id="loginBtn" class="btn btn-primary"><span class="ico" data-ico="log-in"></span>Entrar</button></div>
       <div id="loginMsg" class="msg"></div>
     </div>
@@ -1088,36 +1080,17 @@ $('#logoutBtn').addEventListener('click', logout);
 $('#loginBtn').addEventListener('click', async () => {
   const msg = $('#loginMsg');
   msg.className = 'msg'; msg.textContent = '';
-  const usuario = $('#loginUser').value.trim();
-  const senha = $('#loginPass').value;
+  const token = $('#loginUser').value.trim();
 
-  if (!usuario) { msg.textContent = 'Informe o usuário ou token mestre.'; msg.classList.add('err'); return; }
+  if (!token) { msg.textContent = 'Informe o token de acesso.'; msg.classList.add('err'); return; }
 
-  if (!senha) {
-    TOKEN = usuario;
-    sessionStorage.setItem('msAdminToken', TOKEN);
-    try { await call('/api/v1/admin/licenses'); } catch (e) { msg.textContent = 'Token inválido.'; msg.classList.add('err'); logout(); return; }
-    boot();
-    return;
-  }
-
-  msg.textContent = 'Autenticando…';
-  try {
-    const res = await fetch(API + '/api/v1/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usuario, senha })
-    });
-    const j = await res.json().catch(() => ({ ok: false }));
-    if (!j.ok) { msg.textContent = j.message || 'Credenciais inválidas.'; msg.classList.add('err'); return; }
-    TOKEN = j.token;
-    sessionStorage.setItem('msAdminToken', TOKEN);
-    boot();
-  } catch (e) { msg.textContent = 'Erro ao conectar: ' + e.message; msg.classList.add('err'); }
+  TOKEN = token;
+  sessionStorage.setItem('msAdminToken', TOKEN);
+  try { await call('/api/v1/admin/licenses'); } catch (e) { msg.textContent = 'Token inválido.'; msg.classList.add('err'); logout(); return; }
+  boot();
 });
 
-$('#loginPass').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#loginBtn').click(); });
-$('#loginUser').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#loginPass').focus(); });
+$('#loginUser').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#loginBtn').click(); });
 
 /* ---------- Sidebar toggle (desktop) ---------- */
 const sidebar = $('#sidebar');

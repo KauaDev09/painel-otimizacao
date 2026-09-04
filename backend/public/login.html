@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Entrar — ORION OPTIMIZER</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body>
@@ -16,69 +16,39 @@
 
   <div class="auth-wrap">
     <div id="mode-label">
-      <h2>Entrar</h2>
-      <p class="sub">Acesse sua conta para ver suas licenças.</p>
+      <h2>Acessar conta</h2>
+      <p class="sub">Informe sua chave de licença para acessar.</p>
     </div>
 
     <form id="auth-form">
-      <div class="field" id="f-name" style="display:none">
-        <label for="name">Nome</label>
-        <input type="text" id="name" autocomplete="name" placeholder="Seu nome">
-      </div>
       <div class="field">
-        <label for="email">E-mail</label>
-        <input type="email" id="email" required autocomplete="email" placeholder="voce@email.com">
+        <label for="key">Chave de licença</label>
+        <input type="text" id="key" required autocomplete="off" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="29" spellcheck="false" style="font-family:'JetBrains Mono',Consolas,monospace;text-transform:uppercase;letter-spacing:0.08em">
       </div>
-      <div class="field">
-        <label for="password">Senha</label>
-        <input type="password" id="password" required autocomplete="current-password" placeholder="Sua senha">
-      </div>
-      <button type="submit" class="btn btn-primary btn-block" id="submit-btn">Entrar</button>
+      <button type="submit" class="btn btn-primary btn-block" id="submit-btn">Acessar</button>
     </form>
 
-    <div class="auth-switch">
-      <span id="switch-txt">Não tem conta?</span> <a href="#" id="switch-link">Registrar</a>
-    </div>
+    <p style="text-align:center;margin-top:20px;font-size:0.82rem;color:var(--text-dim)">Não tem uma licença? <a href="/planos" style="color:var(--purple-2)">Adquira agora</a>.</p>
   </div>
 
   <script src="/assets/app.js"></script>
   <script>
-    let mode = 'login';
-
-    function setMode(m) {
-      mode = m;
-      document.getElementById('f-name').style.display = m === 'register' ? '' : 'none';
-      document.getElementById('mode-label').innerHTML = m === 'register'
-        ? '<h2>Criar conta</h2><p class="sub">Crie sua conta para adquirir e gerenciar licenças.</p>'
-        : '<h2>Entrar</h2><p class="sub">Acesse sua conta para ver suas licenças.</p>';
-      document.getElementById('submit-btn').textContent = m === 'register' ? 'Criar conta' : 'Entrar';
-      document.getElementById('switch-txt').textContent = m === 'register' ? 'Já tem conta?' : 'Não tem conta?';
-      document.getElementById('switch-link').textContent = m === 'register' ? 'Entrar' : 'Registrar';
-      const pw = document.getElementById('password');
-      pw.autocomplete = m === 'register' ? 'new-password' : 'current-password';
-    }
-    setMode('login');
-    document.getElementById('switch-link').addEventListener('click', (e) => { e.preventDefault(); setMode(mode === 'login' ? 'register' : 'login'); });
-
     const form = document.getElementById('auth-form');
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('submit-btn');
       btn.disabled = true; btn.textContent = 'Aguarde...';
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const name = document.getElementById('name').value.trim();
-      const url = mode === 'register' ? '/api/v1/store/register' : '/api/v1/store/login';
-      const body = mode === 'register' ? { name, email, password } : { email, password };
+      const key = document.getElementById('key').value.trim().toUpperCase();
       try {
-        if (mode === 'register' && !name) { throw new Error('Informe seu nome.'); }
-        const res = await API.post(url, body);
+        if (!key || key.length < 10) throw new Error('Informe uma chave de licença válida.');
+        const res = await API.post('/api/v1/store/login-key', { key });
         setToken(res.token);
+        if (res.license) localStorage.setItem('orion_last_key', res.license.key);
         toast('Bem-vindo!', 'ok');
         location.href = (new URLSearchParams(location.search).get('next')) || '/conta';
       } catch (err) {
         toast(err.message || 'Falha de autenticação.', 'err');
-        btn.disabled = false; btn.textContent = mode === 'register' ? 'Criar conta' : 'Entrar';
+        btn.disabled = false; btn.textContent = 'Acessar';
       }
     });
   </script>

@@ -64,6 +64,34 @@ async function login({ email, password }) {
   return { ok: true, user: publicUser(u), token: issueToken(u) };
 }
 
+async function loginByKey({ key }) {
+  const k = String(key || '').trim().toUpperCase();
+  if (!k || k.length < 10) return fail('INVALID_KEY', 'Chave de licença inválida.', 400);
+
+  const lic = await db.queryOne(config,
+    'SELECT * FROM licencas WHERE UPPER(chave) = ? LIMIT 1', [k]);
+  if (!lic) return fail('KEY_NOT_FOUND', 'Licença não encontrada.', 404);
+  if (lic.status === 'bloqueada') return fail('KEY_BLOCKED', 'Licença bloqueada.', 403);
+  if (lic.status === 'expirada' || (lic.expira_em && new Date(lic.expira_em) < new Date())) {
+    return fail('KEY_EXPIRED', 'Licença expirada.', 403);
+  }
+
+  let user = null;
+  if (lic.usuario_id) {
+    user = await db.queryOne(config, 'SELECT * FROM usuarios WHERE id = ? LIMIT 1', [lic.usuario_id]);
+  }
+  if (!user) {
+    const fakeEmail = 'cli_' + k.replace(/-/g, '').toLowerCase() + '@orion.local';
+    user = await ensureUser({ name: 'Cliente', email: fakeEmail });
+    if (user) {
+      await db.query(config, 'UPDATE licencas SET usuario_id = ? WHERE id = ?', [user.id, lic.id]);
+    }
+  }
+  if (!user) return fail('USER_ERROR', 'Não foi possível criar o perfil do cliente.', 500);
+
+  return { ok: true, user: publicUser(user), token: issueToken(user), license: { key: lic.chave, plan: lic.plano || lic.plan_slug, status: lic.status } };
+}
+
 function issueToken(user) {
   return signToken({ typ: 'customer', uid: user.id }, config.appSecret, 60 * 60 * 24 * 30);
 }
@@ -81,6 +109,7 @@ module.exports = {
   fail,
   register,
   login,
+  loginByKey,
   findByEmail,
   ensureUser,
   publicUser,
