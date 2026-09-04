@@ -228,6 +228,14 @@ class LicenseService {
     }
   }
 
+  /** Remove a sessão local (logout) e volta ao estado sem chave. */
+  clear() {
+    this.cache = null;
+    try { fs.rmSync(this.file, { force: true }); } catch (_) { /* isolado */ }
+    this._emit();
+    return this.getState();
+  }
+
   startBackgroundRefresh() {
     setTimeout(() => { this.validateNow().catch(() => {}); }, 8000); // pouco após abrir
     setInterval(() => { this.validateNow().catch(() => {}); }, REFRESH_MS);

@@ -30,6 +30,35 @@
 </head>
 <body>
 
+  <!-- Decoração de fundo -->
+  <div id="bgDeco" class="bg-deco" aria-hidden="true"></div>
+
+  <!-- ===================== TELA DE LOGIN ===================== -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+      <div class="login-brand">
+        <img src="assets/logo.jpeg" alt="Orion" class="login-logo" />
+        <div class="login-brand-text">
+          <span class="login-brand-main">ORION</span>
+          <span class="login-brand-sub">OPTIMIZER</span>
+        </div>
+      </div>
+      <h1 class="login-title">Acesso ao Orion Optimizer</h1>
+      <p class="login-sub">Insira sua Key para continuar.</p>
+      <div class="login-input-wrap">
+        <span class="login-input-icon" data-icon="license" data-size="16"></span>
+        <input id="loginKeyInput" class="login-input" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="29" spellcheck="false" autocomplete="off" />
+      </div>
+      <button id="loginActivateBtn" class="btn btn-primary btn-big" type="button">ATIVAR KEY</button>
+      <div id="loginMsg" class="login-msg"></div>
+      <div class="login-foot">
+        <span>Não possui uma Key?</span>
+        <a href="#" id="loginBuyLink">Adquira sua licença</a>
+      </div>
+      <p class="login-tos">A key é validada de forma segura no servidor. Nenhum dado sensível é armazenado no aplicativo.</p>
+    </div>
+  </div>
+
   <!-- Custom title bar (preview) -->
   <div id="titlebar" class="titlebar">
     <div class="titlebar-drag">
@@ -65,12 +94,13 @@
     </div>
 
     <nav class="sidebar-nav">
+      <div class="sidebar-section">PRINCIPAL</div>
       <button data-view="home" class="sidebar-item active" type="button">
         <span class="sidebar-icon" data-icon="home" data-size="20"></span>
-        <span class="sidebar-label">Início</span>
+        <span class="sidebar-label">Dashboard</span>
       </button>
 
-      <div class="sidebar-section">Otimização</div>
+      <div class="sidebar-section">OTIMIZAÇÃO</div>
 
       <button data-view="optimize" class="sidebar-item" type="button">
         <span class="sidebar-icon" data-icon="windows" data-size="20"></span>
@@ -78,11 +108,15 @@
       </button>
       <button data-view="gameboost" class="sidebar-item" type="button">
         <span class="sidebar-icon" data-icon="gaming" data-size="20"></span>
-        <span class="sidebar-label">Gaming</span>
+        <span class="sidebar-label">Jogos</span>
       </button>
       <button data-view="dashboard" class="sidebar-item" type="button">
         <span class="sidebar-icon" data-icon="monitoring" data-size="20"></span>
         <span class="sidebar-label">Sistema</span>
+      </button>
+      <button data-view="display" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="monitor" data-size="20"></span>
+        <span class="sidebar-label">Tela</span>
       </button>
       <button data-view="maintenance" class="sidebar-item" type="button">
         <span class="sidebar-icon" data-icon="cleaning" data-size="20"></span>
@@ -92,12 +126,16 @@
         <span class="sidebar-icon" data-icon="bios" data-size="20"></span>
         <span class="sidebar-label">BIOS</span>
       </button>
+      <button data-view="security" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="security" data-size="20"></span>
+        <span class="sidebar-label">Segurança</span>
+      </button>
 
-      <div class="sidebar-section">Monitoramento</div>
+      <div class="sidebar-section">MONITORAMENTO</div>
 
       <button data-view="monitor" class="sidebar-item" type="button">
         <span class="sidebar-icon" data-icon="monitoring" data-size="20"></span>
-        <span class="sidebar-label">Monitoramento</span>
+        <span class="sidebar-label">Monitor</span>
       </button>
       <button data-view="benchmark" class="sidebar-item" type="button">
         <span class="sidebar-icon" data-icon="benchmark" data-size="20"></span>
@@ -107,12 +145,8 @@
         <span class="sidebar-icon" data-icon="network" data-size="20"></span>
         <span class="sidebar-label">Rede</span>
       </button>
-      <button data-view="security" class="sidebar-item" type="button">
-        <span class="sidebar-icon" data-icon="security" data-size="20"></span>
-        <span class="sidebar-label">Segurança</span>
-      </button>
 
-      <div class="sidebar-section">Ferramentas</div>
+      <div class="sidebar-section">FERRAMENTAS</div>
 
       <button data-view="startup" class="sidebar-item" type="button">
         <span class="sidebar-icon" data-icon="startup" data-size="20"></span>
@@ -131,15 +165,15 @@
         <span class="sidebar-label">Histórico</span>
       </button>
 
-      <div class="sidebar-section">Conta</div>
+      <div class="sidebar-section">CONFIGURAÇÕES</div>
 
+      <button data-view="settings" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="system" data-size="20"></span>
+        <span class="sidebar-label">Configurações</span>
+      </button>
       <button data-view="activation" class="sidebar-item" type="button">
         <span class="sidebar-icon" data-icon="license" data-size="20"></span>
         <span class="sidebar-label">Licença</span>
-      </button>
-      <button data-view="settings" class="sidebar-item" type="button">
-        <span class="sidebar-icon" data-icon="system" data-size="20"></span>
-        <span class="sidebar-label">Config</span>
       </button>
       <button data-view="support" class="sidebar-item" type="button">
         <span class="sidebar-icon" data-icon="support" data-size="20"></span>
@@ -177,21 +211,46 @@
   <!-- ===================== CONTENT ===================== -->
   <main class="content">
 
-    <!-- ===================== HOME ===================== -->
+    <!-- ===================== HOME / DASHBOARD ===================== -->
     <section id="view-home" class="view active">
-      <div class="hero">
-        <div class="hero-content">
-          <div class="hero-glow"></div>
-          <h1><span class="accent">ORION</span> OPTIMIZER</h1>
-          <p class="subtitle">Advanced PC Performance Suite</p>
-          <p class="tagline">Analise sua máquina e otimize o desempenho com precisão.</p>
-          <button id="analyzeBtn" class="btn btn-primary btn-big"><span data-icon="run" data-size="18"></span> Analisar Sistema</button>
+      <div class="dash-welcome">
+        <div>
+          <h2 class="dash-welcome-title">Bem-vindo de volta, Orion.</h2>
+          <p class="dash-welcome-sub">Monitor e otimize o desempenho do seu sistema em tempo real.</p>
         </div>
+        <button id="welcomeOptimizeBtn" class="btn btn-primary" type="button">
+          <span data-icon="run" data-size="16"></span> OTIMIZAÇÃO RÁPIDA
+        </button>
       </div>
-      <div class="home-grid">
-        <div class="feature"><h3>1 · Detecção real</h3><p>CPU, GPU, RAM, placa-mãe e BIOS lidos via CIM/WMI — nada é inventado.</p></div>
-        <div class="feature"><h3>2 · Recomendações guiadas</h3><p>Onde encontrar cada configuração na BIOS, com risco e impacto explicados.</p></div>
-        <div class="feature"><h3>3 · Pontuação clara</h3><p>BIOS Optimization Score de 0 a 100 com explicação por categoria.</p></div>
+
+      <div id="liveCards" class="live-grid"></div>
+
+      <div class="dash-grid">
+        <div class="dash-left">
+          <div class="group-title">Desempenho do Sistema</div>
+          <div class="card perf-card">
+            <div class="perf-ring" id="perfRing"><span id="perfScoreValue">–</span><small>/100</small></div>
+            <div class="perf-label" id="perfLabel">Sem análise ainda</div>
+            <p class="perf-copy" id="perfCopy">Execute uma análise para medir o BIOS Optimization Score real da sua máquina.</p>
+            <div class="perf-actions">
+              <button id="analyzeBtn" class="btn btn-primary" type="button">
+                <span data-icon="run" data-size="16"></span> ANALISAR SISTEMA
+              </button>
+              <button id="perfViewRecsBtn" class="btn btn-outline" type="button">VER RECOMENDAÇÕES</button>
+            </div>
+          </div>
+          <div class="group-title">Recursos do Sistema</div>
+          <div class="card"><div id="resourcesChart"></div></div>
+        </div>
+        <aside class="dash-right">
+          <div class="group-title">Otimizações Recentes</div>
+          <div id="recentOpts" class="counts-panel"><p class="empty-note">Nenhuma otimização aplicada ainda.</p></div>
+          <div class="group-title">Informações do Sistema</div>
+          <div class="counts-panel">
+            <div id="sysInfoList" class="kv-list"></div>
+            <button id="copySysInfoBtn" class="btn btn-outline" type="button">COPIAR INFORMAÇÕES</button>
+          </div>
+        </aside>
       </div>
     </section>
 
@@ -415,6 +474,62 @@
       <div id="repairList" class="repair-grid"></div>
     </section>
 
+    <!-- ===================== TELA ===================== -->
+    <section id="view-display" class="view">
+      <div class="history-head">
+        <h2>Tela</h2>
+        <button id="displayResetBtn" class="btn btn-outline" type="button">REDEFINIR</button>
+      </div>
+      <p class="disclaimer" id="displayNotice"></p>
+      <div class="dash-grid">
+        <div class="dash-left">
+          <div class="hw-card display-card">
+            <h3>Tela <em>Configurações visuais</em></h3>
+            <div class="display-sliders">
+              <div class="display-slider">
+                <div class="display-slider-head">
+                  <span class="display-slider-name">SATURAÇÃO</span>
+                  <span class="display-slider-value" id="displaySatValue">100%</span>
+                </div>
+                <input type="range" id="displaySat" min="0" max="100" step="1" value="100" aria-label="Saturação" />
+                <span class="display-slider-mode" id="displaySatMode">Aplicado via processamento do sistema</span>
+              </div>
+              <div class="display-slider">
+                <div class="display-slider-head">
+                  <span class="display-slider-name">BRILHO</span>
+                  <span class="display-slider-value" id="displayBriValue">--</span>
+                </div>
+                <input type="range" id="displayBri" min="0" max="100" step="1" value="100" disabled aria-label="Brilho" />
+                <span class="display-slider-mode" id="displayBriMode">Verificando suporte…</span>
+              </div>
+              <div class="display-slider">
+                <div class="display-slider-head">
+                  <span class="display-slider-name">CONTRASTE</span>
+                  <span class="display-slider-value" id="displayConValue">100%</span>
+                </div>
+                <input type="range" id="displayCon" min="0" max="100" step="1" value="100" aria-label="Contraste" />
+                <span class="display-slider-mode" id="displayConMode">Aplicado via processamento do sistema</span>
+              </div>
+            </div>
+          </div>
+          <div class="hw-card full">
+            <h3>Como funciona</h3>
+            <p class="disclaimer" style="margin:0">
+              <b>Brilho</b> usa o controle real de hardware pelo Windows (WMI/DDC-CI) quando o monitor expõe suporte.
+              <b>Contraste</b> e <b>Saturação</b> não possuem API universal de hardware — são aplicados por uma camada
+              de processamento visual no próprio aplicativo e rotulados como tal. Nenhuma configuração é fingida.
+            </p>
+          </div>
+        </div>
+        <aside class="dash-right">
+          <div class="counts-panel">
+            <h3>Monitor Principal</h3>
+            <div id="displayMonitorInfo"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
     <!-- ===================== RESTAURAÇÃO ===================== -->
     <section id="view-restore" class="view">
       <div class="history-head">
@@ -635,6 +750,7 @@
           <h3>Licença</h3>
           <div id="settingsLicenseInfo" class="kv-list"></div>
           <button id="reportBtn" class="btn btn-outline" disabled>GERAR RELATÓRIO</button>
+          <button id="logoutBtn" class="btn btn-outline btn-danger-outline hidden">SAIR DA CONTA</button>
           <span id="techExportWrap" class="hidden">
             <a href="#" id="exportRawLink">Exportar dados brutos (JSON)</a>
           </span>
@@ -651,7 +767,7 @@
       <div class="dash-grid">
         <div class="dash-left">
           <div class="group-title">Perguntas frequentes</div>
-          <details class="faq"><summary>Preciso de uma licença para usar o aplicativo?</summary><p>Não. O Orion instala e funciona grátis, sem chave. A licença desbloqueia recursos avançados (itens PRO, BIOS, Game Boost, segurança e benchmark).</p></details>
+          <details class="faq"><summary>Preciso de uma licença para usar o aplicativo?</summary><p>Sim. O acesso ao Orion exige uma Key válida, adquirida na Orion Store e validada com segurança no servidor. Sem Key, o painel não é liberado.</p></details>
           <details class="faq"><summary>Por que algumas otimizações pedem senha de administrador?</summary><p>Alterações no registro e nos serviços do Windows exigem permissão de administrador. O aplicativo agrupa tudo em um único pedido de UAC, com backup prévio para permitir desfazer.</p></details>
           <details class="faq"><summary>As otimizações podem ser revertidas?</summary><p>Sim. Itens com backup do registro podem ser revertidos individualmente na aba Restauração. Limpezas de arquivos apagam definitivamente e não são reversíveis — isso é sempre avisado antes.</p></details>
           <details class="faq"><summary>A análise altera alguma configuração da BIOS?</summary><p>A análise é somente leitura. Aplicações automáticas só ocorrem quando existe um método documentado e verificável, sempre com confirmação. Sem suporte seguro, o Orion mostra o guia de configuração manual — nunca finge que aplicou algo.</p></details>

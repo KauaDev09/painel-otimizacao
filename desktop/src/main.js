@@ -24,6 +24,7 @@ const processService = require('./modules/processService');
 const networkService = require('./modules/networkService');
 const benchmarkService = require('./modules/benchmarkService');
 const settingsService = require('./modules/settingsService');
+const displayService = require('./modules/displayService');
 const updaterService = require('./modules/updaterService');
 const { biosManager } = require('./bios/optimization/biosManager');
 const { APP_NAME } = require('./config/appConfig');
@@ -275,6 +276,7 @@ function registerIpc() {
   ipcMain.handle('license:getState', () => licenseService.getState());
   ipcMain.handle('license:activate', (_e, key) => licenseService.activate(key));
   ipcMain.handle('license:refresh', () => licenseService.validateNow());
+  ipcMain.handle('license:logout', () => licenseService.clear());
 
   // ---- Segurança (Defender / malware) ----
   ipcMain.handle('security:analyze', async () => {
@@ -413,6 +415,11 @@ function registerIpc() {
     applyGeneralSettings(merged);
     return merged;
   });
+
+  // ---- Tela (Display) ----
+  ipcMain.handle('display:monitors', () => displayService.getMonitors());
+  ipcMain.handle('display:brightness:get', () => displayService.getBrightness());
+  ipcMain.handle('display:brightness:set', (_e, percent) => displayService.setBrightness(percent));
 
   // ---- Atualizações ----
   ipcMain.handle('update:check', () => updaterService.checkForUpdate(licenseService.getLicenseKey()));

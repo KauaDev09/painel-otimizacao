@@ -71,6 +71,7 @@ const PAGE_TITLES = {
   home: 'Início',
   progress: 'Analisando...',
   dashboard: 'Sistema',
+  display: 'Tela',
   recs: 'BIOS',
   optimize: 'Windows',
   gameboost: 'Gaming',
@@ -191,6 +192,9 @@ $$('.sidebar-item').forEach((t) => {
     if (target === 'restore') renderOperations();
     if (target === 'monitor') startMonitor();
     else stopMonitor();
+    if (target === 'home') { startDashboard(); }
+    else stopDashboard();
+    if (target === 'display') initDisplayView();
     if (target === 'benchmark') initBenchmarkView();
     if (target === 'network') initNetworkView();
     if (target === 'startup') refreshStartupList();
@@ -381,6 +385,190 @@ function renderDashboard() {
 }
 
 $('#goRecsBtn').addEventListener('click', () => showView('recs'));
+
+// ---------------- Dashboard ao vivo (home) ----------------
+const dashHistory = { cpu: [], gpu: [], ram: [], disk: [], temp: [] };
+let dashTimer = null;
+
+function sparklineSvg(values, w, h) {
+  const svgW = w || 120;
+  const svgH = h || 34;
+  if (!values || values.length < 2) {
+    return `<svg width="${svgW}" height="${svgH}" class="spark" aria-hidden="true"></svg>`;
+  }
+  const max = Math.max(1, ...values);
+  const step = svgW / (values.length - 1);
+  const pts = values.map((v, i) => `${(i * step).toFixed(1)},${(svgH - (v / max) * (svgH - 6) - 3).toFixed(1)}`);
+  return `<svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" class="spark" aria-hidden="true">
+    <polyline points="${pts.join(' ')}" stroke="var(--primary-light)" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+function pushDash(key, v) {
+  if (!Number.isFinite(v)) return;
+  const arr = dashHistory[key] || (dashHistory[key] = []);
+  arr.push(v);
+  if (arr.length > 30) arr.shift();
+}
+
+function liveCard(icon, title, value, unit, desc, hist) {
+  return `<div class="live-card">
+    <div class="live-card-head">${typeof appIcon === 'function' ? appIcon(icon, { size: 16 }) : ''}<span>${esc(title)}</span></div>
+    <div class="live-card-value">${esc(value)}<small>${esc(unit)}</small></div>
+    <div class="live-card-desc">${esc(desc)}</div>
+    <div class="live-card-spark">${sparklineSvg(hist)}</div>
+  </div>`;
+}
+
+function renderLiveCards(snap) {
+  const el = $('#liveCards');
+  if (!el || !snap) return;
+  pushDash('cpu', snap.cpu);
+  if (snap.gpu) pushDash('gpu', snap.gpu.percent);
+  pushDash('ram', snap.ramPercent);
+  pushDash('disk', snap.diskPercent);
+  pushDash('temp', snap.tempC);
+  const gpuPct = snap.gpu && Number.isFinite(snap.gpu.percent) ? snap.gpu.percent : null;
+  el.innerHTML =
+    liveCard('cpu', 'CPU', snap.cpu != null ? snap.cpu : '—', '%', 'Uso atual', dashHistory.cpu) +
+    liveCard('gpu', 'GPU', gpuPct != null ? gpuPct : '—', '%', gpuPct != null ? 'Uso atual (NVIDIA)' : 'Indisponível', dashHistory.gpu) +
+    liveCard('ram', 'RAM', snap.ramPercent != null ? snap.ramPercent : '—', '%', snap.ramUsedMB != null ? `${Math.round(snap.ramUsedMB / 1024 * 10) / 10} GB usados` : 'Uso atual', dashHistory.ram) +
+    liveCard('disk', 'Disco', snap.diskPercent != null ? snap.diskPercent : '—', '%', 'Atividade do disco', dashHistory.disk) +
+    liveCard('temp', 'Temperatura', snap.tempC != null ? snap.tempC : '—', '°C', snap.tempC != null ? 'Sensor ACPI' : 'Sensor indisponível', dashHistory.temp);
+}
+
+async function pollDashboard() {
+  try {
+    const snap = await api().monitorSnapshot();
+    renderLiveCards(snap);
+    renderResourcesChart();
+  } catch (_) { /* silencioso */ }
+}
+
+function startDashboard() {
+  pollDashboard();
+  if (dashTimer) clearInterval(dashTimer);
+  dashTimer = setInterval(pollDashboard, 2500);
+  renderPerfCard();
+  renderSysInfo();
+  renderRecentOpts();
+}
+
+function stopDashboard() {
+  if (dashTimer) { clearInterval(dashTimer); dashTimer = null; }
+}
+
+function perfStatus(score) {
+  if (score >= 80) return { label: 'Excelente', desc: 'Seu sistema está otimizado e funcionando no seu melhor desempenho.' };
+  if (score >= 50) return { label: 'Bom', desc: 'Seu sistema está razoavelmente otimizado — há espaço para melhorias.' };
+  return { label: 'Precisa de atenção', desc: 'Aplique as recomendações do Orion para melhorar o desempenho do sistema.' };
+}
+
+function renderPerfCard() {
+  const ring = $('#perfRing');
+  const val = $('#perfScoreValue');
+  const label = $('#perfLabel');
+  const copy = $('#perfCopy');
+  if (!ring || !val) return;
+  if (state.result && state.result.scores && Number.isFinite(state.result.scores.overall)) {
+    const score = state.result.scores.overall;
+    val.textContent = score;
+    const ps = perfStatus(score);
+    const color = score >= 80 ? 'var(--green)' : score >= 50 ? 'var(--yellow)' : 'var(--red-bright)';
+    ring.style.setProperty('--pct', score);
+    ring.style.setProperty('--scoreColor', color);
+    if (label) { label.textContent = `Seu sistema está ${ps.label}`; label.style.color = color; }
+    if (copy) copy.textContent = ps.desc;
+  } else {
+    if (label) label.textContent = 'Sem análise ainda';
+    if (copy) copy.textContent = 'Execute uma análise para medir o BIOS Optimization Score real da sua máquina.';
+  }
+}
+
+function renderResourcesChart() {
+  const el = $('#resourcesChart');
+  if (!el) return;
+  const rows = ['cpu', 'gpu', 'ram'].map((k) => {
+    const hist = (dashHistory[k] || []).slice(-40);
+    const last = hist.length ? Math.round(hist[hist.length - 1]) : 0;
+    const line = sparklineSvg(hist.length ? hist : [0, 0], 260, 46);
+    return `<div class="res-row">
+      <div class="res-label"><span class="res-icon">${typeof appIcon === 'function' ? appIcon(k === 'ram' ? 'ram' : k, { size: 14 }) : ''}</span>${k.toUpperCase()}</div>
+      <div class="res-line">${line}</div>
+      <div class="res-val">${last}%</div>
+    </div>`;
+  });
+  el.innerHTML = `<div class="res-grid-lines" aria-hidden="true"></div>` + rows.join('');
+}
+
+async function renderRecentOpts() {
+  const el = $('#recentOpts');
+  if (!el) return;
+  try {
+    const ops = (await api().engineListOperations()) || [];
+    const recent = ops.slice(0, 4);
+    if (!recent.length) { el.innerHTML = '<p class="empty-note">Nenhuma otimização aplicada ainda.</p>'; return; }
+    el.innerHTML = recent.map((op) => {
+      const d = new Date(op.createdAt || op.date || Date.now()).toLocaleDateString('pt-BR');
+      const success = op.success !== false;
+      return `<div class="opt-row"><div>
+        <div class="opt-row-title">${esc(op.title || op.name || 'Otimização')}</div>
+        <div class="opt-row-sub">${esc(d)}${op.itemCount ? ` · ${esc(op.itemCount)} itens` : ''}</div>
+      </div><b class="${success ? 'text-success' : 'text-destructive'}">${success ? 'OK' : 'FALHOU'}</b></div>`;
+    }).join('');
+  } catch (_) {
+    el.innerHTML = '<p class="empty-note">Nenhuma otimização aplicada ainda.</p>';
+  }
+}
+
+function sysInfoLines() {
+  const p = state.result && state.result.profile;
+  if (!p) return [];
+  const g0 = p.gpu[0] || {};
+  return [
+    ['SO', (p.os.caption || '') + (p.os.displayVersion ? ' ' + p.os.displayVersion : '')],
+    ['CPU', p.cpu.name || '—'],
+    ['GPU', g0.name || '—'],
+    ['RAM', p.ram.totalGB ? `${p.ram.totalGB} GB` : '—'],
+    ['Placa mãe', p.motherboard.boardProduct || p.motherboard.vendorDisplay || '—'],
+    ['Driver GPU', g0.driver || '—']
+  ];
+}
+
+function renderSysInfo() {
+  const el = $('#sysInfoList');
+  if (!el) return;
+  const lines = sysInfoLines();
+  el.innerHTML = lines.length
+    ? lines.map(([k, v]) => kv(k, dash(v))).join('')
+    : '<p class="empty-note">Execute uma análise para ver as informações reais do sistema.</p>';
+}
+
+async function copySysInfo() {
+  const lines = sysInfoLines();
+  const text = lines.length ? lines.map(([k, v]) => `${k}: ${v}`).join('\n') : 'Sem dados (execute uma análise).';
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    toast('<b>Informações do sistema copiadas.</b>', 4000);
+  } catch (_) {
+    toast('❌ Não foi possível copiar as informações.', 4000);
+  }
+}
+
+const welcomeOptimizeBtn = $('#welcomeOptimizeBtn');
+if (welcomeOptimizeBtn) welcomeOptimizeBtn.addEventListener('click', () => showView('optimize'));
+const perfViewRecsBtn = $('#perfViewRecsBtn');
+if (perfViewRecsBtn) perfViewRecsBtn.addEventListener('click', () => showView('recs'));
+const copySysInfoBtn = $('#copySysInfoBtn');
+if (copySysInfoBtn) copySysInfoBtn.addEventListener('click', copySysInfo);
 
 // ---------------- Recomendações ----------------
 $$('#recFilters .chip').forEach((chip) => {
@@ -925,6 +1113,7 @@ function applyLicenseState(st) {
   state.licenseInfo = st;
   setLicenseBadge(st);
   setHeaderLicense(st);
+  if (state.licensed) hideLogin(); else showLogin();
   $$('.sidebar-item').forEach((t) => { t.disabled = false; });
   if ($('#analyzeBtn')) $('#analyzeBtn').disabled = false;
   if (state.licensed && $('#view-activation') && $('#view-activation').classList.contains('active')) {
@@ -976,6 +1165,227 @@ $('#licenseKeyInput').addEventListener('keydown', (e) => {
 });
 
 api().onLicenseChanged((st) => applyLicenseState(st));
+
+// ---------------- Tela (Display) ----------------
+let displayViewBound = false;
+const displayState = { saturation: 100, contrast: 100, brightness: null };
+let displayBrightnessSupported = false;
+
+function clampPct(v) { return Math.max(0, Math.min(100, Math.round(Number(v) || 0))); }
+
+function applyDisplayFilter() {
+  const el = document.querySelector('main.content');
+  if (!el) return;
+  const sat = displayState.saturation / 100;
+  const con = displayState.contrast / 100;
+  el.style.filter = `saturate(${sat}) contrast(${con})`;
+}
+
+function debounceDisplay(fn, ms) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+const saveDisplaySetting = debounceDisplay((patch) => { api().settingsSet({ display: patch }).catch(() => {}); }, 350);
+
+async function initDisplayView() {
+  const satEl = $('#displaySat');
+  const briEl = $('#displayBri');
+  const conEl = $('#displayCon');
+
+  try {
+    const s = await api().settingsGet();
+    if (s && s.display) {
+      displayState.saturation = clampPct(s.display.saturation);
+      displayState.contrast = clampPct(s.display.contrast);
+      displayState.brightness = clampPct(s.display.brightness);
+      if (satEl) { satEl.value = displayState.saturation; }
+      if (conEl) { conEl.value = displayState.contrast; }
+      if (briEl && displayState.brightness != null) { briEl.value = displayState.brightness; }
+      const satV = $('#displaySatValue'); if (satV) satV.textContent = displayState.saturation + '%';
+      const conV = $('#displayConValue'); if (conV) conV.textContent = displayState.contrast + '%';
+      applyDisplayFilter();
+    }
+  } catch (_) { /* silencioso */ }
+
+  try {
+    const b = await api().displayBrightnessGet();
+    displayBrightnessSupported = !!b.supported;
+    const mode = $('#displayBriMode');
+    if (b.supported) {
+      displayState.brightness = b.percent != null ? clampPct(b.percent) : (displayState.brightness != null ? displayState.brightness : 100);
+      const briV = $('#displayBriValue'); if (briV) briV.textContent = displayState.brightness + '%';
+      if (briEl) { briEl.disabled = false; briEl.value = displayState.brightness; }
+      if (mode) mode.textContent = 'Controle real de hardware (Windows)';
+      $('#displayNotice').textContent = '';
+    } else {
+      if (briEl) briEl.disabled = true;
+      if (mode) mode.textContent = 'Controle não suportado pelo monitor';
+      if ($('#displayBriValue')) $('#displayBriValue').textContent = '--';
+    }
+  } catch (_) {
+    if (briEl) briEl.disabled = true;
+    if ($('#displayBriMode')) $('#displayBriMode').textContent = 'Controle não suportado pelo monitor';
+  }
+
+  try {
+    const m = await api().displayMonitors();
+    renderDisplayMonitor(m);
+  } catch (_) { /* silencioso */ }
+
+  if (!displayViewBound) {
+    displayViewBound = true;
+    if (satEl) satEl.addEventListener('input', (e) => {
+      displayState.saturation = Number(e.target.value);
+      if ($('#displaySatValue')) $('#displaySatValue').textContent = displayState.saturation + '%';
+      applyDisplayFilter();
+      saveDisplaySetting({ saturation: displayState.saturation });
+    });
+    if (conEl) conEl.addEventListener('input', (e) => {
+      displayState.contrast = Number(e.target.value);
+      if ($('#displayConValue')) $('#displayConValue').textContent = displayState.contrast + '%';
+      applyDisplayFilter();
+      saveDisplaySetting({ contrast: displayState.contrast });
+    });
+    if (briEl) briEl.addEventListener('input', (e) => {
+      const val = Number(e.target.value);
+      displayState.brightness = val;
+      if ($('#displayBriValue')) $('#displayBriValue').textContent = val + '%';
+      api().displayBrightnessSet(val)
+        .then((r) => {
+          if (!r || !r.applied) {
+            briEl.disabled = true;
+            if ($('#displayBriMode')) $('#displayBriMode').textContent = 'Controle não suportado pelo monitor';
+          }
+        })
+        .catch(() => {
+          briEl.disabled = true;
+          if ($('#displayBriMode')) $('#displayBriMode').textContent = 'Controle não suportado pelo monitor';
+        });
+      saveDisplaySetting({ brightness: val });
+    });
+    const resetBtn = $('#displayResetBtn');
+    if (resetBtn) resetBtn.addEventListener('click', resetDisplaySettings);
+  }
+}
+
+function renderDisplayMonitor(m) {
+  const el = $('#displayMonitorInfo');
+  if (!el) return;
+  if (!m || !m.primary) { el.innerHTML = '<p class="empty-note">Nenhum monitor detectado.</p>'; return; }
+  const p = m.primary;
+  el.innerHTML =
+    `<div class="monitor-visual">${typeof appIcon === 'function' ? appIcon('monitor', { size: 42 }) : ''}</div>` +
+    `<div class="monitor-name">${esc(p.name)}</div>` +
+    `<div class="monitor-specs">${p.width && p.height ? `${p.width} × ${p.height}` : 'Resolução indisponível'}${p.refreshRate ? ` • ${p.refreshRate}Hz` : ''}</div>` +
+    `<div class="monitor-status">${p.connected ? '<span class="dot on"></span>Conectado' : '<span class="dot off"></span>Desconectado'}</div>`;
+}
+
+function resetDisplaySettings() {
+  displayState.saturation = 100;
+  displayState.contrast = 100;
+  const satEl = $('#displaySat'); if (satEl) satEl.value = 100;
+  const conEl = $('#displayCon'); if (conEl) conEl.value = 100;
+  if ($('#displaySatValue')) $('#displaySatValue').textContent = '100%';
+  if ($('#displayConValue')) $('#displayConValue').textContent = '100%';
+  const briEl = $('#displayBri');
+  if (displayBrightnessSupported && briEl) {
+    const bri = displayState.brightness != null ? displayState.brightness : 100;
+    briEl.value = bri;
+    if ($('#displayBriValue')) $('#displayBriValue').textContent = bri + '%';
+  }
+  applyDisplayFilter();
+  api().settingsSet({ display: { saturation: 100, contrast: 100 } }).catch(() => {});
+  toast(`<b>Tela</b> — ajustes de exibição redefinidos.`, 4000);
+}
+
+// ---------------- Login / sessão ----------------
+function showLogin() {
+  const ov = $('#loginOverlay');
+  const main = document.querySelector('main.content');
+  if (ov) ov.classList.add('show');
+  if (main) main.classList.add('locked');
+}
+
+function hideLogin() {
+  const ov = $('#loginOverlay');
+  const main = document.querySelector('main.content');
+  if (ov) ov.classList.remove('show');
+  if (main) main.classList.remove('locked');
+}
+
+const STORE_URL = 'https://orion-store-dun.vercel.app';
+
+function loginMessage(text, cls) {
+  const el = $('#loginMsg');
+  if (!el) return;
+  el.textContent = text || '';
+  el.className = 'login-msg' + (cls ? ` ${cls}` : '');
+}
+
+const loginBuyLink = $('#loginBuyLink');
+if (loginBuyLink) {
+  loginBuyLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (api().openExternal) api().openExternal(STORE_URL); else window.open(STORE_URL);
+  });
+}
+
+const loginKeyInput = $('#loginKeyInput');
+if (loginKeyInput) {
+  loginKeyInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { const b = $('#loginActivateBtn'); if (b) b.click(); }
+  });
+}
+
+const loginActivateBtn = $('#loginActivateBtn');
+if (loginActivateBtn) {
+  loginActivateBtn.addEventListener('click', async () => {
+    const key = loginKeyInput ? loginKeyInput.value.trim() : '';
+    if (!key) { loginMessage('Informe a Key recebida na compra.', 'err'); return; }
+    loginActivateBtn.disabled = true;
+    loginActivateBtn.textContent = 'VALIDANDO…';
+    loginMessage('Validando licença…', 'info');
+    try {
+      await api().licenseActivate(key);
+      loginMessage('Licença validada', 'okmsg');
+      await new Promise((r) => setTimeout(r, 250));
+      applyLicenseState(await api().licenseGetState());
+      hideLogin();
+      showView('home');
+      toast(`<b>Bem-vindo ao Orion Optimizer.</b>`);
+    } catch (err) {
+      const map = {
+        LICENSE_NOT_FOUND: 'Key inválida — verifique se digitou corretamente.',
+        LICENSE_EXPIRED: 'Licença expirada — renove na Orion Store.',
+        LICENSE_BLOCKED: 'Licença bloqueada — contate o suporte.',
+        VERSION_NOT_AUTHORIZED: 'Esta versão não está autorizada pela sua licença.',
+        DEVICE_LIMIT: 'Limite de dispositivos atingido para esta key.',
+        EMPTY_KEY: 'Informe uma key de licença.'
+      };
+      loginMessage(map[err.code] || `Falha na validação: ${err.message || err}`, 'err');
+    } finally {
+      loginActivateBtn.disabled = false;
+      loginActivateBtn.textContent = 'ATIVAR KEY';
+    }
+  });
+}
+
+// ---------------- Logout ----------------
+const logoutBtn = $('#logoutBtn');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await api().licenseLogout();
+      applyLicenseState(await api().licenseGetState());
+      showLogin();
+      showView('home');
+      loginMessage('Sessão encerrada. Insira sua Key para continuar.', 'info');
+      const ki = $('#loginKeyInput'); if (ki) ki.value = '';
+    } catch (err) {
+      toast(`❌ Não foi possível encerrar a sessão: ${esc(err.message || err)}`);
+    }
+  });
+}
 
 // ---------------- Progresso dos serviços (Game Boost / Segurança) ----------------
 api().onServiceStep((step) => {
@@ -2630,8 +3040,10 @@ async function loadLicenseInfoSettings() {
   let st;
   try { st = await api().licenseGetState(); } catch (_) { st = null; }
   const el = $('#settingsLicenseInfo');
+  const logoutBtn = $('#logoutBtn');
   if (!el) return;
   if (st && st.active) {
+    if (logoutBtn) logoutBtn.classList.remove('hidden');
     const feats = Array.isArray(st.features) && st.features.length
       ? featureNames(st.features).map((n) => `<span class="feat-chip">${typeof appIcon === 'function' ? appIcon('ok', { size: 13, className: 'text-success' }) : ''} ${esc(n)}</span>`).join('')
       : '<span style="color:var(--dim)">Nenhum recurso extra liberado.</span>';
@@ -2906,6 +3318,7 @@ async function updateSidebarVersion() {
   if (typeof hydrateIcons === 'function') hydrateIcons(document);
   initSidebarToggle();
   showView('home');
+  if (typeof startDashboard === 'function') startDashboard();
 
   updateSidebarVersion();
   bindUpdateButtons();

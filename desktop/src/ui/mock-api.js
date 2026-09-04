@@ -488,6 +488,16 @@ window.OrionAPI = {
     return { ok: true };
   },
   licenseRefresh: async () => _licenseState,
+  licenseLogout: async () => {
+    _listeners.licenseChanged.forEach((cb) => cb(_licenseState = { ..._licenseState, active: false, key: null }));
+    return { ok: true };
+  },
+  displayMonitors: async () => ({
+    primary: { name: 'ASUS ROG Strix XG27AQ', width: 2560, height: 1440, refreshRate: 165, connected: true, isPrimary: true },
+    monitors: [{ name: 'ASUS ROG Strix XG27AQ', width: 2560, height: 1440, connected: true, isPrimary: true }]
+  }),
+  displayBrightnessGet: async () => ({ supported: true, percent: 70 }),
+  displayBrightnessSet: async (percent) => ({ applied: true, percent }),
 
   generateReport: async () => {
     await delay(500);
@@ -650,9 +660,12 @@ window.OrionAPI = {
   },
 
   settingsGet: async () => ({
-    techMode: false, startWithWindows: false, minimizeToTray: false,
-    notifications: true, createRestorePoint: true, confirmBeforeApply: true,
-    defaultProfile: 'balanced', monitorInterval: 1, autoUpdate: true
+    general: { startWithWindows: false, minimizeToTray: false, notifications: true },
+    optimization: { createRestorePoint: true, confirmChanges: true, defaultProfile: 'balanced' },
+    monitoring: { intervalSec: 2, metrics: ['cpu', 'ram', 'gpu', 'disk', 'network'] },
+    updates: { autoCheck: true },
+    privacy: { syncHistoryWhenLicensed: true },
+    display: { saturation: 100, brightness: 70, contrast: 100 }
   }),
   settingsSet: async () => ({ ok: true }),
 

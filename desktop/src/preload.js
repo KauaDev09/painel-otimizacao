@@ -18,6 +18,7 @@ contextBridge.exposeInMainWorld('OrionAPI', {
   licenseGetState: () => ipcRenderer.invoke('license:getState'),
   licenseActivate: (key) => ipcRenderer.invoke('license:activate', key),
   licenseRefresh: () => ipcRenderer.invoke('license:refresh'),
+  licenseLogout: () => ipcRenderer.invoke('license:logout'),
   onLicenseChanged: (cb) => {
     ipcRenderer.on('license:changed', (_e, state) => cb(state));
   },
@@ -72,6 +73,9 @@ contextBridge.exposeInMainWorld('OrionAPI', {
   benchmarkRun: (payload) => ipcRenderer.invoke('benchmark:run', payload),
   settingsGet: () => ipcRenderer.invoke('settings:get'),
   settingsSet: (patch) => ipcRenderer.invoke('settings:set', patch),
+  displayMonitors: () => ipcRenderer.invoke('display:monitors'),
+  displayBrightnessGet: () => ipcRenderer.invoke('display:brightness:get'),
+  displayBrightnessSet: (percent) => ipcRenderer.invoke('display:brightness:set', percent),
   updateCheck: () => ipcRenderer.invoke('update:check'),
   updateDownload: (url) => ipcRenderer.invoke('update:download', url),
   updateInstall: (filePath) => ipcRenderer.invoke('update:install', filePath),

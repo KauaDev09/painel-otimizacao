@@ -28,6 +28,11 @@ const DEFAULTS = {
   },
   privacy: {
     syncHistoryWhenLicensed: true
+  },
+  display: {
+    saturation: 100,
+    brightness: 100,
+    contrast: 100
   }
 };
 
