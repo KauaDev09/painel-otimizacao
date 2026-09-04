@@ -53,9 +53,9 @@ async function listPlans() {
 // Instalador público: o site sempre oferece o .exe, mesmo se a tabela
 // downloads estiver vazia. Sem login, sem chave, sem liberação.
 const PUBLIC_INSTALLER = {
-  version: '2.0.4',
-  filename: 'ORION.OPTIMIZER.Setup-2.0.4.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.4/ORION.OPTIMIZER.Setup-2.0.4.exe',
+  version: '2.0.6',
+  filename: 'ORION.OPTIMIZER.Setup-2.0.6.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.6/ORION.OPTIMIZER.Setup-2.0.6.exe',
   release_notes: 'Instalador oficial para Windows 10/11. Use o aplicativo grátis, sem chave. Os planos desbloqueiam recursos avançados.',
   is_latest: 1,
   created_at: '2026-09-02T19:11:00.000Z',

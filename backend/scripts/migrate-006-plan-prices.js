@@ -13,9 +13,9 @@ const PRICES = [
 ];
 
 const INSTALLER = {
-  version: '2.0.3',
-  filename: 'ORION.OPTIMIZER.Setup-2.0.3.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.3/ORION.OPTIMIZER.Setup-2.0.3.exe',
+  version: '2.0.6',
+  filename: 'ORION.OPTIMIZER.Setup-2.0.6.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.6/ORION.OPTIMIZER.Setup-2.0.6.exe',
   notes: 'Instalador oficial para Windows 10/11. Use o aplicativo grátis, sem chave. Os planos desbloqueiam recursos avançados.'
 };
 

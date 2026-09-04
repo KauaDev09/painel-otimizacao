@@ -161,13 +161,13 @@ async function main() {
       await conn.execute(
         'INSERT INTO downloads (version, filename, url, release_notes, is_latest, active) VALUES (?,?,?,?,1,1)',
         [
-          '2.0.3',
-          'ORION.OPTIMIZER.Setup-2.0.3.exe',
-          'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.3/ORION.OPTIMIZER.Setup-2.0.3.exe',
+          '2.0.6',
+          'ORION.OPTIMIZER.Setup-2.0.6.exe',
+          'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.6/ORION.OPTIMIZER.Setup-2.0.6.exe',
           'Instalador oficial para Windows 10/11. Use o aplicativo grátis, sem chave. Os planos desbloqueiam recursos avançados.'
         ]
       );
-      console.log('[ok] download público 2.0.3 inserido');
+      console.log('[ok] download público 2.0.6 inserido');
     } else {
       console.log('[skip] downloads já populada');
     }
