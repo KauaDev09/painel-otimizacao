@@ -71,10 +71,10 @@ function brl(v) {
 }
 
 const PUBLIC_INSTALLER = {
-  version: '2.0.6',
-  filename: 'ORION.OPTIMIZER.Setup-2.0.6.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.6/ORION.OPTIMIZER.Setup-2.0.6.exe',
-  releaseNotes: 'Instalador oficial para Windows 10/11. Use o aplicativo grátis, sem chave. Os planos desbloqueiam recursos avançados.',
+  version: '2.0.7',
+  filename: 'ORION.OPTIMIZER.Setup-2.0.7.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.7/ORION.OPTIMIZER.Setup-2.0.7.exe',
+  releaseNotes: 'Instalador oficial para Windows 10/11. Proteção por chave de licença, nova página de Tela e dashboard ao vivo.',
   size: '~78 MB'
 };
 
