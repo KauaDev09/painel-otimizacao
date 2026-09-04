@@ -53,9 +53,9 @@ async function listPlans() {
 // Instalador público: o site sempre oferece o .exe, mesmo se a tabela
 // downloads estiver vazia. Sem login, sem chave, sem liberação.
 const PUBLIC_INSTALLER = {
-  version: '2.0.3',
-  filename: 'ORION.OPTIMIZER.Setup-2.0.3.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.3/ORION.OPTIMIZER.Setup-2.0.3.exe',
+  version: '2.0.4',
+  filename: 'ORION.OPTIMIZER.Setup-2.0.4.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.4/ORION.OPTIMIZER.Setup-2.0.4.exe',
   release_notes: 'Instalador oficial para Windows 10/11. Use o aplicativo grátis, sem chave. Os planos desbloqueiam recursos avançados.',
   is_latest: 1,
   created_at: '2026-09-02T19:11:00.000Z',
@@ -93,6 +93,9 @@ async function handleRegister(body) {
 }
 async function handleLogin(body) {
   return users.login(body);
+}
+async function handleLoginByKey(body) {
+  return users.loginByKey(body);
 }
 
 // ---------- Criação de checkout ----------
@@ -412,6 +415,7 @@ function register(router) {
   // ---- Autenticação de cliente ----
   router.post('/api/v1/store/register', async (body) => handleRegister(body));
   router.post('/api/v1/store/login', async (body) => handleLogin(body));
+  router.post('/api/v1/store/login-key', async (body) => handleLoginByKey(body));
 
   // ---- Checkout ----
   router.post('/api/v1/store/checkout', async (body, _params, _urlObj, req) => {
