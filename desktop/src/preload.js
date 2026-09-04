@@ -104,5 +104,10 @@ contextBridge.exposeInMainWorld('OrionAPI', {
   biosLogs: () => ipcRenderer.invoke('bios:logs'),
   onBiosBootVerify: (cb) => {
     ipcRenderer.on('bios:boot-verify', (_e, res) => cb(res));
-  }
+  },
+
+  // Window controls (frameless)
+  windowMinimize: () => ipcRenderer.invoke('window:minimize'),
+  windowMaximize: () => ipcRenderer.invoke('window:maximize'),
+  windowClose: () => ipcRenderer.invoke('window:close'),
 });

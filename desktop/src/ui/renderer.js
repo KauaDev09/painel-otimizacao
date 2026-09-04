@@ -33,6 +33,16 @@ const state = {
   bios: null
 };
 
+// Titlebar controls (frameless window)
+(function initTitlebar() {
+  const tbMin = $('#tbMinimize');
+  const tbMax = $('#tbMaximize');
+  const tbCls = $('#tbClose');
+  if (tbMin) tbMin.addEventListener('click', () => api().windowMinimize && api().windowMinimize());
+  if (tbMax) tbMax.addEventListener('click', () => api().windowMaximize && api().windowMaximize());
+  if (tbCls) tbCls.addEventListener('click', () => api().windowClose && api().windowClose());
+})();
+
 const CATEGORY_LABEL = {
   windows: 'Windows', cpu: 'CPU', gpu: 'GPU', ram: 'RAM', rede: 'Rede',
   armazenamento: 'Armazenamento', energia: 'Energia', inicializacao: 'Inicialização',
@@ -140,9 +150,12 @@ document.addEventListener('keydown', (e) => {
 
 // ---------------- Navegação ----------------
 function showView(name) {
-  $$('.view').forEach((v) => v.classList.remove('active'));
+  $$('.view').forEach((v) => { v.classList.remove('active'); v.classList.remove('view-enter'); });
   const targetEl = $(`#view-${name}`);
-  if (targetEl) targetEl.classList.add('active');
+  if (targetEl) {
+    targetEl.classList.add('active');
+    targetEl.classList.add('view-enter');
+  }
 
   $$('.sidebar-item').forEach((t) => t.classList.toggle('active', t.dataset.view === name));
 
@@ -1548,34 +1561,46 @@ function renderOptItems() {
     updateSelectedCount();
     return;
   }
-  el.innerHTML = list.map((it) => {
-    const selected = state.optSelected.has(it.id);
-    const applied = state.optApplied.has(it.id);
-    const expanded = state.optExpanded.has(it.id);
-    const hint = it.applyHint || (it.registryKeys || []).join('\n') || 'Ajuste de sistema (sem chave de registro declarada).';
-    return `
-    <div class="opt-item${selected ? ' checked' : ''}" data-id="${esc(it.id)}" role="checkbox" aria-checked="${selected}" tabindex="0">
-      <div class="opt-icon-chip">${appIcon(it.icon || catIcon(it.category), { size: 18 })}</div>
-      <div class="opt-body">
-        <div class="opt-item-head">
-          <h3>${esc(it.name)}</h3>
-          <span class="badge neutral">${esc(CATEGORY_LABEL[it.category] || it.category)}</span>
-          ${it.proOnly
-            ? `<span class="badge pro">${appIcon('pro', { size: 12 })} PRO</span>`
-            : '<span class="badge free">GRÁTIS</span>'}
-          ${applied ? `<span class="badge applied">${appIcon('ok', { size: 12 })} APLICADA</span>` : ''}
-          ${it.rebootRequired ? `<span class="badge reboot">${appIcon('restore', { size: 12 })} REQUER REINÍCIO</span>` : ''}
+  const riskOrder = { high: 0, medium: 1, low: 2 };
+  const riskLabels = { high: 'Requer atenção', medium: 'Moderadas', low: 'Seguras' };
+  const grouped = {};
+  list.forEach((it) => {
+    const r = it.risk || 'low';
+    if (!grouped[r]) grouped[r] = [];
+    grouped[r].push(it);
+  });
+  const sortedRisks = Object.keys(grouped).sort((a, b) => (riskOrder[a] ?? 3) - (riskOrder[b] ?? 3));
+  el.innerHTML = sortedRisks.map((risk) => {
+    const items = grouped[risk];
+    return `<div class="opt-risk-group">
+      <h4 class="opt-risk-label">${riskLabels[risk] || risk} <span class="text-dim">(${items.length})</span></h4>
+      ${items.map((it) => {
+        const selected = state.optSelected.has(it.id);
+        const applied = state.optApplied.has(it.id);
+        const expanded = state.optExpanded.has(it.id);
+        const hint = it.applyHint || (it.registryKeys || []).join('\n') || 'Ajuste de sistema (sem chave de registro declarada).';
+        return `
+      <div class="opt-item risk-stripe ${risk}${selected ? ' checked' : ''}" data-id="${esc(it.id)}" role="checkbox" aria-checked="${selected}" tabindex="0">
+        <div class="opt-icon-chip">${appIcon(it.icon || catIcon(it.category), { size: 18 })}</div>
+        <div class="opt-body">
+          <div class="opt-item-head">
+            <h3>${esc(it.name)}</h3>
+            ${it.proOnly ? `<span class="opt-icon-sm">${appIcon('pro', { size: 12 })} PRO</span>` : ''}
+            ${it.requiresAdmin ? `<span class="opt-icon-sm">${appIcon('lock', { size: 12 })} Admin</span>` : ''}
+            ${it.rebootRequired ? `<span class="opt-icon-sm">${appIcon('restore', { size: 12 })} Reinício</span>` : ''}
+            ${applied ? `<span class="opt-icon-sm text-success">${appIcon('ok', { size: 12 })} Aplicada</span>` : ''}
+          </div>
+          <div class="opt-desc">${esc(it.description)}</div>
+          <div class="opt-benefit">${appIcon('ok', { size: 12, className: 'text-success' })} ${esc(it.benefit)}</div>
+          <div class="opt-details${expanded ? '' : ' hidden'}">${esc(hint)}</div>
         </div>
-        <div class="opt-desc">${esc(it.description)}</div>
-        <div class="opt-benefit">${appIcon('ok', { size: 12, className: 'text-success' })} ${esc(it.benefit)}</div>
-        <div class="badges">${riskBadge(it.risk)}${it.requiresAdmin ? '<span class="badge neutral">ADMIN</span>' : ''}</div>
-        <div class="opt-details${expanded ? '' : ' hidden'}">${esc(hint)}</div>
-      </div>
-      <div class="opt-item-actions">
-        <input class="opt-item-check opt-check-anim" type="checkbox" ${selected ? 'checked' : ''} tabindex="-1" aria-hidden="true"/>
-        <button type="button" class="opt-expand" aria-label="Ver chave de registro" aria-expanded="${expanded}">${appIcon('chevron', { size: 16 })}</button>
-        ${applied ? `<button type="button" class="btn btn-outline btn-revert" data-revert="${esc(it.id)}">${appIcon('restore', { size: 14 })} Reverter</button>` : ''}
-      </div>
+        <div class="opt-item-actions">
+          <input class="opt-item-check opt-check-anim" type="checkbox" ${selected ? 'checked' : ''} tabindex="-1" aria-hidden="true"/>
+          <button type="button" class="opt-expand" aria-label="Ver chave de registro" aria-expanded="${expanded}">${appIcon('chevron', { size: 16 })}</button>
+          ${applied ? `<button type="button" class="btn btn-outline btn-revert" data-revert="${esc(it.id)}">${appIcon('restore', { size: 14 })} Reverter</button>` : ''}
+        </div>
+      </div>`;
+      }).join('')}
     </div>`;
   }).join('');
   bindOptItemEvents();
@@ -2742,8 +2767,12 @@ async function startUpdateDownload(url, version) {
       $('#updateInstallingLabel').textContent = 'Instalando atualização...';
 
       try {
-        await api().updateInstall(result.filePath);
-        // Se chegou aqui, o app vai reiniciar
+        const installRes = await api().updateInstall(result.filePath);
+        if (installRes && installRes.ok === false) {
+          installingPanel.classList.add('hidden');
+          toast(`⚠️ ${esc(installRes.message || 'Não foi possível aplicar a atualização.')}`);
+        }
+        // Se ok === true, o app vai fechar e reabrir automaticamente.
       } catch (installErr) {
         installingPanel.classList.add('hidden');
         toast(`❌ Erro na instalação: ${esc(installErr.message || installErr)}`);

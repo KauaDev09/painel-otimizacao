@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ORION OPTIMIZER — Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <style>
     .preview-banner {
@@ -27,6 +30,25 @@
 </head>
 <body>
 
+  <!-- Custom title bar (preview) -->
+  <div id="titlebar" class="titlebar">
+    <div class="titlebar-drag">
+      <img src="assets/logo.jpeg" alt="" class="titlebar-logo" />
+      <span class="titlebar-title">ORION OPTIMIZER</span>
+    </div>
+    <div class="titlebar-controls">
+      <button class="titlebar-btn" id="tbMinimize" aria-label="Minimizar" type="button">
+        <svg width="12" height="12" viewBox="0 0 12 12"><rect y="5" width="12" height="1.5" fill="currentColor" rx="0.75"/></svg>
+      </button>
+      <button class="titlebar-btn" id="tbMaximize" aria-label="Maximizar" type="button">
+        <svg width="12" height="12" viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+      </button>
+      <button class="titlebar-btn titlebar-close" id="tbClose" aria-label="Fechar" type="button">
+        <svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+
   <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
 
   <!-- ===================== SIDEBAR ===================== -->
@@ -48,7 +70,7 @@
         <span class="sidebar-label">Início</span>
       </button>
 
-      <div class="sidebar-section">OTIMIZAÇÃO</div>
+      <div class="sidebar-section">Otimização</div>
 
       <button data-view="optimize" class="sidebar-item" type="button">
         <span class="sidebar-icon" data-icon="windows" data-size="20"></span>
@@ -71,11 +93,11 @@
         <span class="sidebar-label">BIOS</span>
       </button>
 
-      <div class="sidebar-section">MONITORAMENTO</div>
+      <div class="sidebar-section">Monitoramento</div>
 
       <button data-view="monitor" class="sidebar-item" type="button">
         <span class="sidebar-icon" data-icon="monitoring" data-size="20"></span>
-        <span class="sidebar-label">Monitor</span>
+        <span class="sidebar-label">Monitoramento</span>
       </button>
       <button data-view="benchmark" class="sidebar-item" type="button">
         <span class="sidebar-icon" data-icon="benchmark" data-size="20"></span>
@@ -90,7 +112,7 @@
         <span class="sidebar-label">Segurança</span>
       </button>
 
-      <div class="sidebar-section">FERRAMENTAS</div>
+      <div class="sidebar-section">Ferramentas</div>
 
       <button data-view="startup" class="sidebar-item" type="button">
         <span class="sidebar-icon" data-icon="startup" data-size="20"></span>
@@ -109,7 +131,7 @@
         <span class="sidebar-label">Histórico</span>
       </button>
 
-      <div class="sidebar-section">CONTA</div>
+      <div class="sidebar-section">Conta</div>
 
       <button data-view="activation" class="sidebar-item" type="button">
         <span class="sidebar-icon" data-icon="license" data-size="20"></span>
@@ -163,10 +185,7 @@
           <h1><span class="accent">ORION</span> OPTIMIZER</h1>
           <p class="subtitle">Advanced PC Performance Suite</p>
           <p class="tagline">Analise sua máquina e otimize o desempenho com precisão.</p>
-          <button id="analyzeBtn" class="btn btn-primary btn-big"><span data-icon="run" data-size="18"></span> ANALISAR SISTEMA</button>
-        </div>
-        <div class="hero-mascot">
-          <img src="assets/mascot-welcome.jpg" alt="Orion Mascot" />
+          <button id="analyzeBtn" class="btn btn-primary btn-big"><span data-icon="run" data-size="18"></span> Analisar Sistema</button>
         </div>
       </div>
       <div class="home-grid">
@@ -426,9 +445,6 @@
             <p class="disclaimer">A licença é vinculada a este computador e validada com segurança no servidor — nenhum dado sensível é armazenado no aplicativo.</p>
           </div>
         </div>
-        <div class="hero-mascot">
-          <img src="assets/mascot-pointing.jpg" alt="Orion" />
-        </div>
       </div>
     </section>
 
@@ -655,9 +671,8 @@
           </div>
           <div class="counts-panel">
             <h3>Contato</h3>
-            <div class="support-mascot"><img src="assets/mascot-support.jpg" alt="Orion Suporte" /></div>
             <p class="empty-note">Precisa de ajuda com licença, ativação ou reembolso? Fale com o suporte oficial.</p>
-            <button id="contactSupportBtn" class="btn btn-primary">ABRIR PÁGINA DE SUPORTE</button>
+            <button id="contactSupportBtn" class="btn btn-primary">Abrir Página de Suporte</button>
           </div>
         </aside>
       </div>

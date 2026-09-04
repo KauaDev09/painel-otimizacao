@@ -733,7 +733,12 @@ window.OrionAPI = {
   },
   biosReboot: async () => ({ ok: true, message: 'Reinício simulado (preview).' }),
   biosLogs: async () => _biosLogs,
-  onBiosBootVerify: (cb) => { _listeners.biosBootVerify.push(cb); }
+  onBiosBootVerify: (cb) => { _listeners.biosBootVerify.push(cb); },
+
+  // Window controls (no-op in preview)
+  windowMinimize: () => {},
+  windowMaximize: () => {},
+  windowClose: () => {}
 };
 
 // Simulate initial license state

@@ -132,6 +132,8 @@ function createWindow() {
     backgroundColor: '#0b0b0d',
     title: APP_NAME,
     icon: appIcon(),
+    frame: false,
+    center: true,
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -468,6 +470,14 @@ function registerIpc() {
     }
     return shell.openExternal(u.toString());
   });
+
+  // Window controls (frameless)
+  ipcMain.handle('window:minimize', () => mainWindow && mainWindow.minimize());
+  ipcMain.handle('window:maximize', () => {
+    if (!mainWindow) return;
+    mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
+  });
+  ipcMain.handle('window:close', () => mainWindow && mainWindow.close());
 }
 
 function stripRaw(result) {

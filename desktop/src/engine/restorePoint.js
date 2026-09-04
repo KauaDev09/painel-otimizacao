@@ -67,9 +67,9 @@ function _keyToRegPath(key) {
 }
 
 /**
- * Exporta as chaves informadas para um arquivo .reg de backup.
+ * Exporta as chaves informadas para arquivos .reg de backup (um por chave).
  * keys: array no formato ['HKLM\\SOFTWARE\\...', 'HKCU\\Software\\...'].
- * Retorna o caminho do .reg gerado ou null se nada foi exportado.
+ * Retorna array de caminhos .reg exportados ou null se nada foi exportado.
  */
 async function backupRegistryKeys(keys, opId) {
   if (!baseDir) throw new Error('Protection dir não configurado.');
@@ -77,32 +77,37 @@ async function backupRegistryKeys(keys, opId) {
   if (!list.length) return null;
   const dir = path.join(baseDir, opId);
   fs.mkdirSync(dir, { recursive: true });
-  const file = path.join(dir, 'backup.reg');
-  let any = false;
-  for (const k of list) {
+  const files = [];
+  for (let i = 0; i < list.length; i++) {
+    const k = list[i];
+    const file = path.join(dir, `backup-${i}.reg`);
     try {
       await new Promise((resolve) => {
         const { spawn } = require('child_process');
         const child = spawn('reg.exe', ['export', k, file, '/y'], { windowsHide: true });
         child.on('error', () => resolve());
-        child.on('close', (code) => { if (code === 0) any = true; resolve(); });
+        child.on('close', (code) => { if (code === 0 && fs.existsSync(file)) files.push(file); resolve(); });
       });
     } catch (_) { /* segue para a próxima chave */ }
   }
-  return any ? file : null;
+  return files.length ? files : null;
 }
 
-/** Restaura um backup .reg específico. */
-async function restoreRegistryBackup(backupFile) {
-  if (!backupFile || !fs.existsSync(backupFile)) {
-    return { ok: false, message: 'Backup não encontrado para esta operação.' };
+/** Restaura backups .reg (array de caminhos ou caminho único legado). */
+async function restoreRegistryBackup(backupFiles) {
+  if (!backupFiles) return { ok: false, message: 'Backup não encontrado para esta operação.' };
+  const files = Array.isArray(backupFiles) ? backupFiles : [backupFiles];
+  const existing = files.filter((f) => f && fs.existsSync(f));
+  if (!existing.length) return { ok: false, message: 'Backup não encontrado para esta operação.' };
+  for (const file of existing) {
+    const ok = await new Promise((resolve) => {
+      const { spawn } = require('child_process');
+      const child = spawn('reg.exe', ['import', file], { windowsHide: true });
+      child.on('error', () => resolve(false));
+      child.on('close', (code) => resolve(code === 0));
+    });
+    if (!ok) return { ok: false, message: `Falha ao restaurar: ${path.basename(file)}` };
   }
-  await new Promise((resolve) => {
-    const { spawn } = require('child_process');
-    const child = spawn('reg.exe', ['import', backupFile], { windowsHide: true });
-    child.on('error', () => resolve());
-    child.on('close', () => resolve());
-  });
   return { ok: true, message: 'Configurações anteriores restauradas.' };
 }
 

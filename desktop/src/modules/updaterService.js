@@ -205,12 +205,16 @@ function isWindowsExecutable(file) {
  * então ele NÃO pode usar "/D" (que apontaria para o diretório errado) nem
  * pode ser executado enquanto o app está aberto com arquivos em uso.
  *
- * Fluxo:
- *  1) Inicia um helper PowerShell ELEVADO que:
- *       - aguarda o app atual fechar (liberando os .exe em uso);
- *       - roda o instalador em modo silencioso (/S, com UAC já aceito);
- *       - relança o aplicativo atualizado via explorer.exe (fora de elevação).
- *  2) O processo do app se encerra após ~2,5s para liberar os arquivos.
+ * Para evitar o cenário "o painel fecha e nunca mais abre" (quando o UAC é
+ * negado ou o PowerShell falha), este fluxo usa um marcador de status:
+ *  1. Grava um helper PowerShell.
+ *  2. Lança o helper ELEVADO (prompt UAC). O helper escreve AGORA o arquivo
+ *     "started" assim que entra em execução.
+ *  3. Aguardamos o marcador "started". Se NÃO aparecer em ~20s, conclui-se
+ *     que a elevação foi negada/falhou → NÃO fechamos o app e reportamos erro.
+ *  4. Com a elevação confirmada, fechamos o app (libera os .exe em uso).
+ *  5. O helper, então: aguarda o app sair → roda o instalador /S →
+ *     escreve "done" → relança o app atualizado de-elevado (via explorer).
  */
 async function installUpdate(filePath) {
   if (!filePath || !fs.existsSync(filePath)) {
@@ -232,22 +236,32 @@ async function installUpdate(filePath) {
 
   const helperDir = path.join(app.getPath('temp'), APP_NAME.replace(/\s+/g, '_'));
   fs.mkdirSync(helperDir, { recursive: true });
-  const helperPath = path.join(helperDir, `apply-update-${Date.now()}.ps1`);
+  const stamp = Date.now();
+  const helperPath = path.join(helperDir, `apply-update-${stamp}.ps1`);
+  const statusFile = path.join(helperDir, `apply-update-${stamp}.status`);
 
   const helper = [
     '$ErrorActionPreference = "Stop"',
     '$ProgressPreference = "SilentlyContinue"',
+    // 0) Marca que a elevação foi concedida e o helper está rodando.
+    `Set-Content -LiteralPath '${statusFile}' -Value 'started' -Encoding ASCII`,
     `$installer = '${String(installerPath).replace(/'/g, "''")}'`,
     `$exe = '${String(exePath).replace(/'/g, "''")}'`,
     `$appPid = ${Number(appPid)}`,
+    `$status = '${String(statusFile).replace(/'/g, "''")}'`,
     // 1) Aguarda o app atual sair (os .exe em Program Files são liberados)
     'while (Get-Process -Id $appPid -ErrorAction SilentlyContinue) { Start-Sleep -Milliseconds 350 }',
     'Start-Sleep -Milliseconds 900',
     // 2) Instala silenciosamente (já elevado → sem novo prompt de UAC)
-    '$inst = Start-Process -FilePath $installer -ArgumentList "/S" -Wait -PassThru',
+    'try {',
+    '  $inst = Start-Process -FilePath $installer -ArgumentList "/S" -Wait -PassThru',
+    '  Set-Content -LiteralPath $status -Value ("installed:" + $inst.ExitCode) -Encoding ASCII',
+    '} catch {',
+    '  Set-Content -LiteralPath $status -Value ("error:" + $_.Exception.Message) -Encoding ASCII',
+    '}',
     'Start-Sleep -Milliseconds 600',
     // 3) Relança o app fora de elevação para não herdar privilégios elevados
-    'if (Test-Path -LiteralPath $exe) { Start-Process -FilePath "explorer.exe" -ArgumentList ("\"\"" + $exe + "\"\"") } else { Start-Process -FilePath $exe }',
+    'if (Test-Path -LiteralPath $exe) { Start-Process -FilePath $exe } else { Set-Content -LiteralPath $status -Value "noexe" -Encoding ASCII }',
     'exit 0'
   ].join('\n');
 
@@ -260,22 +274,44 @@ async function installUpdate(filePath) {
 
   sendToRenderer('update:installing', { message: 'Solicitando permissão de administrador...' });
 
-  execFile(psExe, ['-NoProfile', '-NonInteractive', '-Command', elevatedCmd], { windowsHide: true }, (err) => {
-    // Mesmo se o UAC for cancelado, o helper só não roda; o fluxo não quebra.
-    if (err) console.error('[updater] Falha ao iniciar helper (UAC cancelado?):', err.message);
-  });
+  try {
+    fs.unlinkSync(statusFile);
+  } catch (_) { /* ainda não existe */ }
+
+  let launched = false;
+  try {
+    execFile(psExe, ['-NoProfile', '-NonInteractive', '-Command', elevatedCmd], { windowsHide: true }, (err) => {
+      if (err) console.error('[updater] Falha ao iniciar helper (UAC cancelado?):', err.message);
+    });
+    launched = true;
+  } catch (err) {
+    launched = false;
+    console.error('[updater] Erro ao lançar helper:', err.message);
+  }
 
   sendToRenderer('update:installing', { message: 'Instalando... O aplicativo será fechado e reaberto automaticamente.' });
 
   return new Promise((resolve) => {
-    // Dá tempo para o usuário aceitar o UAC e o helper iniciar; depois fecha o app
-    // para liberar os arquivos em uso e deixar o helper finalizar a instalação
-    // e relançar o aplicativo ATUALIZADO. NÃO usar app.relaunch() aqui:
-    // ele relançaria o executável antigo antes da instalação terminar.
-    setTimeout(() => {
-      resolve({ ok: true, message: 'Atualização aplicada. O aplicativo será reaberto automaticamente.' });
-      app.exit(0);
-    }, 2500);
+    // Confirma que a elevação foi concedida (helper escreveu "started").
+    // Se NÃO em até 20s → UAC negado/falhou → mantemos o app aberto.
+    const deadline = Date.now() + 20000;
+    const poll = () => {
+      let s = '';
+      try { s = fs.readFileSync(statusFile, 'utf8'); } catch (_) { /* ainda não */ }
+      if (s.includes('started')) {
+        // Elevação confirmada — fecha o app para liberar arquivos. O helper
+        // instala e relança. NÃO usar app.relaunch(): relançaria o exe antigo.
+        resolve({ ok: true, message: 'Atualização aplicada. O aplicativo será reaberto automaticamente.' });
+        app.exit(0);
+        return;
+      }
+      if (Date.now() > deadline) {
+        resolve({ ok: false, code: 'UAC_DENIED', message: 'Permissão de administrador negada ou expirada. O aplicativo permanece na versão atual. Tente novamente e confirme o UAC.' });
+        return;
+      }
+      setTimeout(poll, 500);
+    };
+    setTimeout(poll, 700);
   });
 }
 

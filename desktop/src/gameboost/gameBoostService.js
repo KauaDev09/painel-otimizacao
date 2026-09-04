@@ -268,7 +268,7 @@ function buildSessionStartScript({ sessionFile, game }) {
     "$ErrorActionPreference = 'SilentlyContinue'",
     "$ProgressPreference = 'SilentlyContinue'",
     '[Console]::OutputEncoding = [System.Text.Encoding]::UTF8',
-    'function Save-Stage([string]$stage, [int]$p, [string]$prev) {',
+    'function Save-Stage([string]$stage, [int]$p, [string]$prev, [string]$msg) {',
     '  $o = [ordered]@{',
     '    stage = $stage',
     '    gameId = $gameId',
@@ -278,6 +278,7 @@ function buildSessionStartScript({ sessionFile, game }) {
     '    previousScheme = $prev',
     '    startedAt = $startedAtStr',
     '    endedAt = $null',
+    '    message = $msg',
     '  }',
     '  $o | ConvertTo-Json -Compress | Set-Content -LiteralPath $sessionFile -Encoding UTF8',
     '}',
@@ -296,27 +297,50 @@ function buildSessionStartScript({ sessionFile, game }) {
     `powercfg /setactive ${HIGH_PERF_GUID} 2>$null`,
     'if ($LASTEXITCODE -ne 0) { $dup = powercfg /duplicatescheme ' + HIGH_PERF_GUID + ' 2>$null; $dm = [regex]::Match("$dup", "' + GUID_RX + '", "IgnoreCase"); if ($dm.Success) { powercfg /setactive $dm.Groups[1].Value } }',
     // stage=pending = helper rodando (UAC aceito)
-    'Save-Stage "pending" 0 $prev',
+    'Save-Stage "pending" 0 $prev "Plano Alto Desempenho ativado. Iniciando jogo..."',
     // Lança o jogo SEM elevação, via shell do usuário (evita anti-cheat sensível)
     'Start-Process -FilePath "explorer.exe" -ArgumentList $exe',
-    // Localiza o processo (até ~20s) e eleva a prioridade para "Alta"
+    // Aguarda o jogo iniciar (dá tempo para o explorer lançar)
+    'Start-Sleep -Seconds 2',
+    // Localiza o processo (até ~45s com polling a cada 1.5s)
     '$found = $null',
-    'for ($i = 0; $i -lt 40; $i++) {',
-    '  Start-Sleep -Milliseconds 500',
-    '  $c = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -eq $baseName -and $_.StartTime -gt $startedAt.AddSeconds(-2) })',
-    '  if ($c.Count -gt 0) { $found = $c | Sort-Object StartTime | Select-Object -First 1; break }',
+    '$exePath = $exe.ToLower()',
+    'for ($i = 0; $i -lt 30; $i++) {',
+    '  Start-Sleep -Milliseconds 1500',
+    '  $procs = @(Get-Process -ErrorAction SilentlyContinue | Where-Object {',
+    '    $_.ProcessName -eq $baseName -and',
+    '    $_.StartTime -gt $startedAt.AddSeconds(-5) -and',
+    '    (-not $_.HasExited)',
+    '  })',
+    '  if ($procs.Count -gt 0) { $found = $procs | Sort-Object StartTime | Select-Object -First 1; break }',
+    '  // Fallback: tenta por caminho do executável',
+    '  if ($i -eq 10) {',
+    '    $allProcs = @(Get-Process -ErrorAction SilentlyContinue | Where-Object {',
+    '      try {',
+    '        $p = $_.MainModule.FileName',
+    '        $p -and $p.ToLower().Contains($baseName.ToLower()) -and $_.StartTime -gt $startedAt.AddSeconds(-10) -and (-not $_.HasExited)',
+    '      } catch { $false }',
+    '    })',
+    '    if ($allProcs.Count -gt 0) { $found = $allProcs | Sort-Object StartTime | Select-Object -First 1; break }',
+    '  }',
+    '  if ($i -eq 20) {',
+    '    Save-Stage "pending" 0 $prev "Localizando processo do jogo... ($($i * 1.5)s)"',
+    '  }',
     '}',
     'if ($found) {',
+    '  // Eleva a prioridade para "Alta"',
     '  try { $found.PriorityClass = "High" } catch {}',
-    '  Save-Stage "running" $found.Id $prev',
+    '  Save-Stage "running" $found.Id $prev "Boost ativo — prioridade alta no processo $($found.Id)"',
+    '  // Monitora até o jogo fechar',
     '  while (-not $found.HasExited) { Start-Sleep -Seconds 2; try { $found.Refresh() } catch { break } }',
     '  Start-Sleep -Milliseconds 800',
     '} else {',
-    '  Save-Stage "ended" 0 $prev',
+    '  // Jogo não encontrado — mantém plano Alto Desempenho e avisa',
+    '  Save-Stage "ended" 0 $prev "Jogo iniciado mas processo não localizado. Plano Alto Desempenho mantido."',
     '}',
     // Restaura o plano anterior (mesmo processo elevado → sem novo UAC)
     'if ($prev) { powercfg /setactive $prev 2>$null }',
-    '$endObj = [ordered]@{ stage="ended"; gameId=$gameId; gameName=$gameName; pid=0; processName=$baseName; previousScheme=$prev; startedAt=$startedAtStr; endedAt=(Get-Date).ToString("o") } | ConvertTo-Json -Compress | Set-Content -LiteralPath $sessionFile -Encoding UTF8',
+    '$endObj = [ordered]@{ stage="ended"; gameId=$gameId; gameName=$gameName; pid=0; processName=$baseName; previousScheme=$prev; startedAt=$startedAtStr; endedAt=(Get-Date).ToString("o"); message="Sessao encerrada." } | ConvertTo-Json -Compress | Set-Content -LiteralPath $sessionFile -Encoding UTF8',
     'exit 0'
   ].join('\n');
 }
@@ -387,10 +411,18 @@ class GameMode {
 
   list() {
     try {
-      return JSON.parse(fs.readFileSync(this.gamesFile(), 'utf8'));
-    } catch (_) {
-      return [];
-    }
+      const games = JSON.parse(fs.readFileSync(this.gamesFile(), 'utf8'));
+      if (games.length > 0) return games;
+    } catch (_) {}
+    // Default: FiveM pre-configured
+    const defaultGame = {
+      id: 'gfivem',
+      path: 'C:\\Program Files\\FiveM\\FiveM.exe',
+      name: 'FiveM',
+      addedAt: new Date().toISOString(),
+      isDefault: true
+    };
+    return [defaultGame];
   }
 
   add({ path: exe, name }) {
@@ -506,7 +538,8 @@ class GameMode {
         this.session = null;
         this.pending = false;
         this.pendingNotified = false;
-        this._emit({ state: 'ended', message: 'Jogo encerrado. Plano de energia restaurado automaticamente.' });
+        const endMsg = disk.message || 'Jogo encerrado. Plano de energia restaurado automaticamente.';
+        this._emit({ state: 'ended', message: endMsg });
         try { fs.unlinkSync(this.sessionFile()); } catch (_) { /* limpo */ }
       }
     }, 3000);

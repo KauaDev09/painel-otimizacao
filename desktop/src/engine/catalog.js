@@ -369,6 +369,56 @@ const ITEMS = [
     registryKeys: ['HKLM\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters']
   },
 
+  // ==================== WINDOWS FULL / BALANCED / EXTREME ====================
+  {
+    id: 'win.full',
+    name: 'Windows Full',
+    category: 'windows',
+    description: 'Otimização avançada de perfil multimídia: configura prioridades de agendamento para Áudio, Captura, DisplayPostProcessing, Distribution, Games, Low Latency, Playback, Pro Audio e Window Manager. Desativa NetworkThrottling e/SystemResponsiveness para máximo desempenho multimídia.',
+    benefit: 'Perfis de sistema otimizados para gaming, áudio profissional e baixa latência. Ganho perceptível em estabilidade de FPS e audio.',
+    risk: 'medium',
+    requiresAdmin: true,
+    confirm: false,
+    profiles: ['performance', 'gaming'],
+    proOnly: true,
+    icon: 'gauge',
+    apply: script('windows/performance/Windows Full.bat'),
+    undo: ps('Remove-ItemProperty -Path "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile" -Name NetworkThrottlingIndex -ErrorAction SilentlyContinue; Remove-ItemProperty -Path "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile" -Name SystemResponsiveness -ErrorAction SilentlyContinue; Remove-ItemProperty -Path "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile" -Name AlwaysOn -ErrorAction SilentlyContinue'),
+    registryKeys: ['HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile', 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks']
+  },
+  {
+    id: 'win.balanced',
+    name: 'Windows Balanced',
+    category: 'windows',
+    description: 'Otimização equilibrada: limpeza de temporários, desativação de UAC, IPv6, VBS, CFG, ajustes de memória, DWM, acessibilidade, Game DVR, prefetch/superfetch e configurações de privacidade/ publicidade.',
+    benefit: 'Sistema mais responsivo no uso diário com segurança reduzida (UAC/VBS off). Bom equilíbrio entre desempenho e funcionalidade.',
+    risk: 'medium',
+    requiresAdmin: true,
+    confirm: false,
+    profiles: ['balanced', 'performance', 'gaming'],
+    proOnly: true,
+    icon: 'zap',
+    apply: script('windows/performance/Windows Balanced.bat'),
+    undo: ps('reg add "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System" /v EnableLUA /t REG_DWORD /d 1 /f; reg add "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System" /v ConsentPromptBehaviorAdmin /t REG_DWORD /d 5 /f'),
+    registryKeys: ['HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System', 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management']
+  },
+  {
+    id: 'win.extreme',
+    name: 'Windows Extreme',
+    category: 'windows',
+    description: 'Otimização agressiva de performance: prioridade Win32, timeouts reduzidos, desativação de telemetria/notificações/sincronização, Ultimate Performance, unpark CPU, Nagle off, DNS Cloudflare, Game DVR off, VBS off, FiveM/CPU tweaks.',
+    benefit: 'Máxima performance para gaming competitivo. Inclui otimizações de rede, CPU, GPU e FiveM. ATENÇÃO: reduz significativamente a segurança e funcionalidades do Windows.',
+    risk: 'high',
+    requiresAdmin: true,
+    confirm: true,
+    profiles: [],
+    proOnly: true,
+    icon: 'rocket',
+    apply: script('windows/performance/Windows Extreme.bat'),
+    undo: ps('bcdedit /deletevalue disabledynamictick 2>$null; bcdedit /deletevalue useplatformclock 2>$null; powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e 2>$null'),
+    registryKeys: ['HKLM\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl', 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile', 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Power\\PowerThrottling']
+  },
+
   // ==================== NATIVAS (PowerShell inline) ====================
   {
     id: 'power.highperformance',
