@@ -5,6 +5,8 @@
 
 const api = () => window.OrionAPI;
 
+const $ = (sel) => document.querySelector(sel);
+
 const state = {
   result: null,
   techMode: false,
@@ -49,7 +51,6 @@ const CATEGORY_LABEL = {
   jogos: 'Jogos', limpeza: 'Limpeza', seguranca: 'Segurança'
 };
 
-const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
 function esc(s) {
@@ -2194,8 +2195,8 @@ async function pollMonitor() {
     else {
       netVal.classList.remove('na');
       netVal.innerHTML =
-        `<span style="color:var(--green)">▼${fmtKbps(rx)}</span> ` +
-        `<span style="color:var(--red-bright);margin-left:10px">▲${fmtKbps(tx)}</span>`;
+        `<span style="color:var(--green)">${appIcon('arrow-down', { size: 13 })} ${fmtKbps(rx)}</span> ` +
+        `<span style="color:var(--red-bright);margin-left:10px">${appIcon('arrow-up', { size: 13 })} ${fmtKbps(tx)}</span>`;
     }
   }
 

@@ -366,7 +366,8 @@ const _listeners = {
   step: [],
   downloadProgress: [],
   installing: [],
-  biosBootVerify: []
+  biosBootVerify: [],
+  updateAvailable: []
 };
 
 const MOCK_BIOS_ITEMS = [
@@ -686,6 +687,7 @@ window.OrionAPI = {
   updateCancel: async () => { return { ok: true }; },
   onDownloadProgress: (cb) => { _listeners.downloadProgress.push(cb); },
   onInstalling: (cb) => { _listeners.installing.push(cb); },
+  onUpdateAvailable: (cb) => { _listeners.updateAvailable.push(cb); },
   getAppMeta: async () => ({ version: '2.0.0', buildDate: '2026-08-20', electron: '31.7.7', node: '20.x' }),
   appHealth: async () => ({ ok: true, api: 'online', license: 'valid' }),
 
