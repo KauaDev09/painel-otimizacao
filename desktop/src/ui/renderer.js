@@ -344,7 +344,7 @@ function renderDashboard() {
     kv('Build', dash(p.os.build)) +
     kv('Arquitetura', dash(p.os.arch)) +
     kv('Modo de inicialização', p.boot.mode === 'unknown' ? dash(null) : (p.boot.mode === 'Legacy'
-      ? '<b style="color:var(--red-bright)">⚠ Legacy — não está usando UEFI</b>' : 'UEFI')) +
+      ? '<b style="color:var(--red-bright)">Legacy — não está usando UEFI</b>' : 'UEFI')) +
     kv('Disco do sistema', p.disk.partitionStyle === 'unknown' ? dash(null) : p.disk.partitionStyle) +
     kv('Secure Boot', p.secureBoot === 'enabled' ? 'Ativado' : p.secureBoot === 'disabled' ? 'Desativado' : dash(null)) +
     kv('TPM', dash(p.tpm.stateLabel)) +
@@ -376,7 +376,7 @@ function renderDashboard() {
     `<div class="count-row"><span>${typeof appIcon === 'function' ? appIcon('ok', { size: 14, className: 'text-success' }) : ''} Recomendadas</span><b style="color:var(--green)">${c.recommended}</b></div>
      <div class="count-row"><span>${typeof appIcon === 'function' ? appIcon('risk', { size: 14, className: 'text-warning' }) : ''} Opcionais</span><b style="color:var(--yellow)">${c.optional}</b></div>
      <div class="count-row"><span>${typeof appIcon === 'function' ? appIcon('risk', { size: 14, className: 'text-destructive' }) : ''} Críticas</span><b style="color:var(--red-bright)">${c.critical}</b></div>` +
-    (state.techMode ? `<div class="count-row"><span>⚙️ Avançadas</span><b style="color:var(--orange)">${c.advanced}</b></div>` : '');
+    (state.techMode ? `<div class="count-row"><span> Avançadas</span><b style="color:var(--orange)">${c.advanced}</b></div>` : '');
 }
 
 $('#goRecsBtn').addEventListener('click', () => showView('recs'));
@@ -420,7 +420,7 @@ const GROUP_TITLES = {
   recommended: 'Recomendadas',
   optional: 'Opcionais',
   informational: 'Informativas',
-  advanced: '⚙️ Avançado — não recomendado para usuários comuns'
+  advanced: 'Avançado — não recomendado para usuários comuns'
 };
 
 function renderRecommendations() {
@@ -708,7 +708,7 @@ if ($('#biosScanBtn')) {
       }
       renderBiosOptimizations();
       toast(state.bios && state.bios.counts
-        ? `✅ ${state.bios.counts.found} otimização(ões) encontrada(s)`
+        ? `${typeof appIcon === 'function' ? appIcon('ok', { size: 13, className: 'text-success' }) : ''} ${state.bios.counts.found} otimização(ões) encontrada(s)`
         : 'Análise de BIOS concluída.');
     } catch (err) {
       toast(`❌ ${esc(err.message || err)}`);
@@ -767,7 +767,7 @@ function openDetails(rec) {
 
     ${rec.steps.length ? `<h4>Passo a passo</h4><ol>${rec.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>` : ''}
 
-    ${rec.notes.length ? rec.notes.map((n) => `<p class="note">⚠ ${esc(n)}</p>`).join('') : ''}
+    ${rec.notes.length ? rec.notes.map((n) => `<p class="note">${typeof appIcon === 'function' ? appIcon('risk', { size: 13, className: 'text-warning' }) : ''} ${esc(n)}</p>`).join('') : ''}
 
     <p class="foot-disclaimer">Os nomes das opções podem variar conforme fabricante e versão da BIOS.
     Esta ferramenta orienta manualmente — nunca aplica alterações automaticamente.</p>`;
@@ -883,11 +883,11 @@ $('#compareBtn').addEventListener('click', async () => {
       ${Object.entries(cmp.categoriesDelta).map(([cat, d]) => `
         <tr><td>${esc(cat)}</td><td>${d.before ?? '—'}%</td><td>${d.after ?? '—'}%</td>
         <td class="${deltaCls((d.after ?? 0) - (d.before ?? 0))}">${fmtDelta((d.after ?? 0) - (d.before ?? 0))}</td></tr>`).join('')}
-      <tr><td>🟢 Recomendadas</td><td>${cmp.before.counts.recommended}</td><td>${cmp.after.counts.recommended}</td><td class="${deltaCls(cmp.countsDelta.recommended * -1)}">${fmtDelta(cmp.countsDelta.recommended)}</td></tr>
-      <tr><td>🟡 Opcionais</td><td>${cmp.before.counts.optional}</td><td>${cmp.after.counts.optional}</td><td>${fmtDelta(cmp.countsDelta.optional)}</td></tr>
-      <tr><td>🔴 Críticas</td><td>${cmp.before.counts.critical}</td><td>${cmp.after.counts.critical}</td><td class="${deltaCls(cmp.countsDelta.critical * -1)}">${fmtDelta(cmp.countsDelta.critical)}</td></tr>
+      <tr><td>${typeof appIcon === 'function' ? appIcon('ok', { size: 13, className: 'text-success' }) : ''} Recomendadas</td><td>${cmp.before.counts.recommended}</td><td>${cmp.after.counts.recommended}</td><td class="${deltaCls(cmp.countsDelta.recommended * -1)}">${fmtDelta(cmp.countsDelta.recommended)}</td></tr>
+      <tr><td>${typeof appIcon === 'function' ? appIcon('risk', { size: 13, className: 'text-warning' }) : ''} Opcionais</td><td>${cmp.before.counts.optional}</td><td>${cmp.after.counts.optional}</td><td>${fmtDelta(cmp.countsDelta.optional)}</td></tr>
+      <tr><td>${typeof appIcon === 'function' ? appIcon('risk', { size: 13, className: 'text-destructive' }) : ''} Críticas</td><td>${cmp.before.counts.critical}</td><td>${cmp.after.counts.critical}</td><td class="${deltaCls(cmp.countsDelta.critical * -1)}">${fmtDelta(cmp.countsDelta.critical)}</td></tr>
     </table>
-    <p style="color:var(--dim);font-size:12px;margin-top:8px">Dica: reduções em 🟢/🔴 indicam recomendações resolvidas após ajustes manuais na BIOS.</p>
+    <p style="color:var(--dim);font-size:12px;margin-top:8px">Dica: reduções em Recomendadas e Críticas indicam recomendações resolvidas após ajustes manuais na BIOS.</p>
   </div>`;
 });
 
@@ -1023,12 +1023,12 @@ function renderGameBoost() {
   $('#gbPenalties').innerHTML =
     r.penalties.length
       ? r.penalties.map((p) => `<li><span>${esc(p.why)}</span><b>-${p.pts}</b></li>`).join('')
-      : '<li><span>Nenhum ponto negativo detectado 🎉</span></li>';
+      : '<li><span>Nenhum ponto negativo detectado</span></li>';
 
   $('#gbCounts').innerHTML =
-    `<div class="count-row"><span>🟢 Recomendadas</span><b style="color:var(--green)">${r.counts.recommended}</b></div>
-     <div class="count-row"><span>🟡 Opcionais</span><b style="color:var(--yellow)">${r.counts.optional}</b></div>
-     <div class="count-row"><span>🔴 Críticas</span><b style="color:var(--red-bright)">${r.counts.critical}</b></div>`;
+    `<div class="count-row"><span>${typeof appIcon === 'function' ? appIcon('ok', { size: 13, className: 'text-success' }) : ''} Recomendadas</span><b style="color:var(--green)">${r.counts.recommended}</b></div>
+     <div class="count-row"><span>${typeof appIcon === 'function' ? appIcon('risk', { size: 13, className: 'text-warning' }) : ''} Opcionais</span><b style="color:var(--yellow)">${r.counts.optional}</b></div>
+     <div class="count-row"><span>${typeof appIcon === 'function' ? appIcon('risk', { size: 13, className: 'text-destructive' }) : ''} Críticas</span><b style="color:var(--red-bright)">${r.counts.critical}</b></div>`;
 
   $('#gbRecList').innerHTML = r.recommendations.length
     ? r.recommendations.map(recCardHtml).join('')
@@ -1056,7 +1056,7 @@ function initGameBoostView(force) {
         gbActive = { running: !!st.running, pending: !!st.pending };
         if (!st.running && !st.pending) return;
         setGbSession(gbActive, st.running
-          ? `🎮 ${esc((st.session && st.session.gameName) || 'Jogo')} em execução — boost ativo.`
+          ? `${esc((st.session && st.session.gameName) || 'Jogo')} em execução — boost ativo.`
           : 'Aguardando confirmação de administrador…');
       }
     })
@@ -1160,7 +1160,7 @@ if (api().onGameBoostSession) {
   api().onGameBoostSession((s) => {
     const msg = s.message || '';
     if (s.state === 'running') {
-      setGbSession({ running: true, pending: false }, `🎮 ${esc((s.session && s.session.gameName) || 'Jogo')} — ${esc(msg || 'boost ativo')}`);
+      setGbSession({ running: true, pending: false }, `${esc((s.session && s.session.gameName) || 'Jogo')} — ${esc(msg || 'boost ativo')}`);
     } else if (s.state === 'ended') {
       setGbSession({ running: false, pending: false }, null);
       toast(`✅ ${esc(msg || 'Sessão encerrada. Plano de energia restaurado.')}`);
@@ -1259,7 +1259,7 @@ function renderSecurity() {
   $('#secPenalties').innerHTML =
     r.penalties.length
       ? r.penalties.map((p) => `<li><span>${esc(p.why)}</span><b>-${p.pts}</b></li>`).join('')
-      : '<li><span>Sistema protegido 🎉</span></li>';
+      : '<li><span>Sistema protegido</span></li>';
 
   // Ameaças
   $('#secThreatCounts').innerHTML =
@@ -2028,7 +2028,7 @@ function openOperationDetails(op) {
     <ul class="paths">
       ${(op.items || []).map((it) => `
         <li style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-          <span>${esc(it.name)} ${it.hasBackup ? '<small style="color:var(--dim)">(backup ✓)</small>' : ''}</span>
+          <span>${esc(it.name)} ${it.hasBackup ? '<small style="color:var(--dim)">(com backup)</small>' : ''}</span>
           ${it.hasBackup ? `<button class="btn btn-outline undo-one" data-id="${esc(it.id)}" style="padding:2px 10px;font-size:11px">DESFAZER</button>` : ''}
         </li>`).join('')}
     </ul>
@@ -2632,7 +2632,7 @@ async function loadLicenseInfoSettings() {
   if (!el) return;
   if (st && st.active) {
     const feats = Array.isArray(st.features) && st.features.length
-      ? featureNames(st.features).map((n) => `<span class="feat-chip">✅ ${esc(n)}</span>`).join('')
+      ? featureNames(st.features).map((n) => `<span class="feat-chip">${typeof appIcon === 'function' ? appIcon('ok', { size: 13, className: 'text-success' }) : ''} ${esc(n)}</span>`).join('')
       : '<span style="color:var(--dim)">Nenhum recurso extra liberado.</span>';
     el.innerHTML =
       kv('Situação', `<b style="color:var(--green)">ATIVA</b>`) +

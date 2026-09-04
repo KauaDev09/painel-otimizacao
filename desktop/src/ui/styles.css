@@ -88,7 +88,6 @@
   justify-content: space-between;
   height: 36px;
   background: var(--bg);
-  border-bottom: 1px solid var(--border);
   -webkit-app-region: drag;
   user-select: none;
   position: fixed;
@@ -143,8 +142,8 @@
 }
 
 .titlebar-close:hover {
-  background: var(--red);
-  color: #fff;
+  background: var(--red-bg);
+  color: var(--red-bright);
 }
 
 /* ---------- RESET & BASE ---------- */
@@ -191,26 +190,6 @@ a:hover {
   color: var(--text);
 }
 
-/* ---------- SCROLLBAR ---------- */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-elevated);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border-hover);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--border-active);
-}
-
 /* ---------- TYPOGRAPHY ---------- */
 h1, h2, h3, h4, h5, h6 {
   color: var(--text);
@@ -251,7 +230,6 @@ h3 { font-size: 1.15rem; }
   width: var(--sidebar-width);
   height: 100%;
   background: var(--surface);
-  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   z-index: 100;
@@ -268,7 +246,6 @@ h3 { font-size: 1.15rem; }
   display: flex;
   align-items: center;
   gap: 12px;
-  border-bottom: 1px solid var(--border);
   min-height: 64px;
 }
 
@@ -322,8 +299,6 @@ h3 { font-size: 1.15rem; }
   flex: 1;
   overflow-y: auto;
   padding: 8px 0;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-hover) transparent;
 }
 
 .sidebar-section-label {
@@ -355,7 +330,7 @@ h3 { font-size: 1.15rem; }
   transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
   white-space: nowrap;
   overflow: hidden;
-  border-left: 3px solid transparent;
+  border-left: 2px solid transparent;
   user-select: none;
 }
 
@@ -365,9 +340,9 @@ h3 { font-size: 1.15rem; }
 }
 
 .nav-item.active, .sidebar-item.active {
-  background: color-mix(in srgb, var(--primary) 15%, transparent);
-  color: var(--primary);
-  border-left-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary-light);
+  border-left-color: color-mix(in srgb, var(--primary) 55%, transparent);
 }
 
 .nav-item .nav-icon, .sidebar-icon {
@@ -413,7 +388,6 @@ h3 { font-size: 1.15rem; }
 
 .sidebar-footer {
   padding: 12px 16px;
-  border-top: 1px solid var(--border);
   font-size: 0.72rem;
   color: var(--text-dim);
   white-space: nowrap;
@@ -468,7 +442,6 @@ h3 { font-size: 1.15rem; }
   right: 0;
   height: var(--header-height);
   background: var(--bg);
-  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -654,7 +627,7 @@ main.content.shifted {
 }
 
 .header-profile:hover {
-  border-color: var(--primary);
+  border-color: var(--border-hover);
   color: var(--text);
   background: var(--surface-hover);
 }
@@ -698,8 +671,8 @@ main.content.shifted {
   align-items: center;
   gap: 10px;
   padding: 10px 20px;
-  background: var(--gradient-subtle);
-  border: 1px solid var(--primary-border);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   margin: 16px 24px 0;
   color: var(--text-secondary);
@@ -1037,7 +1010,6 @@ main.content.shifted {
   letter-spacing: 0.08em;
   color: var(--text-dim);
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
   margin-bottom: 12px;
 }
 
@@ -1238,7 +1210,7 @@ main.content.shifted {
 
 .clean-size {
   font-size: 0.82rem;
-  color: var(--primary-hover);
+  color: var(--text-secondary);
   font-weight: 600;
   margin-left: auto;
   white-space: nowrap;
@@ -1250,7 +1222,6 @@ main.content.shifted {
   gap: 10px;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid var(--border);
 }
 
 /* ---------- REPAIR ---------- */
@@ -1400,7 +1371,7 @@ main.content.shifted {
 .mon-bar-fill {
   height: 100%;
   border-radius: 2px;
-  background: var(--gradient-primary);
+  background: var(--secondary);
   transition: width var(--transition-normal);
 }
 
@@ -1730,12 +1701,13 @@ main.content.shifted {
 }
 
 .btn-outline:hover {
-  border-color: var(--primary);
-  color: var(--primary-hover);
+  border-color: var(--border-hover);
+  color: var(--text);
+  background: var(--surface-hover);
 }
 
 .btn-outline:active {
-  background: var(--primary-bg);
+  background: var(--surface-active);
 }
 
 .btn-outline:disabled {
@@ -1751,6 +1723,37 @@ main.content.shifted {
 
 .btn.hidden {
   display: none;
+}
+
+/* DANGER — ação destrutiva */
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 18px;
+  background: var(--red-bg);
+  color: var(--red-bright);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fff;
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.btn-danger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 /* Ghost / icon-only button variant */
@@ -2264,7 +2267,7 @@ body.tech .tech-only.hidden {
 .mon-bar-fill {
   height: 100%;
   border-radius: 4px;
-  background: var(--gradient-primary);
+  background: var(--secondary);
   transition: width var(--transition-normal);
 }
 
@@ -2387,7 +2390,7 @@ body.tech .tech-only.hidden {
   gap: 32px;
   padding: 40px 32px;
   border-radius: var(--radius-lg);
-  background: var(--gradient-subtle);
+  background: var(--surface);
   border: 1px solid var(--border);
   margin-bottom: 24px;
   position: relative;
@@ -2404,14 +2407,7 @@ body.tech .tech-only.hidden {
 }
 
 .hero-glow {
-  position: absolute;
-  top: -60px;
-  right: -60px;
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
+  display: none;
 }
 
 .hero h1 {
@@ -2630,7 +2626,7 @@ body.tech .tech-only.hidden {
 
 .update-panel {
   background: var(--surface-2);
-  border: 1px solid var(--primary-border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 16px;
   margin-top: 12px;
@@ -2692,7 +2688,7 @@ body.tech .tech-only.hidden {
 /* Download progress */
 .update-progress-panel {
   background: var(--surface-2);
-  border: 1px solid var(--primary-border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 16px;
   margin-top: 12px;
@@ -2908,7 +2904,6 @@ select:focus-visible,
   z-index: 30;
   background: color-mix(in srgb, var(--bg) 92%, transparent);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
   padding: 12px 24px;
 }
 
