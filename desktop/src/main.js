@@ -214,7 +214,7 @@ function createWindow() {
 // por uma camada transparente (overlay dim) que escurece a tela inteira.
 async function applyScreenRampAndOverlay(opts = {}) {
   const bri = Number(opts.brightness);
-  const brightness = Number.isFinite(bri) ? Math.max(0, Math.min(100, Math.round(bri))) : 100;
+  const brightness = Number.isFinite(bri) ? Math.max(0, Math.min(200, Math.round(bri))) : 100;
   let res;
   try {
     res = await displayService.applyScreenRamp({
@@ -227,15 +227,22 @@ async function applyScreenRampAndOverlay(opts = {}) {
   }
   if (res.applied) {
     getScreenOverlay().hide();
-    return { ...res, overlay: false, effectiveBrightness: 100, brightnessMode: 'gamma', saturationMode: 'gamma', contrastMode: 'gamma' };
+    const mode = res.ddc ? 'ddc' : (res.gamma || res.method === 'gamma-ramp' ? 'gamma' : (res.wmi ? 'wmi' : (res.method || 'gamma')));
+    return {
+      ...res,
+      overlay: false,
+      effectiveBrightness: brightness,
+      brightnessMode: mode,
+      saturationMode: res.ddc || res.gamma ? mode : mode,
+      contrastMode: res.ddc || res.gamma ? mode : mode
+    };
   }
-  // Rampa bloqueada: brilho via overlay. Saturação/contraste não têm alternativa
-  // pública no Windows 10/11 — ficam com aviso honesto.
-  getScreenOverlay().setBrightness(brightness);
+  // Sem DDC/gamma: overlay só cobre brilho abaixo de 100.
+  getScreenOverlay().setBrightness(Math.min(100, brightness));
   const overlayActive = brightness < 100;
   return {
     ...res,
-    applied: false,
+    applied: overlayActive,
     overlay: overlayActive,
     effectiveBrightness: brightness,
     brightnessMode: overlayActive ? 'overlay' : 'none',
@@ -383,6 +390,16 @@ function registerIpc() {
 
   // ---- Modo Jogo (Game Booster) ----
   ipcMain.handle('gameboost:listGames', () => gameMode.list());
+  ipcMain.handle('gameboost:icon', async (_e, exePath) => {
+    const p = String(exePath || '');
+    if (!p || !fs.existsSync(p)) return { ok: false, dataUrl: null };
+    try {
+      const img = await app.getFileIcon(p, { size: 'large' });
+      return { ok: true, dataUrl: img.toDataURL() };
+    } catch (_) {
+      return { ok: false, dataUrl: null };
+    }
+  });
   ipcMain.handle('gameboost:addGame', (_e, payload) => gameMode.add(payload || {}));
   ipcMain.handle('gameboost:removeGame', (_e, id) => gameMode.remove(id));
   ipcMain.handle('gameboost:sessionStatus', () => gameMode.status());

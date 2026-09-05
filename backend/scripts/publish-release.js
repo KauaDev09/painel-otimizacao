@@ -13,13 +13,14 @@ loadEnv();
 const mysql = require('mysql2/promise');
 
 const RELEASE = {
-  version: '2.1.2',
-  filename: 'ORION.OPTIMIZER.Setup-2.1.2.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.2/ORION.OPTIMIZER.Setup-2.1.2.exe',
+  version: '2.1.3',
+  filename: 'ORION.OPTIMIZER.Setup-2.1.3.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.3/ORION.OPTIMIZER.Setup-2.1.3.exe',
   changelog: [
-    'Telas de otimização no painel React (Windows, Limpeza, BIOS, Segurança e demais).',
-    'Sidebar sem caixas claras: destaque na cor do aplicativo.',
-    'Login obrigatório com a key da compra antes de entrar no painel.'
+    'Tela: brilho, contraste e saturação aplicados direto no monitor (DDC/CI).',
+    'Aviso antes de otimizações que podem travar ou reiniciar o PC.',
+    'Ícones dos jogos (incluindo FiveM), pesquisa de Inicialização corrigida e núcleo interativo na Dashboard.',
+    'Menos lag no painel (fundo estático e monitoramento mais leve).'
   ].join('\n'),
   obrigatoria: false,
   exige_pagamento: false,

@@ -92,7 +92,7 @@ export function Sistema({ onNavigate }: { onNavigate?: (view: string) => void })
       } catch { /* ok */ }
     };
     tick();
-    const t = setInterval(tick, 2500);
+    const t = setInterval(tick, 4000);
     return () => { alive = false; clearInterval(t); };
   }, [api, loadLast]);
 

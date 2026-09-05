@@ -594,6 +594,7 @@ window.OrionAPI = {
   gameBoostStartSession: async () => ({ ok: true, pending: true, gameName: 'Jogo mockado', message: 'O app está em modo de pré-visualização. O boost real é aplicado na versão instalada.' }),
   gameBoostStopSession: async () => ({ ok: true, message: 'Sessão encerrada.' }),
   gameBoostPickExe: async () => null,
+  gameBoostGetIcon: async () => ({ ok: false, dataUrl: null }),
   onGameBoostSession: (cb) => cb,
 
   engineListItems: async () => MOCK_ITEMS,

@@ -39,6 +39,7 @@ contextBridge.exposeInMainWorld('OrionAPI', {
   gameBoostStartSession: (id) => ipcRenderer.invoke('gameboost:startSession', id),
   gameBoostStopSession: () => ipcRenderer.invoke('gameboost:stopSession'),
   gameBoostPickExe: () => ipcRenderer.invoke('gameboost:pickExe'),
+  gameBoostGetIcon: (exePath) => ipcRenderer.invoke('gameboost:icon', exePath),
   onGameBoostSession: (cb) => {
     ipcRenderer.on('gameboost:session', (_e, payload) => cb(payload));
   },

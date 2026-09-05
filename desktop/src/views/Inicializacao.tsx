@@ -210,8 +210,8 @@ export function Inicializacao({ onNavigate }: { onNavigate?: (view: string) => v
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[220px]">
+      <div className="flex flex-col gap-3">
+        <div className="relative min-w-0 w-full max-w-xl">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--orion-icon-default)]" />
           <input
             type="text"
@@ -220,10 +220,10 @@ export function Inicializacao({ onNavigate }: { onNavigate?: (view: string) => v
             placeholder="Filtrar por nome, comando ou origem…"
             spellCheck={false}
             autoComplete="off"
-            className="w-full rounded-lg bg-[var(--orion-surface)] py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground"
+            className="box-border w-full min-w-0 max-w-full rounded-lg border-0 bg-[var(--orion-surface)] py-2 pl-9 pr-3 text-sm text-foreground shadow-none placeholder:text-muted-foreground"
           />
         </div>
-        <div className="inline-flex rounded-lg bg-[var(--orion-surface)] p-1">
+        <div className="inline-flex w-fit shrink-0 rounded-lg bg-[var(--orion-surface)] p-1">
           {([['all', 'Todos'], ['enabled', 'Ativos'], ['disabled', 'Desativados']] as [FilterState, string][]).map(([v, label]) => (
             <button
               key={v}

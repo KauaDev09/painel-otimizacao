@@ -1043,14 +1043,23 @@ function Tag({ children, className = '' }: { children: React.ReactNode; classNam
   );
 }
 
+function canStopPc(item: OptItem): boolean {
+  if (item.risk === 'high' || item.confirm || item.rebootRequired) return true;
+  const blob = `${item.id} ${item.name} ${item.description || ''} ${item.applyHint || ''}`.toLowerCase();
+  return /serviço|servico|reboot|reinici|update|hibern|debloat|crash|desligar|parar o|stop|power|onedrive|telemetr/.test(blob);
+}
+
 function ConfirmApplyDialog({ chosen, rp, onCancel, onConfirm }: {
   chosen: OptItem[];
   rp: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 }) {
-  const high = chosen.filter((i) => i.risk === 'high' || i.confirm);
-  const rest = chosen.filter((i) => i.risk !== 'high' && !i.confirm);
+  const dangerous = chosen.filter(canStopPc);
+  const high = chosen.filter((i) => i.risk === 'high' || i.confirm || i.rebootRequired);
+  const rest = chosen.filter((i) => !high.includes(i));
+  const [ack, setAck] = React.useState(false);
+  const needsAck = dangerous.length > 0;
 
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel(); };
@@ -1073,15 +1082,31 @@ function ConfirmApplyDialog({ chosen, rp, onCancel, onConfirm }: {
         </p>
         <p className="mb-0 mt-1 text-xs text-muted-foreground">Um prompt de administrador (UAC) pode ser exibido para aplicar tudo de uma vez.</p>
 
+        {needsAck && (
+          <div className="mt-4 rounded-lg bg-red-500/12 px-4 py-3 text-sm text-red-300">
+            <p className="m-0 flex items-start gap-2 font-semibold text-red-400">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+              Estas otimizações podem travar, reiniciar ou deixar o PC instável.
+            </p>
+            <p className="mb-0 mt-2 text-xs leading-relaxed text-red-200/80">
+              {dangerous.length} item(ns) alteram serviços, energia ou componentes do Windows. Crie um ponto de restauração e feche jogos/programas abertos antes de continuar.
+            </p>
+          </div>
+        )}
+
         <div className="mt-4 max-h-64 space-y-3 overflow-y-auto pr-1">
           {high.length > 0 && (
             <div className="rounded-lg bg-red-500/10 px-4 py-3">
               <h3 className="m-0 flex items-center gap-2 text-sm font-semibold text-red-400">
-                <AlertTriangle className="h-4 w-4" /> Risco alto — confirmação explícita
+                <AlertTriangle className="h-4 w-4" /> Podem parar ou reiniciar o PC
               </h3>
               <ul className="mb-0 mt-2 list-disc space-y-1 pl-5 text-sm text-foreground">
                 {high.map((i) => (
-                  <li key={i.id}>{i.name} · <span className="text-muted-foreground">{i.riskLabel || i.risk}</span></li>
+                  <li key={i.id}>
+                    {i.name}
+                    {i.rebootRequired ? <span className="text-amber-400"> · exige reinício</span> : null}
+                    <span className="text-muted-foreground"> · {i.riskLabel || i.risk || 'alto'}</span>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -1093,9 +1118,21 @@ function ConfirmApplyDialog({ chosen, rp, onCancel, onConfirm }: {
           )}
         </div>
 
+        {needsAck && (
+          <label className="mt-4 flex cursor-pointer items-start gap-2 text-sm text-foreground">
+            <input
+              type="checkbox"
+              checked={ack}
+              onChange={(e) => setAck(e.target.checked)}
+              className="mt-0.5"
+            />
+            <span>Entendi o risco e quero executar mesmo assim.</span>
+          </label>
+        )}
+
         <div className="mt-5 flex justify-end gap-2">
           <button type="button" onClick={onCancel} className={SECONDARY_BTN}>Cancelar</button>
-          <button type="button" onClick={onConfirm} className={PRIMARY_BTN}>
+          <button type="button" onClick={onConfirm} disabled={needsAck && !ack} className={PRIMARY_BTN}>
             <Play className="h-4 w-4" /> Aplicar
           </button>
         </div>

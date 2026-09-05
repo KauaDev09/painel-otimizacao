@@ -61,8 +61,10 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
   const [analyze, setAnalyze] = React.useState<AnalyzeResult | null>(null);
   const [busy, setBusy] = React.useState(false);
   const [analyzeBusy, setAnalyzeBusy] = React.useState(false);
+  const [icons, setIcons] = React.useState<Record<string, string>>({});
 
   const active = games.find((g) => g.id === selected) || null;
+  const activeIcon = active ? icons[active.path] : null;
 
   const loadGames = React.useCallback(async () => {
     try {
@@ -86,10 +88,24 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
   }, [api]);
 
   React.useEffect(() => {
+    let cancelled = false;
+    const paths = games.map((g) => g.path).filter(Boolean);
+    paths.forEach(async (p) => {
+      if (icons[p]) return;
+      try {
+        const res = (await api.gameBoostGetIcon?.(p)) as { ok?: boolean; dataUrl?: string | null } | null;
+        if (!cancelled && res?.dataUrl) {
+          setIcons((prev) => (prev[p] ? prev : { ...prev, [p]: res.dataUrl as string }));
+        }
+      } catch { /* sem ícone */ }
+    });
+    return () => { cancelled = true; };
+  }, [api, games]);
+
+  React.useEffect(() => {
     loadGames();
     pollStatus();
     let alive = true;
-    let msgCleanup: (() => void) | undefined;
 
     api.onGameBoostSession?.((payload: { state?: string; message?: string }) => {
       if (!alive) return;
@@ -183,6 +199,11 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
                       : 'text-muted-foreground hover:bg-[var(--orion-selected-bg)]/50 hover:text-foreground'
                   }`}
                 >
+                  {icons[g.path] ? (
+                    <img src={icons[g.path]} alt="" className="h-6 w-6 shrink-0 rounded object-contain" />
+                  ) : (
+                    <Gamepad2 className="h-4 w-4 shrink-0 text-[var(--orion-icon-default)]" />
+                  )}
                   <span className="line-clamp-1 flex-1 font-medium">{g.name}</span>
                   {!g.isDefault && (
                     <button
@@ -229,9 +250,16 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
           <>
             {/* Banner */}
             <div
-              className="relative mb-5 flex flex-1 items-end rounded-lg p-6 shadow-[0_0_40px_rgba(0,0,0,0.5)]"
-              style={{ background: gradientForName(active.name), minHeight: 180 }}
+              className="relative mb-5 flex flex-1 items-end overflow-hidden rounded-lg p-6 shadow-[0_0_40px_rgba(0,0,0,0.5)]"
+              style={{ background: gradientForName(active.name), minHeight: 200 }}
             >
+              {activeIcon && (
+                <img
+                  src={activeIcon}
+                  alt={active.name}
+                  className="pointer-events-none absolute right-6 top-1/2 h-28 w-28 -translate-y-1/2 object-contain drop-shadow-[0_12px_28px_rgba(0,0,0,0.55)]"
+                />
+              )}
               <div className="absolute inset-0 rounded-lg bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
               <div className="relative z-10">
                 <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">

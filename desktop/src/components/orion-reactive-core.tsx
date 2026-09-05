@@ -26,8 +26,8 @@ export function OrionReactiveCore({ className = '', compact = false }: OrionReac
     const el = fieldRef.current;
     if (!el) return;
 
-    /* Reduced motion: nada anima (§7). */
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    /* Reduced motion / painel compacto: sem loop de rAF (evita lag). */
+    if (compact || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const styles = el.style;
     let raf = 0;
@@ -80,7 +80,7 @@ export function OrionReactiveCore({ className = '', compact = false }: OrionReac
       el.removeEventListener('pointerdown', onPointerMoveRaw);
       window.removeEventListener('resize', measure);
     };
-  }, []);
+  }, [compact]);
 
   return (
     <div

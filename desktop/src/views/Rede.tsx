@@ -116,7 +116,7 @@ interface RedeApi {
 const DEFAULT_PING_HOST = '1.1.1.1';
 const DEFAULT_PING_COUNT = 10;
 const DEFAULT_DNS_DOMAIN = 'google.com';
-const POLL_MS = 2500;
+const POLL_MS = 4000;
 const HIST_MAX = 40;
 
 function dash(v: unknown): string {

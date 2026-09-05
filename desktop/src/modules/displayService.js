@@ -15,7 +15,85 @@
 // torno do cinza (saturação) na tela inteira, sem depender de API proprietária de
 // hardware.
 
+const fs = require('fs');
+const path = require('path');
+const { execFile } = require('child_process');
 const psRunner = require('../hardware/psRunner');
+
+const CSC_CANDIDATES = [
+  path.join(process.env.WINDIR || 'C:\\Windows', 'Microsoft.NET', 'Framework64', 'v4.0.30319', 'csc.exe'),
+  path.join(process.env.WINDIR || 'C:\\Windows', 'Microsoft.NET', 'Framework', 'v4.0.30319', 'csc.exe')
+];
+
+let rampExePromise = null;
+
+function helperDir() {
+  try {
+    const { app } = require('electron');
+    if (app && app.getPath) return path.join(app.getPath('userData'), 'helpers');
+  } catch (_) { /* preview */ }
+  return path.join(process.env.LOCALAPPDATA || process.env.TEMP || '.', 'orion-optimizer', 'helpers');
+}
+
+function ensureRampExe() {
+  if (rampExePromise) return rampExePromise;
+  rampExePromise = (async () => {
+    const dir = helperDir();
+    fs.mkdirSync(dir, { recursive: true });
+    const exe = path.join(dir, 'displayRamp.exe');
+    const bundled = path.join(__dirname, 'displayRamp.cs');
+    const src = path.join(dir, 'displayRamp.cs');
+    try { fs.copyFileSync(bundled, src); } catch (_) { /* asar → disco */ }
+    try {
+      const srcStat = fs.existsSync(src) ? fs.statSync(src) : fs.statSync(bundled);
+      const exeStat = fs.existsSync(exe) ? fs.statSync(exe) : null;
+      if (exeStat && exeStat.mtimeMs >= srcStat.mtimeMs && exeStat.size > 1024) return exe;
+    } catch (_) { /* recompila */ }
+    const csc = CSC_CANDIDATES.find((p) => fs.existsSync(p));
+    if (!csc || !fs.existsSync(src)) return null;
+    await new Promise((resolve, reject) => {
+      execFile(csc, ['/nologo', '/optimize+', '/out:' + exe, src], { windowsHide: true }, (err, _o, stderr) => {
+        if (err) reject(new Error(String(stderr || err.message)));
+        else resolve();
+      });
+    });
+    return fs.existsSync(exe) ? exe : null;
+  })().catch((err) => {
+    console.error('[display] falha ao compilar helper de tela:', err && err.message);
+    rampExePromise = null;
+    return null;
+  });
+  return rampExePromise;
+}
+
+function runRampExe(opts) {
+  const sat = Number(opts.saturation);
+  const con = Number(opts.contrast);
+  const bri = Number(opts.brightness);
+  return ensureRampExe().then((exe) => {
+    if (!exe) return null;
+    return new Promise((resolve) => {
+      execFile(exe, [
+        String(Number.isFinite(sat) ? sat : 100),
+        String(Number.isFinite(con) ? con : 100),
+        String(Number.isFinite(bri) ? bri : 100)
+      ], { windowsHide: true, timeout: 4000 }, (err, stdout) => {
+        if (err && !stdout) {
+          resolve({ applied: false, method: 'native-fail' });
+          return;
+        }
+        let parsed = {};
+        try { parsed = JSON.parse(String(stdout || '').trim()); } catch (_) { /* ok */ }
+        resolve({
+          applied: !!(parsed.ddc || parsed.gamma),
+          ddc: !!parsed.ddc,
+          gamma: !!parsed.gamma,
+          method: parsed.ddc ? 'ddc' : (parsed.gamma ? 'gamma-ramp' : 'none')
+        });
+      });
+    });
+  });
+}
 
 const GET_BRIGHTNESS_PS = `
 $ErrorActionPreference = 'SilentlyContinue'
@@ -193,9 +271,10 @@ using System;
 using System.Runtime.InteropServices;
 public static class GdiRamp {
   [DllImport("user32.dll")] public static extern IntPtr GetDC(IntPtr hWnd);
+  [DllImport("user32.dll")] public static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
   [DllImport("gdi32.dll")] public static extern IntPtr CreateDC(string lpszDriver, string lpszDevice, string lpszOutput, IntPtr lpInitData);
   [DllImport("gdi32.dll")] public static extern bool SetDeviceGammaRamp(IntPtr hDC, [In] ushort[] ramp);
-  [DllImport("gdi32.dll")] public static extern IntPtr DeleteDC(IntPtr hDC);
+  [DllImport("gdi32.dll")] public static extern bool DeleteDC(IntPtr hDC);
 }
 "@
 $enc = '${rampB64}'
@@ -204,28 +283,56 @@ try { $bytes = [Convert]::FromBase64String($enc) } catch { $bytes = $null }
 if (-not $bytes -or $bytes.Length -ne 1536) { Write-Output 'BAD_RAMP'; exit 0 }
 $ramp = New-Object 'System.UInt16[]' 768
 [Buffer]::BlockCopy($bytes, 0, $ramp, 0, 1536)
+$fromGet = $true
 $dc = [GdiRamp]::GetDC([IntPtr]::Zero)
-if ($dc -eq [IntPtr]::Zero) { $dc = [GdiRamp]::CreateDC('DISPLAY', $null, $null, [IntPtr]::Zero) }
+if ($dc -eq [IntPtr]::Zero) { $fromGet = $false; $dc = [GdiRamp]::CreateDC('DISPLAY', $null, $null, [IntPtr]::Zero) }
 try {
   $ok = [GdiRamp]::SetDeviceGammaRamp($dc, $ramp)
 } finally {
-  if ($dc -ne [IntPtr]::Zero) { $null = [GdiRamp]::DeleteDC($dc) }
+  if ($dc -ne [IntPtr]::Zero) {
+    if ($fromGet) { [void][GdiRamp]::ReleaseDC([IntPtr]::Zero, $dc) } else { [void][GdiRamp]::DeleteDC($dc) }
+  }
 }
 if ($ok) { Write-Output 'OK' } else { Write-Output 'FAIL' }
 `;
 }
 
-/** Aplica contraste/saturação/brilho na tela real via gamma ramp global. */
+/** Aplica contraste/saturação/brilho na tela real (helper nativo, senão PowerShell). */
 async function applyScreenRamp(opts = {}) {
-  const ramp = computeRamp(opts);
+  const saturation = Math.round((opts.saturation == null ? 100 : opts.saturation) * 10) / 10;
+  const contrast = Math.round((opts.contrast == null ? 100 : opts.contrast) * 10) / 10;
+  const brightness = Math.round((opts.brightness == null ? 100 : opts.brightness) * 10) / 10;
+
+  // Brilho do painel do monitor (0–100) em paralelo — não bloqueia a rampa.
+  const hwBri = Math.max(0, Math.min(100, Math.round(brightness)));
+  const wmiP = setBrightness(hwBri).catch(() => ({ applied: false }));
+
+  const native = await runRampExe({ saturation, contrast, brightness });
+  if (native && native.applied) {
+    const wmi = await wmiP;
+    return {
+      applied: true,
+      method: native.method,
+      ddc: native.ddc,
+      gamma: native.gamma,
+      wmi: !!(wmi && wmi.applied),
+      saturation,
+      contrast,
+      brightness
+    };
+  }
+
+  const ramp = computeRamp({ saturation, contrast, brightness });
   const b64 = Buffer.from(ramp.buffer).toString('base64');
-  const out = await tryPs(buildRampScript(b64), 15000);
+  const out = await tryPs(buildRampScript(b64), 8000);
+  const wmi = await wmiP;
+  const gammaOk = /OK/i.test(out);
   return {
-    applied: /OK/i.test(out),
-    method: 'gamma-ramp',
-    saturation: Math.round((opts.saturation == null ? 100 : opts.saturation) * 10) / 10,
-    contrast: Math.round((opts.contrast == null ? 100 : opts.contrast) * 10) / 10,
-    brightness: Math.round((opts.brightness == null ? 100 : opts.brightness) * 10) / 10
+    applied: gammaOk || !!(wmi && wmi.applied),
+    method: gammaOk ? 'gamma-ramp' : (wmi && wmi.applied ? 'wmi' : 'gamma-ramp'),
+    saturation,
+    contrast,
+    brightness
   };
 }
 

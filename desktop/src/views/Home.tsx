@@ -2,6 +2,7 @@ import React from 'react';
 import { Rocket, type LucideIcon } from 'lucide-react';
 import { useApi } from '@/api';
 import { Sparkline } from '@/components/Sparkline';
+import { OrionHoverCore } from '@/components/orion-hover-core';
 import type { MonitorSnapshot } from '@/api/types';
 
 interface LiveCardProps {
@@ -86,7 +87,7 @@ export function Home({ onNavigate }: HomeProps) {
       }
     };
     tick();
-    const t = setInterval(tick, 2500);
+    const t = setInterval(tick, 4000);
     return () => {
       alive = false;
       clearInterval(t);
@@ -157,9 +158,10 @@ export function Home({ onNavigate }: HomeProps) {
 
         <div>
           <div className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Informações do Sistema
+            Núcleo
           </div>
-          <div className="rounded-lg bg-[var(--orion-surface)] p-5">
+          <OrionHoverCore onActivate={() => onNavigate('optimize')} />
+          <div className="mt-4 rounded-lg bg-[var(--orion-surface)] p-5">
             <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
               Visão detalhada do hardware, firmware, saúde do sistema e recomendações.
             </p>

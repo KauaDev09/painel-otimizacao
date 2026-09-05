@@ -80,6 +80,7 @@ export interface OrionApi {
   gameBoostStartSession(id: string): Promise<GameStartResult>;
   gameBoostStopSession(): Promise<{ ok: boolean; message?: string }>;
   gameBoostPickExe(): Promise<string | null>;
+  gameBoostGetIcon(exePath: string): Promise<{ ok?: boolean; dataUrl?: string | null }>;
   gameBoostAnalyze(): Promise<unknown>;
   onGameBoostSession(cb: (payload: GameSessionEvent) => void): void;
 

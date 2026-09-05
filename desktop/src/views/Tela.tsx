@@ -27,6 +27,7 @@ interface MethodInfo {
 }
 
 function methodLabel(m: string | undefined): string {
+  if (m === 'ddc') return 'Monitor (DDC)';
   if (m === 'gamma' || m === 'gamma-ramp') return 'GPU';
   if (m === 'overlay') return 'Sistema (overlay)';
   if (m === 'blocked') return 'Sem suporte';
@@ -46,8 +47,10 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
   const [selectedPreset, setSelectedPreset] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
   const [saveMsg, setSaveMsg] = React.useState<string | null>(null);
-  const lastApplied = React.useRef(Date.now());
+  const lastApplied = React.useRef(0);
   const applyTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingRef = React.useRef<DisplayState>(DEFAULTS);
+  const valuesRef = React.useRef<DisplayState>(DEFAULTS);
 
   React.useEffect(() => {
     let alive = true;
@@ -78,10 +81,15 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
       } catch { /* ok */ }
     };
     init();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+      if (applyTimer.current) clearTimeout(applyTimer.current);
+    };
   }, [api]);
 
   const applyValues = React.useCallback(async (next: DisplayState) => {
+    valuesRef.current = next;
+    setValues(next);
     try {
       const res = (await api.displayScreenRamp?.({
         brightness: next.brightness,
@@ -103,23 +111,25 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
   }, [api]);
 
   const throttledApply = React.useCallback((next: DisplayState) => {
+    pendingRef.current = next;
+    valuesRef.current = next;
     setValues(next);
+    const flush = () => {
+      applyTimer.current = null;
+      lastApplied.current = Date.now();
+      applyValues(pendingRef.current);
+    };
     const now = Date.now();
-    if (now - lastApplied.current >= 120) {
-      lastApplied.current = now;
-      applyValues(next);
+    if (now - lastApplied.current >= 80) {
+      flush();
     } else if (!applyTimer.current) {
-      applyTimer.current = setTimeout(() => {
-        applyTimer.current = null;
-        lastApplied.current = Date.now();
-        applyValues(next);
-      }, 120);
+      applyTimer.current = setTimeout(flush, 80);
     }
   }, [applyValues]);
 
   const handleChange = (key: keyof DisplayState, val: number[]) => {
     const v = Math.round(val[0]);
-    throttledApply({ ...values, [key]: v });
+    throttledApply({ ...valuesRef.current, [key]: v });
     setSelectedPreset(null);
   };
 

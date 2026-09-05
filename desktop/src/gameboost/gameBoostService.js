@@ -20,6 +20,20 @@ function psEscapeSingle(s) {
   return String(s).replace(/'/g, "''");
 }
 
+function findFiveMPath() {
+  const local = process.env.LOCALAPPDATA || '';
+  const candidates = [
+    path.join(local, 'FiveM', 'FiveM.exe'),
+    path.join(local, 'FiveM', 'FiveM.app', 'FiveM.exe'),
+    path.join(local, 'FiveM', 'FiveM.app', 'data', 'cache', 'subprocess', 'FiveM_ChromeBrowser.exe'),
+    'C:\\Program Files\\FiveM\\FiveM.exe',
+    'C:\\Program Files (x86)\\FiveM\\FiveM.exe'
+  ];
+  return candidates.find((p) => {
+    try { return p && fs.existsSync(p); } catch (_) { return false; }
+  }) || null;
+}
+
 // ---------------------------------------------------------------------------
 // Diagnóstico
 // ---------------------------------------------------------------------------
@@ -414,10 +428,10 @@ class GameMode {
       const games = JSON.parse(fs.readFileSync(this.gamesFile(), 'utf8'));
       if (games.length > 0) return games;
     } catch (_) {}
-    // Default: FiveM pre-configured
+    const fivem = findFiveMPath();
     const defaultGame = {
       id: 'gfivem',
-      path: 'C:\\Program Files\\FiveM\\FiveM.exe',
+      path: fivem || path.join(process.env.LOCALAPPDATA || 'C:\\Users\\Public', 'FiveM', 'FiveM.exe'),
       name: 'FiveM',
       addedAt: new Date().toISOString(),
       isDefault: true
