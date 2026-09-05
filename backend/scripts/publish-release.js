@@ -13,13 +13,13 @@ loadEnv();
 const mysql = require('mysql2/promise');
 
 const RELEASE = {
-  version: '2.1.4',
-  filename: 'ORION.OPTIMIZER.Setup-2.1.4.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.4/ORION.OPTIMIZER.Setup-2.1.4.exe',
+  version: '2.1.5',
+  filename: 'ORION.OPTIMIZER.Setup-2.1.5.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.5/ORION.OPTIMIZER.Setup-2.1.5.exe',
   changelog: [
-    'GPU: análise e uso ao vivo para NVIDIA, AMD e Intel (não depende mais só do nvidia-smi no PATH).',
-    'Dashboard: removido o núcleo interativo ao passar o mouse.',
-    'Limpeza do projeto: interface antiga, assets duplicados e pastas não usadas removidos.'
+    'Suporte oficial no Discord (https://discord.gg/e3jHfF7ANp) no painel, no login e nas Configurações.',
+    'Tipografia Inter no aplicativo.',
+    'Textos de suporte e licença mais claros.'
   ].join('\n'),
   obrigatoria: false,
   exige_pagamento: false,

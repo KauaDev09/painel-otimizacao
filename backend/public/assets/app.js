@@ -71,10 +71,10 @@ function brl(v) {
 }
 
 const PUBLIC_INSTALLER = {
-  version: '2.1.4',
-  filename: 'ORION.OPTIMIZER.Setup-2.1.4.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.4/ORION.OPTIMIZER.Setup-2.1.4.exe',
-  releaseNotes: 'GPU ao vivo (NVIDIA, AMD, Intel). Dashboard sem núcleo hover. Instalador público; o painel abre com a key.',
+  version: '2.1.5',
+  filename: 'ORION.OPTIMIZER.Setup-2.1.5.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.5/ORION.OPTIMIZER.Setup-2.1.5.exe',
+  releaseNotes: 'Discord oficial no suporte. Fonte Inter. Login e Configurações com o novo canal. Instalador público; o painel abre com a key.',
   size: '~108 MB'
 };
 
