@@ -13,13 +13,13 @@ loadEnv();
 const mysql = require('mysql2/promise');
 
 const RELEASE = {
-  version: '2.1.1',
-  filename: 'ORION.OPTIMIZER.Setup-2.1.1.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.1/ORION.OPTIMIZER.Setup-2.1.1.exe',
+  version: '2.1.2',
+  filename: 'ORION.OPTIMIZER.Setup-2.1.2.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.2/ORION.OPTIMIZER.Setup-2.1.2.exe',
   changelog: [
-    'Correção: erro "A JavaScript error occurred in the main process" ao abrir o app após instalar.',
-    'Novas telas Sistema, Jogos e Tela na interface React.',
-    'Atualização do Electron para a versão 44.'
+    'Telas de otimização no painel React (Windows, Limpeza, BIOS, Segurança e demais).',
+    'Sidebar sem caixas claras: destaque na cor do aplicativo.',
+    'Login obrigatório com a key da compra antes de entrar no painel.'
   ].join('\n'),
   obrigatoria: false,
   exige_pagamento: false,
