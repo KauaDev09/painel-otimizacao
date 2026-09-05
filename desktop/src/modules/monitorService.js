@@ -7,6 +7,7 @@
 
 const runner = require('../engine/runner');
 const { spawn } = require('child_process');
+const { findNvidiaSmi } = require('../hardware/gpuService');
 
 const SNAPSHOT_PS = `
 $ErrorActionPreference = 'SilentlyContinue'
@@ -49,6 +50,23 @@ if ($thermal) {
 }
 $out.tempC = $temp
 
+# GPU: identidade (WMI) + uso (contadores do Windows — NVIDIA/AMD/Intel)
+$vc = @(Get-CimInstance Win32_VideoController | Where-Object {
+  $_.Name -and $_.Name -notmatch 'Basic Render|Remote Desktop|Microsoft Basic Display'
+})
+if (-not $vc.Count) { $vc = @(Get-CimInstance Win32_VideoController) }
+$g0 = $vc | Select-Object -First 1
+$out.gpuName = if ($g0) { [string]$g0.Name } else { $null }
+$out.gpuVendor = if ($g0) { [string]$g0.AdapterCompatibility } else { $null }
+$out.gpuVramMB = if ($g0 -and $g0.AdapterRAM -gt 0) { [math]::Round([double]$g0.AdapterRAM / 1MB, 0) } else { $null }
+$out.gpuPercent = $null
+try {
+  $samples = (Get-Counter '\GPU Engine(*)\Utilization Percentage' -ErrorAction Stop).CounterSamples
+  $sum3d = ($samples | Where-Object { $_.InstanceName -match 'engtype_3D' } | Measure-Object -Property CookedValue -Sum).Sum
+  if ($null -eq $sum3d) { $sum3d = ($samples | Measure-Object -Property CookedValue -Maximum).Maximum }
+  if ($null -ne $sum3d) { $out.gpuPercent = [math]::Round([math]::Min(100, [double]$sum3d), 0) }
+} catch { }
+
 $out | ConvertTo-Json -Compress
 `;
 
@@ -56,11 +74,12 @@ let gpuCliPath = undefined; // cache da detecção do nvidia-smi
 
 function detectNvidiaSmi() {
   if (gpuCliPath !== undefined) return Promise.resolve(gpuCliPath);
+  const cli = findNvidiaSmi();
   return new Promise((resolve) => {
-    const child = spawn('nvidia-smi', ['--help'], { windowsHide: true });
-    const done = (found) => { gpuCliPath = found ? 'nvidia-smi' : null; resolve(gpuCliPath); };
+    const child = spawn(cli, ['--help'], { windowsHide: true });
+    const done = (found) => { gpuCliPath = found ? cli : null; resolve(gpuCliPath); };
     child.on('error', () => done(false));
-    child.on('close', (code) => done(code === 0 || code == null ? true : false));
+    child.on('close', (code) => done(code === 0 || code == null));
     setTimeout(() => { try { child.kill(); } catch (_) {} done(false); }, 4000);
   });
 }
@@ -106,7 +125,24 @@ async function getSnapshot() {
   } catch (_) {
     base = { cpu: null, ramPercent: null, diskPercent: null, netRxKbps: null, netTxKbps: null };
   }
-  const gpu = await queryNvidiaGpu();
+  const nvidia = await queryNvidiaGpu();
+  const gpu = nvidia
+    ? {
+        ...nvidia,
+        label: base.gpuName || 'NVIDIA',
+        usagePercent: nvidia.percent
+      }
+    : (base.gpuName || base.gpuPercent != null)
+      ? {
+          percent: base.gpuPercent ?? null,
+          usagePercent: base.gpuPercent ?? null,
+          label: base.gpuName || null,
+          vendor: base.gpuVendor || null,
+          vramTotalMB: base.gpuVramMB ?? null,
+          vramUsedMB: null,
+          tempC: null
+        }
+      : null;
   return {
     ts: new Date().toISOString(),
     cpu: base.cpu ?? null,
@@ -118,7 +154,7 @@ async function getSnapshot() {
     netTxKbps: base.netTxKbps ?? null,
     processCount: base.processCount ?? null,
     tempC: base.tempC ?? null,
-    gpu // null quando não há NVIDIA/nvidia-smi disponível
+    gpu
   };
 }
 

@@ -1,6 +1,23 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const { asArray } = require('../utils/asArray');
+
+function findNvidiaSmi() {
+  const candidates = [
+    'nvidia-smi',
+    path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'nvidia-smi.exe'),
+    path.join(process.env['ProgramW6432'] || 'C:\\Program Files', 'NVIDIA Corporation', 'NVSMI', 'nvidia-smi.exe'),
+    path.join(process.env['ProgramFiles'] || 'C:\\Program Files', 'NVIDIA Corporation', 'NVSMI', 'nvidia-smi.exe'),
+    path.join(process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)', 'NVIDIA Corporation', 'NVSMI', 'nvidia-smi.exe')
+  ];
+  for (const p of candidates) {
+    if (p === 'nvidia-smi') continue;
+    try { if (fs.existsSync(p)) return p; } catch (_) { /* next */ }
+  }
+  return 'nvidia-smi';
+}
 
 const MB = 1024 * 1024;
 
@@ -24,8 +41,22 @@ function classifyGen(name) {
 }
 
 function detectGpus(raw, nvidiaSmiOut) {
-  const list = asArray(raw && raw.gpu);
+  let list = asArray(raw && raw.gpu).filter((g) => {
+    const n = String(g.Name || '');
+    return n && !/basic render|remote desktop|microsoft basic display/i.test(n);
+  });
   const memClasses = asArray(raw && raw.gpumem);
+  if (!list.length && memClasses.length) {
+    list = memClasses.map((c) => ({
+      Name: c.desc || null,
+      AdapterCompatibility: null,
+      DriverVersion: null,
+      AdapterRAM: Number.isFinite(c.memBytes) ? c.memBytes : null,
+      Status: 'OK',
+      PNPDeviceID: c.matchId || null
+    }));
+  }
+  if (!list.length) list = asArray(raw && raw.gpu);
 
   const gpus = list.map((g) => {
     const name = g.Name || null;
@@ -81,4 +112,4 @@ function detectGpus(raw, nvidiaSmiOut) {
   return gpus;
 }
 
-module.exports = { detectGpus };
+module.exports = { detectGpus, findNvidiaSmi };

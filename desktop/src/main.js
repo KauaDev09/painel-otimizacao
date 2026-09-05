@@ -161,8 +161,7 @@ function createWindow() {
   });
   mainWindow.setMenuBarVisibility(false);
   const reactIndex = path.join(__dirname, '..', 'app', 'dist', 'index.html');
-  const indexFile = fs.existsSync(reactIndex) ? reactIndex : path.join(__dirname, 'ui', 'index.html');
-  mainWindow.loadFile(indexFile);
+  mainWindow.loadFile(reactIndex);
 
   // Navegação restrita: o app é 100% local (arquivos do pacote). Nenhuma
   // página/chave externa pode trocar o conteúdo da janela principal.

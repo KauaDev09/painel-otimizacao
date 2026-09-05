@@ -4,11 +4,11 @@
 // Para renomear o produto comercialmente, altere apenas os valores aqui
 // (o restante do aplicativo lê deste arquivo) e ajuste também:
 //   - desktop/package.json  → "name" e build.productName
-//   - backend/admin/index.html e desktop/src/ui/index.html (marca visual)
+//   - backend/admin/index.html (marca visual)
 
 const APP_NAME = 'ORION OPTIMIZER';
 const APP_NAME_SHORT = 'Orion Optimizer';
-const APP_VERSION = '2.1.3';
+const APP_VERSION = '2.1.4';
 const SUPPORT_EMAIL = '';
 // Suporte oficial via Discord (aberto pelo botão de suporte da interface).
 const OFFICIAL_URL = 'https://discord.gg/zEWrvddVmZ';

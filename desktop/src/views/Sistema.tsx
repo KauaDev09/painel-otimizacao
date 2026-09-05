@@ -65,7 +65,7 @@ export function Sistema({ onNavigate }: { onNavigate?: (view: string) => void })
   const [snap, setSnap] = React.useState<MonitorSnapshot | null>(null);
   const [analyzing, setAnalyzing] = React.useState(false);
   const [updatedAt, setUpdatedAt] = React.useState<string | null>(null);
-  const hist = React.useRef<{ cpu: number[]; temp: number[] }>({ cpu: [], temp: [] });
+  const hist = React.useRef<{ cpu: number[]; temp: number[]; gpu: number[] }>({ cpu: [], temp: [], gpu: [] });
   const [, force] = React.useReducer((x: number) => x + 1, 0);
 
   const loadLast = React.useCallback(async () => {
@@ -88,6 +88,8 @@ export function Sistema({ onNavigate }: { onNavigate?: (view: string) => void })
         setSnap(s);
         if (s?.cpu != null) { hist.current.cpu.push(s.cpu); if (hist.current.cpu.length > 40) hist.current.cpu.shift(); }
         if (s?.tempC != null) { hist.current.temp.push(s.tempC); if (hist.current.temp.length > 40) hist.current.temp.shift(); }
+        const gp = gpuPercent(s);
+        if (gp != null) { hist.current.gpu.push(gp); if (hist.current.gpu.length > 40) hist.current.gpu.shift(); }
         force();
       } catch { /* ok */ }
     };
@@ -235,15 +237,27 @@ export function Sistema({ onNavigate }: { onNavigate?: (view: string) => void })
             <div className="space-y-5">
               {/* GPU */}
               <Section title="GPU" icon={<Monitor className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
-                {gpus.length === 0 && <p className="text-sm text-muted-foreground">N/D</p>}
+                {gpus.length === 0 && !snap?.gpu && <p className="text-sm text-muted-foreground">Nenhuma GPU detectada.</p>}
                 {gpus.map((g, i) => (
                   <div key={i} className="mb-2 last:mb-0">
-                    <p className="text-sm font-medium text-foreground">{g.name || 'N/D'}</p>
+                    <p className="text-sm font-medium text-foreground">{g.name || snap?.gpu?.label || 'N/D'}</p>
                     <p className="text-xs text-muted-foreground">
                       {g.vendor && `${g.vendor} · `}{g.vramMB ? `${(g.vramMB / 1024).toFixed(1)} GB VRAM` : 'VRAM N/D'}
+                      {g.driver ? ` · driver ${g.driver}` : ''}
                     </p>
                   </div>
                 ))}
+                {gpus.length === 0 && snap?.gpu?.label && (
+                  <p className="text-sm font-medium text-foreground">{snap.gpu.label}</p>
+                )}
+                <div className="mt-3">
+                  <LiveStat
+                    label="Uso"
+                    value={gpuPercent(snap)}
+                    unit="%"
+                    hist={hist.current.gpu || []}
+                  />
+                </div>
               </Section>
 
               {/* Firmware */}

@@ -76,7 +76,7 @@ interface LocalApi {
 }
 
 // ---------------------------------------------------------------------------
-// Constantes (espelham renderer.js)
+// Constantes do catálogo de otimizações
 // ---------------------------------------------------------------------------
 
 const CUSTOM_PROFILE_KEY = 'orion.customProfile';

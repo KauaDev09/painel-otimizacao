@@ -1,6 +1,6 @@
 {
   "name": "orion-optimizer",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "description": "ORION OPTIMIZER — análise de BIOS, otimização do Windows, game boost, limpeza e manutenção para Windows.",
   "main": "src/main.js",
   "author": "Orion",
@@ -10,8 +10,6 @@
     "start": "electron .",
     "dist": "electron-builder --win nsis",
     "dist:dir": "electron-builder --win nsis --dir",
-    "preview": "npx serve src/ui -p 3000 --no-clipboard",
-    "styles:shadcn": "tailwindcss -i src/ui/shadcn.css -o src/ui/shadcn.dist.css --minify",
     "dev:app": "vite",
     "build:app": "vite build",
     "typecheck": "tsc --noEmit",

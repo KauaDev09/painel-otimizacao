@@ -104,7 +104,8 @@ async function collectAll(log = () => {}) {
 function queryNvidiaSmi(timeoutMs = 8000) {
   return new Promise((resolve) => {
     try {
-      const child = spawn('nvidia-smi', [
+      const { findNvidiaSmi } = require('./gpuService');
+      const child = spawn(findNvidiaSmi(), [
         '--query-gpu=name,pcie.link.gen.current,pcie.link.gen.max,pcie.link.width.current,pcie.link.width.max,driver_version,memory.total',
         '--format=csv,noheader'
       ], { windowsHide: true });

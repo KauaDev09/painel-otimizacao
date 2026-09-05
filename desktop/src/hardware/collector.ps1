@@ -71,8 +71,10 @@ Sec 'slots' -List {
 }
 
 Sec 'gpu' -List {
-    Get-CimInstance Win32_VideoController |
-        Select-Object Name, AdapterCompatibility, DriverVersion,
+    $all = @(Get-CimInstance Win32_VideoController)
+    $real = @($all | Where-Object { $_.Name -and $_.Name -notmatch 'Basic Render|Remote Desktop|Microsoft Basic Display' })
+    if (-not $real.Count) { $real = $all }
+    $real | Select-Object Name, AdapterCompatibility, DriverVersion,
         @{ n = 'DriverDateStr'; e = { if ($_.DriverDate) { $_.DriverDate.ToString('yyyy-MM-dd') } } },
         AdapterRAM, VideoModeDescription, Status, PNPDeviceID, VideoProcessor
 }

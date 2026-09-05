@@ -30,6 +30,7 @@ export interface MonitorSnapshot {
     vramTotalMB?: number | null;
     tempC?: number | null;
     label?: string;
+    vendor?: string | null;
   } | null;
 }
 
