@@ -54,10 +54,10 @@ export function Sidebar({ view, onNavigate, collapsed, onToggle, version }: Side
                   title={collapsed ? item.label : undefined}
                   onClick={() => onNavigate(item.view)}
                   className={cn(
-                    'mb-0.5 flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors',
+                    'orion-nav-item mb-0.5 flex w-full items-center gap-3 rounded-md border-0 px-2.5 py-2 text-sm font-medium shadow-none',
                     active
                       ? 'bg-[var(--orion-selected-bg)] text-[var(--orion-text-primary)]'
-                      : 'text-[var(--orion-text-secondary)] hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)]',
+                      : 'bg-transparent text-[var(--orion-text-secondary)] hover:bg-[rgba(145,99,212,0.08)] hover:text-[var(--orion-hover-fg)]',
                     collapsed && 'justify-center px-0'
                   )}
                 >

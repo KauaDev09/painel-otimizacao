@@ -69,8 +69,10 @@ export function Login() {
           </div>
         </div>
 
-        <h1 className="mb-1.5 text-[1.05rem] font-semibold text-foreground">Acesso ao Orion Optimizer</h1>
-        <p className="mb-6 text-sm text-muted-foreground">Insira sua Key para continuar.</p>
+        <h1 className="mb-1.5 text-[1.05rem] font-semibold text-foreground">Entrar no painel</h1>
+        <p className="mb-6 text-sm text-muted-foreground">
+          Digite a key da sua compra para liberar o acesso.
+        </p>
 
         <div
           className={[
@@ -80,6 +82,7 @@ export function Login() {
         >
           <KeyRound className="h-4 w-4 shrink-0 text-muted-foreground" />
           <input
+            type={showKey ? 'text' : 'password'}
             value={key}
             onChange={(e) => setKey(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && activate()}
@@ -87,7 +90,7 @@ export function Login() {
             maxLength={29}
             spellCheck={false}
             autoComplete="off"
-            className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+            className="w-full border-0 bg-transparent text-sm text-foreground shadow-none outline-none placeholder:text-muted-foreground"
           />
           <button
             type="button"
@@ -103,7 +106,7 @@ export function Login() {
           type="button"
           disabled={busy}
           onClick={activate}
-          className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--orion-icon-active)] py-2.5 text-sm font-semibold text-black transition-colors duration-200 ease-out hover:bg-[var(--orion-hover-fg)] hover:shadow-[0_0_0_1px_var(--orion-hover-border),0_4px_16px_var(--orion-hover-glow)] disabled:opacity-60"
+          className="orion-glow mb-3 flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--orion-icon-active)] py-2.5 text-sm font-semibold text-black transition-colors duration-200 ease-out hover:bg-[var(--orion-hover-fg)] disabled:opacity-60"
         >
           {busy ? (
             <>

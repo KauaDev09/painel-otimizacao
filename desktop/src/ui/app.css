@@ -33,6 +33,75 @@ body {
   user-select: none;
 }
 
+/* --- Reset de controles nativos ------------------------------------
+   O preflight do Tailwind está desligado; sem isto os <button>/<input>
+   herdam o visual padrão do Chromium (caixa cinza clara com borda). */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+button {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  text-align: inherit;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+input,
+select,
+textarea {
+  background: var(--orion-surface);
+  border: 1px solid rgba(145, 99, 212, 0.16);
+  border-radius: 8px;
+  color: var(--orion-text-primary);
+  outline: none;
+  color-scheme: dark;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--orion-hover-border);
+  box-shadow: 0 0 0 1px var(--orion-hover-border);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--orion-text-secondary);
+  opacity: 0.7;
+}
+
+select option {
+  background: var(--orion-surface);
+  color: var(--orion-text-primary);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--orion-icon-default);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+input[type="range"] {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  accent-color: var(--orion-icon-default);
+}
+
 /* --- Linguagem cromática global (visual.md §2.1) ----------------- */
 button,
 [role="button"],
@@ -45,19 +114,32 @@ a {
     opacity 0.18s ease-out;
 }
 
-button:hover,
-a:hover {
+/* Glow só em ações primárias — menu, janela e ícones ficam sem caixa. */
+button.orion-glow:hover,
+a.orion-glow:hover {
   color: var(--orion-hover-fg);
   box-shadow:
     0 0 0 1px var(--orion-hover-border),
     0 4px 16px var(--orion-hover-glow);
 }
 
+button:hover:not(.orion-nav-item):not(.orion-win-btn) {
+  color: var(--orion-hover-fg);
+}
+
 button:focus-visible {
   outline: none;
+}
+
+button.orion-glow:focus-visible {
   box-shadow:
     0 0 0 2px var(--orion-hover-border),
     0 4px 16px var(--orion-hover-glow);
+}
+
+nav button,
+.orion-nav-item {
+  box-shadow: none !important;
 }
 
 /* Ícones funcionais em violeta (nunca cinza/branco neutro) */

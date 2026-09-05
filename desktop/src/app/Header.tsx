@@ -23,11 +23,18 @@ export function Header({ view, collapsed, onMenu }: HeaderProps) {
   const api = useApi();
   const title = viewTitle(view);
   const [maximized, setMaximized] = React.useState(false);
+  const [plan, setPlan] = React.useState<string>('');
 
   React.useEffect(() => {
     let alive = true;
     api.windowIsMaximized?.().then((v) => alive && setMaximized(!!v)).catch(() => {});
     api.onWindowMaximized?.((v) => alive && setMaximized(!!v));
+    const applyLic = (st: { active?: boolean; plan?: string | null } | null | undefined) => {
+      if (!alive) return;
+      setPlan(st?.active ? String(st.plan || 'Ativa') : 'Sem licença');
+    };
+    api.licenseGetState?.().then(applyLic).catch(() => {});
+    api.onLicenseChanged?.(applyLic);
     return () => {
       alive = false;
     };
@@ -68,7 +75,7 @@ export function Header({ view, collapsed, onMenu }: HeaderProps) {
       <div className="flex items-center gap-3">
         <span className="no-drag inline-flex items-center gap-1.5 rounded-full bg-[var(--orion-surface)] px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-wider text-[var(--orion-text-secondary)]">
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--orion-icon-default)]" />
-          Pro
+          {plan || '…'}
         </span>
 
         <div className="no-drag flex items-center gap-0.5">
@@ -77,7 +84,7 @@ export function Header({ view, collapsed, onMenu }: HeaderProps) {
               key={key}
               type="button"
               onClick={win[key]}
-              className="flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-[var(--orion-icon-default)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)]"
+              className="orion-win-btn flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-[var(--orion-icon-default)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)]"
               aria-label={label}
             >
               {icon}
