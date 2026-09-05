@@ -421,11 +421,13 @@ code, .mono { font-family: var(--font-mono); }
 .feature-card.tall { grid-row: span 2; }
 .feature-card:hover { border-color: rgba(139, 92, 246, 0.45); box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.12), 0 18px 40px rgba(109, 40, 217, 0.18); }
 .feature-card .ic {
-  width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
-  background: rgba(139, 92, 246, 0.08); color: var(--acid); margin-bottom: 18px;
-  border: 1px solid rgba(139, 92, 246, 0.16);
+  width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center;
+  color: var(--accent-text); margin-bottom: 18px;
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.16), rgba(109, 40, 217, 0.06));
+  border: 1px solid rgba(167, 139, 250, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
 }
-.feature-card .ic svg { width: 20px; height: 20px; }
+.feature-card .ic svg { width: 22px; height: 22px; display: block; }
 .feature-card h3 { font-size: 22px; margin-bottom: 8px; }
 .feature-card p { color: var(--text-2); font-size: 14.5px; line-height: 1.55; }
 
@@ -481,8 +483,12 @@ code, .mono { font-family: var(--font-mono); }
 }
 .trust:hover { border-color: rgba(139, 92, 246, 0.38); box-shadow: 0 16px 40px rgba(109, 40, 217, 0.14); }
 .trust h3 { font-size: 26px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
-.trust h3 .ti { width: 36px; height: 36px; border-radius: 11px; background: rgba(139, 92, 246, 0.08); color: var(--acid); display: grid; place-items: center; border: 1px solid rgba(139, 92, 246, 0.16); }
-.trust h3 .ti svg { width: 16px; height: 16px; }
+.trust h3 .ti {
+  width: 38px; height: 38px; border-radius: 11px; color: var(--accent-text);
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.16), rgba(109, 40, 217, 0.06));
+  display: grid; place-items: center; border: 1px solid rgba(167, 139, 250, 0.28);
+}
+.trust h3 .ti svg { width: 18px; height: 18px; }
 .trust p { color: var(--text-2); font-size: 15px; line-height: 1.6; }
 .trust ul { list-style: none; margin-top: 16px; display: grid; gap: 10px; }
 .trust li { display: flex; align-items: flex-start; gap: 9px; font-size: 14.5px; color: var(--text-2); }
