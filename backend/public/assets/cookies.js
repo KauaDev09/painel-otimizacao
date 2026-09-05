@@ -124,7 +124,26 @@
     document.getElementById('orion-cookie-ok').addEventListener('click', accept);
   }
 
+  function initScrollNav() {
+    var nav = document.querySelector('.nav');
+    if (!nav || nav.getAttribute('data-scroll-nav')) return;
+    nav.setAttribute('data-scroll-nav', '1');
+    var lastY = window.scrollY || 0;
+    function apply() {
+      var y = window.scrollY || 0;
+      nav.classList.toggle('scrolled', y > 16);
+      var inner = nav.querySelector('.nav-inner');
+      var menuOpen = inner && inner.classList.contains('nav-open');
+      if (!menuOpen && y > lastY + 4 && y > 72) nav.classList.add('is-hidden');
+      else if (y < lastY - 2 || y < 48) nav.classList.remove('is-hidden');
+      lastY = y;
+    }
+    window.addEventListener('scroll', apply, { passive: true });
+    apply();
+  }
+
   function boot() {
+    initScrollNav();
     if (read()) {
       injectFonts();
       unlockScripts();

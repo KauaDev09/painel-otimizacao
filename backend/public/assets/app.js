@@ -166,13 +166,25 @@ function renderNav() {
     });
   }
 
-  // Navbar com superfície translúcida ao rolar
+  initScrollNav();
+}
+
+function initScrollNav() {
   const nav = document.querySelector('.nav');
-  if (nav) {
-    const onScroll = () => nav.classList.toggle('scrolled', (window.scrollY || 0) > 20);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-  }
+  if (!nav || nav.dataset.scrollNav) return;
+  nav.dataset.scrollNav = '1';
+  let lastY = window.scrollY || 0;
+  const apply = () => {
+    const y = window.scrollY || 0;
+    nav.classList.toggle('scrolled', y > 16);
+    const inner = nav.querySelector('.nav-inner');
+    const menuOpen = inner && inner.classList.contains('nav-open');
+    if (!menuOpen && y > lastY + 4 && y > 72) nav.classList.add('is-hidden');
+    else if (y < lastY - 2 || y < 48) nav.classList.remove('is-hidden');
+    lastY = y;
+  };
+  window.addEventListener('scroll', apply, { passive: true });
+  apply();
 }
 
 document.addEventListener('DOMContentLoaded', renderNav);
