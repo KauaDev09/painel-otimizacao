@@ -142,7 +142,8 @@ function renderNav() {
       '<a href="/#recursos">Recursos</a>' +
       '<a href="/#como-funciona">Como funciona</a>' +
       '<a href="/planos">Planos</a>' +
-      '<a href="/download">Download</a>';
+      '<a href="/download">Download</a>' +
+      '<a href="/privacidade">Privacidade</a>';
 
     let toggle = navInner.querySelector('.nav-toggle');
     if (!toggle) {

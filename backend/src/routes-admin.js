@@ -524,6 +524,9 @@ function register(router) {
 
   router.get('/api/v1/admin/logs', async (_body, _params, urlObj) => {
     const limit = Math.min(500, Number(urlObj.searchParams.get('limit') || 200));
+    const accessLog = require('./services/accessLog');
+    let access = [];
+    try { access = await accessLog.list(config, limit); } catch (_) { access = []; }
     return {
       ok: true,
       logs: await db.query(
@@ -531,7 +534,8 @@ function register(router) {
         `SELECT lg.id, lg.evento, lg.detalhe, lg.criado_em, l.chave
            FROM logs lg LEFT JOIN licencas l ON l.id = lg.licenca_id
           ORDER BY lg.id DESC LIMIT ${limit}`
-      )
+      ),
+      access
     };
   });
 

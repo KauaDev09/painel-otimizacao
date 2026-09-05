@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { NAV } from './nav';
-import logoUrl from '../ui/assets/logo.jpeg';
+import logoUrl from '../ui/assets/icon.jpeg';
 
 interface SidebarProps {
   view: string;

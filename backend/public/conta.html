@@ -4,14 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Minha conta — ORION OPTIMIZER</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesk:opsz,wght@12..96,500;700;800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/jpeg" href="/assets/icon.jpeg">
+  <script src="/assets/cookies.js"></script>
   <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body>
   <nav class="nav"><div class="nav-inner">
-    <a href="/" class="brand"><span class="brand-mark" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="6"/><path d="M12 9v3l2 2"/></svg></span>ORION<span class="accent">OPTIMIZER</span></a>
+    <a href="/" class="brand"><span class="brand-mark" aria-hidden="true"><img src="/assets/icon.jpeg" alt=""></span>ORION<span class="accent">OPTIMIZER</span></a>
     <div class="nav-actions" data-nav-actions></div>
   </div></nav>
 
@@ -38,26 +37,37 @@
     <div id="orders" style="margin-top:14px">
       <div class="skeleton" style="height:60px"></div>
     </div>
+
+    <div class="danger-zone">
+      <h3>Apagar todos os meus dados</h3>
+      <p class="dim">Não desativa só a conta. Apaga licenças, dispositivos, pedidos, histórico e logs ligados a você. Digite <strong>APAGAR</strong> para confirmar.</p>
+      <div class="field" style="margin-top:14px;max-width:280px">
+        <label for="erase-confirm">Confirmação</label>
+        <input id="erase-confirm" placeholder="APAGAR" autocomplete="off">
+      </div>
+      <button type="button" class="btn btn-danger" id="erase-btn">Excluir dados por completo</button>
+      <p class="muted" id="erase-msg" style="margin-top:10px"></p>
+    </div>
   </div>
 
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
-          <a href="/" class="brand"><span class="brand-mark" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="6"/><path d="M12 9v3l2 2"/></svg></span>ORION<span class="accent">OPTIMIZER</span></a>
+          <a href="/" class="brand"><span class="brand-mark" aria-hidden="true"><img src="/assets/icon.jpeg" alt=""></span>ORION<span class="accent">OPTIMIZER</span></a>
           <p>Performance, sem complicação. Uma suíte profissional para otimizar o Windows e extrair mais do seu PC.</p>
         </div>
         <div class="footer-col"><h4>Produto</h4><a href="/#produto">Recursos</a><a href="/#como-funciona">Como funciona</a><a href="/#faq">FAQ</a></div>
         <div class="footer-col"><h4>Comprar</h4><a href="/planos">Planos</a><a href="/login">Entrar</a><a href="/conta">Minha conta</a></div>
-        <div class="footer-col"><h4>Suporte</h4><a href="/download">Download</a><a href="/suporte">Suporte</a></div>
+        <div class="footer-col"><h4>Suporte</h4><a href="/download">Download</a><a href="/suporte">Suporte</a></div><div class="footer-col"><h4>Legal</h4><a href="/termos">Termos de uso</a><a href="/privacidade">Privacidade</a><a href="/privacidade#exclusao">Exclusão de dados</a></div>
       </div>
       <div class="footer-bottom"><span>© <span data-year></span> ORION OPTIMIZER. Todos os direitos reservados.</span></div>
     </div>
   </footer>
 
-  <script src="/assets/app.js"></script>
-  <script src="/assets/effects.js"></script>
-  <script>
+  <script src="/assets/app.js" type="text/plain" data-consent></script>
+  <script src="/assets/effects.js" type="text/plain" data-consent></script>
+  <script type="text/plain" data-consent>
     document.querySelector('[data-year]').textContent = new Date().getFullYear();
 
     if (!isAuthed()) { location.href = '/login?next=/conta'; }
@@ -126,6 +136,23 @@
         document.getElementById('orders').innerHTML = '';
       }
     })();
+
+    document.getElementById('erase-btn').addEventListener('click', async () => {
+      const msg = document.getElementById('erase-msg');
+      const confirm = document.getElementById('erase-confirm').value.trim();
+      if (confirm !== 'APAGAR') {
+        msg.textContent = 'Digite APAGAR para confirmar.';
+        return;
+      }
+      if (!window.confirm('Isso apaga conta, keys, dispositivos e histórico. Não tem volta.')) return;
+      try {
+        await API.post('/api/v1/store/account/erase', { confirm: 'APAGAR' }, true);
+        clearToken();
+        location.href = '/?erased=1';
+      } catch (err) {
+        msg.textContent = err.message || 'Não foi possível apagar agora.';
+      }
+    });
   </script>
 </body>
 </html>

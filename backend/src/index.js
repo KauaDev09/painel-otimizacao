@@ -18,6 +18,7 @@ const licenseRoutes = require('./routes-license');
 const adminRoutes = require('./routes-admin');
 const appRoutes = require('./routes-app');
 const storefrontRoutes = require('./routes-storefront');
+const accessLog = require('./services/accessLog');
 
 const ADMIN_DIR = path.join(__dirname, '..', 'admin');
 const ADMIN_HTML = path.join(ADMIN_DIR, 'index.html');
@@ -31,7 +32,9 @@ const PUBLIC_PAGES = {
   '/login': 'login.html',
   '/conta': 'conta.html',
   '/sucesso': 'sucesso.html',
-  '/suporte': 'suporte.html'
+  '/suporte': 'suporte.html',
+  '/termos': 'termos.html',
+  '/privacidade': 'privacidade.html'
 };
 
 const CONTENT_TYPES = {
@@ -196,6 +199,16 @@ async function handleRequest(req, res) {
     if (filePath.startsWith(PUBLIC_DIR) && /\.(css|js|svg|png|jpg|jpeg|ico|json|txt|woff2)$/i.test(filePath)) {
       return serveStatic(res, filePath, CONTENT_TYPES[ext] || 'application/octet-stream');
     }
+  }
+
+  if (pathname.startsWith('/api/') && pathname !== '/api/v1/public/access') {
+    void accessLog.write(config, {
+      ip: accessLog.clientIp(req),
+      path: pathname,
+      method: req.method,
+      userAgent: req.headers && req.headers['user-agent'],
+      event: 'api'
+    });
   }
 
   const match = router.match(req.method, pathname);

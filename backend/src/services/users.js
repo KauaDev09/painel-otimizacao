@@ -4,9 +4,11 @@
 // Registro/login por e-mail+senha (scrypt), sessão via token HMAC.
 // Reutiliza a tabela `usuarios` existente (agora com senha_hash preenchida).
 
+const crypto = require('crypto');
 const db = require('../db');
 const config = require('../config');
 const { hashPassword, verifyPassword, signToken } = require('../util');
+const accessLog = require('./accessLog');
 
 function fail(code, message, status = 400) {
   return { ok: false, code, message, status };
@@ -105,6 +107,62 @@ function publicUser(u) {
   };
 }
 
+async function runSafe(sql, params) {
+  try { await db.query(config, sql, params); } catch (_) { /* tabela pode não existir */ }
+}
+
+async function eraseAllDataForUser(user, motivo) {
+  const licenses = await db.query(config, 'SELECT id, chave FROM licencas WHERE usuario_id = ?', [user.id]);
+  const ids = licenses.map((l) => l.id);
+
+  if (ids.length) {
+    const ph = ids.map(() => '?').join(',');
+    await runSafe(`DELETE FROM ativacoes WHERE licenca_id IN (${ph})`, ids);
+    await runSafe(`DELETE FROM historico_otimizacoes WHERE licenca_id IN (${ph})`, ids);
+    await runSafe(`DELETE FROM analises_seguranca WHERE licenca_id IN (${ph})`, ids);
+    await runSafe(`DELETE FROM license_activations WHERE license_id IN (${ph})`, ids);
+    await runSafe(`DELETE FROM dispositivos WHERE licenca_id IN (${ph})`, ids);
+    await runSafe(`DELETE FROM pagamentos WHERE licenca_id IN (${ph})`, ids);
+    await runSafe(`DELETE FROM logs WHERE licenca_id IN (${ph})`, ids);
+    await runSafe(`DELETE FROM licencas WHERE id IN (${ph})`, ids);
+  }
+
+  await runSafe('DELETE FROM orders WHERE user_id = ?', [user.id]);
+  await runSafe('DELETE FROM access_logs WHERE user_id = ?', [user.id]);
+  await runSafe('UPDATE pagamentos SET licenca_id = NULL WHERE licenca_id IS NULL', []);
+  await db.query(config, 'DELETE FROM usuarios WHERE id = ?', [user.id]);
+
+  const emailHash = crypto.createHash('sha256').update(String(user.email || '')).digest('hex');
+  await accessLog.recordErasure(config, emailHash, motivo || 'pedido_cliente');
+  return { ok: true, erased: true };
+}
+
+async function eraseByUserId(userId, motivo) {
+  const user = await db.queryOne(config, 'SELECT * FROM usuarios WHERE id = ? LIMIT 1', [userId]);
+  if (!user) return fail('NOT_FOUND', 'Usuário não encontrado.', 404);
+  return eraseAllDataForUser(user, motivo);
+}
+
+async function eraseByKey(key, motivo) {
+  const k = String(key || '').trim().toUpperCase();
+  if (!k || k.length < 10) return fail('INVALID_KEY', 'Informe a chave de licença.', 400);
+  const lic = await db.queryOne(config, 'SELECT * FROM licencas WHERE UPPER(chave) = ? LIMIT 1', [k]);
+  if (!lic) return fail('KEY_NOT_FOUND', 'Licença não encontrada.', 404);
+  if (!lic.usuario_id) {
+    await runSafe('DELETE FROM ativacoes WHERE licenca_id = ?', [lic.id]);
+    await runSafe('DELETE FROM historico_otimizacoes WHERE licenca_id = ?', [lic.id]);
+    await runSafe('DELETE FROM analises_seguranca WHERE licenca_id = ?', [lic.id]);
+    await runSafe('DELETE FROM license_activations WHERE license_id = ?', [lic.id]);
+    await runSafe('DELETE FROM dispositivos WHERE licenca_id = ?', [lic.id]);
+    await runSafe('DELETE FROM pagamentos WHERE licenca_id = ?', [lic.id]);
+    await runSafe('DELETE FROM logs WHERE licenca_id = ?', [lic.id]);
+    await db.query(config, 'DELETE FROM licencas WHERE id = ?', [lic.id]);
+    await accessLog.recordErasure(config, null, motivo || 'pedido_cliente_key');
+    return { ok: true, erased: true };
+  }
+  return eraseByUserId(lic.usuario_id, motivo || 'pedido_cliente_key');
+}
+
 module.exports = {
   fail,
   register,
@@ -113,5 +171,7 @@ module.exports = {
   findByEmail,
   ensureUser,
   publicUser,
-  issueToken
+  issueToken,
+  eraseByUserId,
+  eraseByKey
 };

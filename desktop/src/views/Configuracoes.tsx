@@ -61,6 +61,7 @@ interface LocalApi {
   onUpdateAvailable(cb: (res: UpdateCheckResult) => void): void;
   getAppMeta(): Promise<AppMetaInfo | undefined>;
   licenseGetState(): Promise<LicenseInfo>;
+  licenseLogout?(): Promise<unknown>;
   openExternal?(url: string): Promise<void>;
 }
 
@@ -137,6 +138,9 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
   const [update, setUpdate] = React.useState<UpdateCheckResult | null>(null);
   const [progress, setProgress] = React.useState<DownloadProgress>({ percent: 0, received: 0, total: 0 });
   const [installMsg, setInstallMsg] = React.useState('Instalando atualização...');
+  const [eraseConfirm, setEraseConfirm] = React.useState('');
+  const [eraseMsg, setEraseMsg] = React.useState('');
+  const [eraseBusy, setEraseBusy] = React.useState(false);
 
   React.useEffect(() => {
     let alive = true;
@@ -561,6 +565,71 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
               As preferências são salvas localmente e aplicadas imediatamente. Ações com efeito no sistema (iniciar com o Windows) são
               registradas pelo próprio Windows.
             </p>
+          </Section>
+
+          <Section title="Privacidade e exclusão" icon={<ShieldCheck className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+            <p className="m-0 text-xs leading-relaxed text-muted-foreground">
+              Coletamos key, hash da máquina, hostname, IP de ativação e — se você sincronizar — histórico de otimização. Log de acesso
+              registra IP e rota na API. Pedido de exclusão apaga a conta e o restante, não só o login.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                className={secondaryBtn}
+                onClick={() => api.openExternal?.('https://orion-optimizer-ten.vercel.app/privacidade')}
+              >
+                Política de privacidade
+              </button>
+              <button
+                type="button"
+                className={secondaryBtn}
+                onClick={() => api.openExternal?.('https://orion-optimizer-ten.vercel.app/termos')}
+              >
+                Termos de uso
+              </button>
+            </div>
+            <p className="mb-0 mt-4 text-xs text-muted-foreground">Digite APAGAR e confirme. Some key, dispositivos, pedidos e logs.</p>
+            <input
+              value={eraseConfirm}
+              onChange={(e) => setEraseConfirm(e.target.value)}
+              placeholder="APAGAR"
+              className="mt-2 w-full rounded-lg border border-[var(--orion-selected-bg)] bg-black/40 px-3 py-2 text-sm text-foreground outline-none"
+            />
+            <button
+              type="button"
+              disabled={eraseBusy || !lic?.key}
+              className="mt-2 w-full justify-center rounded-lg border border-red-500/40 px-3 py-2 text-xs font-semibold text-red-400 hover:bg-red-500/10 disabled:opacity-50"
+              onClick={async () => {
+                if (eraseConfirm !== 'APAGAR') {
+                  setEraseMsg('Digite APAGAR para confirmar.');
+                  return;
+                }
+                if (!lic?.key) {
+                  setEraseMsg('Ative uma key neste PC antes.');
+                  return;
+                }
+                setEraseBusy(true);
+                setEraseMsg('Apagando…');
+                try {
+                  const res = await fetch('https://orion-optimizer-ten.vercel.app/api/v1/public/erase-request', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: lic.key, confirm: 'APAGAR' }),
+                  });
+                  const data = await res.json().catch(() => ({}));
+                  if (!res.ok || data.ok === false) throw new Error(data.message || 'Falha ao apagar.');
+                  setEraseMsg('Dados apagados no servidor. Faça logout da key.');
+                  await api.licenseLogout?.();
+                } catch (err) {
+                  setEraseMsg(errMsg(err, 'Não foi possível apagar agora.'));
+                } finally {
+                  setEraseBusy(false);
+                }
+              }}
+            >
+              Apagar todos os meus dados
+            </button>
+            {eraseMsg && <p className="mt-2 text-xs text-muted-foreground">{eraseMsg}</p>}
           </Section>
         </div>
       </div>

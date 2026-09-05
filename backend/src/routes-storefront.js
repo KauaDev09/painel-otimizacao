@@ -452,6 +452,33 @@ function register(router) {
     const customer = getCustomer(req);
     return myLicenseKeys(customer);
   });
+
+  router.post('/api/v1/store/account/erase', async (body, _p, _u, req) => {
+    const customer = getCustomer(req);
+    if (String((body && body.confirm) || '') !== 'APAGAR') {
+      return fail('CONFIRM_REQUIRED', 'Digite APAGAR para confirmar a exclusão total.', 400);
+    }
+    return users.eraseByUserId(customer.id, 'pedido_conta');
+  });
+
+  router.post('/api/v1/public/erase-request', async (body) => {
+    if (String((body && body.confirm) || '') !== 'APAGAR') {
+      return fail('CONFIRM_REQUIRED', 'Digite APAGAR para confirmar a exclusão total.', 400);
+    }
+    return users.eraseByKey(body && body.key, 'pedido_key');
+  });
+
+  router.post('/api/v1/public/access', async (body, _p, _u, req) => {
+    const accessLog = require('./services/accessLog');
+    await accessLog.write(config, {
+      ip: accessLog.clientIp(req),
+      path: body && body.path,
+      method: 'PAGE',
+      userAgent: req && req.headers && req.headers['user-agent'],
+      event: String((body && body.event) || 'page')
+    });
+    return { ok: true };
+  });
 }
 
 module.exports = { register };

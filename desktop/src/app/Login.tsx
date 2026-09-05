@@ -2,7 +2,7 @@ import React from 'react';
 import { KeyRound } from 'lucide-react';
 import { useApi } from '@/api';
 import { OrionReactiveCore } from '@/components/orion-reactive-core';
-import logoUrl from '../ui/assets/logo.jpeg';
+import logoUrl from '../ui/assets/icon.jpeg';
 
 const STORE_URL = 'https://orion-store-dun.vercel.app';
 
@@ -127,7 +127,15 @@ export function Login() {
           </button>
         </div>
         <p className="text-xs leading-relaxed text-muted-foreground/70">
-          A key é validada de forma segura no servidor. Nenhum dado sensível é armazenado no aplicativo.
+          A key é validada no servidor. Há{' '}
+          <button type="button" className="underline underline-offset-2" onClick={() => api.openExternal?.('https://orion-optimizer-ten.vercel.app/privacidade')}>
+            política de privacidade
+          </button>{' '}
+          e{' '}
+          <button type="button" className="underline underline-offset-2" onClick={() => api.openExternal?.('https://orion-optimizer-ten.vercel.app/termos')}>
+            termos de uso
+          </button>
+          . Pedido de exclusão apaga a conta e o restante dos dados, não só o login.
         </p>
       </div>
     </div>
