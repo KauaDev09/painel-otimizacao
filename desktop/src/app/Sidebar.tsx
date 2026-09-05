@@ -15,13 +15,13 @@ export function Sidebar({ view, onNavigate, collapsed, onToggle, version }: Side
   return (
     <aside
       className={cn(
-        'flex shrink-0 flex-col border-r border-border bg-card transition-[width] duration-300',
+        'flex shrink-0 flex-col bg-[var(--orion-bg)] transition-[width] duration-300',
         collapsed ? 'w-16' : 'w-60'
       )}
     >
       <div
         className={cn(
-          'drag-region flex items-center gap-3 border-b border-border px-4 py-5',
+          'drag-region flex items-center gap-3 px-4 py-5',
           collapsed && 'justify-center px-2'
         )}
       >
@@ -56,8 +56,8 @@ export function Sidebar({ view, onNavigate, collapsed, onToggle, version }: Side
                   className={cn(
                     'mb-0.5 flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors',
                     active
-                      ? 'bg-primary/15 text-foreground'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                      ? 'bg-[var(--orion-selected-bg)] text-[var(--orion-text-primary)]'
+                      : 'text-[var(--orion-text-secondary)] hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)]',
                     collapsed && 'justify-center px-0'
                   )}
                 >
@@ -75,14 +75,14 @@ export function Sidebar({ view, onNavigate, collapsed, onToggle, version }: Side
         ))}
       </nav>
 
-      <div className="no-drag border-t border-border px-4 py-3">
+      <div className="no-drag px-4 py-3">
         {!collapsed ? (
           <div className="flex items-center justify-between">
             <span className="text-[0.68rem] text-muted-foreground">{version}</span>
             <button
               type="button"
               onClick={onToggle}
-              className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="rounded-md p-1 text-[var(--orion-text-secondary)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)]"
               title="Recolher menu"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -94,7 +94,7 @@ export function Sidebar({ view, onNavigate, collapsed, onToggle, version }: Side
           <button
             type="button"
             onClick={onToggle}
-            className="mx-auto block rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="mx-auto block rounded-md p-1.5 text-[var(--orion-text-secondary)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)]"
             title="Expandir menu"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

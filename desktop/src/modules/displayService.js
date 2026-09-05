@@ -119,7 +119,8 @@ async function getMonitors() {
   // fonte autoritativa para o monitor onde a janela está.
   let primary = null;
   try {
-    const { screen } = require('electron');
+    const { app, screen } = require('electron');
+    if (!app.isReady()) throw new Error('screen-not-ready');
     const d = screen.getPrimaryDisplay();
     primary = {
       name: cleanName(d.label || d.name),

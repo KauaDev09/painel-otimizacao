@@ -4,6 +4,15 @@ const { app, BrowserWindow, ipcMain, shell, Tray, Menu, nativeImage, dialog } = 
 const path = require('path');
 const fs = require('fs');
 
+// Evita que um erro isolado (ex.: módulo screen antes de ready) mate o processo
+// com o diálogo "A JavaScript error occurred in the main process".
+process.on('uncaughtException', (err) => {
+  console.error('[main] uncaughtException:', err && err.stack ? err.stack : err);
+});
+process.on('unhandledRejection', (err) => {
+  console.error('[main] unhandledRejection:', err && err.stack ? err.stack : err);
+});
+
 const { runAnalysis } = require('./core/analyzer');
 const { ReportService } = require('./reports/reportService');
 const { HistoryService } = require('./history/historyService');
@@ -25,8 +34,13 @@ const networkService = require('./modules/networkService');
 const benchmarkService = require('./modules/benchmarkService');
 const settingsService = require('./modules/settingsService');
 const displayService = require('./modules/displayService');
-const screenOverlay = require('./modules/screenOverlay');
 const updaterService = require('./modules/updaterService');
+// screenOverlay acessa o módulo `screen` — só carrega depois de ready.
+let screenOverlay = null;
+function getScreenOverlay() {
+  if (!screenOverlay) screenOverlay = require('./modules/screenOverlay');
+  return screenOverlay;
+}
 const { biosManager } = require('./bios/optimization/biosManager');
 const { APP_NAME } = require('./config/appConfig');
 
@@ -176,6 +190,15 @@ function createWindow() {
   updaterService.setMainWindow(mainWindow);
   if (gameMode) gameMode.setMainWindow(mainWindow);
 
+  // Notifica o renderer sobre o estado de maximização (ícone maximizar/restaurar).
+  const sendMaxState = () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('window:maximized', mainWindow.isMaximized());
+    }
+  };
+  mainWindow.on('maximize', sendMaxState);
+  mainWindow.on('unmaximize', sendMaxState);
+
   // Minimizar para a bandeja em vez de fechar (preferência do usuário).
   mainWindow.on('close', (e) => {
     const minimize = settingsService.get().general.minimizeToTray;
@@ -203,12 +226,12 @@ async function applyScreenRampAndOverlay(opts = {}) {
     res = { applied: false, method: 'gamma-ramp' };
   }
   if (res.applied) {
-    screenOverlay.hide();
+    getScreenOverlay().hide();
     return { ...res, overlay: false, effectiveBrightness: 100, brightnessMode: 'gamma', saturationMode: 'gamma', contrastMode: 'gamma' };
   }
   // Rampa bloqueada: brilho via overlay. Saturação/contraste não têm alternativa
   // pública no Windows 10/11 — ficam com aviso honesto.
-  screenOverlay.setBrightness(brightness);
+  getScreenOverlay().setBrightness(brightness);
   const overlayActive = brightness < 100;
   return {
     ...res,
@@ -249,7 +272,7 @@ app.whenReady().then(() => {
   });
 });
 
-app.on('before-quit', () => { quitting = true; try { screenOverlay.dispose(); } catch (_) {} });
+app.on('before-quit', () => { quitting = true; try { if (screenOverlay) screenOverlay.dispose(); } catch (_) {} });
 
 app.on('window-all-closed', () => {
   app.quit();
@@ -550,6 +573,7 @@ function registerIpc() {
     mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
   });
   ipcMain.handle('window:close', () => mainWindow && mainWindow.close());
+  ipcMain.handle('window:isMaximized', () => !!(mainWindow && mainWindow.isMaximized()));
 }
 
 function stripRaw(result) {

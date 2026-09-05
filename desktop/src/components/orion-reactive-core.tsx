@@ -89,7 +89,7 @@ export function OrionReactiveCore({ className = '', compact = false }: OrionReac
       className={`orion-reactive-field${compact ? ' orion-compact' : ''} ${className}`}
     >
       {!compact && <div className="orion-grain" />}
-      {!compact && <div className="orion-grid" />}
+      <div className="orion-grid" />
       <div className="orion-pointer-light" />
       <div className="orion-core">
         <div className="orion-core-ring-outer" />

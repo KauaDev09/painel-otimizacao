@@ -2,12 +2,18 @@ import React from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { Home } from '@/views/Home';
+import { Sistema } from '@/views/Sistema';
+import { Jogos } from '@/views/Jogos';
+import { Tela } from '@/views/Tela';
 import { ComingSoon } from '@/views/ComingSoon';
 import { OrionReactiveCore } from '@/components/orion-reactive-core';
 import { useApi } from '@/api';
 
 const MIGRATED_VIEWS: Record<string, React.ComponentType<{ onNavigate: (view: string) => void }>> = {
   home: Home,
+  dashboard: Sistema,
+  gameboost: Jogos,
+  display: Tela,
 };
 
 export function Shell() {
@@ -44,11 +50,7 @@ export function Shell() {
           <Header view={view} collapsed={collapsed} onMenu={() => setCollapsed((c) => !c)} />
           <main className="flex-1 overflow-y-auto">
             <div className="min-h-full p-6">
-              {view === 'home' ? (
-                <Home {...props} />
-              ) : (
-                <ComingSoon view={view} />
-              )}
+              <Content {...props} />
             </div>
           </main>
         </div>

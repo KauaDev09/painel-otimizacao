@@ -32,7 +32,8 @@ const DEFAULTS = {
   display: {
     saturation: 100,
     brightness: 100,
-    contrast: 100
+    contrast: 100,
+    presets: {}
   }
 };
 

@@ -115,4 +115,8 @@ contextBridge.exposeInMainWorld('OrionAPI', {
   windowMinimize: () => ipcRenderer.invoke('window:minimize'),
   windowMaximize: () => ipcRenderer.invoke('window:maximize'),
   windowClose: () => ipcRenderer.invoke('window:close'),
+  windowIsMaximized: () => ipcRenderer.invoke('window:isMaximized'),
+  onWindowMaximized: (cb) => {
+    ipcRenderer.on('window:maximized', (_e, value) => cb(value));
+  },
 });

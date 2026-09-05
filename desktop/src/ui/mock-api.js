@@ -754,7 +754,9 @@ window.OrionAPI = {
   // Window controls (no-op in preview)
   windowMinimize: () => {},
   windowMaximize: () => {},
-  windowClose: () => {}
+  windowClose: () => {},
+  windowIsMaximized: async () => false,
+  onWindowMaximized: () => {},
 };
 
 // Simulate initial license state

@@ -49,6 +49,8 @@ export interface OrionApi {
   windowMinimize(): Promise<void>;
   windowMaximize(): Promise<void>;
   windowClose(): Promise<void>;
+  windowIsMaximized(): Promise<boolean>;
+  onWindowMaximized(cb: (value: boolean) => void): void;
 
   licenseGetState(): Promise<LicenseState>;
   licenseActivate(key: string): Promise<{ ok?: boolean }>;
@@ -56,8 +58,9 @@ export interface OrionApi {
   licenseLogout(): Promise<{ ok?: boolean }>;
   onLicenseChanged(cb: (state: LicenseState) => void): void;
 
-  analyze(): Promise<{ overall: number; scores: { overall: number } }>;
-  getLast(): Promise<unknown>;
+  analyze(): Promise<{ overall?: number; historyId?: string; scores?: { overall: number } }>;
+  getLast(): Promise<AnalysisResultLike>;
+  onServiceStep(cb: (step: unknown) => void): void;
   monitorSnapshot(): Promise<MonitorSnapshot>;
   engineListOperations(): Promise<OptimizationOperation[]>;
   displayMonitors(): Promise<unknown>;
@@ -69,5 +72,64 @@ export interface OrionApi {
     brightness?: number;
   }): Promise<{ applied: boolean; overlay?: boolean; brightnessMode?: string }>;
 
+  // ---- Jogos (Game Boost) ----
+  gameBoostListGames(): Promise<GameEntry[]>;
+  gameBoostAddGame(payload: { path: string }): Promise<GameEntry>;
+  gameBoostRemoveGame(id: string): Promise<{ ok: boolean }>;
+  gameBoostSessionStatus(): Promise<GameSessionStatus>;
+  gameBoostStartSession(id: string): Promise<GameStartResult>;
+  gameBoostStopSession(): Promise<{ ok: boolean; message?: string }>;
+  gameBoostPickExe(): Promise<string | null>;
+  gameBoostAnalyze(): Promise<unknown>;
+  onGameBoostSession(cb: (payload: GameSessionEvent) => void): void;
+
+  // ---- Tela (display) ----
+  settingsGet(): Promise<SettingsLike>;
+  settingsSet(patch: unknown): Promise<unknown>;
+
   [method: string]: unknown;
+}
+
+export interface GameEntry {
+  id: string;
+  name: string;
+  path: string;
+  addedAt?: string;
+  isDefault?: boolean;
+}
+
+export interface GameSessionStatus {
+  running?: boolean;
+  pending?: boolean;
+  session?: { running?: boolean; pid?: number; processName?: string; gameName?: string } | null;
+}
+
+export interface GameStartResult {
+  ok?: boolean;
+  pending?: boolean;
+  gameName?: string;
+  message?: string;
+  error?: string;
+}
+
+export interface GameSessionEvent {
+  state?: string;
+  message?: string;
+}
+
+// Representação aproximada do perfil/resultado de análise (dados reais do backend).
+export interface AnalysisResultLike {
+  profile?: Record<string, unknown>;
+  scores?: { overall?: number; categories?: Record<string, { percent?: number }> };
+  counts?: { critical?: number; recommended?: number; optional?: number };
+  recommendations?: unknown[];
+}
+
+export interface SettingsLike {
+  display?: {
+    brightness?: number;
+    contrast?: number;
+    saturation?: number;
+    presets?: Record<string, { brightness?: number; contrast?: number; saturation?: number }>;
+  };
 }

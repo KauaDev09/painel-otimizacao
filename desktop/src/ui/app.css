@@ -15,6 +15,7 @@
   --orion-hover-fg: #C7AEEF;
   --orion-hover-glow: rgba(145, 99, 212, 0.22);
   --orion-hover-border: #6B3FA0;
+  --orion-selected-bg: rgba(145, 99, 212, 0.14);
 }
 
 html,
@@ -164,36 +165,26 @@ nav button:hover > svg {
   background-size: 220px 220px;
 }
 
-/* Grade com espaçamento NÃO uniforme (§4) */
+/* Grade pontilhada sutil com espaçamento NÃO uniforme (§4) */
 .orion-grid {
   position: absolute;
   inset: 0;
-  opacity: 0.7;
+  opacity: 0.4;
+  /* Pontos violetas discretos em treliças de espaçamentos diferentes (não linhas) */
   background-image:
-    linear-gradient(
-      90deg,
-      rgba(145, 99, 212, 0.055) 0 1px,
-      transparent 1px 53px,
-      rgba(145, 99, 212, 0.035) 53px 54px,
-      transparent 54px 171px,
-      rgba(145, 99, 212, 0.05) 171px 172px,
-      transparent 172px 342px,
-      rgba(145, 99, 212, 0.045) 342px 343px,
-      transparent 343px 400px
-    ),
-    linear-gradient(
-      0deg,
-      rgba(145, 99, 212, 0.055) 0 1px,
-      transparent 1px 61px,
-      rgba(145, 99, 212, 0.035) 61px 62px,
-      transparent 62px 147px,
-      rgba(145, 99, 212, 0.05) 147px 148px,
-      transparent 148px 331px,
-      rgba(145, 99, 212, 0.045) 331px 332px,
-      transparent 332px 396px
-    );
-  mask-image: radial-gradient(130% 100% at 50% 40%, #000 25%, transparent 80%);
-  -webkit-mask-image: radial-gradient(130% 100% at 50% 40%, #000 25%, transparent 80%);
+    radial-gradient(rgba(145, 99, 212, 0.5) 1px, transparent 1px),
+    radial-gradient(rgba(145, 99, 212, 0.35) 1px, transparent 1px),
+    radial-gradient(rgba(145, 99, 212, 0.28) 1px, transparent 1px);
+  background-size:
+    47px 53px,
+    83px 74px,
+    131px 109px;
+  background-position:
+    0 0,
+    23px 29px,
+    61px 13px;
+  mask-image: radial-gradient(130% 100% at 50% 40%, #000 20%, transparent 82%);
+  -webkit-mask-image: radial-gradient(130% 100% at 50% 40%, #000 20%, transparent 82%);
 }
 
 /* Glow que segue o cursor (com inércia via lerp) — posição via transform, não top/left */
@@ -359,27 +350,22 @@ nav button:hover > svg {
 }
 
 /* ------------------------------------------------------------------
-   Scrollbar discreta
+   Scrollbar discreta (§6.4) — fina, quase invisível em repouso, roxa no hover
    ------------------------------------------------------------------ */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: hsl(var(--border));
-  border-radius: 8px;
-  border: 2px solid transparent;
-  background-clip: content-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--input));
-  background-clip: content-box;
-  border: 2px solid transparent;
-  border-radius: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
   background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--orion-surface);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--orion-hover-border);
 }

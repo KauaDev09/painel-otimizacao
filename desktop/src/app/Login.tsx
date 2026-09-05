@@ -11,6 +11,7 @@ export function Login() {
   const [key, setKey] = React.useState('');
   const [busy, setBusy] = React.useState(false);
   const [msg, setMsg] = React.useState<{ text: string; kind: 'err' | 'ok' | 'info' } | null>(null);
+  const [showKey, setShowKey] = React.useState(false);
 
   const activate = React.useCallback(async () => {
     const k = key.trim();
@@ -50,12 +51,14 @@ export function Login() {
       ? 'text-red-400'
       : msg?.kind === 'ok'
         ? 'text-green-400'
-        : 'text-muted-foreground';
+        : 'text-[var(--orion-text-secondary)]';
+
+  const hasError = msg?.kind === 'err';
 
   return (
-    <div className="drag-region relative flex h-full items-center justify-center bg-background">
+    <div className="drag-region relative flex h-full items-center justify-center bg-[var(--orion-bg)]">
       <OrionReactiveCore className="absolute inset-0 z-0" />
-      <div className="no-drag login-in relative z-10 w-[min(400px,92vw)] rounded-2xl border border-border bg-card p-10 text-center shadow-2xl">
+      <div className="no-drag login-in relative z-10 w-[min(400px,92vw)] rounded-lg bg-[rgba(14,12,20,0.6)] p-10 text-center shadow-[0_0_0_1px_rgba(145,99,212,0.08),0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-md">
         <div className="mb-6 flex items-center justify-center gap-3">
           <img src={logoUrl} alt="Orion" className="h-10 w-10 rounded-lg object-cover" />
           <div className="text-left leading-none">
@@ -69,7 +72,12 @@ export function Login() {
         <h1 className="mb-1.5 text-[1.05rem] font-semibold text-foreground">Acesso ao Orion Optimizer</h1>
         <p className="mb-6 text-sm text-muted-foreground">Insira sua Key para continuar.</p>
 
-        <div className="mb-3.5 flex items-center gap-2 rounded-lg border border-border bg-black/40 px-3 py-2.5">
+        <div
+          className={[
+            'mb-3.5 flex items-center gap-2 rounded-lg border border-[rgba(255,255,255,0.06)] bg-black/40 px-3 py-2.5 transition-all duration-200 ease-out',
+            hasError ? 'border-red-500/60' : 'focus-within:border-[var(--orion-hover-border)] focus-within:shadow-[0_0_0_1px_var(--orion-hover-border),0_4px_16px_var(--orion-hover-glow)]',
+          ].join(' ')}
+        >
           <KeyRound className="h-4 w-4 shrink-0 text-muted-foreground" />
           <input
             value={key}
@@ -81,15 +89,30 @@ export function Login() {
             autoComplete="off"
             className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
+          <button
+            type="button"
+            tabIndex={0}
+            onClick={() => setShowKey((s) => !s)}
+            className="shrink-0 text-[0.68rem] font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-[var(--orion-hover-fg)]"
+          >
+            {showKey ? 'Ocultar' : 'Mostrar'}
+          </button>
         </div>
 
         <button
           type="button"
           disabled={busy}
           onClick={activate}
-          className="mb-3 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
+          className="mb-3 flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--orion-icon-active)] py-2.5 text-sm font-semibold text-black transition-colors duration-200 ease-out hover:bg-[var(--orion-hover-fg)] hover:shadow-[0_0_0_1px_var(--orion-hover-border),0_4px_16px_var(--orion-hover-glow)] disabled:opacity-60"
         >
-          {busy ? 'VALIDANDO…' : 'ATIVAR KEY'}
+          {busy ? (
+            <>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black" />
+              <span>Validando…</span>
+            </>
+          ) : (
+            'ATIVAR KEY'
+          )}
         </button>
 
         {msg && <div className={`mb-3 text-sm ${msgClass}`}>{msg.text}</div>}

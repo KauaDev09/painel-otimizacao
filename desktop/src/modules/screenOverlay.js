@@ -7,8 +7,11 @@
 // restringe SetDeviceGammaRamp). A janela é always-on-top, sem foco, sem clique
 // (clique atravessa) e totalmente transparente — apenas a opacidade de preto
 // escurece a tela inteira, exatamente como um dim.
+//
+// IMPORTANTE: o módulo `screen` do Electron lança se for lido antes de
+// app.ready. Nunca desestruture `screen` no topo deste arquivo.
 
-const { BrowserWindow, screen } = require('electron');
+const { BrowserWindow, app } = require('electron');
 
 const MAX_ALPHA = 0.85;
 
@@ -24,6 +27,25 @@ function displayKey(d) {
 }
 
 let overlays = new Map(); // key -> { win, ready }
+let listenersBound = false;
+
+function getScreen() {
+  if (!app || !app.isReady()) return null;
+  try {
+    return require('electron').screen;
+  } catch (_) {
+    return null;
+  }
+}
+
+function bindDisplayListeners() {
+  const screen = getScreen();
+  if (!screen || listenersBound) return;
+  listenersBound = true;
+  screen.on('display-added', syncDisplays);
+  screen.on('display-removed', syncDisplays);
+  screen.on('display-metrics-changed', syncDisplays);
+}
 
 function createFor(display) {
   const win = new BrowserWindow({
@@ -65,6 +87,9 @@ function createFor(display) {
 }
 
 function syncDisplays() {
+  const screen = getScreen();
+  if (!screen) return;
+  bindDisplayListeners();
   const displays = screen.getAllDisplays();
   const keys = new Set(displays.map(displayKey));
   for (const [key, entry] of overlays) {
@@ -106,14 +131,15 @@ function hide() {
 }
 
 function dispose() {
-  for (const entry of overlays.values()) entry.win.destroy();
+  for (const entry of overlays.values()) {
+    try { entry.win.destroy(); } catch (_) { /* já fechada */ }
+  }
   overlays.clear();
 }
 
-if (screen) {
-  screen.on('display-added', syncDisplays);
-  screen.on('display-removed', syncDisplays);
-  screen.on('display-metrics-changed', syncDisplays);
+if (app) {
+  if (app.isReady()) bindDisplayListeners();
+  else app.once('ready', bindDisplayListeners);
 }
 
 module.exports = { setBrightness, hide, dispose };

@@ -121,8 +121,9 @@ configSrc = configSrc.replace(
 fs.writeFileSync(CONFIG_PATH, configSrc, 'utf8');
 
 // Step 3: Build
-console.log('[release] 3/5 Gerando instalador NSIS...');
+console.log('[release] 3/5 Compilando frontend e gerando instalador NSIS...');
 console.log('');
+run('npm run build:app');
 run('npx electron-builder --win nsis');
 console.log('');
 
@@ -211,8 +212,9 @@ try {
   if (json && json !== 'null') canonicalAssetUrl = json.replace(/^"|"$/g, '');
 } catch (_) { /* gh indisponível → usa fallback */ }
 if (!canonicalAssetUrl) {
-  // Fallback: nome do asset costuma trocar espaços por hífens no upload do gh.
-  canonicalAssetUrl = `https://github.com/${OWNER}/${REPO}/releases/download/${tag}/${installerName.replace(/ /g, '-')}`;
+  // Fallback: o GitHub CLI troca espaços por pontos no nome do asset (verificado
+  // nas releases anteriores: "ORION.OPTIMIZER.Setup-2.1.0.exe").
+  canonicalAssetUrl = `https://github.com/${OWNER}/${REPO}/releases/download/${tag}/${installerName.replace(/ /g, '.')}`;
 }
 console.log('     ' + canonicalAssetUrl);
 console.log('  3. Clique "PUBLICAR"');

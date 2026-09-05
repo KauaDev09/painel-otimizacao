@@ -15,7 +15,7 @@ interface LiveCardProps {
 
 function LiveCard({ icon: Icon, title, value, unit, desc, hist }: LiveCardProps) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="rounded-lg bg-[var(--orion-surface)] p-4">
       <div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
         {Icon && <Icon className="h-4 w-4 text-primary" />}
         <span>{title}</span>
@@ -138,7 +138,7 @@ export function Home({ onNavigate }: HomeProps) {
           <div className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Recursos do Sistema
           </div>
-          <div className="rounded-xl border border-border bg-card p-5">
+          <div className="rounded-lg bg-[var(--orion-surface)] p-5">
             {(['cpu', 'gpu', 'ram'] as const).map((k) => {
               const values = hist.current[k];
               const last = values.length ? Math.round(values[values.length - 1]) : 0;
@@ -159,10 +159,17 @@ export function Home({ onNavigate }: HomeProps) {
           <div className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Informações do Sistema
           </div>
-          <div className="rounded-xl border border-border bg-card p-5">
-            <p className="text-sm text-muted-foreground">
-              Os detalhes completos do hardware estarão disponíveis aqui na versão final do novo painel.
+          <div className="rounded-lg bg-[var(--orion-surface)] p-5">
+            <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
+              Visão detalhada do hardware, firmware, saúde do sistema e recomendações.
             </p>
+            <button
+              type="button"
+              onClick={() => onNavigate('dashboard')}
+              className="inline-flex items-center gap-2 rounded-lg text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:text-[var(--orion-hover-fg)]"
+            >
+              Abrir Diagnóstico do Sistema
+            </button>
           </div>
         </div>
       </div>
