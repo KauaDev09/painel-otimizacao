@@ -133,7 +133,7 @@ function renderNav() {
     const logout = actions.querySelector('[data-logout]');
     if (logout) logout.addEventListener('click', () => { clearToken(); location.href = '/'; });
   } else {
-    actions.innerHTML = '<a href="/login" class="btn btn-ghost">Entrar</a><a href="/planos" class="btn btn-primary" data-magnet="16">Pegar key</a>';
+    actions.innerHTML = '<a href="/login" class="btn btn-ghost">Entrar</a><a href="/planos" class="btn btn-primary" data-magnet="16">Ver planos</a>';
   }
 
   if (menu) {
@@ -143,7 +143,7 @@ function renderNav() {
       '<a href="/#como-funciona">Como funciona</a>' +
       '<a href="/planos">Planos</a>' +
       '<a href="/download">Download</a>' +
-      '<a href="/privacidade">Privacidade</a>';
+      '<a href="/suporte">Suporte</a>';
 
     let toggle = navInner.querySelector('.nav-toggle');
     if (!toggle) {

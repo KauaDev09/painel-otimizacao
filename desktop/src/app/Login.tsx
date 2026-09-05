@@ -4,7 +4,8 @@ import { useApi } from '@/api';
 import { OrionReactiveCore } from '@/components/orion-reactive-core';
 import logoUrl from '../ui/assets/icon.jpeg';
 
-const STORE_URL = 'https://orion-store-dun.vercel.app';
+const STORE_URL = 'https://orion-optimizer-ten.vercel.app/planos';
+const DISCORD_URL = 'https://discord.gg/e3jHfF7ANp';
 
 export function Login() {
   const api = useApi();
@@ -31,7 +32,7 @@ export function Login() {
       const map: Record<string, string> = {
         LICENSE_NOT_FOUND: 'Key inválida — verifique se digitou corretamente.',
         LICENSE_EXPIRED: 'Licença expirada — renove na Orion Store.',
-        LICENSE_BLOCKED: 'Licença bloqueada — contate o suporte.',
+        LICENSE_BLOCKED: 'Licença bloqueada — fale no Discord oficial.',
         VERSION_NOT_AUTHORIZED: 'Esta versão não está autorizada pela sua licença.',
         DEVICE_LIMIT: 'Limite de dispositivos atingido para esta key.',
         EMPTY_KEY: 'Informe uma key de licença.',
@@ -114,7 +115,7 @@ export function Login() {
               <span>Validando…</span>
             </>
           ) : (
-            'ATIVAR KEY'
+            'Ativar key'
           )}
         </button>
 
@@ -123,7 +124,11 @@ export function Login() {
         <div className="mb-4 text-sm text-muted-foreground">
           Não possui uma Key?{' '}
           <button type="button" onClick={buy} className="font-medium text-primary underline-offset-4 hover:underline">
-            Adquira sua licença
+            Ver planos
+          </button>
+          {' · '}
+          <button type="button" onClick={() => api.openExternal?.(DISCORD_URL)} className="font-medium text-primary underline-offset-4 hover:underline">
+            Discord
           </button>
         </div>
         <p className="text-xs leading-relaxed text-muted-foreground/70">

@@ -150,7 +150,7 @@ export function Suporte({ onNavigate }: { onNavigate?: (view: string) => void })
         </div>
         <button type="button" onClick={contact} className={primaryBtn}>
           <MessageCircle className="h-4 w-4" />
-          ABRIR PÁGINA DE SUPORTE
+          Entrar no Discord
         </button>
       </div>
 
@@ -234,11 +234,11 @@ export function Suporte({ onNavigate }: { onNavigate?: (view: string) => void })
           {/* Contato */}
           <Section title="Contato" icon={<LifeBuoy className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
             <p className="m-0 mb-3 text-sm text-muted-foreground">
-              Precisa de ajuda com licença, ativação ou reembolso? Fale com o suporte oficial.
+              Precisa de ajuda com licença, ativação ou reembolso? Fale no Discord oficial.
             </p>
             <button type="button" onClick={contact} className={`w-full justify-center ${primaryBtn}`}>
               <ExternalLink className="h-4 w-4" />
-              ABRIR PÁGINA DE SUPORTE
+              Entrar no Discord
             </button>
             {meta?.officialUrl && (
               <p className="m-0 mt-2 truncate text-center text-xs text-muted-foreground" title={meta.officialUrl}>

@@ -576,6 +576,13 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
               <button
                 type="button"
                 className={secondaryBtn}
+                onClick={() => api.openExternal?.(meta?.officialUrl || 'https://discord.gg/e3jHfF7ANp')}
+              >
+                Discord
+              </button>
+              <button
+                type="button"
+                className={secondaryBtn}
                 onClick={() => api.openExternal?.('https://orion-optimizer-ten.vercel.app/privacidade')}
               >
                 Política de privacidade

@@ -19,8 +19,8 @@
     <div class="container">
       <div class="section-head reveal">
         <div class="kicker">Planos</div>
-        <h2>Paga o mês. Recebe a key.</h2>
-        <p>PIX ou cartão. Sem “analista vai entrar em contato”. A chave cai depois da confirmação.</p>
+        <h2>Escolha o plano. Receba a key.</h2>
+        <p>PIX ou cartão. A chave é liberada após a confirmação do pagamento — sem fila de atendimento.</p>
       </div>
       <div id="plans-grid" class="plans">
         <div class="plan-card"><div class="skeleton" style="height:320px"></div></div>
@@ -33,11 +33,12 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <a href="/" class="brand"><span class="brand-mark" aria-hidden="true"><img src="/assets/icon.jpeg" alt=""></span>ORION<span class="accent">OPTIMIZER</span></a>
-          <p>Performance, sem complicação. Uma suíte profissional para otimizar o Windows e extrair mais do seu PC.</p>
+          <p>Otimização profissional para Windows — análise real, ajustes reversíveis e licença por key.</p>
         </div>
         <div class="footer-col"><h4>Produto</h4><a href="/#produto">Recursos</a><a href="/#como-funciona">Como funciona</a><a href="/#faq">FAQ</a></div>
         <div class="footer-col"><h4>Comprar</h4><a href="/planos">Planos</a><a href="/login">Entrar</a><a href="/conta">Minha conta</a></div>
-        <div class="footer-col"><h4>Suporte</h4><a href="/download">Download</a><a href="/suporte">Suporte</a></div><div class="footer-col"><h4>Legal</h4><a href="/termos">Termos de uso</a><a href="/privacidade">Privacidade</a><a href="/privacidade#exclusao">Exclusão de dados</a></div>
+        <div class="footer-col"><h4>Suporte</h4><a href="/download">Download</a><a href="/suporte">Suporte</a><a href="https://discord.gg/e3jHfF7ANp" target="_blank" rel="noopener noreferrer">Discord</a></div>
+        <div class="footer-col"><h4>Legal</h4><a href="/termos">Termos de uso</a><a href="/privacidade">Privacidade</a><a href="/privacidade#exclusao">Exclusão de dados</a></div>
       </div>
       <div class="footer-bottom"><span>© <span data-year></span> ORION OPTIMIZER. Todos os direitos reservados.</span></div>
     </div>
@@ -58,12 +59,12 @@
           const isF = p.id === featured.id;
           return `
           <div class="plan-card ${isF?'featured':''}" data-spotlight data-glare>
-            ${isF?'<div class="tag">O que a galera pega</div>':''}
+            ${isF?'<div class="tag">Mais escolhido</div>':''}
             <div class="name">${p.name}</div>
             <div class="price">${brl(p.price)}<small> mensal</small></div>
             <div class="desc">${p.description||''}</div>
             <ul>${(p.features||[]).map(f=>`<li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>${pretty(f)}</li>`).join('')}</ul>
-            <a class="btn ${isF?'btn-primary':'btn-ghost'} btn-block" href="/checkout?plan=${p.slug}" data-magnet="16">Pegar key</a>
+            <a class="btn ${isF?'btn-primary':'btn-ghost'} btn-block" href="/checkout?plan=${p.slug}" data-magnet="16">Assinar</a>
           </div>`;
         }).join('');
         if (window.OrionFX) {

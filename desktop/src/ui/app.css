@@ -28,7 +28,11 @@ body {
   margin: 0;
   background: var(--orion-bg);
   color: var(--orion-text-primary);
-  font-family: "Segoe UI Variable", "Segoe UI", Inter, system-ui, sans-serif;
+  font-family: Inter, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11", "kern";
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   overflow: hidden;
   user-select: none;
 }

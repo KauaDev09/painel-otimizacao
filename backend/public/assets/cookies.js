@@ -27,7 +27,7 @@
 
 (function () {
   var KEY = 'orion_cookie_consent';
-  var FONTS = 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesk:opsz,wght@12..96,500;700;800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap';
+  var FONTS = 'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap';
 
   function read() {
     try { return localStorage.getItem(KEY) === 'accepted'; } catch (_) { return false; }

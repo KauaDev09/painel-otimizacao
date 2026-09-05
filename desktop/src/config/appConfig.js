@@ -11,7 +11,7 @@ const APP_NAME_SHORT = 'Orion Optimizer';
 const APP_VERSION = '2.1.4';
 const SUPPORT_EMAIL = '';
 // Suporte oficial via Discord (aberto pelo botão de suporte da interface).
-const OFFICIAL_URL = 'https://discord.gg/zEWrvddVmZ';
+const OFFICIAL_URL = 'https://discord.gg/e3jHfF7ANp';
 // URL pública da API de licenças/atualizações (não é segredo).
 const DEFAULT_API_URL = 'https://orion-optimizer-ten.vercel.app';
 
