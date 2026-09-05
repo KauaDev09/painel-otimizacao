@@ -71,11 +71,11 @@ function brl(v) {
 }
 
 const PUBLIC_INSTALLER = {
-  version: '2.1.0',
-  filename: 'ORION.OPTIMIZER.Setup-2.1.0.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.0/ORION.OPTIMIZER.Setup-2.1.0.exe',
-  releaseNotes: 'Nova interface (React/shadcn), núcleo reativo Orion, predefinição Avançado com os 3 scripts Windows (Balanced, Full, Extreme) e endurecimento de segurança.',
-  size: '~78 MB'
+  version: '2.1.4',
+  filename: 'ORION.OPTIMIZER.Setup-2.1.4.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.4/ORION.OPTIMIZER.Setup-2.1.4.exe',
+  releaseNotes: 'GPU ao vivo (NVIDIA, AMD, Intel). Dashboard sem núcleo hover. Instalador público; o painel abre com a key.',
+  size: '~108 MB'
 };
 
 function escapeHtml(s) {
@@ -112,8 +112,13 @@ async function loadDownloadPanel(el) {
         <li>Internet necessária para ativar e validar a chave de licença</li>
       </ul>
     </div>
-    <a class="btn btn-primary btn-lg" href="${escapeHtml(download.url)}" download>Baixar instalador</a>
+    <a class="btn btn-primary btn-lg" href="${escapeHtml(download.url)}" download data-magnet="12">Baixar instalador</a>
     ${notes}`;
+  if (window.OrionFX) {
+    window.OrionFX.initStarButtons();
+    window.OrionFX.initMagnet();
+    window.OrionFX.initSpotlight();
+  }
 }
 
 /* ---------- Navbar state ---------- */
@@ -128,7 +133,7 @@ function renderNav() {
     const logout = actions.querySelector('[data-logout]');
     if (logout) logout.addEventListener('click', () => { clearToken(); location.href = '/'; });
   } else {
-    actions.innerHTML = '<a href="/login" class="btn btn-ghost">Entrar</a><a href="/planos" class="btn btn-primary">Comprar licença</a>';
+    actions.innerHTML = '<a href="/login" class="btn btn-ghost">Entrar</a><a href="/planos" class="btn btn-primary" data-magnet="16">Pegar key</a>';
   }
 
   if (menu) {

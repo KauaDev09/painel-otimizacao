@@ -8,7 +8,7 @@
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesk:opsz,wght@12..96,500;700;800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body>
@@ -22,10 +22,10 @@
     <div class="container">
       <div class="section-head reveal">
         <div class="kicker">Download</div>
-        <h2>Baixe o ORION</h2>
-        <p>Instale agora, sem cadastro. A chave de licença é necessária para usar o aplicativo — escolha um plano para recebê-la na hora.</p>
+        <h2>Instala agora. Ativa quando quiser.</h2>
+        <p>Sem cadastro no instalador. Sem a key, o painel não abre — de propósito.</p>
       </div>
-      <div class="download-panel reveal" id="download-panel">
+      <div class="download-panel reveal" id="download-panel" data-spotlight>
         <div class="skeleton" style="height:220px"></div>
       </div>
     </div>
@@ -47,8 +47,10 @@
   </footer>
 
   <script src="/assets/app.js"></script>
+  <script src="/assets/effects.js"></script>
   <script>
     document.querySelector('[data-year]').textContent = new Date().getFullYear();
+    initReveal();
     loadDownloadPanel(document.getElementById('download-panel'));
   </script>
 </body>
