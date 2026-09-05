@@ -216,9 +216,32 @@ function isWindowsExecutable(file) {
  *  5. O helper, então: aguarda o app sair → roda o instalador /S →
  *     escreve "done" → relança o app atualizado de-elevado (via explorer).
  */
+// Diretório destinado exclusivamente a instaladores baixados pelo próprio app.
+function updaterTempDir() {
+  return path.resolve(path.join(app.getPath('temp'), APP_NAME.replace(/\s+/g, '_')));
+}
+
+function isInsideUpdaterDir(p) {
+  const base = updaterTempDir().toLowerCase();
+  const resolved = path.resolve(p).toLowerCase();
+  return resolved === base || resolved.startsWith(base + path.sep);
+}
+
 async function installUpdate(filePath) {
-  if (!filePath || !fs.existsSync(filePath)) {
+  // Defesa em profundidade: só instala arquivos baixados pelo próprio app e
+  // que sejam executáveis Windows (PE/MZ). Impede que um renderer comprometido
+  // use este IPC para executar um .exe arbitrário com direitos de admin.
+  if (!filePath || typeof filePath !== 'string') {
+    throw new Error('Arquivo de atualização inválido.');
+  }
+  if (!isInsideUpdaterDir(filePath)) {
+    throw new Error('Arquivo de atualização fora do diretório de downloads do aplicativo.');
+  }
+  if (!fs.existsSync(filePath)) {
     throw new Error('Arquivo de atualização não encontrado.');
+  }
+  if (!isWindowsExecutable(filePath)) {
+    throw new Error('O arquivo não é um instalador executável válido (.exe).');
   }
 
   sendToRenderer('update:installing', { message: 'Preparando instalação...' });

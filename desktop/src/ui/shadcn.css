@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------
+   ORION DESIGN TOKENS (shadcn/ui — new-york, dark)
+   Paleta customizada (visual.md §2/§2.1): fundo preto quente #07060A,
+   superfícies #0E0C14, violeta Orion (fora dos stops padrão de framework).
+   ------------------------------------------------------------------ */
+@layer base {
+  :root {
+    /* --orion-bg #07060A */
+    --background: 255 26% 3%;
+    /* --orion-text-primary #E4DDF2 */
+    --foreground: 260 45% 91%;
+
+    /* --orion-surface #0E0C14 */
+    --card: 255 25% 6%;
+    --card-foreground: 260 45% 91%;
+
+    --popover: 255 25% 5%;
+    --popover-foreground: 260 45% 91%;
+
+    /* --orion-core-1 #6B3FA0 */
+    --primary: 267 44% 44%;
+    --primary-foreground: 260 45% 95%;
+
+    --secondary: 255 25% 8%;
+    --secondary-foreground: 261 26% 78%;
+
+    --muted: 255 25% 8%;
+    /* --orion-text-secondary #A99BC4 */
+    --muted-foreground: 261 26% 69%;
+
+    --accent: 264 40% 16%;
+    --accent-foreground: 263 67% 86%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 264 20% 20%;
+    --input: 264 20% 20%;
+    /* --orion-icon-default #9163D4 */
+    --ring: 264 57% 61%;
+
+    --radius: 0.75rem;
+
+    color-scheme: dark;
+  }
+}

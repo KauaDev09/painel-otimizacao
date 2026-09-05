@@ -25,6 +25,7 @@ const networkService = require('./modules/networkService');
 const benchmarkService = require('./modules/benchmarkService');
 const settingsService = require('./modules/settingsService');
 const displayService = require('./modules/displayService');
+const screenOverlay = require('./modules/screenOverlay');
 const updaterService = require('./modules/updaterService');
 const { biosManager } = require('./bios/optimization/biosManager');
 const { APP_NAME } = require('./config/appConfig');
@@ -130,7 +131,7 @@ function createWindow() {
     height: 860,
     minWidth: 1040,
     minHeight: 720,
-    backgroundColor: '#0b0b0d',
+    backgroundColor: '#000000',
     title: APP_NAME,
     icon: appIcon(),
     frame: false,
@@ -145,7 +146,31 @@ function createWindow() {
     }
   });
   mainWindow.setMenuBarVisibility(false);
-  mainWindow.loadFile(path.join(__dirname, 'ui', 'index.html'));
+  const reactIndex = path.join(__dirname, '..', 'app', 'dist', 'index.html');
+  const indexFile = fs.existsSync(reactIndex) ? reactIndex : path.join(__dirname, 'ui', 'index.html');
+  mainWindow.loadFile(indexFile);
+
+  // Navegação restrita: o app é 100% local (arquivos do pacote). Nenhuma
+  // página/chave externa pode trocar o conteúdo da janela principal.
+  mainWindow.webContents.on('will-navigate', (e, url) => {
+    if (!String(url).startsWith('file://')) e.preventDefault();
+  });
+  // Links externos (Discord, loja, checkout, suporte) abrem no navegador do
+  // sistema, jamais em janelas com acesso ao preload/IPC do app.
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    try {
+      const u = new URL(url);
+      if (u.protocol === 'https:' || u.protocol === 'http:') shell.openExternal(u.toString());
+    } catch (_) { /* ignora navegações inválidas */ }
+    return { action: 'deny' };
+  });
+
+  // Reaplica na inicialização o contraste/saturação/brilho persistidos, quando a
+  // curva não é neutra — a gamma ramp é volátil e precisa ser restaurada por sessão.
+  const disp = settingsService.get().display || {};
+  if (Number(disp.saturation) !== 100 || Number(disp.contrast) !== 100 || Number(disp.brightness) !== 100) {
+    applyScreenRampAndOverlay(disp).catch(() => {});
+  }
 
   // Envia referência da janela ao updater para comunicação via IPC.
   updaterService.setMainWindow(mainWindow);
@@ -159,6 +184,41 @@ function createWindow() {
       mainWindow.hide();
     }
   });
+}
+
+// Aplica a curva de gama na tela real (contraste/saturação/brilho). Quando o
+// driver bloqueia a gamma ramp — comum no Windows 10/11 — o brilho é tratado
+// por uma camada transparente (overlay dim) que escurece a tela inteira.
+async function applyScreenRampAndOverlay(opts = {}) {
+  const bri = Number(opts.brightness);
+  const brightness = Number.isFinite(bri) ? Math.max(0, Math.min(100, Math.round(bri))) : 100;
+  let res;
+  try {
+    res = await displayService.applyScreenRamp({
+      saturation: opts.saturation,
+      contrast: opts.contrast,
+      brightness
+    });
+  } catch (_) {
+    res = { applied: false, method: 'gamma-ramp' };
+  }
+  if (res.applied) {
+    screenOverlay.hide();
+    return { ...res, overlay: false, effectiveBrightness: 100, brightnessMode: 'gamma', saturationMode: 'gamma', contrastMode: 'gamma' };
+  }
+  // Rampa bloqueada: brilho via overlay. Saturação/contraste não têm alternativa
+  // pública no Windows 10/11 — ficam com aviso honesto.
+  screenOverlay.setBrightness(brightness);
+  const overlayActive = brightness < 100;
+  return {
+    ...res,
+    applied: false,
+    overlay: overlayActive,
+    effectiveBrightness: brightness,
+    brightnessMode: overlayActive ? 'overlay' : 'none',
+    saturationMode: 'blocked',
+    contrastMode: 'blocked'
+  };
 }
 
 function checkUpdatesOnStartup() {
@@ -189,7 +249,7 @@ app.whenReady().then(() => {
   });
 });
 
-app.on('before-quit', () => { quitting = true; });
+app.on('before-quit', () => { quitting = true; try { screenOverlay.dispose(); } catch (_) {} });
 
 app.on('window-all-closed', () => {
   app.quit();
@@ -270,7 +330,11 @@ function registerIpc() {
 
   ipcMain.handle('history:list', () => historyService.list());
   ipcMain.handle('history:compare', (_e, { before, after }) => historyService.compare(before, after));
-  ipcMain.handle('shell:openPath', (_e, target) => shell.openPath(target));
+  ipcMain.handle('shell:openPath', (_e, target) => {
+    const t = String(target || '');
+    if (!t || !fs.existsSync(t)) throw new Error('Caminho não encontrado.');
+    return shell.openPath(t);
+  });
 
   // ---- Licença ----
   ipcMain.handle('license:getState', () => licenseService.getState());
@@ -420,6 +484,7 @@ function registerIpc() {
   ipcMain.handle('display:monitors', () => displayService.getMonitors());
   ipcMain.handle('display:brightness:get', () => displayService.getBrightness());
   ipcMain.handle('display:brightness:set', (_e, percent) => displayService.setBrightness(percent));
+  ipcMain.handle('display:screen-ramp', (_e, opts) => applyScreenRampAndOverlay(opts || {}));
 
   // ---- Atualizações ----
   ipcMain.handle('update:check', () => updaterService.checkForUpdate(licenseService.getLicenseKey()));

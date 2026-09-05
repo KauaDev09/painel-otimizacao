@@ -4,6 +4,8 @@ node_modules/
 # Builds
 desktop/release/
 desktop/dist/
+desktop/app/
+desktop/src/ui/shadcn.dist.css
 *.exe
 
 # Ambiente e segredos

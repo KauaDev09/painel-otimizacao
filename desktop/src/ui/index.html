@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="shadcn.dist.css" />
 </head>
 <body>
 
@@ -40,24 +41,10 @@
     </div>
   </div>
 
-  <!-- Custom title bar (frameless window) -->
-  <div id="titlebar" class="titlebar">
-    <div class="titlebar-drag">
-      <img src="assets/logo.jpeg" alt="" class="titlebar-logo" />
-      <span class="titlebar-title">ORION OPTIMIZER</span>
-    </div>
-    <div class="titlebar-controls">
-      <button class="titlebar-btn" id="tbMinimize" aria-label="Minimizar" type="button">
-        <svg width="12" height="12" viewBox="0 0 12 12"><rect y="5" width="12" height="1.5" fill="currentColor" rx="0.75"/></svg>
-      </button>
-      <button class="titlebar-btn" id="tbMaximize" aria-label="Maximizar" type="button">
-        <svg width="12" height="12" viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
-      </button>
-      <button class="titlebar-btn titlebar-close" id="tbClose" aria-label="Fechar" type="button">
-        <svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-      </button>
-    </div>
-  </div>
+  <!-- Custom title bar (frameless window). Sem barra visível: a janela é
+       arrastada pela área vazia do cabeçalho e os controles de janela ficam
+       no canto direito do header. -->
+  <div id="titlebar" class="titlebar" aria-hidden="true"></div>
 
   <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
 
@@ -95,10 +82,6 @@
         <span class="sidebar-icon" data-icon="monitoring" data-size="20"></span>
         <span class="sidebar-label">Sistema</span>
       </button>
-      <button data-view="display" class="sidebar-item" type="button">
-        <span class="sidebar-icon" data-icon="monitor" data-size="20"></span>
-        <span class="sidebar-label">Tela</span>
-      </button>
       <button data-view="maintenance" class="sidebar-item" type="button">
         <span class="sidebar-icon" data-icon="cleaning" data-size="20"></span>
         <span class="sidebar-label">Limpeza</span>
@@ -114,9 +97,9 @@
 
       <div class="sidebar-section">MONITORAMENTO</div>
 
-      <button data-view="monitor" class="sidebar-item" type="button">
-        <span class="sidebar-icon" data-icon="monitoring" data-size="20"></span>
-        <span class="sidebar-label">Monitor</span>
+      <button data-view="display" class="sidebar-item" type="button">
+        <span class="sidebar-icon" data-icon="monitor" data-size="20"></span>
+        <span class="sidebar-label">Tela</span>
       </button>
       <button data-view="benchmark" class="sidebar-item" type="button">
         <span class="sidebar-icon" data-icon="benchmark" data-size="20"></span>
@@ -183,6 +166,17 @@
       <span id="headerLicense" class="header-license">
         <span data-icon="pro" data-size="14"></span> PRO
       </span>
+      <div class="window-controls">
+        <button class="titlebar-btn" id="tbMinimize" aria-label="Minimizar" type="button">
+          <svg width="12" height="12" viewBox="0 0 12 12"><rect y="5" width="12" height="1.5" fill="currentColor" rx="0.75"/></svg>
+        </button>
+        <button class="titlebar-btn" id="tbMaximize" aria-label="Maximizar" type="button">
+          <svg width="12" height="12" viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        </button>
+        <button class="titlebar-btn titlebar-close" id="tbClose" aria-label="Fechar" type="button">
+          <svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
       <button id="headerProfile" class="header-profile" type="button" aria-label="Perfil">
         <span data-icon="user" data-size="18"></span>
       </button>
@@ -503,7 +497,7 @@
                   <span class="display-slider-value" id="displaySatValue">100%</span>
                 </div>
                 <input type="range" id="displaySat" min="0" max="100" step="1" value="100" aria-label="Saturação" />
-                <span class="display-slider-mode" id="displaySatMode">Aplicado via processamento do sistema</span>
+                <span class="display-slider-mode" id="displaySatMode">Aplicado diretamente na tela (Windows)</span>
               </div>
               <div class="display-slider">
                 <div class="display-slider-head">
@@ -519,7 +513,7 @@
                   <span class="display-slider-value" id="displayConValue">100%</span>
                 </div>
                 <input type="range" id="displayCon" min="0" max="100" step="1" value="100" aria-label="Contraste" />
-                <span class="display-slider-mode" id="displayConMode">Aplicado via processamento do sistema</span>
+                <span class="display-slider-mode" id="displayConMode">Aplicado diretamente na tela (Windows)</span>
               </div>
             </div>
           </div>

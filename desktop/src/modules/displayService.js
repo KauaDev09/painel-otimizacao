@@ -2,18 +2,18 @@
 
 // DisplayService — controle e detecção de tela/monitor no Windows.
 //
-// Níveis de suporte (honestos, nunca fingimos alterar hardware):
-//   - BRILHO      : real, via WMI (WmiMonitorBrightness/WmiSetBrightness) quando o
-//                   monitor/sistema expõe o suporte. Caso contrário, retornamos
-//                   { supported:false } e a UI mostra "Controle não suportado".
-//   - CONTRASTE   : camada de processamento visual (software rendering). O valor
-//                   é persistido e aplicado como filtro na interface — rotulado
-//                   "Aplicado via processamento do sistema".
-//   - SATURAÇÃO   : camada de processamento visual (idem contraste).
+// Níveis de suporte:
+//   - BRILHO      : real via WMI (WmiMonitorBrightness/WmiSetBrightness) quando o
+//                   monitor/sistema expõe o suporte. Caso contrário, aplicamos o
+//                   brilho via gamma ramp (mexe de verdade na tela do PC).
+//   - CONTRASTE   : aplicado DIRETAMENTE na tela do PC via gamma ramp global
+//                   (SetDeviceGammaRamp) — afeta todo o desktop, não só o painel.
+//   - SATURAÇÃO   : idem, via gamma ramp (ajusta a intensidade das cores na tela).
 //
-// Não existe API universal para alterar contraste/saturação de hardware em todos
-// os monitores Windows, então aplicamos a melhor solução compatível (software) e
-// deixamos isso claro na interface, conforme a especificação.
+// A gamma ramp é uma tabela 3x256 (R/G/B) aplicada pelo driver de vídeo; com ela
+// podemos escurecer (brilho), esticar/achatar (contraste) e separar os canais em
+// torno do cinza (saturação) na tela inteira, sem depender de API proprietária de
+// hardware.
 
 const psRunner = require('../hardware/psRunner');
 
@@ -152,4 +152,80 @@ function cleanName(name) {
   return String(name || '').replace(/["\u0000]/g, '').trim() || 'Monitor';
 }
 
-module.exports = { getBrightness, setBrightness, getMonitors };
+// --- Gamma ramp global (aplica contraste/saturação/brilho NA TELA DO PC) ---
+//
+// A gamma ramp é uma matriz de 768 ushort (3 canais x 256 níveis, 0..65535) que o
+// driver de vídeo usa para mapear a cor de cada pixel antes de exibi-la. Alterando
+// essa tabela mexemos na imagem exibida pelo desktop inteiro — exatamente o efeito
+// de "contraste/saturação sobre a tela real" que o painel Tela deve aplicar.
+//
+//   saturação:  desvia cada nível em direção ao cinza médio (128) → cores mais
+//               neutras quando < 100, mais "vivas" quando > 100.
+//   contraste:  estica (> 100) ou achata (< 100) os níveis em torno de 128.
+//   brilho:     escala os níveis (mulplicador) para escurecer a tela.
+
+function computeRamp({ saturation = 100, contrast = 100, brightness = 100 } = {}) {
+  const sat = Math.max(0, Math.min(200, Number(saturation) || 100)) / 100;
+  const con = Math.max(0, Math.min(200, Number(contrast) || 100)) / 100;
+  const bri = Math.max(0, Math.min(200, Number(brightness) || 100)) / 100;
+  const ramp = new Uint16Array(768);
+  for (let ch = 0; ch < 3; ch++) {
+    for (let v = 0; v < 256; v++) {
+      let t = 128 + (v - 128) * sat;   // saturação (128 = cinza; achatarm = < 100)
+      t = 128 + (t - 128) * con;       // contraste em torno de 128
+      t = t * bri;                     // brilho (escala de luminância)
+      t = Math.max(0, Math.min(255, t));
+      ramp[ch * 256 + v] = Math.round(t) * 257; // 8-bit → 16-bit (0..65535)
+    }
+  }
+  return ramp;
+}
+
+function buildRampScript(rampB64) {
+  // Compila um pequeno tipo GDI em memória (sem admin) e aplica a rampa no HD do
+  // desktop. A rampa viaja em Base64 dentro do script para evitar problemas de
+  // encoding no PowerShell.
+  return `
+$ErrorActionPreference = 'SilentlyContinue'
+Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+public static class GdiRamp {
+  [DllImport("user32.dll")] public static extern IntPtr GetDC(IntPtr hWnd);
+  [DllImport("gdi32.dll")] public static extern IntPtr CreateDC(string lpszDriver, string lpszDevice, string lpszOutput, IntPtr lpInitData);
+  [DllImport("gdi32.dll")] public static extern bool SetDeviceGammaRamp(IntPtr hDC, [In] ushort[] ramp);
+  [DllImport("gdi32.dll")] public static extern IntPtr DeleteDC(IntPtr hDC);
+}
+"@
+$enc = '${rampB64}'
+$bytes = $null
+try { $bytes = [Convert]::FromBase64String($enc) } catch { $bytes = $null }
+if (-not $bytes -or $bytes.Length -ne 1536) { Write-Output 'BAD_RAMP'; exit 0 }
+$ramp = New-Object 'System.UInt16[]' 768
+[Buffer]::BlockCopy($bytes, 0, $ramp, 0, 1536)
+$dc = [GdiRamp]::GetDC([IntPtr]::Zero)
+if ($dc -eq [IntPtr]::Zero) { $dc = [GdiRamp]::CreateDC('DISPLAY', $null, $null, [IntPtr]::Zero) }
+try {
+  $ok = [GdiRamp]::SetDeviceGammaRamp($dc, $ramp)
+} finally {
+  if ($dc -ne [IntPtr]::Zero) { $null = [GdiRamp]::DeleteDC($dc) }
+}
+if ($ok) { Write-Output 'OK' } else { Write-Output 'FAIL' }
+`;
+}
+
+/** Aplica contraste/saturação/brilho na tela real via gamma ramp global. */
+async function applyScreenRamp(opts = {}) {
+  const ramp = computeRamp(opts);
+  const b64 = Buffer.from(ramp.buffer).toString('base64');
+  const out = await tryPs(buildRampScript(b64), 15000);
+  return {
+    applied: /OK/i.test(out),
+    method: 'gamma-ramp',
+    saturation: Math.round((opts.saturation == null ? 100 : opts.saturation) * 10) / 10,
+    contrast: Math.round((opts.contrast == null ? 100 : opts.contrast) * 10) / 10,
+    brightness: Math.round((opts.brightness == null ? 100 : opts.brightness) * 10) / 10
+  };
+}
+
+module.exports = { getBrightness, setBrightness, getMonitors, applyScreenRamp };

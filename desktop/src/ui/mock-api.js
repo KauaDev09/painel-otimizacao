@@ -498,6 +498,7 @@ window.OrionAPI = {
   }),
   displayBrightnessGet: async () => ({ supported: true, percent: 70 }),
   displayBrightnessSet: async (percent) => ({ applied: true, percent }),
+  displayScreenRamp: async (opts) => ({ applied: true, method: 'mock', ...opts }),
 
   generateReport: async () => {
     await delay(500);

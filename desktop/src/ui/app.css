@@ -1,0 +1,385 @@
+/* ------------------------------------------------------------------
+   Estilos complementares do shell React (Electron frameless).
+   Regiões de arraste da janela são definidas aqui porque o Tailwind não cobre
+   -webkit-app-region.
+   ------------------------------------------------------------------ */
+
+/* Tokens cromáticos Orion (visual.md §2.1) — paleta custom, sem stops de framework */
+:root {
+  --orion-bg: #07060A;
+  --orion-surface: #0E0C14;
+  --orion-text-primary: #E4DDF2;
+  --orion-text-secondary: #A99BC4;
+  --orion-icon-default: #9163D4;
+  --orion-icon-active: #B48FE0;
+  --orion-hover-fg: #C7AEEF;
+  --orion-hover-glow: rgba(145, 99, 212, 0.22);
+  --orion-hover-border: #6B3FA0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--orion-bg);
+  color: var(--orion-text-primary);
+  font-family: "Segoe UI Variable", "Segoe UI", Inter, system-ui, sans-serif;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* --- Linguagem cromática global (visual.md §2.1) ----------------- */
+button,
+[role="button"],
+a {
+  transition:
+    color 0.18s ease-out,
+    border-color 0.18s ease-out,
+    background-color 0.18s ease-out,
+    box-shadow 0.18s ease-out,
+    opacity 0.18s ease-out;
+}
+
+button:hover,
+a:hover {
+  color: var(--orion-hover-fg);
+  box-shadow:
+    0 0 0 1px var(--orion-hover-border),
+    0 4px 16px var(--orion-hover-glow);
+}
+
+button:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--orion-hover-border),
+    0 4px 16px var(--orion-hover-glow);
+}
+
+/* Ícones funcionais em violeta (nunca cinza/branco neutro) */
+.orion-icon-violet {
+  color: var(--orion-icon-default);
+}
+
+.orion-icon-active {
+  color: var(--orion-icon-active);
+}
+
+nav button > svg {
+  color: var(--orion-icon-default);
+  transition: color 0.18s ease-out;
+}
+
+nav button:hover > svg {
+  color: var(--orion-hover-fg);
+}
+
+/* --- Fragmento de janela frameless --------------------------------- */
+.drag-region {
+  -webkit-app-region: drag;
+}
+
+.no-drag,
+.no-drag * {
+  -webkit-app-region: no-drag;
+}
+
+.view-appear {
+  animation: viewAppear 0.28s ease both;
+}
+
+@keyframes viewAppear {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-in {
+  animation: loginIn 0.35s ease both;
+}
+
+@keyframes loginIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.sparkline-line {
+  stroke: var(--orion-icon-default);
+  stroke-width: 1.6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ==================================================================
+   OrionReactiveCore — visual.md §3–§9
+   ================================================================== */
+.orion-reactive-field {
+  pointer-events: none;
+  user-select: none;
+  overflow: hidden;
+  z-index: 0;
+
+  --pointer-xpx: 45vmax;
+  --pointer-ypx: 45vmax;
+  --core-shift-x: 0px;
+  --core-shift-y: 0px;
+  --core-rotate-x: 0deg;
+  --core-rotate-y: 0deg;
+  --core-glow: 1;
+  --ring-speed: 1;
+
+  /* composição assimétrica: núcleo fora do centro geométrico (§4) */
+  --core-x: 58%;
+  --core-y: 45%;
+  --core-scale: 1;
+}
+
+.orion-reactive-field,
+.orion-reactive-field * {
+  pointer-events: none;
+}
+
+/* Grão sutil (feTurbulence) */
+.orion-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+}
+
+/* Grade com espaçamento NÃO uniforme (§4) */
+.orion-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.7;
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(145, 99, 212, 0.055) 0 1px,
+      transparent 1px 53px,
+      rgba(145, 99, 212, 0.035) 53px 54px,
+      transparent 54px 171px,
+      rgba(145, 99, 212, 0.05) 171px 172px,
+      transparent 172px 342px,
+      rgba(145, 99, 212, 0.045) 342px 343px,
+      transparent 343px 400px
+    ),
+    linear-gradient(
+      0deg,
+      rgba(145, 99, 212, 0.055) 0 1px,
+      transparent 1px 61px,
+      rgba(145, 99, 212, 0.035) 61px 62px,
+      transparent 62px 147px,
+      rgba(145, 99, 212, 0.05) 147px 148px,
+      transparent 148px 331px,
+      rgba(145, 99, 212, 0.045) 331px 332px,
+      transparent 332px 396px
+    );
+  mask-image: radial-gradient(130% 100% at 50% 40%, #000 25%, transparent 80%);
+  -webkit-mask-image: radial-gradient(130% 100% at 50% 40%, #000 25%, transparent 80%);
+}
+
+/* Glow que segue o cursor (com inércia via lerp) — posição via transform, não top/left */
+.orion-pointer-light {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 70vmax;
+  height: 70vmax;
+  background: radial-gradient(
+    closest-side,
+    rgba(107, 63, 160, 0.13),
+    rgba(107, 63, 160, 0.05) 45%,
+    transparent 70%
+  );
+  transform: translate3d(
+    calc(var(--pointer-xpx) - 35vmax),
+    calc(var(--pointer-ypx) - 35vmax),
+    0
+  );
+  will-change: transform;
+}
+
+/* Núcleo — parallax e inclinação via transform + variáveis CSS (§5.2) */
+.orion-core {
+  position: absolute;
+  left: var(--core-x);
+  top: var(--core-y);
+  width: 0;
+  height: 0;
+  transform:
+    translate3d(var(--core-shift-x), var(--core-shift-y), 0)
+    rotateX(var(--core-rotate-x))
+    rotateY(var(--core-rotate-y))
+    scale(var(--core-scale));
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.orion-core-ring-outer,
+.orion-core-ring-inner {
+  position: absolute;
+  border-radius: 50% / 46%;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+/* anel externo: elíptico (excentricidade maior), tom mais escuro */
+.orion-core-ring-outer {
+  left: -210px;
+  top: -150px;
+  width: 420px;
+  height: 300px;
+  border: 1px solid rgba(90, 52, 128, 0.75);
+  animation: orion-ring-spin 26s linear infinite;
+  animation-duration: calc(26s / var(--ring-speed));
+}
+
+/* anel interno: elíptico com excentricidade DIFERENTE da externa */
+.orion-core-ring-inner {
+  left: -150px;
+  top: -125px;
+  width: 300px;
+  height: 250px;
+  border: 1px solid rgba(145, 99, 212, 0.55);
+  animation: orion-ring-spin-rev 19s linear infinite;
+  animation-duration: calc(19s / var(--ring-speed));
+}
+
+@keyframes orion-ring-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes orion-ring-spin-rev {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+/* orbitais — detalhes pequenos em posições assimétricas (§4) */
+.orion-core-orbital {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  will-change: transform;
+}
+
+.orion-core-orbital i {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: var(--orion-core-2, #9163d4);
+  box-shadow: 0 0 14px rgba(145, 99, 212, 0.8);
+}
+
+.orion-core-orbital[data-o="1"] { animation: orion-orbit-a 15s linear infinite; animation-duration: calc(15s / var(--ring-speed)); }
+.orion-core-orbital[data-o="2"] { animation: orion-orbit-b 21s linear infinite; animation-duration: calc(21s / var(--ring-speed)); }
+.orion-core-orbital[data-o="3"] { animation: orion-orbit-c 12s linear infinite; animation-duration: calc(12s / var(--ring-speed)); }
+
+@keyframes orion-orbit-a {
+  from { transform: rotate(0deg) translateX(175px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(175px) rotate(-360deg); }
+}
+
+@keyframes orion-orbit-b {
+  from { transform: rotate(120deg) translateX(120px) rotate(-120deg); }
+  to { transform: rotate(480deg) translateX(120px) rotate(-480deg); }
+}
+
+@keyframes orion-orbit-c {
+  from { transform: rotate(240deg) translateX(210px) rotate(-240deg); }
+  to { transform: rotate(600deg) translateX(210px) rotate(-600deg); }
+}
+
+/* núcleo luminoso central — opacidade segue o cursor; glow pulsa (5.3) */
+.orion-core-center {
+  position: absolute;
+  left: -56px;
+  top: -56px;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, rgba(180, 143, 224, 0.9), rgba(107, 63, 160, 0.55) 45%, rgba(107, 63, 160, 0) 75%);
+  filter: blur(0.5px);
+  opacity: var(--core-glow);
+}
+
+.orion-core-glow {
+  position: absolute;
+  inset: -40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, rgba(107, 63, 160, 0.28), rgba(107, 63, 160, 0) 65%);
+  animation: orion-core-pulse 7s ease-in-out infinite;
+}
+
+@keyframes orion-core-pulse {
+  0%, 100% { opacity: 0.92; }
+  50% { opacity: 1.08; }
+}
+
+/* --- Modo compact (dashboard — §9) -------------------------------- */
+.orion-compact {
+  opacity: 0.7;
+  --core-x: 88%;
+  --core-y: 22%;
+  --core-scale: 0.6;
+}
+
+/* --- Reduced motion (§7) ------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .orion-core,
+  .orion-core *,
+  .orion-pointer-light,
+  .orion-grid {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Scrollbar discreta
+   ------------------------------------------------------------------ */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--input));
+  background-clip: content-box;
+  border: 2px solid transparent;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}

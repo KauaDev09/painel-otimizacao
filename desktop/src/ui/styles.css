@@ -5,13 +5,13 @@
 
 /* ---------- CUSTOM PROPERTIES ---------- */
 :root {
-  /* Backgrounds */
-  --bg: #070812;
-  --bg-elevated: #0A0B14;
-  --surface: #0D0F1C;
-  --surface-hover: #111321;
-  --surface-active: #141625;
-  --surface-2: #181A2A;
+  /* Backgrounds — preto absoluto de fundo, superfícies levemente elevadas */
+  --bg: #000000;
+  --bg-elevated: #050507;
+  --surface: #0A0A12;
+  --surface-hover: #0E0E18;
+  --surface-active: #12121D;
+  --surface-2: #14141F;
 
   /* Borders */
   --border: #1E2035;
@@ -81,67 +81,44 @@
   --transition-normal: 0.25s ease;
 }
 
-/* ---------- TITLEBAR (frameless window) ---------- */
+/* ---------- TITLEBAR (frameless window) ----------
+   Sem barra visível: o div #titlebar permanece apenas como marcador vazio e a
+   janela é arrastada pela área vazia do header (app-region: drag). Os controles
+   (minimizar/maximizar/fechar) migraram para o canto direito do header. */
 .titlebar {
+  display: none;
+}
+
+.window-controls {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  height: 36px;
-  background: var(--bg);
-  -webkit-app-region: drag;
-  user-select: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 9999;
-}
-
-.titlebar-drag {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-left: 12px;
-}
-
-.titlebar-logo {
-  width: 18px;
-  height: 18px;
-  border-radius: 3px;
-  object-fit: cover;
-}
-
-.titlebar-title {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--text-dim);
-}
-
-.titlebar-controls {
-  display: flex;
+  gap: 2px;
   -webkit-app-region: no-drag;
+  margin-right: 2px;
+  border-left: 1px solid var(--border);
+  padding-left: 8px;
 }
 
-.titlebar-btn {
+.window-controls .titlebar-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
-  height: 36px;
+  width: 34px;
+  height: 32px;
   border: none;
+  border-radius: 8px;
   background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
   transition: background var(--transition-fast), color var(--transition-fast);
 }
 
-.titlebar-btn:hover {
+.window-controls .titlebar-btn:hover {
   background: var(--surface-hover);
   color: var(--text);
 }
 
-.titlebar-close:hover {
+.window-controls .titlebar-close:hover {
   background: var(--red-bg);
   color: var(--red-bright);
 }
@@ -161,11 +138,12 @@ html {
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   overflow-y: auto;
+  background: #000;
 }
 
 body {
   font-family: "Segoe UI Variable", "Segoe UI", Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg);
+  background: #000;
   color: var(--text);
   line-height: 1.5;
   min-height: 100vh;
@@ -173,7 +151,6 @@ body {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  padding-top: 36px;
 }
 
 a {
@@ -448,6 +425,18 @@ h3 { font-size: 1.15rem; }
   padding: 0 24px;
   z-index: 90;
   transition: left var(--transition-normal);
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+/* Elementos interativos do header/nav não "arrastam" a janela */
+.header button,
+.header a,
+.header span[data-icon],
+.header nav,
+.header .window-controls,
+.header .header-profile {
+  -webkit-app-region: no-drag;
 }
 
 .sidebar.collapsed ~ .main-content .header,
@@ -3410,11 +3399,22 @@ select:focus-visible,
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg);
+  background: #000;
   transition: opacity var(--transition-normal), visibility var(--transition-normal);
+  -webkit-app-region: drag;
 }
 .login-overlay:not(.show) {
   opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* A tela de login é uma "primeira tela" do app: enquanto está visível, o shell
+   completo (sidebar, header e conteúdo) permanece oculto por trás. */
+body.login-locked .sidebar,
+body.login-locked .header,
+body.login-locked main.content,
+body.login-locked .sidebar-backdrop {
   visibility: hidden;
   pointer-events: none;
 }
@@ -3429,6 +3429,7 @@ select:focus-visible,
   box-shadow: var(--shadow-lg);
   text-align: center;
   animation: loginIn 0.35s ease both;
+  -webkit-app-region: no-drag;
 }
 @keyframes loginIn {
   from { opacity: 0; transform: translateY(10px) scale(0.985); }

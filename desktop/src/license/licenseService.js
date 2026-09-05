@@ -38,10 +38,39 @@ class LicenseService {
   }
 
   // ---------- persistência local ----------
+  // O cache contém a chave de licença (ativo comercial). Ele é salvo
+  // criptografado em repouso (AES-256-GCM) para não ficar legível em
+  // clear-text no disco. A chave de criptografia é derivada de um segredo
+  // estável do usuário+máquina (não há segredo hardcoded no binário).
+  _cacheKey() {
+    const secret = `${process.env.USERNAME || 'user'}\\${process.env.COMPUTERNAME || 'pc'}::${this.dir}`;
+    return crypto.scryptSync(secret, 'orion-license-cache:v2', 32);
+  }
+
   _load() {
     try {
-      const data = JSON.parse(fs.readFileSync(this.file, 'utf8'));
-      return data && typeof data === 'object' ? data : null;
+      const raw = fs.readFileSync(this.file, 'utf8');
+      const data = JSON.parse(raw);
+      if (!data || typeof data !== 'object') return null;
+      // Formato novo: envelope { v:2, iv, tag, data } criptografado.
+      if (data.v === 2 && data.iv && data.tag && data.data) {
+        try {
+          const decipher = crypto.createDecipheriv('aes-256-gcm', this._cacheKey(),
+            Buffer.from(data.iv, 'base64'));
+          decipher.setAuthTag(Buffer.from(data.tag, 'base64'));
+          const plain = Buffer.concat([
+            decipher.update(Buffer.from(data.data, 'base64')),
+            decipher.final()
+          ]);
+          return JSON.parse(plain.toString('utf8'));
+        } catch (_) {
+          // Falha de integridade/máquina → estado vazio; o usuário reativa.
+          return null;
+        }
+      }
+      // Migração: cache legado em clear-text aceito uma última vez; será
+      // reescrito criptografado no próximo _save().
+      return data;
     } catch (_) {
       return null;
     }
@@ -49,7 +78,20 @@ class LicenseService {
 
   _save() {
     try {
-      fs.writeFileSync(this.file, JSON.stringify(this.cache, null, 2), 'utf8');
+      if (!this.cache) return;
+      const iv = crypto.randomBytes(12);
+      const cipher = crypto.createCipheriv('aes-256-gcm', this._cacheKey(), iv);
+      const enc = Buffer.concat([
+        cipher.update(JSON.stringify(this.cache), 'utf8'),
+        cipher.final()
+      ]);
+      const envelope = {
+        v: 2,
+        iv: iv.toString('base64'),
+        tag: cipher.getAuthTag().toString('base64'),
+        data: enc.toString('base64')
+      };
+      fs.writeFileSync(this.file, JSON.stringify(envelope), 'utf8');
     } catch (_) { /* falha de disco não derruba o app */ }
   }
 

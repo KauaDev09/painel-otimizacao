@@ -1,0 +1,294 @@
+
+
+success    : True
+scriptId   : windows-full
+title      : Windows Advanced
+category   : Windows
+script     : [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
+             [Console]::InputEncoding = [System.Text.UTF8Encoding]::new()
+             $OutputEncoding = [System.Text.UTF8Encoding]::new()
+             chcp 65001 > $null
+             $ProgressPreference = "SilentlyContinue"
+             $ErrorActionPreference = "Continue"
+
+             function Invoke-Step {
+                 param(
+                     [string]$Description,
+                     [string]$Command
+                 )
+
+                 Write-Output "[INFO] $Description..."
+                 try {
+                     cmd /c $Command > $null 2>&1
+                     if ($LASTEXITCODE -eq 0) {
+                         Write-Output "[OK] $Description concluido com sucesso"
+                     } else {
+                         Write-Output "[ERRO] $Description falhou"
+                     }
+                 } catch {
+                     Write-Output "[ERRO] $Description falhou"
+                 }
+             }
+
+             Write-Output "Iniciando Windows FULL..."
+
+             Invoke-Step -Description 'Limpeza completa (modo agressivo)' -Command '
+             powershell -NoProfile -ExecutionPolicy Bypass -Command "
+             $paths = @(
+               ''$env:WINDIR\Temp\*'',
+               ''$env:WINDIR\Prefetch\*.exe'',
+               ''$env:WINDIR\Prefetch\*.dll'',
+               ''$env:WINDIR\Prefetch\*.pf'',
+               ''$env:WINDIR\System32\dllcache\*'',
+               ''$env:SystemDrive\Temp\*'',
+               ''$env:TEMP\*'',
+               ''$env:USERPROFILE\Local Settings\History\*'',
+               ''$env:USERPROFILE\Local Settings\Temporary Internet Files\*'',
+               ''$env:USERPROFILE\Local Settings\Temp\*'',
+               ''$env:USERPROFILE\Recent\*'',
+               ''$env:USERPROFILE\Cookies\*''
+             )
+
+             foreach ($path in $paths) {
+               try {
+                 Remove-Item -Path $path -Recurse -Force -ErrorAction SilentlyContinue
+               } catch {}
+             }
+             "'
+             Invoke-Step -Description 'Criando chave principal do perfil multimidia' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /f'
+             Invoke-Step -Description 'Desativando limitacao de rede do Windows' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v "NetworkThrottlingIndex"
+             /t REG_DWORD /d 4294967295 /f'
+             Invoke-Step -Description 'Reduzindo responsividade reservada do sistema' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v "SystemResponsiveness" /t
+             REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Ativando modo sempre ativo do perfil multimidia' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v "AlwaysOn" /t REG_DWORD
+             /d 1 /f'
+             Invoke-Step -Description 'Ajustando modo lazy do perfil multimidia' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v "NoLazyMode" /t REG_DWORD
+             /d 0 /f'
+             Invoke-Step -Description 'Definindo tempo de lazy mode' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v "LazyModeTimeout" /t
+             REG_DWORD /d 149000 /f'
+             Invoke-Step -Description 'Criando perfil de audio' -Command 'reg add "HKLM\SOFTWARE\Microsoft\Windows
+             NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Audio" /f'
+             Invoke-Step -Description 'Definindo afinidade do perfil de audio' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Audio" /v "Affinity" /t
+             REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Definindo execucao em segundo plano do audio' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Audio" /v "Background
+             Only" /t REG_SZ /d "True" /f'
+             Invoke-Step -Description 'Ajustando clock rate do audio' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Audio" /v "Clock Rate"
+             /t REG_DWORD /d 10000 /f'
+             Invoke-Step -Description 'Definindo prioridade de GPU do audio' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Audio" /v "GPU
+             Priority" /t REG_DWORD /d 8 /f'
+             Invoke-Step -Description 'Definindo prioridade do audio' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Audio" /v "Priority" /t
+             REG_DWORD /d 6 /f'
+             Invoke-Step -Description 'Definindo categoria de agendamento do audio' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Audio" /v "Scheduling
+             Category" /t REG_SZ /d "Medium" /f'
+             Invoke-Step -Description 'Definindo prioridade SFIO do audio' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Audio" /v "SFIO
+             Priority" /t REG_SZ /d "Normal" /f'
+             Invoke-Step -Description 'Criando perfil de captura' -Command 'reg add "HKLM\SOFTWARE\Microsoft\Windows
+             NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Capture" /f'
+             Invoke-Step -Description 'Definindo afinidade do perfil de captura' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Capture" /v "Affinity"
+             /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Definindo execucao em segundo plano da captura' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Capture" /v "Background
+             Only" /t REG_SZ /d "True" /f'
+             Invoke-Step -Description 'Ajustando clock rate da captura' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Capture" /v "Clock
+             Rate" /t REG_DWORD /d 10000 /f'
+             Invoke-Step -Description 'Definindo prioridade de GPU da captura' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Capture" /v "GPU
+             Priority" /t REG_DWORD /d 8 /f'
+             Invoke-Step -Description 'Definindo prioridade da captura' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Capture" /v "Priority"
+             /t REG_DWORD /d 5 /f'
+             Invoke-Step -Description 'Definindo categoria de agendamento da captura' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Capture" /v "Scheduling
+             Category" /t REG_SZ /d "Medium" /f'
+             Invoke-Step -Description 'Definindo prioridade SFIO da captura' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Capture" /v "SFIO
+             Priority" /t REG_SZ /d "Normal" /f'
+             Invoke-Step -Description 'Criando perfil de pos-processamento de video' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\DisplayPostProcessing"
+             /f'
+             Invoke-Step -Description 'Definindo afinidade do pos-processamento' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\DisplayPostProcessing"
+             /v "Affinity" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Definindo execucao em segundo plano do pos-processamento' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\DisplayPostProcessing"
+             /v "Background Only" /t REG_SZ /d "True" /f'
+             Invoke-Step -Description 'Definindo prioridade em segundo plano do pos-processamento' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\DisplayPostProcessing"
+             /v "BackgroundPriority" /t REG_DWORD /d 8 /f'
+             Invoke-Step -Description 'Ajustando clock rate do pos-processamento' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\DisplayPostProcessing"
+             /v "Clock Rate" /t REG_DWORD /d 10000 /f'
+             Invoke-Step -Description 'Definindo prioridade de GPU do pos-processamento' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\DisplayPostProcessing"
+             /v "GPU Priority" /t REG_DWORD /d 18 /f'
+             Invoke-Step -Description 'Definindo prioridade do pos-processamento' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\DisplayPostProcessing"
+             /v "Priority" /t REG_DWORD /d 8 /f'
+             Invoke-Step -Description 'Definindo categoria de agendamento do pos-processamento' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\DisplayPostProcessing"
+             /v "Scheduling Category" /t REG_SZ /d "High" /f'
+             Invoke-Step -Description 'Definindo prioridade SFIO do pos-processamento' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\DisplayPostProcessing"
+             /v "SFIO Priority" /t REG_SZ /d "High" /f'
+             Invoke-Step -Description 'Criando perfil de distribuicao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Distribution" /f'
+             Invoke-Step -Description 'Definindo afinidade da distribuicao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Distribution" /v
+             "Affinity" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Definindo execucao em segundo plano da distribuicao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Distribution" /v
+             "Background Only" /t REG_SZ /d "True" /f'
+             Invoke-Step -Description 'Ajustando clock rate da distribuicao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Distribution" /v "Clock
+             Rate" /t REG_DWORD /d 10000 /f'
+             Invoke-Step -Description 'Definindo prioridade de GPU da distribuicao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Distribution" /v "GPU
+             Priority" /t REG_DWORD /d 8 /f'
+             Invoke-Step -Description 'Definindo prioridade da distribuicao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Distribution" /v
+             "Priority" /t REG_DWORD /d 4 /f'
+             Invoke-Step -Description 'Definindo categoria de agendamento da distribuicao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Distribution" /v
+             "Scheduling Category" /t REG_SZ /d "Medium" /f'
+             Invoke-Step -Description 'Definindo prioridade SFIO da distribuicao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Distribution" /v "SFIO
+             Priority" /t REG_SZ /d "Normal" /f'
+             Invoke-Step -Description 'Criando perfil de jogos' -Command 'reg add "HKLM\SOFTWARE\Microsoft\Windows
+             NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /f'
+             Invoke-Step -Description 'Definindo afinidade do perfil de jogos' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Affinity" /t
+             REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Definindo execucao do perfil de jogos' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Background
+             Only" /t REG_SZ /d "False" /f'
+             Invoke-Step -Description 'Ajustando clock rate do perfil de jogos' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Clock Rate"
+             /t REG_DWORD /d 10000 /f'
+             Invoke-Step -Description 'Definindo prioridade de GPU dos jogos' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "GPU
+             Priority" /t REG_DWORD /d 8 /f'
+             Invoke-Step -Description 'Definindo prioridade dos jogos' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Priority" /t
+             REG_DWORD /d 6 /f'
+             Invoke-Step -Description 'Definindo categoria de agendamento dos jogos' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Scheduling
+             Category" /t REG_SZ /d "High" /f'
+             Invoke-Step -Description 'Definindo prioridade SFIO dos jogos' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "SFIO
+             Priority" /t REG_SZ /d "High" /f'
+             Invoke-Step -Description 'Criando perfil de baixa latencia' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Low Latency" /f'
+             Invoke-Step -Description 'Definindo afinidade de baixa latencia' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Low Latency" /v
+             "Affinity" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Definindo execucao do perfil de baixa latencia' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Low Latency" /v
+             "Background Only" /t REG_SZ /d "False" /f'
+             Invoke-Step -Description 'Ajustando clock rate de baixa latencia' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Low Latency" /v "Clock
+             Rate" /t REG_DWORD /d 10000 /f'
+             Invoke-Step -Description 'Definindo prioridade de GPU de baixa latencia' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Low Latency" /v "GPU
+             Priority" /t REG_DWORD /d 8 /f'
+             Invoke-Step -Description 'Definindo prioridade de baixa latencia' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Low Latency" /v
+             "Priority" /t REG_DWORD /d 2 /f'
+             Invoke-Step -Description 'Definindo categoria de agendamento de baixa latencia' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Low Latency" /v
+             "Scheduling Category" /t REG_SZ /d "High" /f'
+             Invoke-Step -Description 'Definindo prioridade SFIO de baixa latencia' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Low Latency" /v "SFIO
+             Priority" /t REG_SZ /d "High" /f'
+             Invoke-Step -Description 'Ativando sensibilidade a latencia' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Low Latency" /v
+             "Latency Sensitive" /t REG_SZ /d "True" /f'
+             Invoke-Step -Description 'Criando perfil de reproducao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Playback" /f'
+             Invoke-Step -Description 'Definindo afinidade da reproducao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Playback" /v "Affinity"
+             /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Definindo execucao da reproducao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Playback" /v
+             "Background Only" /t REG_SZ /d "False" /f'
+             Invoke-Step -Description 'Definindo prioridade de fundo da reproducao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Playback" /v
+             "BackgroundPriority" /t REG_DWORD /d 4 /f'
+             Invoke-Step -Description 'Ajustando clock rate da reproducao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Playback" /v "Clock
+             Rate" /t REG_DWORD /d 10000 /f'
+             Invoke-Step -Description 'Definindo prioridade de GPU da reproducao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Playback" /v "GPU
+             Priority" /t REG_DWORD /d 8 /f'
+             Invoke-Step -Description 'Definindo prioridade da reproducao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Playback" /v "Priority"
+             /t REG_DWORD /d 3 /f'
+             Invoke-Step -Description 'Definindo categoria de agendamento da reproducao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Playback" /v
+             "Scheduling Category" /t REG_SZ /d "Medium" /f'
+             Invoke-Step -Description 'Definindo prioridade SFIO da reproducao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Playback" /v "SFIO
+             Priority" /t REG_SZ /d "Normal" /f'
+             Invoke-Step -Description 'Criando perfil de audio profissional' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Pro Audio" /f'
+             Invoke-Step -Description 'Definindo afinidade do audio profissional' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Pro Audio" /v
+             "Affinity" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Definindo execucao do audio profissional' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Pro Audio" /v
+             "Background Only" /t REG_SZ /d "False" /f'
+             Invoke-Step -Description 'Ajustando clock rate do audio profissional' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Pro Audio" /v "Clock
+             Rate" /t REG_DWORD /d 10000 /f'
+             Invoke-Step -Description 'Definindo prioridade de GPU do audio profissional' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Pro Audio" /v "GPU
+             Priority" /t REG_DWORD /d 8 /f'
+             Invoke-Step -Description 'Definindo prioridade do audio profissional' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Pro Audio" /v
+             "Priority" /t REG_DWORD /d 1 /f'
+             Invoke-Step -Description 'Definindo categoria de agendamento do audio profissional' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Pro Audio" /v
+             "Scheduling Category" /t REG_SZ /d "High" /f'
+             Invoke-Step -Description 'Definindo prioridade SFIO do audio profissional' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Pro Audio" /v "SFIO
+             Priority" /t REG_SZ /d "Normal" /f'
+             Invoke-Step -Description 'Criando perfil do gerenciador de janelas' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Window Manager" /f'
+             Invoke-Step -Description 'Definindo afinidade do gerenciador de janelas' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Window Manager" /v
+             "Affinity" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Definindo execucao em segundo plano do gerenciador de janelas' -Command 'reg
+             add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Window Manager" /v
+             "Background Only" /t REG_SZ /d "True" /f'
+             Invoke-Step -Description 'Ajustando clock rate do gerenciador de janelas' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Window Manager" /v
+             "Clock Rate" /t REG_DWORD /d 10000 /f'
+             Invoke-Step -Description 'Definindo prioridade de GPU do gerenciador de janelas' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Window Manager" /v "GPU
+             Priority" /t REG_DWORD /d 8 /f'
+             Invoke-Step -Description 'Definindo prioridade do gerenciador de janelas' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Window Manager" /v
+             "Priority" /t REG_DWORD /d 5 /f'
+             Invoke-Step -Description 'Definindo categoria de agendamento do gerenciador de janelas' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Window Manager" /v
+             "Scheduling Category" /t REG_SZ /d "Medium" /f'
+             Invoke-Step -Description 'Definindo prioridade SFIO do gerenciador de janelas' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Window Manager" /v
+             "SFIO Priority" /t REG_SZ /d "Normal" /f'
+
+             Write-Output "[OK] Windows FULL aplicado com sucesso"
+scriptHash : bbf9f1d2da1a59b12aa2f1ef0cc8a1617380cc2cadabde226b16e79ae8070a74

@@ -21,7 +21,8 @@ const PROFILES = {
   performance: { name: 'Desempenho', icon: 'boost', description: 'Máxima responsividade do sistema.' },
   gaming: { name: 'Gamer', icon: 'gaming', description: 'Foco em FPS e latência em jogos.' },
   work: { name: 'Trabalho', icon: 'briefcase', description: 'Estabilidade para produtividade; sem mudanças agressivas.' },
-  laptop: { name: 'Notebook', icon: 'power', description: 'Equilíbrio entre desempenho e bateria.' }
+  laptop: { name: 'Notebook', icon: 'power', description: 'Equilíbrio entre desempenho e bateria.' },
+  advanced: { name: 'Avançado', icon: 'rocket', description: 'Executa os três scripts Windows: Balanced, Full e Extreme.' }
 };
 
 let stateDir = null;

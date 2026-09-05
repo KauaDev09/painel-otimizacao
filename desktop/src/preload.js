@@ -76,6 +76,7 @@ contextBridge.exposeInMainWorld('OrionAPI', {
   displayMonitors: () => ipcRenderer.invoke('display:monitors'),
   displayBrightnessGet: () => ipcRenderer.invoke('display:brightness:get'),
   displayBrightnessSet: (percent) => ipcRenderer.invoke('display:brightness:set', percent),
+  displayScreenRamp: (opts) => ipcRenderer.invoke('display:screen-ramp', opts || {}),
   updateCheck: () => ipcRenderer.invoke('update:check'),
   updateDownload: (url) => ipcRenderer.invoke('update:download', url),
   updateInstall: (filePath) => ipcRenderer.invoke('update:install', filePath),

@@ -1,0 +1,318 @@
+
+success    : True
+scriptId   : windows-balanced
+title      : Windows Basic
+category   : Windows
+script     : [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
+             [Console]::InputEncoding = [System.Text.UTF8Encoding]::new()
+             $OutputEncoding = [System.Text.UTF8Encoding]::new()
+             chcp 65001 > $null
+             $ProgressPreference = "SilentlyContinue"
+             $ErrorActionPreference = "Continue"
+
+             function Invoke-Step {
+                 param(
+                     [string]$Description,
+                     [string]$Command
+                 )
+
+                 Write-Output "[INFO] $Description..."
+                 try {
+                     cmd /c $Command > $null 2>&1
+                     if ($LASTEXITCODE -eq 0) {
+                         Write-Output "[OK] $Description concluido com sucesso"
+                     } else {
+                         Write-Output "[ERRO] $Description falhou"
+                     }
+                 } catch {
+                     Write-Output "[ERRO] $Description falhou"
+                 }
+             }
+
+             Write-Output "Iniciando Windows BALANCED..."
+
+             Invoke-Step -Description 'Limpeza completa (modo agressivo)' -Command '
+             powershell -NoProfile -ExecutionPolicy Bypass -Command "
+             $paths = @(
+               ''$env:WINDIR\Temp\*'',
+               ''$env:WINDIR\Prefetch\*.exe'',
+               ''$env:WINDIR\Prefetch\*.dll'',
+               ''$env:WINDIR\Prefetch\*.pf'',
+               ''$env:WINDIR\System32\dllcache\*'',
+               ''$env:SystemDrive\Temp\*'',
+               ''$env:TEMP\*'',
+               ''$env:USERPROFILE\Local Settings\History\*'',
+               ''$env:USERPROFILE\Local Settings\Temporary Internet Files\*'',
+               ''$env:USERPROFILE\Local Settings\Temp\*'',
+               ''$env:USERPROFILE\Recent\*'',
+               ''$env:USERPROFILE\Cookies\*''
+             )
+
+             foreach ($path in $paths) {
+               try {
+                 Remove-Item -Path $path -Recurse -Force -ErrorAction SilentlyContinue
+               } catch {}
+             }
+
+             "'
+             Invoke-Step -Description 'Desativando componentes IPv6 definidos no ajuste' -Command 'reg add
+             "HKLM\System\CurrentControlSet\Services\Tcpip6\Parameters" /v "DisabledComponents" /t REG_DWORD /d 255 /f'
+             Invoke-Step -Description 'Desativando solicitacao de confirmacao para administrador' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "ConsentPromptBehaviorAdmin" /t
+             REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando UAC' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "EnableLUA" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando tela segura de confirmacao' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "PromptOnSecureDesktop" /t REG_DWORD
+             /d 0 /f'
+             Invoke-Step -Description 'Ativando cache amplo do sistema' -Command 'reg add
+             "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "LargeSystemCache" /t
+             REG_DWORD /d 1 /f'
+             Invoke-Step -Description 'Desativando paginacao do kernel' -Command 'reg add
+             "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "DisablePagingExecutive" /t
+             REG_DWORD /d 1 /f'
+             Invoke-Step -Description 'Desativando paging combining' -Command 'reg add
+             "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "DisablePagingCombining" /t
+             REG_DWORD /d 1 /f'
+             Invoke-Step -Description 'Desativando CFG' -Command 'reg add
+             "HKLM\System\CurrentControlSet\Control\Session Manager\Memory Management" /v "EnableCfg" /t REG_DWORD /d
+             0 /f'
+             Invoke-Step -Description 'Ajustando FeatureSettings' -Command 'reg add
+             "HKLM\System\CurrentControlSet\Control\Session Manager\Memory Management" /v "FeatureSettings" /t
+             REG_DWORD /d 1 /f'
+             Invoke-Step -Description 'Ajustando FeatureSettingsOverride' -Command 'reg add
+             "HKLM\System\CurrentControlSet\Control\Session Manager\Memory Management" /v "FeatureSettingsOverride" /t
+             REG_DWORD /d 3 /f'
+             Invoke-Step -Description 'Ajustando mascara de override de recursos' -Command 'reg add
+             "HKLM\System\CurrentControlSet\Control\Session Manager\Memory Management" /v
+             "FeatureSettingsOverrideMask" /t REG_DWORD /d 3 /f'
+             Invoke-Step -Description 'Ajustando DMA externo durante bloqueio' -Command 'reg add
+             "HKLM\SOFTWARE\Policies\Microsoft\FVE" /v "DisableExternalDMAUnderLock" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando seguranca baseada em virtualizacao' -Command 'reg add
+             "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" /v "EnableVirtualizationBasedSecurity" /t
+             REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando exigencia HVCI' -Command 'reg add
+             "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" /v "HVCIMATRequired" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Aumentando fila de dados do teclado' -Command 'reg add
+             "HKLM\SYSTEM\CurrentControlSet\Services\kbdclass\Parameters" /v "KeyboardDataQueueSize" /t REG_DWORD /d
+             16 /f'
+             Invoke-Step -Description 'Aumentando fila de dados do mouse' -Command 'reg add
+             "HKLM\SYSTEM\CurrentControlSet\Services\mouclass\Parameters" /v "MouseDataQueueSize" /t REG_DWORD /d 16
+             /f'
+             Invoke-Step -Description 'Definindo sensibilidade do mouse' -Command 'reg add "HKCU\Control Panel\Mouse"
+             /v "MouseSensitivity" /t REG_SZ /d 10 /f'
+             Invoke-Step -Description 'Desativando aceleracao padrao do mouse' -Command 'reg add "HKU\.DEFAULT\Control
+             Panel\Mouse" /v "MouseSpeed" /t REG_SZ /d 0 /f'
+             Invoke-Step -Description 'Ajustando threshold 1 do mouse' -Command 'reg add "HKU\.DEFAULT\Control
+             Panel\Mouse" /v "MouseThreshold1" /t REG_SZ /d 0 /f'
+             Invoke-Step -Description 'Ajustando threshold 2 do mouse' -Command 'reg add "HKU\.DEFAULT\Control
+             Panel\Mouse" /v "MouseThreshold2" /t REG_SZ /d 0 /f'
+             Invoke-Step -Description 'Reduzindo timer de coalescencia na sessao de energia' -Command 'reg add
+             "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v "CoalescingTimerInterval" /t REG_DWORD
+             /d 0 /f'
+             Invoke-Step -Description 'Reduzindo timer de coalescencia da memoria' -Command 'reg add
+             "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v "CoalescingTimerInterval" /t
+             REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Reduzindo timer de coalescencia do kernel' -Command 'reg add
+             "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" /v "CoalescingTimerInterval" /t REG_DWORD
+             /d 0 /f'
+             Invoke-Step -Description 'Reduzindo timer de coalescencia do executivo' -Command 'reg add
+             "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Executive" /v "CoalescingTimerInterval" /t
+             REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Reduzindo timer de coalescencia principal' -Command 'reg add
+             "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager" /v "CoalescingTimerInterval" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Reduzindo timer de coalescencia do Modern Sleep' -Command 'reg add
+             "HKLM\SYSTEM\CurrentControlSet\Control\Power\ModernSleep" /v "CoalescingTimerInterval" /t REG_DWORD /d 0
+             /f'
+             Invoke-Step -Description 'Reduzindo timer de coalescencia da energia' -Command 'reg add
+             "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v "CoalescingTimerInterval" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Reduzindo timer de coalescencia global' -Command 'reg add
+             "HKLM\SYSTEM\CurrentControlSet\Control" /v "CoalescingTimerInterval" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Ajustando responsividade do sistema' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" /v "SystemResponsiveness" /t
+             REG_DWORD /d 10 /f'
+             Invoke-Step -Description 'Ajustando prioridade dos jogos' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" /v "Priority" /t
+             REG_DWORD /d 6 /f'
+             Invoke-Step -Description 'Desativando ProtectionMode' -Command 'reg add
+             "HKLM\System\CurrentControlSet\Control\Session Manager" /v "ProtectionMode" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando politica de composicao da DWM' -Command 'reg add
+             "HKCU\Software\Microsoft\Windows\DWM" /v "CompositionPolicy" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando composicao visual' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\DWM" /v "Composition" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando colorizacao de janelas' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\DWM" /v "EnableWindowColorization" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando Aero Peek' -Command 'reg add "HKCU\SOFTWARE\Microsoft\Windows\DWM"
+             /v "EnableAeroPeek" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando miniaturas em hibernacao' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\DWM" /v "AlwaysHibernateThumbnails" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Bloqueando coleta implicita de texto' -Command 'reg add
+             "HKCU\SOFTWARE\Policies\Microsoft\InputPersonalization" /v "RestrictImplicitTextCollection" /t REG_DWORD
+             /d 1 /f'
+             Invoke-Step -Description 'Bloqueando coleta implicita de tinta' -Command 'reg add
+             "HKCU\SOFTWARE\Policies\Microsoft\InputPersonalization" /v "RestrictImplicitInkCollection" /t REG_DWORD
+             /d 1 /f'
+             Invoke-Step -Description 'Mostrando arquivos ocultos' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "Hidden" /t REG_DWORD /d 1 /f'
+             Invoke-Step -Description 'Ajustando efeitos visuais para desempenho' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" /v "VisualFXSetting" /t REG_DWORD
+             /d 3 /f'
+             Invoke-Step -Description 'Desativando arrasto com janela completa' -Command 'reg add "HKCU\Control
+             Panel\Desktop" /v "DragFullWindows" /t REG_SZ /d 0 /f'
+             Invoke-Step -Description 'Mantendo suavizacao de fonte' -Command 'reg add "HKCU\Control Panel\Desktop" /v
+             "FontSmoothing" /t REG_SZ /d 2 /f'
+             Invoke-Step -Description 'Aplicando mascara de preferencias visuais' -Command 'reg add "HKCU\Control
+             Panel\Desktop" /v "UserPreferencesMask" /t REG_BINARY /d 9012038010020000 /f'
+             Invoke-Step -Description 'Desativando animacao de minimizar janelas' -Command 'reg add "HKCU\Control
+             Panel\Desktop\WindowMetrics" /v "MinAnimate" /t REG_SZ /d 0 /f'
+             Invoke-Step -Description 'Aplicando shell state do Explorer' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" /v "ShellState" /t REG_BINARY /d
+             240000003E28000000000000000000000000000001000000130000000000000072000000 /f'
+             Invoke-Step -Description 'Exibindo somente icones' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "IconsOnly" /t REG_DWORD /d 1 /f'
+             Invoke-Step -Description 'Desativando selecao alpha da lista' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ListviewAlphaSelect" /t REG_DWORD
+             /d 0 /f'
+             Invoke-Step -Description 'Desativando sombra da lista' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ListviewShadow" /t REG_DWORD /d 0
+             /f'
+             Invoke-Step -Description 'Desativando animacoes da barra de tarefas' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "TaskbarAnimations" /t REG_DWORD /d
+             0 /f'
+             Invoke-Step -Description 'Desativando alto contraste padrao' -Command 'reg add "HKU\.DEFAULT\Control
+             Panel\Accessibility\HighContrast" /v "Flags" /t REG_SZ /d 0 /f'
+             Invoke-Step -Description 'Desativando resposta especial do teclado' -Command 'reg add
+             "HKU\.DEFAULT\Control Panel\Accessibility\Keyboard Response" /v "Flags" /t REG_SZ /d 0 /f'
+             Invoke-Step -Description 'Desativando mouse keys padrao' -Command 'reg add "HKU\.DEFAULT\Control
+             Panel\Accessibility\MouseKeys" /v "Flags" /t REG_SZ /d 0 /f'
+             Invoke-Step -Description 'Desativando SoundSentry padrao' -Command 'reg add "HKU\.DEFAULT\Control
+             Panel\Accessibility\SoundSentry" /v "Flags" /t REG_SZ /d 0 /f'
+             Invoke-Step -Description 'Desativando StickyKeys padrao' -Command 'reg add "HKU\.DEFAULT\Control
+             Panel\Accessibility\StickyKeys" /v "Flags" /t REG_SZ /d 0 /f'
+             Invoke-Step -Description 'Desativando timeout de acessibilidade padrao' -Command 'reg add
+             "HKU\.DEFAULT\Control Panel\Accessibility\TimeOut" /v "Flags" /t REG_SZ /d 0 /f'
+             Invoke-Step -Description 'Desativando ToggleKeys padrao' -Command 'reg add "HKU\.DEFAULT\Control
+             Panel\Accessibility\ToggleKeys" /v "Flags" /t REG_SZ /d 0 /f'
+             Invoke-Step -Description 'Ajustando flags do MouseKeys do usuario' -Command 'reg add "HKCU\Control
+             Panel\Accessibility\MouseKeys" /v "Flags" /t REG_SZ /d 186 /f'
+             Invoke-Step -Description 'Aumentando velocidade maxima do MouseKeys' -Command 'reg add "HKCU\Control
+             Panel\Accessibility\MouseKeys" /v "MaximumSpeed" /t REG_SZ /d 40 /f'
+             Invoke-Step -Description 'Ajustando tempo para velocidade maxima do MouseKeys' -Command 'reg add
+             "HKCU\Control Panel\Accessibility\MouseKeys" /v "TimeToMaximumSpeed" /t REG_SZ /d 3000 /f'
+             Invoke-Step -Description 'Desativando manutencao automatica' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance" /v "MaintenanceDisabled" /t
+             REG_DWORD /d 1 /f'
+             Invoke-Step -Description 'Desativando hibernacao' -Command 'reg add
+             "HKLM\System\CurrentControlSet\Control\Power" /v "HibernateEnabled" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando inicializacao hibrida' -Command 'reg add
+             "HKLM\System\CurrentControlSet\Control\Session Manager\Power" /v "HiberbootEnabled" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando Sleep Study' -Command 'reg add
+             "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v "SleepStudyDisabled" /t REG_DWORD /d 1
+             /f'
+             Invoke-Step -Description 'Desativando Aero Shake' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "DisallowShaking" /t REG_DWORD /d 1
+             /f'
+             Invoke-Step -Description 'Desativando atalho de idioma' -Command 'reg add "HKCU\Keyboard Layout\Toggle"
+             /v "Language Hotkey" /t REG_SZ /d 3 /f'
+             Invoke-Step -Description 'Desativando hotkey principal de teclado' -Command 'reg add "HKCU\Keyboard
+             Layout\Toggle" /v "Hotkey" /t REG_SZ /d 3 /f'
+             Invoke-Step -Description 'Desativando hotkey de layout' -Command 'reg add "HKCU\Keyboard Layout\Toggle"
+             /v "Layout Hotkey" /t REG_SZ /d 3 /f'
+             Invoke-Step -Description 'Desativando reducao automatica de volume' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Multimedia\Audio" /v "UserDuckingPreference" /t REG_DWORD /d 3 /f'
+             Invoke-Step -Description 'Criando chave de eventos de aplicativo' -Command 'reg add
+             "HKCU\AppEvents\Schemes" /f'
+             Invoke-Step -Description 'Reduzindo atraso da troca de area de trabalho' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "DelayedDesktopSwitchTimeout" /t
+             REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando prefetcher' -Command 'reg add
+             "HKLM\System\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" /v
+             "EnablePrefetcher" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando superfetch' -Command 'reg add
+             "HKLM\System\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters" /v
+             "EnableSuperfetch" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando recursos promocionais do Windows' -Command 'reg add
+             "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsConsumerFeatures" /t REG_DWORD
+             /d 1 /f'
+             Invoke-Step -Description 'Ajustando politica de peernet' -Command 'reg add
+             "HKLM\SOFTWARE\Policies\Microsoft\Peernet" /v "Disabled" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando DEP do Internet Explorer' -Command 'reg add
+             "HKLM\SOFTWARE\Policies\Microsoft\Internet Explorer\Main" /v "DEPOff" /t REG_DWORD /d 1 /f'
+             Invoke-Step -Description 'Desativando identificador de publicidade' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v "Enabled" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando conteudo sugerido 310093' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v
+             "SubscribedContent-310093Enabled" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando conteudo sugerido 338389' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v
+             "SubscribedContent-338389Enabled" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando conteudo sugerido 338393' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v
+             "SubscribedContent-338393Enabled" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando conteudo sugerido 353694' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v
+             "SubscribedContent-353694Enabled" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando conteudo sugerido 353696' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v
+             "SubscribedContent-353696Enabled" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando instalacao silenciosa de apps' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SilentInstalledAppsEnabled"
+             /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando experiencia inicial do sistema' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\UserProfileEngagement" /v "ScoobeSystemSettingEnabled" /t
+             REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Bloqueando publicidade por politica' -Command 'reg add
+             "HKLM\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" /v "DisabledByGroupPolicy" /t REG_DWORD /d 1
+             /f'
+             Invoke-Step -Description 'Desativando autenticacao de codigo segura' -Command 'reg add
+             "HKLM\SOFTWARE\Policies\Microsoft\Windows\safer\codeidentifiers" /v "authenticodeenabled" /t REG_DWORD /d
+             0 /f'
+             Invoke-Step -Description 'Desativando painel inicial da Game Bar' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\GameBar" /v "ShowStartupPanel" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Ajustando dica inicial da Game Bar' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\GameBar" /v "GamePanelStartupTipIndex" /t REG_DWORD /d 3 /f'
+             Invoke-Step -Description 'Desativando modo jogo automatico' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\GameBar" /v "AllowAutoGameMode" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando Auto Game Mode' -Command 'reg add "HKCU\SOFTWARE\Microsoft\GameBar"
+             /v "AutoGameModeEnabled" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando Nexus da Game Bar' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\GameBar" /v "UseNexusForGameBarEnabled" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando Game DVR' -Command 'reg add "HKCU\System\GameConfigStore" /v
+             "GameDVR_Enabled" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Ajustando comportamento FSE do Game DVR' -Command 'reg add
+             "HKCU\System\GameConfigStore" /v "GameDVR_FSEBehaviorMode" /t REG_DWORD /d 2 /f'
+             Invoke-Step -Description 'Ajustando comportamento FSE adicional' -Command 'reg add
+             "HKCU\System\GameConfigStore" /v "GameDVR_FSEBehavior" /t REG_DWORD /d 2 /f'
+             Invoke-Step -Description 'Mantendo honor user FSE' -Command 'reg add "HKCU\System\GameConfigStore" /v
+             "GameDVR_HonorUserFSEBehaviorMode" /t REG_DWORD /d 1 /f'
+             Invoke-Step -Description 'Ajustando compatibilidade DXGI FSE' -Command 'reg add
+             "HKCU\System\GameConfigStore" /v "GameDVR_DXGIHonorFSEWindowsCompatible" /t REG_DWORD /d 1 /f'
+             Invoke-Step -Description 'Desativando flags EFSE do Game DVR' -Command 'reg add
+             "HKCU\System\GameConfigStore" /v "GameDVR_EFSEFeatureFlags" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Ajustando comportamento DSE do Game DVR' -Command 'reg add
+             "HKCU\System\GameConfigStore" /v "GameDVR_DSEBehavior" /t REG_DWORD /d 2 /f'
+             Invoke-Step -Description 'Bloqueando Game DVR pela politica do sistema' -Command 'reg add
+             "HKLM\SOFTWARE\Microsoft\PolicyManager\default\ApplicationManagement\AllowGameDVR" /v "value" /t
+             REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Bloqueando Game DVR por politica do Windows' -Command 'reg add
+             "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" /v "AllowGameDVR" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando captura de aplicativo' -Command 'reg add
+             "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR" /v "AppCaptureEnabled" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Desativando AutoGameMode padrao' -Command 'reg add
+             "HKU\.DEFAULT\SOFTWARE\Microsoft\GameBar" /v "AutoGameModeEnabled" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Removendo filhos do GameConfigStore' -Command 'reg delete
+             "HKCU\System\GameConfigStore\Children" /f'
+             Invoke-Step -Description 'Removendo pais do GameConfigStore' -Command 'reg delete
+             "HKCU\System\GameConfigStore\Parents" /f'
+             Invoke-Step -Description 'Desativando power throttling' -Command 'reg add
+             "HKLM\System\CurrentControlSet\Control\Power\PowerThrottling" /v "PowerThrottlingOff" /t REG_DWORD /d 1
+             /f'
+             Invoke-Step -Description 'Desativando CEIP' -Command 'reg add
+             "HKLM\SOFTWARE\Policies\Microsoft\SQMClient\Windows" /v "CEIPEnable" /t REG_DWORD /d 0 /f'
+             Invoke-Step -Description 'Ajustando URL corporativa SQM' -Command 'reg add
+             "HKLM\SOFTWARE\Policies\Microsoft\SQMClient" /v "CorporateSQMURL" /t REG_SZ /d "0.0.0.0" /f'
+             Invoke-Step -Description 'Desativando biometria' -Command 'reg add
+             "HKLM\SOFTWARE\Policies\Microsoft\Biometrics" /v "Enabled" /t REG_DWORD /d 0 /f'
+
+             Write-Output "[OK] Windows BALANCED aplicado com sucesso"
+scriptHash : fd593bf901edad46dd3da95515ef2e40878fc598e39d577c293b86d5dc143198

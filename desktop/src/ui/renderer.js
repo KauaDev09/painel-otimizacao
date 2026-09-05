@@ -1174,11 +1174,9 @@ let displayBrightnessSupported = false;
 function clampPct(v) { return Math.max(0, Math.min(100, Math.round(Number(v) || 0))); }
 
 function applyDisplayFilter() {
-  const el = document.querySelector('main.content');
-  if (!el) return;
-  const sat = displayState.saturation / 100;
-  const con = displayState.contrast / 100;
-  el.style.filter = `saturate(${sat}) contrast(${con})`;
+  // Contraste/saturação/brilho agora são aplicados DIRETAMENTE na tela do PC via
+  // gamma ramp (display:screen-ramp) — não é mais um filtro visual só no painel.
+  pushScreenRamp();
 }
 
 function debounceDisplay(fn, ms) {
@@ -1186,6 +1184,30 @@ function debounceDisplay(fn, ms) {
   return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
 }
 const saveDisplaySetting = debounceDisplay((patch) => { api().settingsSet({ display: patch }).catch(() => {}); }, 350);
+
+// Envia a curva de gama para a tela real do PC. Brilho físico fica com o WMI
+// quando suportado; senão, o brilho é aplicado por gamma ramp ou, se o driver
+// bloquear, por uma camada transparente (overlay dim) sobre a tela.
+const pushScreenRamp = debounceDisplay(async () => {
+  const brightness = displayBrightnessSupported ? 100 : (displayState.brightness != null ? displayState.brightness : 100);
+  try {
+    const r = await api().displayScreenRamp({
+      saturation: displayState.saturation,
+      contrast: displayState.contrast,
+      brightness
+    });
+    if (r && (r.overlay || r.brightnessMode === 'overlay')) {
+      setDisplayNotice('O driver de vídeo bloqueou a gama global desta máquina. O brilho é aplicado por uma camada sobre a tela (dim); contraste e saturação da tela inteira não são suportados no Windows 10/11 com drivers modernos.');
+    } else if (r && r.brightnessMode === 'none' && (r.saturationMode === 'blocked' || r.contrastMode === 'blocked')) {
+      setDisplayNotice('Seu driver de vídeo bloqueia a gama global, e este monitor não expõe WMI. Em Windows 10/11, contraste e saturação da tela inteira não podem ser alterados por software.');
+    }
+  } catch (_) { /* mantém o estado persistido; sem aviso extra */ }
+}, 120);
+
+function setDisplayNotice(text) {
+  const el = $('#displayNotice');
+  if (el) el.textContent = text || '';
+}
 
 async function initDisplayView() {
   const satEl = $('#displaySat');
@@ -1217,14 +1239,19 @@ async function initDisplayView() {
       if (briEl) { briEl.disabled = false; briEl.value = displayState.brightness; }
       if (mode) mode.textContent = 'Controle real de hardware (Windows)';
       $('#displayNotice').textContent = '';
+      // Brilho físico é do WMI: re-envia a rampa com brilho neutro para não duplicar.
+      pushScreenRamp();
     } else {
-      if (briEl) briEl.disabled = true;
-      if (mode) mode.textContent = 'Controle não suportado pelo monitor';
-      if ($('#displayBriValue')) $('#displayBriValue').textContent = '--';
+      // Sem WMI, o brilho é aplicado sobre a tela (gamma ou overlay dim).
+      displayState.brightness = displayState.brightness != null ? displayState.brightness : 100;
+      if (briEl) { briEl.disabled = false; briEl.value = displayState.brightness; }
+      if (mode) mode.textContent = 'Brilho aplicado na tela (Windows)';
+      if ($('#displayBriValue')) $('#displayBriValue').textContent = displayState.brightness + '%';
     }
   } catch (_) {
-    if (briEl) briEl.disabled = true;
-    if ($('#displayBriMode')) $('#displayBriMode').textContent = 'Controle não suportado pelo monitor';
+    displayState.brightness = displayState.brightness != null ? displayState.brightness : 100;
+    if (briEl) { briEl.disabled = false; briEl.value = displayState.brightness; }
+    if ($('#displayBriMode')) $('#displayBriMode').textContent = 'Brilho aplicado na tela (Windows)';
   }
 
   try {
@@ -1250,17 +1277,23 @@ async function initDisplayView() {
       const val = Number(e.target.value);
       displayState.brightness = val;
       if ($('#displayBriValue')) $('#displayBriValue').textContent = val + '%';
-      api().displayBrightnessSet(val)
-        .then((r) => {
-          if (!r || !r.applied) {
-            briEl.disabled = true;
-            if ($('#displayBriMode')) $('#displayBriMode').textContent = 'Controle não suportado pelo monitor';
-          }
-        })
-        .catch(() => {
-          briEl.disabled = true;
-          if ($('#displayBriMode')) $('#displayBriMode').textContent = 'Controle não suportado pelo monitor';
-        });
+      if (displayBrightnessSupported) {
+        api().displayBrightnessSet(val)
+          .then((r) => {
+            if (!r || !r.applied) {
+              displayBrightnessSupported = false;
+              pushScreenRamp();
+              if ($('#displayBriMode')) $('#displayBriMode').textContent = 'Brilho aplicado na tela (Windows)';
+            }
+          })
+          .catch(() => {
+            displayBrightnessSupported = false;
+            pushScreenRamp();
+            if ($('#displayBriMode')) $('#displayBriMode').textContent = 'Brilho aplicado na tela (Windows)';
+          });
+      } else {
+        pushScreenRamp();
+      }
       saveDisplaySetting({ brightness: val });
     });
     const resetBtn = $('#displayResetBtn');
@@ -1288,13 +1321,15 @@ function resetDisplaySettings() {
   if ($('#displaySatValue')) $('#displaySatValue').textContent = '100%';
   if ($('#displayConValue')) $('#displayConValue').textContent = '100%';
   const briEl = $('#displayBri');
-  if (displayBrightnessSupported && briEl) {
-    const bri = displayState.brightness != null ? displayState.brightness : 100;
-    briEl.value = bri;
-    if ($('#displayBriValue')) $('#displayBriValue').textContent = bri + '%';
+  if (!displayBrightnessSupported && briEl) {
+    displayState.brightness = 100;
+    briEl.value = 100;
+    if ($('#displayBriValue')) $('#displayBriValue').textContent = '100%';
   }
-  applyDisplayFilter();
-  api().settingsSet({ display: { saturation: 100, contrast: 100 } }).catch(() => {});
+  pushScreenRamp();
+  const patch = { display: { saturation: 100, contrast: 100 } };
+  if (!displayBrightnessSupported) patch.display.brightness = 100;
+  api().settingsSet(patch).catch(() => {});
   toast(`<b>Tela</b> — ajustes de exibição redefinidos.`, 4000);
 }
 
@@ -1304,6 +1339,7 @@ function showLogin() {
   const main = document.querySelector('main.content');
   if (ov) ov.classList.add('show');
   if (main) main.classList.add('locked');
+  document.body.classList.add('login-locked');
 }
 
 function hideLogin() {
@@ -1311,6 +1347,7 @@ function hideLogin() {
   const main = document.querySelector('main.content');
   if (ov) ov.classList.remove('show');
   if (main) main.classList.remove('locked');
+  document.body.classList.remove('login-locked');
 }
 
 const STORE_URL = 'https://orion-store-dun.vercel.app';
