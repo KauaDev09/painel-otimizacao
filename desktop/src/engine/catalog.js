@@ -413,7 +413,7 @@ const ITEMS = [
     confirm: true,
     profiles: ['advanced'],
     proOnly: true,
-    icon: 'rocket',
+    icon: 'sliders',
     apply: script('windows/performance/Windows Extreme.bat'),
     undo: ps('bcdedit /deletevalue disabledynamictick 2>$null; bcdedit /deletevalue useplatformclock 2>$null; powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e 2>$null'),
     registryKeys: ['HKLM\\SYSTEM\\CurrentControlSet\\Control\\PriorityControl', 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile', 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Power\\PowerThrottling']

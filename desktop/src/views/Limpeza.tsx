@@ -133,14 +133,14 @@ export function Limpeza({ onNavigate }: { onNavigate?: (view: string) => void })
       }
     })();
 
-    // O preload não devolve função de cancelamento; protegemos com a flag "alive".
-    api.onEngineStep?.((step) => {
+    const off = api.onEngineStep?.((step) => {
       if (!alive || !step || !step.name || !busyRef.current) return;
       setSteps((prev) => [...prev, step]);
     });
 
     return () => {
       alive = false;
+      if (typeof off === 'function') off();
       if (bannerTimer.current) clearTimeout(bannerTimer.current);
     };
   }, [api]);

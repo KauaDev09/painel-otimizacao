@@ -6,7 +6,9 @@ contextBridge.exposeInMainWorld('OrionAPI', {
   analyze: () => ipcRenderer.invoke('app:analyze'),
   getLast: () => ipcRenderer.invoke('app:getLast'),
   onStep: (cb) => {
-    ipcRenderer.on('analysis:step', (_e, step) => cb(step));
+    const handler = (_e, step) => cb(step);
+    ipcRenderer.on('analysis:step', handler);
+    return () => ipcRenderer.removeListener('analysis:step', handler);
   },
   generateReport: () => ipcRenderer.invoke('report:generate'),
   exportRaw: () => ipcRenderer.invoke('raw:export'),
@@ -20,7 +22,9 @@ contextBridge.exposeInMainWorld('OrionAPI', {
   licenseRefresh: () => ipcRenderer.invoke('license:refresh'),
   licenseLogout: () => ipcRenderer.invoke('license:logout'),
   onLicenseChanged: (cb) => {
-    ipcRenderer.on('license:changed', (_e, state) => cb(state));
+    const handler = (_e, state) => cb(state);
+    ipcRenderer.on('license:changed', handler);
+    return () => ipcRenderer.removeListener('license:changed', handler);
   },
 
   // ---- Segurança / Game Boost (passos de progresso compartilham canal) ----
@@ -28,7 +32,9 @@ contextBridge.exposeInMainWorld('OrionAPI', {
   securityQuickScan: () => ipcRenderer.invoke('security:quickscan'),
   gameBoostAnalyze: () => ipcRenderer.invoke('gameboost:analyze'),
   onServiceStep: (cb) => {
-    ipcRenderer.on('security:step', (_e, step) => cb(step));
+    const handler = (_e, step) => cb(step);
+    ipcRenderer.on('security:step', handler);
+    return () => ipcRenderer.removeListener('security:step', handler);
   },
 
   // ---- Modo Jogo (Game Booster) ----
@@ -40,8 +46,12 @@ contextBridge.exposeInMainWorld('OrionAPI', {
   gameBoostStopSession: () => ipcRenderer.invoke('gameboost:stopSession'),
   gameBoostPickExe: () => ipcRenderer.invoke('gameboost:pickExe'),
   gameBoostGetIcon: (exePath) => ipcRenderer.invoke('gameboost:icon', exePath),
+  gameBoostListLibrary: () => ipcRenderer.invoke('gameboost:listLibrary'),
+  gameBoostGetArtwork: (artworkPath) => ipcRenderer.invoke('gameboost:artwork', artworkPath),
   onGameBoostSession: (cb) => {
-    ipcRenderer.on('gameboost:session', (_e, payload) => cb(payload));
+    const handler = (_e, payload) => cb(payload);
+    ipcRenderer.on('gameboost:session', handler);
+    return () => ipcRenderer.removeListener('gameboost:session', handler);
   },
 
   // ---- Motor de Otimização ----
@@ -83,19 +93,27 @@ contextBridge.exposeInMainWorld('OrionAPI', {
   updateInstall: (filePath) => ipcRenderer.invoke('update:install', filePath),
   updateCancel: () => ipcRenderer.invoke('update:cancel'),
   onDownloadProgress: (cb) => {
-    ipcRenderer.on('update:download-progress', (_e, progress) => cb(progress));
+    const handler = (_e, progress) => cb(progress);
+    ipcRenderer.on('update:download-progress', handler);
+    return () => ipcRenderer.removeListener('update:download-progress', handler);
   },
   onInstalling: (cb) => {
-    ipcRenderer.on('update:installing', (_e, info) => cb(info));
+    const handler = (_e, info) => cb(info);
+    ipcRenderer.on('update:installing', handler);
+    return () => ipcRenderer.removeListener('update:installing', handler);
   },
   getAppMeta: () => ipcRenderer.invoke('app:meta'),
   appHealth: () => ipcRenderer.invoke('app:health'),
   openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url),
   onUpdateAvailable: (cb) => {
-    ipcRenderer.on('update:available', (_e, res) => cb(res));
+    const handler = (_e, res) => cb(res);
+    ipcRenderer.on('update:available', handler);
+    return () => ipcRenderer.removeListener('update:available', handler);
   },
   onEngineStep: (cb) => {
-    ipcRenderer.on('engine:step', (_e, step) => cb(step));
+    const handler = (_e, step) => cb(step);
+    ipcRenderer.on('engine:step', handler);
+    return () => ipcRenderer.removeListener('engine:step', handler);
   },
 
   biosScan: () => ipcRenderer.invoke('bios:scan'),
@@ -109,7 +127,9 @@ contextBridge.exposeInMainWorld('OrionAPI', {
   biosReboot: () => ipcRenderer.invoke('bios:reboot'),
   biosLogs: () => ipcRenderer.invoke('bios:logs'),
   onBiosBootVerify: (cb) => {
-    ipcRenderer.on('bios:boot-verify', (_e, res) => cb(res));
+    const handler = (_e, res) => cb(res);
+    ipcRenderer.on('bios:boot-verify', handler);
+    return () => ipcRenderer.removeListener('bios:boot-verify', handler);
   },
 
   // Window controls (frameless)
@@ -118,6 +138,8 @@ contextBridge.exposeInMainWorld('OrionAPI', {
   windowClose: () => ipcRenderer.invoke('window:close'),
   windowIsMaximized: () => ipcRenderer.invoke('window:isMaximized'),
   onWindowMaximized: (cb) => {
-    ipcRenderer.on('window:maximized', (_e, value) => cb(value));
+    const handler = (_e, value) => cb(value);
+    ipcRenderer.on('window:maximized', handler);
+    return () => ipcRenderer.removeListener('window:maximized', handler);
   },
 });

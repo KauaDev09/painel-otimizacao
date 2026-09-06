@@ -18,11 +18,11 @@ const protection = require('./restorePoint');
 const PROFILES = {
   safe: { name: 'Seguro', icon: 'security', description: 'Só ajustes de baixo risco, totalmente reversíveis.' },
   balanced: { name: 'Equilibrado', icon: 'scale', description: 'Melhor custo-benefício para uso diário.' },
-  performance: { name: 'Desempenho', icon: 'boost', description: 'Máxima responsividade do sistema.' },
+  performance: { name: 'Desempenho', icon: 'gauge', description: 'Máxima responsividade do sistema.' },
   gaming: { name: 'Gamer', icon: 'gaming', description: 'Foco em FPS e latência em jogos.' },
   work: { name: 'Trabalho', icon: 'briefcase', description: 'Estabilidade para produtividade; sem mudanças agressivas.' },
   laptop: { name: 'Notebook', icon: 'power', description: 'Equilíbrio entre desempenho e bateria.' },
-  advanced: { name: 'Avançado', icon: 'rocket', description: 'Executa os três scripts Windows: Balanced, Full e Extreme.' }
+  advanced: { name: 'Avançado', icon: 'sliders', description: 'Executa os três scripts Windows: Balanced, Full e Extreme.' }
 };
 
 let stateDir = null;

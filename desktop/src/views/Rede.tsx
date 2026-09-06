@@ -116,7 +116,7 @@ interface RedeApi {
 const DEFAULT_PING_HOST = '1.1.1.1';
 const DEFAULT_PING_COUNT = 10;
 const DEFAULT_DNS_DOMAIN = 'google.com';
-const POLL_MS = 4000;
+const POLL_MS = 8000;
 const HIST_MAX = 40;
 
 function dash(v: unknown): string {
@@ -283,8 +283,14 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
         force();
       } catch { /* silencioso */ }
     };
-    tick();
-    const t = setInterval(tick, POLL_MS);
+    let inFlight = false;
+    const safeTick = async () => {
+      if (inFlight) return;
+      inFlight = true;
+      try { await tick(); } finally { inFlight = false; }
+    };
+    safeTick();
+    const t = setInterval(safeTick, POLL_MS);
 
     return () => {
       alive.current = false;

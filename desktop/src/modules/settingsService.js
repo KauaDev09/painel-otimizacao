@@ -20,7 +20,7 @@ const DEFAULTS = {
     defaultProfile: 'balanced'
   },
   monitoring: {
-    intervalSec: 2,
+    intervalSec: 5,
     metrics: ['cpu', 'ram', 'gpu', 'disk', 'network']
   },
   updates: {
@@ -33,6 +33,10 @@ const DEFAULTS = {
     saturation: 100,
     brightness: 100,
     contrast: 100,
+    gamma: 100,
+    temperature: 100,
+    selectedMonitorId: null,
+    perMonitor: {},
     presets: {}
   }
 };
@@ -54,9 +58,13 @@ function _read() {
   }
 }
 
+const REPLACE_MAPS = new Set(['presets', 'perMonitor']);
+
 function deepMerge(base, extra) {
   for (const [k, v] of Object.entries(extra || {})) {
-    if (v && typeof v === 'object' && !Array.isArray(v) && base[k] && typeof base[k] === 'object') {
+    if (REPLACE_MAPS.has(k) && base[k] !== undefined) {
+      base[k] = v;
+    } else if (v && typeof v === 'object' && !Array.isArray(v) && base[k] && typeof base[k] === 'object') {
       deepMerge(base[k], v);
     } else if (base[k] !== undefined) {
       base[k] = v;

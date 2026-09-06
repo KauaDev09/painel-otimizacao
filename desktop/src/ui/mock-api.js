@@ -210,10 +210,11 @@ const MOCK_ITEMS = [
 const MOCK_PROFILES = [
   { id: 'safe', name: 'Seguro', description: 'Apenas otimizações de baixo risco.', icon: 'security', count: 2 },
   { id: 'balanced', name: 'Equilibrado', description: 'Boa relação entre desempenho e estabilidade.', icon: 'scale', count: 3 },
-  { id: 'performance', name: 'Desempenho', description: 'Maximiza FPS e throughput.', icon: 'boost', count: 5 },
+  { id: 'performance', name: 'Desempenho', description: 'Maximiza FPS e throughput.', icon: 'gauge', count: 5 },
   { id: 'gaming', name: 'Gamer', description: 'Ideal para jogos competitivos.', icon: 'gaming', count: 5 },
   { id: 'work', name: 'Trabalho', description: 'Estabilidade para produtividade.', icon: 'briefcase', count: 0 },
-  { id: 'laptop', name: 'Notebook', description: 'Equilíbrio entre bateria e desempenho.', icon: 'power', count: 0 }
+  { id: 'laptop', name: 'Notebook', description: 'Equilíbrio entre bateria e desempenho.', icon: 'power', count: 0 },
+  { id: 'advanced', name: 'Avançado', description: 'Scripts Windows Balanced, Full e Extreme.', icon: 'sliders', count: 3 }
 ];
 
 const MOCK_CLEAN_TARGETS = [
@@ -493,8 +494,11 @@ window.OrionAPI = {
     return { ok: true };
   },
   displayMonitors: async () => ({
-    primary: { name: 'ASUS ROG Strix XG27AQ', width: 2560, height: 1440, refreshRate: 165, connected: true, isPrimary: true },
-    monitors: [{ name: 'ASUS ROG Strix XG27AQ', width: 2560, height: 1440, connected: true, isPrimary: true }]
+    primary: { id: '1', name: 'ASUS ROG Strix XG27AQ', width: 2560, height: 1440, refreshRate: 165, connected: true, isPrimary: true, bounds: { x: 0, y: 0, width: 2560, height: 1440 } },
+    monitors: [
+      { id: '1', name: 'ASUS ROG Strix XG27AQ', width: 2560, height: 1440, refreshRate: 165, connected: true, isPrimary: true, bounds: { x: 0, y: 0, width: 2560, height: 1440 } },
+      { id: '2', name: 'Monitor Secundário', width: 1920, height: 1080, refreshRate: 144, connected: true, isPrimary: false, bounds: { x: 2560, y: 0, width: 1920, height: 1080 } }
+    ]
   }),
   displayBrightnessGet: async () => ({ supported: true, percent: 70 }),
   displayBrightnessSet: async (percent) => ({ applied: true, percent }),
@@ -583,6 +587,11 @@ window.OrionAPI = {
 
   // ---- Modo Jogo (Game Booster) ----
   gameBoostListGames: async () => [],
+  gameBoostListLibrary: async () => [
+    { id: 'lib-valorant', name: 'Valorant', path: 'C:\\Riot Games\\VALORANT\\live\\VALORANT.exe', platform: 'app', source: 'known' },
+    { id: 'lib-obs', name: 'OBS Studio', path: 'C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe', platform: 'app', source: 'known' },
+    { id: 'lib-roblox', name: 'Roblox', path: 'C:\\Users\\User\\AppData\\Local\\Roblox\\Versions\\RobloxPlayerBeta.exe', platform: 'app', source: 'known' }
+  ],
   gameBoostAddGame: async (payload) => ({
     id: 'mock-' + Date.now(),
     path: payload.path,
@@ -595,7 +604,8 @@ window.OrionAPI = {
   gameBoostStopSession: async () => ({ ok: true, message: 'Sessão encerrada.' }),
   gameBoostPickExe: async () => null,
   gameBoostGetIcon: async () => ({ ok: false, dataUrl: null }),
-  onGameBoostSession: (cb) => cb,
+  gameBoostGetArtwork: async () => ({ ok: false, dataUrl: null }),
+  onGameBoostSession: (cb) => () => cb,
 
   engineListItems: async () => MOCK_ITEMS,
   engineGetProfiles: async () => MOCK_PROFILES.map((p) => ({

@@ -426,29 +426,46 @@ class GameMode {
   list() {
     try {
       const games = JSON.parse(fs.readFileSync(this.gamesFile(), 'utf8'));
-      if (games.length > 0) return games;
+      if (Array.isArray(games)) {
+        return games.filter((g) => g && g.path && (String(g.path).startsWith('steam://') || fs.existsSync(g.path)));
+      }
     } catch (_) {}
     const fivem = findFiveMPath();
-    const defaultGame = {
-      id: 'gfivem',
-      path: fivem || path.join(process.env.LOCALAPPDATA || 'C:\\Users\\Public', 'FiveM', 'FiveM.exe'),
-      name: 'FiveM',
-      addedAt: new Date().toISOString(),
-      isDefault: true
-    };
-    return [defaultGame];
+    if (fivem) {
+      return [{
+        id: 'gfivem',
+        path: fivem,
+        name: 'FiveM',
+        addedAt: new Date().toISOString(),
+        isDefault: true
+      }];
+    }
+    return [];
   }
 
-  add({ path: exe, name }) {
-    if (!exe || !fs.existsSync(exe)) throw new Error('O caminho do aplicativo não existe.');
-    const ext = path.extname(exe).toLowerCase();
-    if (ext !== '.exe' && ext !== '.lnk' && ext !== '.bat') {
-      throw new Error('Escolha um executável (.exe) ou atalho (.lnk) do jogo.');
+  add({ path: exe, name, launch, platform, artworkPath }) {
+    const isUri = /^steam:\/\//i.test(String(exe || ''));
+    if (!isUri && (!exe || !fs.existsSync(exe))) throw new Error('O caminho do aplicativo não existe.');
+    if (!isUri) {
+      const ext = path.extname(exe).toLowerCase();
+      if (ext !== '.exe' && ext !== '.lnk' && ext !== '.bat') {
+        throw new Error('Escolha um executável (.exe) ou atalho (.lnk) do jogo.');
+      }
     }
     const games = this.list();
+    const existing = games.find((g) => String(g.path).toLowerCase() === String(exe).toLowerCase());
+    if (existing) return existing;
     const id = 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    const friendly = name || path.basename(exe, path.extname(exe));
-    const item = { id, path: exe, name: friendly, addedAt: new Date().toISOString() };
+    const friendly = name || (isUri ? 'Steam Game' : path.basename(exe, path.extname(exe)));
+    const item = {
+      id,
+      path: exe,
+      name: friendly,
+      addedAt: new Date().toISOString(),
+      launch: launch || null,
+      platform: platform || null,
+      artworkPath: artworkPath || null
+    };
     games.push(item);
     fs.mkdirSync(this.dir, { recursive: true });
     fs.writeFileSync(this.gamesFile(), JSON.stringify(games, null, 2), 'utf8');

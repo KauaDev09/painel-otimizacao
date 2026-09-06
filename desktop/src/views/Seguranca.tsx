@@ -349,13 +349,14 @@ export function Seguranca({ onNavigate }: { onNavigate?: (view: string) => void 
   // Passos de progresso (canal compartilhado com o Game Boost — só exibimos enquanto esta tela está ocupada).
   React.useEffect(() => {
     alive.current = true;
-    api.onServiceStep?.((step) => {
+    const off = api.onServiceStep?.((step) => {
       if (!alive.current || !busyRef.current) return;
       const label = typeof step === 'string' ? step : step?.label;
       if (label) setStepLabel(label);
     });
     return () => {
       alive.current = false;
+      if (typeof off === 'function') off();
       if (bannerTimer.current) clearTimeout(bannerTimer.current);
     };
   }, [api]);

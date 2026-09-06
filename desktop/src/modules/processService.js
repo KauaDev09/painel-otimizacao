@@ -10,10 +10,8 @@ const runner = require('../engine/runner');
 const LIST_PS = [
   "$ErrorActionPreference = 'SilentlyContinue'",
   '$out = Get-Process | Where-Object { $_.Id -ne 0 } | ForEach-Object {',
-  '  $company = $null; $path = $null',
+  '  $path = $null',
   '  try { $path = $_.Path } catch {}',
-  "  if (-not $path -and $_.MainModule) { try { $path = $_.MainModule.FileName } catch {} }",
-  '  if ($path) { try { $company = ([System.Diagnostics.FileVersionInfo]::GetVersionInfo($path)).CompanyName } catch {} }',
   '  [pscustomobject]@{',
   '    id = $_.Id',
   '    name = $_.ProcessName',
@@ -21,11 +19,11 @@ const LIST_PS = [
   '    memMB = [math]::Round($_.WorkingSet64 / 1MB, 0)',
   "    priority = [string]$_.PriorityClass",
   '    path = $path',
-  '    company = $company',
+  '    company = \'\'',
   '    windowed = ($_.MainWindowHandle -ne 0)',
   '  }',
   '}',
-  '$out | Sort-Object memMB -Descending | Select-Object -First 400 | ConvertTo-Json -Compress'
+  '$out | Sort-Object memMB -Descending | Select-Object -First 150 | ConvertTo-Json -Compress'
 ].join('\n');
 
 const PRIORITY_MAP = {
@@ -51,27 +49,38 @@ function isCritical(name, pid) {
   return CRITICAL_RE.some((re) => re.test(String(name)));
 }
 
+let listCache = { data: null, ts: 0, inflight: null };
+
 async function listProcesses() {
-  let raw;
-  try {
-    const { stdout } = await runner.runPowerShellInline(LIST_PS, 30000);
-    raw = JSON.parse(stdout.trim());
-    if (!Array.isArray(raw)) raw = [raw];
-  } catch (_) {
-    return [];
-  }
-  return raw.map((p) => ({
-    id: p.id,
-    name: p.name,
-    cpuSec: p.cpuSec ?? 0,
-    memMB: p.memMB ?? 0,
-    priority: p.priority || 'Normal',
-    priorityLabel: PRIORITY_MAP[p.priority] || (p.priority || '—'),
-    path: p.path || '',
-    company: p.company || '',
-    windowed: !!p.windowed,
-    critical: isCritical(p.name, Number(p.id))
-  }));
+  const now = Date.now();
+  if (listCache.data && now - listCache.ts < 2500) return listCache.data;
+  if (listCache.inflight) return listCache.inflight;
+  listCache.inflight = (async () => {
+    let raw;
+    try {
+      const { stdout } = await runner.runPowerShellInline(LIST_PS, 12000);
+      raw = JSON.parse(stdout.trim());
+      if (!Array.isArray(raw)) raw = [raw];
+    } catch (_) {
+      listCache.inflight = null;
+      return listCache.data || [];
+    }
+    const mapped = raw.map((p) => ({
+      id: p.id,
+      name: p.name,
+      cpuSec: p.cpuSec ?? 0,
+      memMB: p.memMB ?? 0,
+      priority: p.priority || 'Normal',
+      priorityLabel: PRIORITY_MAP[p.priority] || (p.priority || '—'),
+      path: p.path || '',
+      company: p.company || '',
+      windowed: !!p.windowed,
+      critical: isCritical(p.name, Number(p.id))
+    }));
+    listCache = { data: mapped, ts: Date.now(), inflight: null };
+    return mapped;
+  })();
+  return listCache.inflight;
 }
 
 /** Encerra um processo com confirmação prévia na interface. */

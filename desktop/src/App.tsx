@@ -24,7 +24,8 @@ function Root() {
       .licenseGetState()
       .then(setLic)
       .catch(() => setLic({ active: false }));
-    api.onLicenseChanged?.((st) => setLic(st));
+    const off = api.onLicenseChanged?.((st) => setLic(st));
+    return () => { if (typeof off === 'function') off(); };
   }, [api]);
 
   if (!lic) return <Splash />;

@@ -147,12 +147,16 @@ export function Licenca({ onNavigate }: { onNavigate?: (view: string) => void })
       if (alive) setLoading(false);
     })();
     // O preload não devolve função de unsubscribe → protege com a flag `alive`.
+    let off: (() => void) | void;
     try {
-      api.onLicenseChanged?.((st) => {
+      off = api.onLicenseChanged?.((st) => {
         if (alive) setLic(st);
       });
     } catch { /* ok */ }
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+      if (typeof off === 'function') off();
+    };
   }, [api]);
 
   // Mensagens somem sozinhas.

@@ -1,8 +1,21 @@
 'use strict';
 
-const { app, BrowserWindow, ipcMain, shell, Tray, Menu, nativeImage, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, Tray, Menu, nativeImage, dialog, protocol, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
+
+// Protocolo local p/ ícones e capas — sem base64 na RAM do renderer.
+protocol.registerSchemesAsPrivileged([{
+  scheme: 'orion-media',
+  privileges: {
+    standard: true,
+    secure: true,
+    supportFetchAPI: true,
+    bypassCSP: true,
+    stream: true,
+    corsEnabled: true
+  }
+}]);
 
 // Evita que um erro isolado (ex.: módulo screen antes de ready) mate o processo
 // com o diálogo "A JavaScript error occurred in the main process".
@@ -34,6 +47,7 @@ const networkService = require('./modules/networkService');
 const benchmarkService = require('./modules/benchmarkService');
 const settingsService = require('./modules/settingsService');
 const displayService = require('./modules/displayService');
+const appLibrary = require('./modules/appLibrary');
 const updaterService = require('./modules/updaterService');
 // screenOverlay acessa o módulo `screen` — só carrega depois de ready.
 let screenOverlay = null;
@@ -124,9 +138,6 @@ function initServices() {
   const stateDir = path.join(userData, 'engine');
   const logsDir = path.join(userData, 'engine', 'logs');
   const protectionDir = path.join(userData, 'engine', 'protection');
-  // Garante os scripts materializados no perfil do usuário antes de qualquer uso.
-  // reinit() invalida o cache e refaz a cópia para AppData (garante que app está pronto).
-  require('./engine/scriptsSync').reinit();
   runner.setLogsDir(logsDir);
   protection.setBaseDir(protectionDir);
   engineService.setStateDir(path.join(stateDir, 'operations'));
@@ -178,12 +189,17 @@ function createWindow() {
     return { action: 'deny' };
   });
 
-  // Reaplica na inicialização o contraste/saturação/brilho persistidos, quando a
-  // curva não é neutra — a gamma ramp é volátil e precisa ser restaurada por sessão.
-  const disp = settingsService.get().display || {};
-  if (Number(disp.saturation) !== 100 || Number(disp.contrast) !== 100 || Number(disp.brightness) !== 100) {
-    applyScreenRampAndOverlay(disp).catch(() => {});
-  }
+  setTimeout(() => {
+    try { displayService.warmup(); } catch (_) { /* ok */ }
+    const disp = settingsService.get().display || {};
+    const needsRestore = ['saturation', 'contrast', 'brightness', 'gamma', 'temperature']
+      .some((k) => Number(disp[k] ?? 100) !== 100);
+    if (needsRestore) applyScreenRampAndOverlay({ ...disp, forceDdc: true }).catch(() => {});
+    // Biblioteca em idle — não bloqueia a UI na abertura.
+    setTimeout(() => {
+      try { appLibrary.warmupLibrary(); } catch (_) { /* ok */ }
+    }, 2500);
+  }, 900);
 
   // Envia referência da janela ao updater para comunicação via IPC.
   updaterService.setMainWindow(mainWindow);
@@ -219,7 +235,12 @@ async function applyScreenRampAndOverlay(opts = {}) {
     res = await displayService.applyScreenRamp({
       saturation: opts.saturation,
       contrast: opts.contrast,
-      brightness
+      brightness,
+      gamma: opts.gamma,
+      temperature: opts.temperature,
+      monitorId: opts.monitorId,
+      bounds: opts.bounds,
+      forceDdc: !!(opts && opts.forceDdc)
     });
   } catch (_) {
     res = { applied: false, method: 'gamma-ramp' };
@@ -262,9 +283,24 @@ function checkUpdatesOnStartup() {
 }
 
 app.whenReady().then(() => {
+  protocol.handle('orion-media', (request) => {
+    try {
+      const filePath = appLibrary.resolveMediaUrl(request.url);
+      if (!filePath || !fs.existsSync(filePath)) {
+        return new Response('Not found', { status: 404 });
+      }
+      return net.fetch('file:///' + filePath.replace(/\\/g, '/'));
+    } catch (_) {
+      return new Response('Error', { status: 500 });
+    }
+  });
+
   initServices();
   registerIpc();
   createWindow();
+  setTimeout(() => {
+    try { require('./engine/scriptsSync').reinit(); } catch (_) { /* ok */ }
+  }, 400);
   setTimeout(() => {
     biosManager.verifyPending().then((res) => {
       if (res && res.checked && res.checked.length && mainWindow && !mainWindow.isDestroyed()) {
@@ -278,7 +314,11 @@ app.whenReady().then(() => {
   });
 });
 
-app.on('before-quit', () => { quitting = true; try { if (screenOverlay) screenOverlay.dispose(); } catch (_) {} });
+app.on('before-quit', () => {
+  quitting = true;
+  try { if (screenOverlay) screenOverlay.dispose(); } catch (_) {}
+  try { displayService.dispose(); } catch (_) {}
+});
 
 app.on('window-all-closed', () => {
   app.quit();
@@ -389,12 +429,30 @@ function registerIpc() {
 
   // ---- Modo Jogo (Game Booster) ----
   ipcMain.handle('gameboost:listGames', () => gameMode.list());
-  ipcMain.handle('gameboost:icon', async (_e, exePath) => {
-    const p = String(exePath || '');
-    if (!p || !fs.existsSync(p)) return { ok: false, dataUrl: null };
+  ipcMain.handle('gameboost:listLibrary', async () => {
     try {
-      const img = await app.getFileIcon(p, { size: 'large' });
-      return { ok: true, dataUrl: img.toDataURL() };
+      return await new Promise((resolve) => {
+        setImmediate(() => {
+          try { resolve(appLibrary.listLibrary()); }
+          catch (_) { resolve([]); }
+        });
+      });
+    } catch (_) {
+      return [];
+    }
+  });
+  ipcMain.handle('gameboost:icon', async (_e, exePath) => {
+    try { return await appLibrary.getIconDataUrl(exePath); }
+    catch (_) { return { ok: false, dataUrl: null }; }
+  });
+  ipcMain.handle('gameboost:artwork', async (_e, artworkPath) => {
+    try {
+      return await new Promise((resolve) => {
+        setImmediate(() => {
+          try { resolve(appLibrary.getArtworkDataUrl(artworkPath)); }
+          catch (_) { resolve({ ok: false, dataUrl: null }); }
+        });
+      });
     } catch (_) {
       return { ok: false, dataUrl: null };
     }
@@ -466,8 +524,21 @@ function registerIpc() {
     return repairService.runQuickFix({ onStep: sendEngineStep });
   });
 
-  // ---- Monitor em tempo real (dados reais; leitura somente) ----
-  ipcMain.handle('monitor:snapshot', () => monitorService.getSnapshot());
+  // ---- Monitor em tempo real (cache curto evita PowerShell empilhado) ----
+  let snapshotCache = { data: null, ts: 0, inflight: null };
+  ipcMain.handle('monitor:snapshot', () => {
+    const now = Date.now();
+    if (snapshotCache.data && now - snapshotCache.ts < 2500) return snapshotCache.data;
+    if (snapshotCache.inflight) return snapshotCache.inflight;
+    snapshotCache.inflight = monitorService.getSnapshot().then((data) => {
+      snapshotCache = { data, ts: Date.now(), inflight: null };
+      return data;
+    }).catch((err) => {
+      snapshotCache.inflight = null;
+      throw err;
+    });
+    return snapshotCache.inflight;
+  });
 
   // ---- Inicialização (Startup Manager) ----
   ipcMain.handle('startup:list', () => startupService.listStartup());

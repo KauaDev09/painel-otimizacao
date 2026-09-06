@@ -23,12 +23,15 @@ export interface MonitorSnapshot {
   netTxKbps?: number | null;
   processCount?: number | null;
   tempC?: number | null;
+  /** Origem real: acpi | lhm | gpu — null quando indisponível */
+  tempSource?: 'acpi' | 'lhm' | 'gpu' | string | null;
   gpu?: {
     percent?: number | null;
     usagePercent?: number | null;
     vramUsedMB?: number | null;
     vramTotalMB?: number | null;
     tempC?: number | null;
+    clockMhz?: number | null;
     label?: string;
     vendor?: string | null;
   } | null;
@@ -51,13 +54,13 @@ export interface OrionApi {
   windowMaximize(): Promise<void>;
   windowClose(): Promise<void>;
   windowIsMaximized(): Promise<boolean>;
-  onWindowMaximized(cb: (value: boolean) => void): void;
+  onWindowMaximized(cb: (value: boolean) => void): (() => void) | void;
 
   licenseGetState(): Promise<LicenseState>;
   licenseActivate(key: string): Promise<{ ok?: boolean }>;
   licenseRefresh(): Promise<LicenseState>;
   licenseLogout(): Promise<{ ok?: boolean }>;
-  onLicenseChanged(cb: (state: LicenseState) => void): void;
+  onLicenseChanged(cb: (state: LicenseState) => void): (() => void) | void;
 
   analyze(): Promise<{ overall?: number; historyId?: string; scores?: { overall: number } }>;
   getLast(): Promise<AnalysisResultLike>;
@@ -71,19 +74,32 @@ export interface OrionApi {
     saturation?: number;
     contrast?: number;
     brightness?: number;
+    gamma?: number;
+    temperature?: number;
+    monitorId?: string;
+    bounds?: { x: number; y: number; width: number; height: number };
+    forceDdc?: boolean;
   }): Promise<{ applied: boolean; overlay?: boolean; brightnessMode?: string }>;
 
   // ---- Jogos (Game Boost) ----
   gameBoostListGames(): Promise<GameEntry[]>;
-  gameBoostAddGame(payload: { path: string }): Promise<GameEntry>;
+  gameBoostAddGame(payload: {
+    path: string;
+    name?: string;
+    launch?: string | null;
+    platform?: string;
+    artworkPath?: string | null;
+  }): Promise<GameEntry>;
   gameBoostRemoveGame(id: string): Promise<{ ok: boolean }>;
   gameBoostSessionStatus(): Promise<GameSessionStatus>;
   gameBoostStartSession(id: string): Promise<GameStartResult>;
   gameBoostStopSession(): Promise<{ ok: boolean; message?: string }>;
   gameBoostPickExe(): Promise<string | null>;
   gameBoostGetIcon(exePath: string): Promise<{ ok?: boolean; dataUrl?: string | null }>;
+  gameBoostListLibrary(): Promise<GameEntry[]>;
+  gameBoostGetArtwork(artworkPath: string): Promise<{ ok?: boolean; dataUrl?: string | null }>;
   gameBoostAnalyze(): Promise<unknown>;
-  onGameBoostSession(cb: (payload: GameSessionEvent) => void): void;
+  onGameBoostSession(cb: (payload: GameSessionEvent) => void): (() => void) | void;
 
   // ---- Tela (display) ----
   settingsGet(): Promise<SettingsLike>;
@@ -98,6 +114,10 @@ export interface GameEntry {
   path: string;
   addedAt?: string;
   isDefault?: boolean;
+  platform?: string;
+  artworkPath?: string | null;
+  launch?: string | null;
+  source?: string;
 }
 
 export interface GameSessionStatus {
@@ -132,6 +152,18 @@ export interface SettingsLike {
     brightness?: number;
     contrast?: number;
     saturation?: number;
-    presets?: Record<string, { brightness?: number; contrast?: number; saturation?: number }>;
+    gamma?: number;
+    temperature?: number;
+    selectedMonitorId?: string | null;
+    perMonitor?: Record<string, Partial<DisplayStateLike>>;
+    presets?: Record<string, Partial<DisplayStateLike>>;
   };
+}
+
+export interface DisplayStateLike {
+  brightness?: number;
+  contrast?: number;
+  saturation?: number;
+  gamma?: number;
+  temperature?: number;
 }

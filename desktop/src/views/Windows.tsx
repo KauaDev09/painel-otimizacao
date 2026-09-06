@@ -1,8 +1,9 @@
 import React from 'react';
 import {
   AppWindow, Cpu, Monitor, MemoryStick, Network, HardDrive, Zap, Power, Gamepad2, Brush, Shield,
-  Settings2, Scale, Rocket, Briefcase, Plus, Download, Search, ChevronDown, RotateCcw, Lock,
+  Settings2, Scale, Briefcase, Plus, Download, Search, ChevronDown, RotateCcw, Lock,
   Crown, CheckCircle2, XCircle, MinusCircle, AlertTriangle, Play, ScanSearch, Gauge, X,
+  SlidersHorizontal,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useApi } from '@/api';
@@ -96,11 +97,13 @@ const CATEGORY_ICON: Record<string, LucideIcon> = {
 };
 
 // Nomes de ícones do catálogo legado (icons.js) → lucide.
+// Perfis: Desempenho (boost) e Avançado (rocket) devem ser visualmente distintos.
 const NAMED_ICON: Record<string, LucideIcon> = {
   windows: AppWindow, cpu: Cpu, gpu: Monitor, ram: MemoryStick, network: Network,
   storage: HardDrive, power: Zap, startup: Power, gaming: Gamepad2, cleaning: Brush,
-  security: Shield, privacy: Shield, system: Settings2, scale: Scale, boost: Rocket,
-  rocket: Rocket, briefcase: Briefcase, zap: Zap, gauge: Gauge, download: Download,
+  security: Shield, privacy: Shield, system: Settings2, scale: Scale, boost: Gauge,
+  rocket: SlidersHorizontal, briefcase: Briefcase, zap: Zap, gauge: Gauge, download: Download,
+  sliders: SlidersHorizontal,
 };
 
 const RISK_GROUP_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
@@ -282,7 +285,7 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
   React.useEffect(() => {
     if (typeof api.onEngineStep !== 'function') return;
     let registered = true;
-    api.onEngineStep((step) => {
+    const off = api.onEngineStep((step) => {
       if (!registered || !aliveRef.current) return;
       if (!step || !step.name) return;
       if (applyingRef.current) {
@@ -296,7 +299,10 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
       }
       toast(`${step.ok ? '✅' : '❌'} ${step.name}`, step.ok ? 'ok' : 'error', 3500);
     });
-    return () => { registered = false; };
+    return () => {
+      registered = false;
+      if (typeof off === 'function') off();
+    };
   }, [api, appendRunLog, toast]);
 
   // Debounce da busca (200 ms como no legado)

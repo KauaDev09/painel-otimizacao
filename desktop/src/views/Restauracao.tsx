@@ -129,12 +129,15 @@ export function Restauracao({ onNavigate }: { onNavigate?: (view: string) => voi
   React.useEffect(() => {
     if (typeof api.onEngineStep !== 'function') return;
     let registered = true;
-    api.onEngineStep((step) => {
+    const off = api.onEngineStep((step) => {
       if (!registered || !aliveRef.current) return;
       if (!step || !step.name || !undoingRef.current) return;
       toast(`${step.ok ? '✅' : '❌'} ${step.name}${step.message ? ` — ${step.message}` : ''}`, step.ok ? 'ok' : 'error', 3500);
     });
-    return () => { registered = false; };
+    return () => {
+      registered = false;
+      if (typeof off === 'function') off();
+    };
   }, [api, toast]);
 
   const openDetails = async (opId: string) => {

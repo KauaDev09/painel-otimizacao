@@ -28,15 +28,17 @@ export function Header({ view, collapsed, onMenu }: HeaderProps) {
   React.useEffect(() => {
     let alive = true;
     api.windowIsMaximized?.().then((v) => alive && setMaximized(!!v)).catch(() => {});
-    api.onWindowMaximized?.((v) => alive && setMaximized(!!v));
+    const offMax = api.onWindowMaximized?.((v) => alive && setMaximized(!!v));
     const applyLic = (st: { active?: boolean; plan?: string | null } | null | undefined) => {
       if (!alive) return;
       setPlan(st?.active ? String(st.plan || 'Ativa') : 'Sem licença');
     };
     api.licenseGetState?.().then(applyLic).catch(() => {});
-    api.onLicenseChanged?.(applyLic);
+    const offLic = api.onLicenseChanged?.(applyLic);
     return () => {
       alive = false;
+      if (typeof offMax === 'function') offMax();
+      if (typeof offLic === 'function') offLic();
     };
   }, [api]);
 

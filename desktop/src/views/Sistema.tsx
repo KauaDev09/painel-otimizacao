@@ -26,12 +26,20 @@ interface AnalysisResult {
 function gpuPercent(snap: MonitorSnapshot | null): number | null {
   const gpu = snap?.gpu;
   if (!gpu) return null;
-  if (typeof gpu.percent === 'number') return gpu.percent;
-  if (typeof gpu.usagePercent === 'number') return gpu.usagePercent;
+  if (typeof gpu.percent === 'number' && Number.isFinite(gpu.percent)) return Math.round(gpu.percent);
+  if (typeof gpu.usagePercent === 'number' && Number.isFinite(gpu.usagePercent)) return Math.round(gpu.usagePercent);
   if (typeof gpu.vramUsedMB === 'number' && typeof gpu.vramTotalMB === 'number' && gpu.vramTotalMB > 0) {
     return Math.round((gpu.vramUsedMB / gpu.vramTotalMB) * 100);
   }
   return null;
+}
+
+function tempDesc(snap: MonitorSnapshot | null): string {
+  if (snap?.tempC == null) return 'N/D';
+  if (snap.tempSource === 'gpu') return 'GPU';
+  if (snap.tempSource === 'lhm') return 'Hardware';
+  if (snap.tempSource === 'acpi') return 'ACPI';
+  return 'Sistema';
 }
 
 function nd(val: unknown, unit = ''): string {
@@ -93,8 +101,14 @@ export function Sistema({ onNavigate }: { onNavigate?: (view: string) => void })
         force();
       } catch { /* ok */ }
     };
-    tick();
-    const t = setInterval(tick, 4000);
+    let inFlight = false;
+    const safeTick = async () => {
+      if (inFlight) return;
+      inFlight = true;
+      try { await tick(); } finally { inFlight = false; }
+    };
+    safeTick();
+    const t = setInterval(safeTick, 8000);
     return () => { alive = false; clearInterval(t); };
   }, [api, loadLast]);
 
@@ -208,7 +222,12 @@ export function Sistema({ onNavigate }: { onNavigate?: (view: string) => void })
                 <div className="grid grid-cols-3 gap-4">
                   <LiveStat label="Uso" value={snap?.cpu != null ? Math.round(snap.cpu) : null} unit="%" hist={hist.current.cpu} />
                   <LiveStat label="Clock" value={cpu?.currentClockMhz ? Math.round(cpu.currentClockMhz / 1000 * 10) / 10 : null} unit=" GHz" hist={[]} />
-                  <LiveStat label="Temp." value={snap?.tempC != null ? Math.round(snap.tempC) : null} unit="°C" hist={hist.current.temp} />
+                  <LiveStat
+                    label={`Temp. (${tempDesc(snap)})`}
+                    value={snap?.tempC != null ? Math.round(snap.tempC) : null}
+                    unit="°C"
+                    hist={hist.current.temp}
+                  />
                 </div>
               </Section>
 
@@ -250,14 +269,25 @@ export function Sistema({ onNavigate }: { onNavigate?: (view: string) => void })
                 {gpus.length === 0 && snap?.gpu?.label && (
                   <p className="text-sm font-medium text-foreground">{snap.gpu.label}</p>
                 )}
-                <div className="mt-3">
+                <div className="mt-3 grid grid-cols-2 gap-3">
                   <LiveStat
                     label="Uso"
                     value={gpuPercent(snap)}
                     unit="%"
                     hist={hist.current.gpu || []}
                   />
+                  <LiveStat
+                    label="Temp. GPU"
+                    value={snap?.gpu?.tempC != null ? Math.round(snap.gpu.tempC) : null}
+                    unit="°C"
+                    hist={[]}
+                  />
                 </div>
+                {snap?.gpu?.vramUsedMB != null && snap?.gpu?.vramTotalMB != null && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    VRAM {Math.round(snap.gpu.vramUsedMB)} / {Math.round(snap.gpu.vramTotalMB)} MB
+                  </p>
+                )}
               </Section>
 
               {/* Firmware */}

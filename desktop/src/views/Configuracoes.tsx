@@ -72,7 +72,7 @@ interface LocalApi {
 const DEFAULT_SETTINGS: AppSettings = {
   general: { startWithWindows: false, minimizeToTray: true, notifications: true },
   optimization: { createRestorePoint: true, confirmChanges: true, defaultProfile: 'balanced' },
-  monitoring: { intervalSec: 2 },
+  monitoring: { intervalSec: 5 },
   updates: { autoCheck: true },
 };
 
@@ -157,21 +157,22 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
     api.licenseGetState?.().then((st) => { if (alive) setLic(st); }).catch(() => {});
 
     // Listeners do preload não devolvem unsubscribe → protegidos pela flag `alive`.
+    const offs: Array<(() => void) | void> = [];
     try {
-      api.onDownloadProgress?.((p) => {
+      offs.push(api.onDownloadProgress?.((p) => {
         if (!alive || !p) return;
         setProgress((prev) => ({
           percent: p.percent >= 0 ? p.percent : prev.percent,
           received: p.received ?? prev.received,
           total: p.total > 0 ? p.total : prev.total,
         }));
-      });
-      api.onInstalling?.((info) => {
+      }));
+      offs.push(api.onInstalling?.((info) => {
         if (!alive) return;
         setPhase('installing');
         setInstallMsg(info?.message || 'Instalando...');
-      });
-      api.onUpdateAvailable?.((res) => {
+      }));
+      offs.push(api.onUpdateAvailable?.((res) => {
         if (!alive || !res?.available) return;
         setUpdate(res);
         setPhase(res.requiresPurchase ? 'purchase' : 'available');
@@ -180,10 +181,13 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
             ? `Atualização v${res.update?.version} disponível para licença vitalícia (${fmtPrice(res.update?.price)}).`
             : `Nova versão disponível: v${res.update?.version}`
         );
-      });
+      }));
     } catch { /* ok */ }
 
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+      offs.forEach((off) => { if (typeof off === 'function') off(); });
+    };
   }, [api]);
 
   React.useEffect(() => {
@@ -400,7 +404,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
             <SelectRow
               title="Intervalo de atualização do Monitor"
               desc="Frequência de coleta das métricas em tempo real."
-              value={String(settings.monitoring.intervalSec || 2)}
+              value={String(settings.monitoring.intervalSec || 5)}
               options={INTERVAL_OPTIONS.map((o) => ({ value: String(o.value), label: o.label }))}
               disabled={!loaded}
               onChange={(v) => save('monitoring', 'intervalSec', Number(v))}

@@ -455,7 +455,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
     alive.current = true;
     loadLast();
     refreshBios();
-    api.onBiosBootVerify?.((res) => {
+    const off = api.onBiosBootVerify?.((res) => {
       if (!alive.current) return;
       if (res?.payload) setBios(res.payload);
       if (res?.checked && res.checked.length) {
@@ -467,6 +467,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
     });
     return () => {
       alive.current = false;
+      if (typeof off === 'function') off();
       if (bannerTimer.current) clearTimeout(bannerTimer.current);
       if (dialogRef.current) dialogRef.current.resolve(false);
     };

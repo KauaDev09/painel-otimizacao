@@ -35,13 +35,20 @@ function LiveCard({ icon: Icon, title, value, unit, desc, hist }: LiveCardProps)
 function gpuPercent(snap: MonitorSnapshot | null): number | null {
   const gpu = snap?.gpu;
   if (!gpu) return null;
-  if (typeof gpu.percent === 'number') return gpu.percent;
-  if (typeof gpu.usagePercent === 'number') return gpu.usagePercent;
+  if (typeof gpu.percent === 'number' && Number.isFinite(gpu.percent)) return Math.round(gpu.percent);
+  if (typeof gpu.usagePercent === 'number' && Number.isFinite(gpu.usagePercent)) return Math.round(gpu.usagePercent);
   if (typeof gpu.vramUsedMB === 'number' && typeof gpu.vramTotalMB === 'number' && gpu.vramTotalMB > 0) {
     return Math.round((gpu.vramUsedMB / gpu.vramTotalMB) * 100);
   }
-  if (typeof gpu.vramUsedMB === 'number') return Math.min(100, gpu.vramUsedMB);
   return null;
+}
+
+function tempLabel(snap: MonitorSnapshot | null): string {
+  if (snap?.tempC == null) return 'Sensor indisponível';
+  if (snap.tempSource === 'gpu') return 'Temperatura GPU';
+  if (snap.tempSource === 'lhm') return 'Sensor hardware';
+  if (snap.tempSource === 'acpi') return 'Sensor ACPI';
+  return 'Sensor do sistema';
 }
 
 interface HomeProps {
@@ -85,8 +92,14 @@ export function Home({ onNavigate }: HomeProps) {
         /* silencioso */
       }
     };
-    tick();
-    const t = setInterval(tick, 4000);
+    let inFlight = false;
+    const safeTick = async () => {
+      if (inFlight) return;
+      inFlight = true;
+      try { await tick(); } finally { inFlight = false; }
+    };
+    safeTick();
+    const t = setInterval(safeTick, 8000);
     return () => {
       alive = false;
       clearInterval(t);
@@ -125,12 +138,16 @@ export function Home({ onNavigate }: HomeProps) {
           title="GPU"
           value={gpu != null ? String(gpu) : '—'}
           unit="%"
-          desc={gpu != null ? 'Uso atual' : 'Indisponível'}
+          desc={
+            gpu != null
+              ? (snap?.gpu?.label ? String(snap.gpu.label) : 'Uso atual')
+              : 'Indisponível'
+          }
           hist={hist.current.gpu}
         />
         <LiveCard icon={null} title="RAM" value={snap?.ramPercent != null ? String(Math.round(snap.ramPercent)) : '—'} unit="%" desc={ramUsed} hist={hist.current.ram} />
         <LiveCard icon={null} title="Disco" value={snap?.diskPercent != null ? String(Math.round(snap.diskPercent)) : '—'} unit="%" desc="Atividade do disco" hist={hist.current.disk} />
-        <LiveCard icon={null} title="Temperatura" value={String(temp)} unit="°C" desc={snap?.tempC != null ? 'Sensor ACPI' : 'Sensor indisponível'} hist={hist.current.temp} />
+        <LiveCard icon={null} title="Temperatura" value={String(temp)} unit="°C" desc={tempLabel(snap)} hist={hist.current.temp} />
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">

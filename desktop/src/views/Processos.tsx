@@ -79,7 +79,7 @@ const PRIORITY_LABEL: Record<string, string> = {
   RealTime: 'Tempo real',
 };
 
-const REFRESH_MS = 4000;
+const REFRESH_MS = 8000;
 const MAX_ROWS = 300;
 
 // ---------- Helpers ----------
