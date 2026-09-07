@@ -4,18 +4,21 @@
    -webkit-app-region.
    ------------------------------------------------------------------ */
 
-/* Tokens cromáticos Orion (visual.md §2.1) — paleta custom, sem stops de framework */
+/* Tokens cromáticos Orion — Framer Free AI Startup Kit */
 :root {
-  --orion-bg: #07060A;
-  --orion-surface: #0E0C14;
-  --orion-text-primary: #E4DDF2;
-  --orion-text-secondary: #A99BC4;
-  --orion-icon-default: #9163D4;
-  --orion-icon-active: #B48FE0;
-  --orion-hover-fg: #C7AEEF;
-  --orion-hover-glow: rgba(145, 99, 212, 0.22);
-  --orion-hover-border: #6B3FA0;
-  --orion-selected-bg: rgba(145, 99, 212, 0.14);
+  --orion-bg: #0a0a0a;
+  --orion-surface: #12051c;
+  --orion-text-primary: #ffffff;
+  --orion-text-secondary: #a89bb8;
+  --orion-icon-default: #8c45ff;
+  --orion-icon-active: #b726ff;
+  --orion-hover-fg: #c636ff;
+  --orion-hover-glow: rgba(140, 69, 255, 0.22);
+  --orion-hover-border: #9c2bff;
+  --orion-selected-bg: rgba(140, 69, 255, 0.14);
+  --orion-core-1: #9c2bff;
+  --orion-core-2: #8c45ff;
+  --orion-lime: #cbff00;
 }
 
 html,
@@ -66,7 +69,7 @@ input,
 select,
 textarea {
   background: var(--orion-surface);
-  border: 1px solid rgba(145, 99, 212, 0.16);
+  border: 1px solid rgba(140, 69, 255, 0.16);
   border-radius: 8px;
   color: var(--orion-text-primary);
   outline: none;
@@ -258,9 +261,9 @@ nav button:hover > svg {
   opacity: 0.4;
   /* Pontos violetas discretos em treliças de espaçamentos diferentes (não linhas) */
   background-image:
-    radial-gradient(rgba(145, 99, 212, 0.5) 1px, transparent 1px),
-    radial-gradient(rgba(145, 99, 212, 0.35) 1px, transparent 1px),
-    radial-gradient(rgba(145, 99, 212, 0.28) 1px, transparent 1px);
+    radial-gradient(rgba(140, 69, 255, 0.5) 1px, transparent 1px),
+    radial-gradient(rgba(140, 69, 255, 0.35) 1px, transparent 1px),
+    radial-gradient(rgba(140, 69, 255, 0.28) 1px, transparent 1px);
   background-size:
     47px 53px,
     83px 74px,
@@ -282,8 +285,8 @@ nav button:hover > svg {
   height: 70vmax;
   background: radial-gradient(
     closest-side,
-    rgba(107, 63, 160, 0.13),
-    rgba(107, 63, 160, 0.05) 45%,
+    rgba(140, 69, 255, 0.13),
+    rgba(183, 38, 255, 0.05) 45%,
     transparent 70%
   );
   transform: translate3d(
@@ -324,7 +327,7 @@ nav button:hover > svg {
   top: -150px;
   width: 420px;
   height: 300px;
-  border: 1px solid rgba(90, 52, 128, 0.75);
+  border: 1px solid rgba(156, 43, 255, 0.55);
   animation: orion-ring-spin 26s linear infinite;
   animation-duration: calc(26s / var(--ring-speed));
 }
@@ -335,7 +338,7 @@ nav button:hover > svg {
   top: -125px;
   width: 300px;
   height: 250px;
-  border: 1px solid rgba(145, 99, 212, 0.55);
+  border: 1px solid rgba(140, 69, 255, 0.55);
   animation: orion-ring-spin-rev 19s linear infinite;
   animation-duration: calc(19s / var(--ring-speed));
 }
@@ -366,8 +369,8 @@ nav button:hover > svg {
   height: 7px;
   margin: -3.5px 0 0 -3.5px;
   border-radius: 50%;
-  background: var(--orion-core-2, #9163d4);
-  box-shadow: 0 0 14px rgba(145, 99, 212, 0.8);
+  background: var(--orion-core-2, #8c45ff);
+  box-shadow: 0 0 14px rgba(140, 69, 255, 0.8);
 }
 
 .orion-core-orbital[data-o="1"] { animation: orion-orbit-a 15s linear infinite; animation-duration: calc(15s / var(--ring-speed)); }
@@ -397,7 +400,7 @@ nav button:hover > svg {
   width: 112px;
   height: 112px;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, rgba(180, 143, 224, 0.9), rgba(107, 63, 160, 0.55) 45%, rgba(107, 63, 160, 0) 75%);
+  background: radial-gradient(circle at 50% 50%, rgba(198, 54, 255, 0.9), rgba(140, 69, 255, 0.55) 45%, rgba(140, 69, 255, 0) 75%);
   filter: blur(0.5px);
   opacity: var(--core-glow);
 }
@@ -406,7 +409,7 @@ nav button:hover > svg {
   position: absolute;
   inset: -40px;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, rgba(107, 63, 160, 0.28), rgba(107, 63, 160, 0) 65%);
+  background: radial-gradient(circle at 50% 50%, rgba(183, 38, 255, 0.28), rgba(140, 69, 255, 0) 65%);
   animation: orion-core-pulse 7s ease-in-out infinite;
 }
 

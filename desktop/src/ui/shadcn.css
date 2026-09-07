@@ -4,44 +4,45 @@
 
 /* ------------------------------------------------------------------
    ORION DESIGN TOKENS (shadcn/ui — new-york, dark)
-   Paleta customizada (visual.md §2/§2.1): fundo preto quente #07060A,
-   superfícies #0E0C14, violeta Orion (fora dos stops padrão de framework).
+   Framer Free AI Startup Kit: #0a0a0a / #12051c, violeta #8c45ff,
+   magenta #b726ff / #9c2bff / #c636ff.
    ------------------------------------------------------------------ */
 @layer base {
   :root {
-    /* --orion-bg #07060A */
-    --background: 255 26% 3%;
-    /* --orion-text-primary #E4DDF2 */
-    --foreground: 260 45% 91%;
+    /* --orion-bg #0a0a0a */
+    --background: 0 0% 4%;
+    /* --orion-text-primary #ffffff */
+    --foreground: 0 0% 100%;
 
-    /* --orion-surface #0E0C14 */
-    --card: 255 25% 6%;
-    --card-foreground: 260 45% 91%;
+    /* --orion-surface #12051c */
+    --card: 274 70% 6.5%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 255 25% 5%;
-    --popover-foreground: 260 45% 91%;
+    --popover: 272 82% 6.7%;
+    --popover-foreground: 0 0% 100%;
 
-    /* --orion-core-1 #6B3FA0 */
-    --primary: 267 44% 44%;
-    --primary-foreground: 260 45% 95%;
+    /* --orion-icon-default #8c45ff */
+    --primary: 263 100% 63.5%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 255 25% 8%;
-    --secondary-foreground: 261 26% 78%;
+    --secondary: 274 45% 10%;
+    --secondary-foreground: 267 17% 78%;
 
-    --muted: 255 25% 8%;
-    /* --orion-text-secondary #A99BC4 */
-    --muted-foreground: 261 26% 69%;
+    --muted: 274 40% 10%;
+    /* --orion-text-secondary #a89bb8 */
+    --muted-foreground: 267 17% 66.5%;
 
-    --accent: 264 40% 16%;
-    --accent-foreground: 263 67% 86%;
+    --accent: 274 50% 14%;
+    /* --orion-hover-fg #c636ff */
+    --accent-foreground: 283 100% 78%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 264 20% 20%;
-    --input: 264 20% 20%;
-    /* --orion-icon-default #9163D4 */
-    --ring: 264 57% 61%;
+    --border: 274 35% 18%;
+    --input: 274 35% 18%;
+    /* --orion-icon-default #8c45ff */
+    --ring: 263 100% 63.5%;
 
     --radius: 0.75rem;
 

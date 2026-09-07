@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ORION — Preview de perfis de cor</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root,
+    [data-theme="atual"],
+    [data-theme="framer"] {
+      --bg: #0a0a0a;
+      --bg-2: #12051c;
+      --surface: #12031f;
+      --surface-2: #1a0a2e;
+      --text: #ffffff;
+      --muted: #a89bb8;
+      --primary: #8c45ff;
+      --accent: #b726ff;
+      --hover: #c636ff;
+      --glow: rgba(140, 69, 255, 0.22);
+      --border: #9c2bff;
+      --lime: #cbff00;
+      --name: "Framer AI Startup";
+    }
+
+    [data-theme="steel"] {
+      --bg: #06080b;
+      --bg-2: #0a0e14;
+      --surface: #0c1016;
+      --surface-2: #141b26;
+      --text: #e6edf5;
+      --muted: #8b9bb0;
+      --primary: #1f6feb;
+      --accent: #3d8bff;
+      --hover: #79b4ff;
+      --glow: rgba(31, 111, 235, 0.22);
+      --border: #1a4f9c;
+      --name: "Steel Cyan";
+    }
+
+    [data-theme="amber"] {
+      --bg: #0a0908;
+      --bg-2: #100e0c;
+      --surface: #141210;
+      --surface-2: #1f1b16;
+      --text: #f2ede6;
+      --muted: #a89f93;
+      --primary: #d97706;
+      --accent: #f59e0b;
+      --hover: #fbbf24;
+      --glow: rgba(217, 119, 6, 0.20);
+      --border: #92400e;
+      --name: "Obsidian Amber";
+    }
+
+    [data-theme="emerald"] {
+      --bg: #070a09;
+      --bg-2: #0a100e;
+      --surface: #0d1412;
+      --surface-2: #15201c;
+      --text: #e8f0ec;
+      --muted: #8fa39a;
+      --primary: #059669;
+      --accent: #10b981;
+      --hover: #34d399;
+      --glow: rgba(5, 150, 105, 0.20);
+      --border: #065f46;
+      --name: "Graphite Emerald";
+    }
+
+    [data-theme="red"] {
+      --bg: #09090b;
+      --bg-2: #0e0e11;
+      --surface: #121214;
+      --surface-2: #1c1c20;
+      --text: #f4f4f5;
+      --muted: #a1a1aa;
+      --primary: #dc2626;
+      --accent: #ef4444;
+      --hover: #f87171;
+      --glow: rgba(220, 38, 38, 0.18);
+      --border: #7f1d1d;
+      --name: "Charcoal Red";
+    }
+
+    [data-theme="slate"] {
+      --bg: #08090c;
+      --bg-2: #0c0e13;
+      --surface: #10131a;
+      --surface-2: #181d28;
+      --text: #eef1f6;
+      --muted: #8e97a8;
+      --primary: #0ea5e9;
+      --accent: #38bdf8;
+      --hover: #7dd3fc;
+      --glow: rgba(14, 165, 233, 0.16);
+      --border: #0369a1;
+      --name: "Slate Ice";
+    }
+
+    [data-theme="mono"] {
+      --bg: #050505;
+      --bg-2: #0c0c0c;
+      --surface: #141414;
+      --surface-2: #1f1f1f;
+      --text: #f5f5f5;
+      --muted: #8a8a8a;
+      --primary: #f2f2f2;
+      --accent: #c8c8c8;
+      --hover: #ffffff;
+      --glow: rgba(245, 245, 245, 0.10);
+      --border: #3a3a3a;
+      --on-primary: #0a0a0a;
+      --charcoal: #1a1a1a;
+      --concrete: #6e6e6e;
+      --chalk: #d4d4d4;
+      --name: "Preto · Branco · Graffiti";
+    }
+
+    body {
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      background: #030305;
+      color: #e8e8ea;
+      min-height: 100vh;
+    }
+
+    .chrome {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(14px);
+      background: rgba(3, 3, 5, 0.88);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 14px 20px;
+    }
+
+    .chrome-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chrome h1 {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #a8a8b3;
+    }
+
+    .chrome h1 span { color: #fff; }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tab {
+      border: 1px solid rgba(255,255,255,0.12);
+      background: transparent;
+      color: #c6c6d0;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .tab:hover { border-color: rgba(255,255,255,0.28); color: #fff; }
+
+    .tab.active {
+      background: #fff;
+      color: #111;
+      border-color: #fff;
+    }
+
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px 20px 48px;
+      display: grid;
+      gap: 24px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      align-items: baseline;
+      color: #9a9aa8;
+      font-size: 13px;
+    }
+
+    .meta strong { color: #fff; font-size: 18px; }
+
+    .swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.25);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .frame {
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--bg);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 24px 80px rgba(0,0,0,0.45);
+    }
+
+    .frame-label {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8e8e9a;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    /* ——— Landing mock ——— */
+    .landing {
+      position: relative;
+      min-height: 520px;
+      background:
+        radial-gradient(900px 420px at 70% -10%, var(--glow), transparent 60%),
+        radial-gradient(700px 360px at 10% 110%, var(--glow), transparent 55%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+      color: var(--text);
+      padding: 28px 32px 36px;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 72px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      font-size: 14px;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--hover), var(--primary));
+      box-shadow: 0 0 24px var(--glow);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .nav-links span:last-child {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .hero-kicker {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 14px;
+      letter-spacing: 0.04em;
+    }
+
+    .hero h2 {
+      font-size: clamp(34px, 4.2vw, 52px);
+      line-height: 1.05;
+      font-weight: 800;
+      max-width: 12ch;
+      margin-bottom: 16px;
+      background: linear-gradient(92deg, var(--text) 20%, var(--hover) 85%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      max-width: 42ch;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+      margin-bottom: 28px;
+    }
+
+    .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--hover), var(--primary));
+      color: var(--on-primary, #fff);
+      border: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      box-shadow: 0 10px 30px var(--glow);
+      cursor: default;
+    }
+
+    [data-theme="mono"] .landing {
+      background:
+        radial-gradient(ellipse 70% 50% at 78% 8%, rgba(255,255,255,0.07), transparent 55%),
+        radial-gradient(ellipse 50% 40% at 12% 92%, rgba(200,200,200,0.05), transparent 50%),
+        repeating-linear-gradient(
+          -12deg,
+          transparent,
+          transparent 11px,
+          rgba(255,255,255,0.015) 11px,
+          rgba(255,255,255,0.015) 12px
+        ),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+    }
+
+    [data-theme="mono"] .hero h2 {
+      background: none;
+      -webkit-background-clip: unset;
+      background-clip: unset;
+      color: var(--text);
+      text-shadow: 0 0 40px rgba(255,255,255,0.08);
+    }
+
+    [data-theme="mono"] .btn-primary {
+      background: var(--primary);
+      color: var(--on-primary);
+      border: 1px solid #fff;
+      border-radius: 4px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.15), 0 12px 28px rgba(0,0,0,0.55);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    [data-theme="mono"] .btn-ghost {
+      border-radius: 4px;
+      border-color: rgba(255,255,255,0.28);
+      color: var(--chalk, var(--accent));
+    }
+
+    [data-theme="mono"] .brand-mark,
+    [data-theme="mono"] .side-logo {
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 0 24px rgba(255,255,255,0.12);
+    }
+
+    [data-theme="mono"] .card,
+    [data-theme="mono"] .panel {
+      border-radius: 6px;
+      border-color: rgba(255,255,255,0.12);
+      background: var(--surface);
+    }
+
+    [data-theme="mono"] .pill {
+      border-radius: 4px;
+      color: #111;
+      background: #fff;
+      border-color: #fff;
+      font-weight: 700;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: default;
+    }
+
+    /* ——— App mock ——— */
+    .app {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      min-height: 520px;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .sidebar {
+      border-right: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+      background: var(--surface);
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .side-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--hover), var(--primary));
+      margin-bottom: 10px;
+      box-shadow: 0 0 20px var(--glow);
+    }
+
+    .nav-ico {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      opacity: 0.7;
+    }
+
+    .nav-ico.active {
+      background: color-mix(in srgb, var(--primary) 18%, transparent);
+      color: var(--hover);
+      opacity: 1;
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 70%, transparent);
+    }
+
+    .nav-ico svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+
+    .main { padding: 18px 18px 22px; background: var(--bg-2); }
+
+    .app-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .app-top h3 { font-size: 16px; font-weight: 700; }
+    .app-top small { color: var(--muted); font-size: 12px; display: block; margin-top: 2px; }
+
+    .pill {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      color: var(--accent);
+      background: color-mix(in srgb, var(--primary) 14%, transparent);
+      border: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .card .label { color: var(--muted); font-size: 11px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .card .value { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; }
+    .card .delta { color: var(--accent); font-size: 12px; margin-top: 6px; font-weight: 600; }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .panel-head strong { font-size: 13px; }
+    .panel-head span { color: var(--muted); font-size: 11px; }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 0;
+      border-top: 1px solid color-mix(in srgb, var(--accent) 10%, transparent);
+    }
+
+    .row:first-of-type { border-top: none; padding-top: 0; }
+
+    .row-left { display: flex; align-items: center; gap: 10px; }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--glow);
+    }
+    .row-title { font-size: 13px; font-weight: 600; }
+    .row-sub { font-size: 11px; color: var(--muted); }
+
+    .toggle {
+      width: 38px; height: 22px; border-radius: 999px;
+      background: color-mix(in srgb, var(--primary) 35%, var(--surface-2));
+      position: relative;
+      border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+    }
+
+    .toggle::after {
+      content: "";
+      position: absolute;
+      top: 2px; left: 18px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--hover);
+      box-shadow: 0 0 12px var(--glow);
+    }
+
+    .hint {
+      margin-top: 8px;
+      color: #7f7f8c;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .hint code {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      color: #b8b8c4;
+      background: rgba(255,255,255,0.05);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* Framer AI kit–inspired polish (preview only) */
+    [data-theme="atual"] .landing,
+    [data-theme="framer"] .landing {
+      background:
+        radial-gradient(520px 320px at 88% 22%, rgba(183, 38, 255, 0.18), transparent 55%),
+        radial-gradient(900px 420px at 70% -10%, var(--glow), transparent 60%),
+        radial-gradient(700px 360px at 10% 110%, rgba(140, 69, 255, 0.14), transparent 55%),
+        linear-gradient(180deg, #0a0a0a 0%, #12051c 55%, #12031f 100%);
+    }
+
+    [data-theme="atual"] .landing .hero,
+    [data-theme="framer"] .landing .hero {
+      position: relative;
+      z-index: 1;
+      max-width: 58%;
+    }
+
+    [data-theme="atual"] .holo-orb,
+    [data-theme="framer"] .holo-orb {
+      display: block;
+      position: absolute;
+      right: 6%;
+      top: 42%;
+      width: 168px;
+      height: 168px;
+      border-radius: 42% 58% 48% 52% / 48% 42% 58% 52%;
+      background:
+        radial-gradient(circle at 32% 28%, #ffffffcc 0%, #c636ff 18%, #8c45ff 42%, #12051c 72%, transparent 78%),
+        conic-gradient(from 210deg, #b726ff, #8c45ff, #9c2bff, #cbff00, #c636ff, #b726ff);
+      box-shadow:
+        0 0 60px rgba(183, 38, 255, 0.35),
+        0 0 120px rgba(140, 69, 255, 0.18),
+        inset 0 0 40px rgba(255, 255, 255, 0.2);
+      filter: saturate(1.15);
+      opacity: 0.95;
+      animation: holo-float 7s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    [data-theme="atual"] .holo-orb::after,
+    [data-theme="framer"] .holo-orb::after {
+      content: "";
+      position: absolute;
+      inset: 18%;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.35), transparent 45%, rgba(203,255,0,0.12));
+      mix-blend-mode: screen;
+    }
+
+    @keyframes holo-float {
+      0%, 100% { transform: translateY(0) rotate(-6deg); }
+      50% { transform: translateY(-10px) rotate(4deg); }
+    }
+
+    @media (max-width: 720px) {
+      [data-theme="atual"] .landing .hero,
+      [data-theme="framer"] .landing .hero { max-width: 100%; }
+      [data-theme="atual"] .holo-orb,
+      [data-theme="framer"] .holo-orb {
+        width: 110px;
+        height: 110px;
+        right: 12px;
+        top: 28%;
+        opacity: 0.55;
+      }
+    }
+
+    .framer-ref {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: #9a9aa8;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .framer-ref strong { color: #e8e8ea; font-weight: 700; }
+
+    .framer-ref .ref-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .framer-ref .ref-swatch {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+
+    .framer-ref .ref-hex {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10px;
+      color: #b8b8c4;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body data-theme="framer">
+  <header class="chrome">
+    <div class="chrome-inner">
+      <h1>ORION OPTIMIZER · <span>preview de cores</span></h1>
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-theme="framer">Framer AI Startup</button>
+        <button class="tab" data-theme="steel">1 · Steel Cyan</button>
+        <button class="tab" data-theme="amber">2 · Obsidian Amber</button>
+        <button class="tab" data-theme="emerald">3 · Graphite Emerald</button>
+        <button class="tab" data-theme="red">4 · Charcoal Red</button>
+        <button class="tab" data-theme="slate">5 · Slate Ice</button>
+        <button class="tab" data-theme="mono">6 · Preto · Branco · Graffiti</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="meta">
+      <strong id="theme-name">Framer AI Startup</strong>
+      <span>Troque as abas acima para comparar site + app no mesmo perfil.</span>
+      <div class="swatches" id="swatches"></div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <div class="frame-label">Site / landing</div>
+        <div class="frame landing">
+          <div class="holo-orb" aria-hidden="true"></div>
+          <div class="nav">
+            <div class="brand"><div class="brand-mark"></div> ORION</div>
+            <div class="nav-links">
+              <span>Recursos</span>
+              <span>Planos</span>
+              <span>Entrar</span>
+            </div>
+          </div>
+          <div class="hero">
+            <div class="hero-kicker">PC OPTIMIZER · WINDOWS</div>
+            <h2>Performance real, sem ruído visual</h2>
+            <p>Análise de hardware, boost de jogos e limpeza do sistema — com visual de produto técnico, não de template.</p>
+            <div class="cta-row">
+              <button class="btn-primary">Começar agora</button>
+              <button class="btn-ghost">Ver planos</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="frame-label">Aplicativo / painel</div>
+        <div class="frame app">
+          <aside class="sidebar">
+            <div class="side-logo"></div>
+            <div class="nav-ico active" title="Dashboard">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+            </div>
+            <div class="nav-ico">
+              <svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 10-14h-7l1-6z"/></svg>
+            </div>
+            <div class="nav-ico">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+            </div>
+            <div class="nav-ico">
+              <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+            </div>
+          </aside>
+          <section class="main">
+            <div class="app-top">
+              <div>
+                <h3>Dashboard</h3>
+                <small>Status do sistema</small>
+              </div>
+              <div class="pill">BOOST ATIVO</div>
+            </div>
+            <div class="cards">
+              <div class="card">
+                <div class="label">FPS médio</div>
+                <div class="value">241</div>
+                <div class="delta">+18% vs baseline</div>
+              </div>
+              <div class="card">
+                <div class="label">Latência</div>
+                <div class="value">4.2<span style="font-size:14px;color:var(--muted)"> ms</span></div>
+                <div class="delta">estável</div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head">
+                <strong>Otimizações rápidas</strong>
+                <span>3 ativas</span>
+              </div>
+              <div class="row">
+                <div class="row-left">
+                  <div class="dot"></div>
+                  <div>
+                    <div class="row-title">Game Boost</div>
+                    <div class="row-sub">Prioridade de CPU/GPU</div>
+                  </div>
+                </div>
+                <div class="toggle"></div>
+              </div>
+              <div class="row">
+                <div class="row-left">
+                  <div class="dot"></div>
+                  <div>
+                    <div class="row-title">Limpeza de temp</div>
+                    <div class="row-sub">Última: há 2h</div>
+                  </div>
+                </div>
+                <div class="toggle"></div>
+              </div>
+              <div class="row">
+                <div class="row-left">
+                  <div class="dot"></div>
+                  <div>
+                    <div class="row-title">Rede baixa latência</div>
+                    <div class="row-sub">TCP tune</div>
+                  </div>
+                </div>
+                <div class="toggle"></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <p class="hint">
+      Preview local — o CSS de produção (site / desktop / admin) já usa esta família Framer localmente; ainda não está deployado.
+    </p>
+
+    <div class="framer-ref">
+      <strong>Perfil ativo = Framer Free AI Startup Kit</strong> — aplicado nas superfícies ORION:
+      fundo <code>#0a0a0a</code> / undertone <code>#12051c</code> · violeta elétrico <code>#8c45ff</code> · magenta <code>#b726ff</code> / <code>#9c2bff</code> / <code>#c636ff</code> · lima (detalhe) <code>#cbff00</code>.
+      <div class="ref-swatches" aria-label="Swatches Framer">
+        <div class="ref-swatch" style="background:#12051c" title="#12051c"></div>
+        <div class="ref-swatch" style="background:#8c45ff" title="#8c45ff"></div>
+        <div class="ref-swatch" style="background:#b726ff" title="#b726ff"></div>
+        <div class="ref-swatch" style="background:#9c2bff" title="#9c2bff"></div>
+        <div class="ref-swatch" style="background:#c636ff" title="#c636ff"></div>
+        <div class="ref-swatch" style="background:#cbff00" title="#cbff00"></div>
+        <div class="ref-swatch" style="background:#000000" title="#000000"></div>
+        <div class="ref-swatch" style="background:#ffffff" title="#ffffff"></div>
+        <span class="ref-hex">produção alinhada a este perfil (local)</span>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const names = {
+      atual: "Framer AI Startup",
+      framer: "Framer AI Startup",
+      steel: "Steel Cyan",
+      amber: "Obsidian Amber",
+      emerald: "Graphite Emerald",
+      red: "Charcoal Red",
+      slate: "Slate Ice",
+      mono: "Preto · Branco · Graffiti",
+    };
+
+    const keys = ["bg", "surface", "text", "muted", "primary", "accent", "hover", "lime", "charcoal", "concrete", "chalk"];
+
+    function paintSwatches() {
+      const root = document.body;
+      const styles = getComputedStyle(root);
+      const box = document.getElementById("swatches");
+      box.innerHTML = "";
+      keys.forEach((k) => {
+        const val = styles.getPropertyValue("--" + k).trim();
+        if (!val) return;
+        const el = document.createElement("div");
+        el.className = "swatch";
+        el.style.background = val;
+        el.title = k + ": " + val;
+        box.appendChild(el);
+      });
+    }
+
+    function setTheme(theme) {
+      document.body.setAttribute("data-theme", theme);
+      document.getElementById("theme-name").textContent = names[theme] || theme;
+      document.querySelectorAll(".tab").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.theme === theme);
+      });
+      paintSwatches();
+    }
+
+    document.getElementById("tabs").addEventListener("click", (e) => {
+      const btn = e.target.closest(".tab");
+      if (!btn) return;
+      setTheme(btn.dataset.theme);
+    });
+
+    setTheme("framer");
+  </script>
+</body>
+</html>

@@ -59,7 +59,7 @@ export function Login() {
   return (
     <div className="drag-region relative flex h-full items-center justify-center bg-[var(--orion-bg)]">
       <OrionReactiveCore className="absolute inset-0 z-0" />
-      <div className="no-drag login-in relative z-10 w-[min(400px,92vw)] rounded-lg bg-[rgba(14,12,20,0.6)] p-10 text-center shadow-[0_0_0_1px_rgba(145,99,212,0.08),0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-md">
+      <div className="no-drag login-in relative z-10 w-[min(400px,92vw)] rounded-lg bg-[rgba(18,5,28,0.6)] p-10 text-center shadow-[0_0_0_1px_rgba(140,69,255,0.08),0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-md">
         <div className="mb-6 flex items-center justify-center gap-3">
           <img src={logoUrl} alt="Orion" className="h-10 w-10 rounded-lg object-cover" />
           <div className="text-left leading-none">
