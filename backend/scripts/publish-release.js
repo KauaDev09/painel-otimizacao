@@ -13,15 +13,13 @@ loadEnv();
 const mysql = require('mysql2/promise');
 
 const RELEASE = {
-  version: '2.1.7',
-  filename: 'ORION.OPTIMIZER.Setup-2.1.7.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.7/ORION.OPTIMIZER.Setup-2.1.7.exe',
+  version: '2.1.8',
+  filename: 'ORION.OPTIMIZER.Setup-2.1.8.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.8/ORION.OPTIMIZER.Setup-2.1.8.exe',
   changelog: [
-    'Dashboard: GPU e temperatura com leitura real (nvidia-smi + fallbacks).',
-    'Windows: ícones distintos para Desempenho e Avançado.',
-    'Tela: multi-monitor, gama, temperatura e DDC/CI.',
-    'Jogos: ícones reais e biblioteca de aplicativos.',
-    'Painel mais leve e responsivo.'
+    'Visual: nova paleta Framer (roxo/magenta #8c45ff + lime #cbff00).',
+    'Site, admin e app desktop alinhados no mesmo color profile.',
+    'Login e sidebar com accents atualizados.'
   ].join('\n'),
   obrigatoria: false,
   exige_pagamento: false,
