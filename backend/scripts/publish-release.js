@@ -13,17 +13,14 @@ loadEnv();
 const mysql = require('mysql2/promise');
 
 const RELEASE = {
-  version: '2.1.9',
-  filename: 'ORION.OPTIMIZER.Setup-2.1.9.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.9/ORION.OPTIMIZER.Setup-2.1.9.exe',
+  version: '2.1.10',
+  filename: 'ORION.OPTIMIZER.Setup-2.1.10.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.10/ORION.OPTIMIZER.Setup-2.1.10.exe',
   changelog: [
-    'CRÍTICO Tela: não grava mais no OSD do monitor; só gama software.',
-    'Corrigido bug de brilho DDC (100% → 50%) e VCP perigosos.',
-    'Reparo SFC/DISM: timeouts longos; correção rápida sem chkdsk/pause.',
-    'Scripts de jogos não removem mais Calculator/Photos/apps do Windows.',
-    'Windows Balanced não desativa mais o UAC.',
-    'Helper de tela pré-compilado + overlay de brilho funcional.',
-    'DNS Extreme em adapters conectados; undo NVIDIA telemetria corrigido.'
+    'CORREÇÃO: limpeza de arquivos temporários e DNS não falham mais com falso erro.',
+    'TEMP limpo em processo adiado (seguro) + race do runner corrigida.',
+    'Visual novo: navy + cyan (System Intelligence), sem roxo de template.',
+    'Dashboard, site e admin alinhados ao novo perfil de cores.'
   ].join('\n'),
   obrigatoria: true,
   exige_pagamento: false,
@@ -41,7 +38,6 @@ async function main() {
   });
 
   try {
-    // 1) Downloads públicos (página /download e /api/v1/public/download)
     await conn.execute('UPDATE downloads SET is_latest = 0, active = 0 WHERE version <> ?', [RELEASE.version]);
     const [existing] = await conn.execute('SELECT id FROM downloads WHERE version = ? LIMIT 1', [RELEASE.version]);
     if (existing.length) {
@@ -58,7 +54,6 @@ async function main() {
       console.log(`[ok] download v${RELEASE.version} inserido como ativo/latest`);
     }
 
-    // 2) Atualização publicada (updater do app)
     await conn.execute('UPDATE atualizacoes SET ativa = 0 WHERE ativa = 1');
     try {
       await conn.execute(
