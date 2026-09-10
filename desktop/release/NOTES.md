@@ -1,27 +1,15 @@
-# Orion Optimizer v2.1.9
+# Orion Optimizer v2.1.10
 
-## Segurança e estabilidade (crítico)
+## Correção crítica — Limpeza
 
-- **Tela:** ajustes usam só curva de gama (software). Não grava mais no OSD do monitor (DDC) ao mover sliders / REDEFINIR / ao abrir o app.
-- Corrigido bug de brilho DDC (100% virava 50%) e remoção de VCP perigosos (volume/temperatura no monitor).
-- Helper de tela pré-compilado no instalador (funciona sem `csc.exe` no PC).
-- Overlay de brilho agora aparece de verdade quando o driver bloqueia a gamma ramp.
+- Corrige falha falsa em **Arquivos temporários do usuário** e outras limpezas rápidas (“Não foi possível concluir este passo”).
+- Causa: race no runner (STEP_END no log era ignorado em sequências rápidas).
+- Limpeza de `%TEMP%` agora agenda remoção em processo adiado (não derruba o PowerShell do passo).
 
-## Reparo do sistema (SFC / DISM)
+## Visual — System Intelligence
 
-- Timeouts longos (até 90 min) — não mata mais o reparo em 30 min.
-- Correção rápida sem `pause` e **sem chkdsk**; ordem DISM → SFC.
-- Textos da UI alinhados ao que realmente executa.
+- Nova paleta **navy + cyan** (inspirada em painel técnico / KernelGuard), sem roxo de template.
+- Dashboard com badge “System Secure” e cards reforçados.
+- Site, landing e admin alinhados ao mesmo perfil.
 
-## Scripts e otimizações
-
-- Scripts de jogos **não removem mais** Calculator, Photos, Maps, OneDrive, etc.
-- Windows Balanced **não desativa mais o UAC**.
-- Windows Extreme: DNS em adapters conectados (não só "Ethernet").
-- Undo da telemetria NVIDIA corrigido (antes reaplicava Disabled).
-- Limpeza sem admin não força UAC desnecessário.
-- Backup/restauração de registro com múltiplas chaves corrigido.
-- Contadores de GPU mais robustos em Windows em português.
-- URLs de mídia com espaços/acentos corrigidas.
-
-Reinicie o painel após atualizar. Se o monitor ficou escuro por causa da versão antiga: Menu do monitor → Reset / Factory, depois Tela → REDEFINIR no app.
+Atualize pelo app: **Configurações → Atualizações → Verificar**.

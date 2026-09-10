@@ -15,12 +15,12 @@ interface LiveCardProps {
 
 function LiveCard({ icon: Icon, title, value, unit, desc, hist }: LiveCardProps) {
   return (
-    <div className="rounded-lg bg-[var(--orion-surface)] p-4">
-      <div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
-        {Icon && <Icon className="h-4 w-4 text-primary" />}
+    <div className="rounded-xl border border-[rgba(56,189,248,0.1)] bg-[linear-gradient(180deg,rgba(20,27,40,0.95),rgba(15,21,32,0.98))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+      <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        {Icon && <Icon className="h-3.5 w-3.5 text-primary" />}
         <span>{title}</span>
       </div>
-      <div className="mb-1 text-2xl font-semibold text-foreground">
+      <div className="mb-1 text-2xl font-semibold tracking-tight text-foreground">
         {value}
         <small className="ml-1 text-sm font-medium text-muted-foreground">{unit}</small>
       </div>
@@ -116,9 +116,13 @@ export function Home({ onNavigate }: HomeProps) {
     <div className="view-appear space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="m-0 text-2xl font-bold text-foreground">Bem-vindo de volta, Orion.</h2>
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[rgba(34,197,94,0.28)] bg-[rgba(34,197,94,0.1)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--orion-lime,#4ade80)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--orion-lime,#4ade80)] shadow-[0_0_8px_rgba(74,222,128,0.8)]" />
+            System Secure · Monitoramento ao vivo
+          </div>
+          <h2 className="m-0 text-2xl font-bold tracking-tight text-foreground">Dashboard do sistema</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Monitor e otimize o desempenho do seu sistema em tempo real.
+            Telemetria em tempo real — CPU, GPU, memória e temperatura no mesmo painel.
           </p>
         </div>
         <button

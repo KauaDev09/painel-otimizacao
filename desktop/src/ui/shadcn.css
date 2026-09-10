@@ -4,45 +4,44 @@
 
 /* ------------------------------------------------------------------
    ORION DESIGN TOKENS (shadcn/ui — new-york, dark)
-   Framer Free AI Startup Kit: #0a0a0a / #12051c, violeta #8c45ff,
-   magenta #b726ff / #9c2bff / #c636ff.
+   KernelGuard-inspired: navy #070b12 / #0f1520, cyan #38bdf8 / #22d3ee
    ------------------------------------------------------------------ */
 @layer base {
   :root {
-    /* --orion-bg #0a0a0a */
-    --background: 0 0% 4%;
-    /* --orion-text-primary #ffffff */
-    --foreground: 0 0% 100%;
+    /* --orion-bg #070b12 */
+    --background: 216 42% 5%;
+    /* --orion-text-primary #e8eef7 */
+    --foreground: 214 47% 94%;
 
-    /* --orion-surface #12051c */
-    --card: 274 70% 6.5%;
-    --card-foreground: 0 0% 100%;
+    /* --orion-surface #0f1520 */
+    --card: 217 36% 9%;
+    --card-foreground: 214 47% 94%;
 
-    --popover: 272 82% 6.7%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 217 36% 9%;
+    --popover-foreground: 214 47% 94%;
 
-    /* --orion-icon-default #8c45ff */
-    --primary: 263 100% 63.5%;
-    --primary-foreground: 0 0% 100%;
+    /* --orion-icon-default #38bdf8 */
+    --primary: 199 89% 60%;
+    --primary-foreground: 216 42% 6%;
 
-    --secondary: 274 45% 10%;
-    --secondary-foreground: 267 17% 78%;
+    --secondary: 217 32% 12%;
+    --secondary-foreground: 214 28% 72%;
 
-    --muted: 274 40% 10%;
-    /* --orion-text-secondary #a89bb8 */
-    --muted-foreground: 267 17% 66.5%;
+    --muted: 217 30% 12%;
+    /* --orion-text-secondary #8b9bb4 */
+    --muted-foreground: 215 20% 63%;
 
-    --accent: 274 50% 14%;
-    /* --orion-hover-fg #c636ff */
-    --accent-foreground: 283 100% 78%;
+    --accent: 217 35% 14%;
+    /* --orion-hover-fg #7dd3fc */
+    --accent-foreground: 199 95% 74%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 274 35% 18%;
-    --input: 274 35% 18%;
-    /* --orion-icon-default #8c45ff */
-    --ring: 263 100% 63.5%;
+    --border: 215 25% 18%;
+    --input: 215 25% 18%;
+    /* ring cyan */
+    --ring: 199 89% 60%;
 
     --radius: 0.75rem;
 

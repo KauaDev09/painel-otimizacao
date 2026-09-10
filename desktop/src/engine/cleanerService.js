@@ -57,20 +57,8 @@ const TARGETS = [
     description: '%TEMP% do perfil atual.',
     requiresAdmin: false,
     probe: dirSizeProbe('$env:TEMP'),
-    // Não usa -Recurse no Get-ChildItem raiz: apagar o próprio diretório de
-    // trabalho da limpeza quebraria os demais passos (scripts .ps1 no TEMP).
-    clean: wrapClean([
-      // Apagar todo o conteúdo de %TEMP% "no mesmo processo" derruba o próprio
-      // powershell.exe (que usa o TEMP), travando o passo antes de gravar o
-      // STEP_END (passo vira "falha" no painel). A remoção é lançada em
-      // background (processo independente) e o passo retorna imediatamente.
-      '$root = $env:TEMP',
-      'if ($root -and (Test-Path -LiteralPath $root)) {',
-      '  $script = "Get-ChildItem -LiteralPath `$env:TEMP -Force -ErrorAction SilentlyContinue | Where-Object { `$_.Name -notlike \'msoclean-*\' -and `$_.Name -notlike \'msorepair-*\' } | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue"',
-      '  $enc = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($script))',
-      '  Start-Process -FilePath powershell.exe -ArgumentList "-NoProfile","-NonInteractive","-WindowStyle","Hidden","-EncodedCommand",$enc -WindowStyle Hidden | Out-Null',
-      '}'
-    ].join('\r\n'))
+    // Placeholder — o script real é montado em clean() (filho adiado fora do TEMP).
+    clean: wrapClean('exit 0')
   },
   {
     id: 'temp.system',
@@ -223,7 +211,36 @@ async function clean(ids, opts = {}) {
 
   const steps = wanted.map((t, i) => {
     const f = path.join(tmpDir, `clean-${i}.ps1`);
-    fs.writeFileSync(f, PS1_BOM + t.clean, 'utf8');
+    let body = t.clean;
+    if (t.id === 'temp.user') {
+      // Filho adiado em disco estável (AppData), fora do %TEMP% e do tmpDir efêmero.
+      const stableDir = path.join(runner.getWorkDir(), 'deferred');
+      fs.mkdirSync(stableDir, { recursive: true });
+      const deferred = path.join(stableDir, `temp-user-${Date.now()}-${process.pid}.ps1`);
+      const deferredBody = [
+        '$ErrorActionPreference = "SilentlyContinue"',
+        'Start-Sleep -Seconds 5',
+        '$root = $env:TEMP',
+        'if ($root -and (Test-Path -LiteralPath $root)) {',
+        '  Get-ChildItem -LiteralPath $root -Force -ErrorAction SilentlyContinue | ForEach-Object {',
+        '    if ($_.Name -like "msoclean-*") { return }',
+        '    if ($_.Name -like "msorepair-*") { return }',
+        '    if ($_.Name -like "orion-*") { return }',
+        '    try { Remove-Item -LiteralPath $_.FullName -Recurse -Force -ErrorAction Stop } catch {}',
+        '  }',
+        '}',
+        'try { Remove-Item -LiteralPath $PSCommandPath -Force -ErrorAction SilentlyContinue } catch {}',
+        'exit 0'
+      ].join('\r\n');
+      fs.writeFileSync(deferred, PS1_BOM + deferredBody, 'utf8');
+      const psExe = path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe');
+      body = wrapClean([
+        `$ps = '${psExe.replace(/'/g, "''")}'`,
+        `$deferred = '${deferred.replace(/'/g, "''")}'`,
+        'Start-Process -FilePath $ps -ArgumentList @("-NoProfile","-NonInteractive","-WindowStyle","Hidden","-ExecutionPolicy","Bypass","-File",$deferred) -WindowStyle Hidden | Out-Null'
+      ].join('\r\n'));
+    }
+    fs.writeFileSync(f, PS1_BOM + body, 'utf8');
     tmpFiles.push(f);
     return { name: t.name, path: f };
   });

@@ -236,6 +236,32 @@ async function runSteps(stepsInput, { onStepEnd, timeoutMs, requireAdmin } = {})
     }
   }
 
+  // Última leitura do log ANTES de parar o tail — senão sequências rápidas
+  // (ex.: limpeza DNS/TEMP) gravam STEP_END/SEQ_END e o processo some enquanto
+  // o poller está em sleep(150), e o painel marca "Não foi possível concluir".
+  try {
+    if (fs.existsSync(logPath)) {
+      const text = fs.readFileSync(logPath, 'utf8');
+      const re = /@@MSO_STEP_(\d+)_END@@(-?\d+)/g;
+      let m;
+      while ((m = re.exec(text)) !== null) {
+        const idx = Number(m[1]);
+        const code = Number(m[2]);
+        if (!seenEnd.has(idx) && resultMap.has(idx)) {
+          seenEnd.add(idx);
+          const res = resultMap.get(idx);
+          const softOk = code === 3010 || code === 3011;
+          const ok = code === 0 || softOk;
+          res.ok = ok;
+          res.message = ok
+            ? (softOk ? `${res.name} concluído (reinício recomendado).` : `${res.name} concluído.`)
+            : friendlyError(code, res.name);
+          if (onStepEnd) onStepEnd(res.name, ok, res.message);
+        }
+      }
+    }
+  } catch (_) { /* ok */ }
+
   tailStop = true;
   await Promise.race([tailPromise, new Promise((r) => setTimeout(r, 2000))]);
 
