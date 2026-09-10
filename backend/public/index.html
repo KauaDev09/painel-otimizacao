@@ -49,7 +49,7 @@
   <header class="hero">
     <div class="container hero-grid">
       <div>
-        <div className="hero-badge">System Intelligence · Windows 10/11</div>
+        <div class="hero-badge">System Intelligence · Windows 10/11</div>
         <h1 data-split>Visão de kernel. Controle de verdade.</h1>
         <p class="sub">Monitoramento ao vivo, otimizações reversíveis e laudo do hardware — visual de painel técnico, não de template genérico.</p>
         <div class="hero-ctas">
@@ -65,7 +65,7 @@
 
       <div class="hero-stage">
         <div class="orbit" aria-hidden="true"></div>
-        <div class="mockup" data-tilt="7" data-glare data-spotlight>
+        <div class="mockup mockup-pro" data-tilt="6" data-glare data-spotlight>
           <div class="mockup-bar">
             <div class="mockup-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
             <div class="mockup-title">
@@ -80,28 +80,103 @@
               <span class="on">Overview</span><span>Processos</span><span>Integridade</span>
             </div>
           </div>
+
           <div class="mockup-grid">
             <div class="mockup-card">
               <div class="lab">CPU</div>
-              <div class="val"><span id="m-cpu-v">42</span><small>%</small></div>
-              <div class="meter"><i id="m-cpu-b" style="width:42%"></i></div>
+              <div class="val"><span id="m-cpu-v">40</span><small>%</small></div>
+              <div class="meter"><i id="m-cpu-b" style="width:40%"></i></div>
             </div>
             <div class="mockup-card">
               <div class="lab">GPU</div>
-              <div class="val"><span id="m-gpu-v">61</span><small>%</small></div>
-              <div class="meter"><i id="m-gpu-b" style="width:61%"></i></div>
+              <div class="val"><span id="m-gpu-v">58</span><small>%</small></div>
+              <div class="meter"><i id="m-gpu-b" style="width:58%"></i></div>
             </div>
             <div class="mockup-card">
               <div class="lab">RAM</div>
-              <div class="val"><span id="m-ram-v">5.4</span><small>GB</small></div>
-              <div class="meter"><i id="m-ram-b" class="m-green" style="width:54%"></i></div>
+              <div class="val"><span id="m-ram-v">4.6</span><small>GB</small></div>
+              <div class="meter"><i id="m-ram-b" class="m-green" style="width:46%"></i></div>
             </div>
             <div class="mockup-card">
               <div class="lab">Temp</div>
-              <div class="val"><span id="m-temp-v">58</span><small>°C</small></div>
-              <div class="meter"><i id="m-temp-b" style="width:58%"></i></div>
+              <div class="val"><span id="m-temp-v">60</span><small>°C</small></div>
+              <div class="meter"><i id="m-temp-b" style="width:60%"></i></div>
             </div>
           </div>
+
+          <div class="mockup-charts">
+            <div class="mock-chart mock-chart-line">
+              <div class="mch-head">
+                <div>
+                  <div class="mch-title">Performance Overview</div>
+                  <div class="mch-metric">
+                    <strong id="m-fps-v">241</strong><span> FPS méd.</span>
+                    <em class="mch-trend">↗ 18.2%</em>
+                  </div>
+                </div>
+                <div class="mch-select">Esta sessão</div>
+              </div>
+              <svg class="mch-svg" viewBox="0 0 420 160" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="orionLineGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#22d3ee"/>
+                    <stop offset="55%" stop-color="#3b82f6"/>
+                    <stop offset="100%" stop-color="#818cf8"/>
+                  </linearGradient>
+                  <linearGradient id="orionAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="rgba(59,130,246,0.35)"/>
+                    <stop offset="100%" stop-color="rgba(59,130,246,0)"/>
+                  </linearGradient>
+                  <filter id="orionGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="2.2" result="b"/>
+                    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                  </filter>
+                </defs>
+                <g class="mch-grid" stroke="rgba(255,255,255,0.06)" stroke-width="1">
+                  <line x1="36" y1="28" x2="400" y2="28"/><line x1="36" y1="64" x2="400" y2="64"/>
+                  <line x1="36" y1="100" x2="400" y2="100"/><line x1="36" y1="136" x2="400" y2="136"/>
+                </g>
+                <text class="mch-axis" x="8" y="32">300</text>
+                <text class="mch-axis" x="8" y="68">200</text>
+                <text class="mch-axis" x="8" y="104">100</text>
+                <text class="mch-axis" x="14" y="140">0</text>
+                <path class="mch-area" d="M36,118 C70,112 95,96 120,88 C150,78 170,92 200,70 C230,48 255,42 280,52 C310,64 335,38 360,34 C380,32 395,40 400,36 L400,136 L36,136 Z" fill="url(#orionAreaGrad)"/>
+                <path class="mch-line" d="M36,118 C70,112 95,96 120,88 C150,78 170,92 200,70 C230,48 255,42 280,52 C310,64 335,38 360,34 C380,32 395,40 400,36" fill="none" stroke="url(#orionLineGrad)" stroke-width="2.6" filter="url(#orionGlow)" stroke-linecap="round"/>
+                <circle cx="120" cy="88" r="3.2" fill="#fff"/><circle cx="200" cy="70" r="3.2" fill="#fff"/>
+                <circle cx="280" cy="52" r="3.2" fill="#fff"/><circle cx="360" cy="34" r="3.8" fill="#fff" class="mch-pulse"/>
+                <g class="mch-tip" transform="translate(318,18)">
+                  <rect width="78" height="22" rx="8" fill="rgba(15,21,32,0.92)" stroke="rgba(56,189,248,0.35)"/>
+                  <text x="39" y="14.5" text-anchor="middle" fill="#e8eef7" font-size="10" font-family="IBM Plex Mono, monospace">241 FPS</text>
+                </g>
+                <text class="mch-axis" x="50" y="154">0s</text>
+                <text class="mch-axis" x="150" y="154">30s</text>
+                <text class="mch-axis" x="250" y="154">60s</text>
+                <text class="mch-axis" x="350" y="154">90s</text>
+              </svg>
+            </div>
+
+            <div class="mock-chart mock-chart-donut">
+              <div class="mch-title">System Load</div>
+              <div class="donut-wrap">
+                <svg viewBox="0 0 120 120" aria-hidden="true">
+                  <circle cx="60" cy="60" r="42" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12"/>
+                  <circle class="donut-seg d-idle" cx="60" cy="60" r="42" fill="none" stroke="#22d3ee" stroke-width="12" stroke-dasharray="168 96" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+                  <circle class="donut-seg d-game" cx="60" cy="60" r="42" fill="none" stroke="#3b82f6" stroke-width="12" stroke-dasharray="48 216" stroke-dashoffset="-168" transform="rotate(-90 60 60)"/>
+                  <circle class="donut-seg d-bg" cx="60" cy="60" r="42" fill="none" stroke="#818cf8" stroke-width="12" stroke-dasharray="28 236" stroke-dashoffset="-216" transform="rotate(-90 60 60)"/>
+                  <circle class="donut-seg d-alert" cx="60" cy="60" r="42" fill="none" stroke="#f472b6" stroke-width="12" stroke-dasharray="12 252" stroke-dashoffset="-244" transform="rotate(-90 60 60)"/>
+                  <text x="60" y="56" text-anchor="middle" fill="#e8eef7" font-size="22" font-weight="700" font-family="Plus Jakarta Sans, sans-serif">47</text>
+                  <text x="60" y="72" text-anchor="middle" fill="#8b9bb4" font-size="9" font-family="IBM Plex Mono, monospace">PROCESSOS</text>
+                </svg>
+              </div>
+              <ul class="donut-legend">
+                <li><i class="c-cyan"></i>Idle / sistema <b>28</b></li>
+                <li><i class="c-blue"></i>Jogos <b>8</b></li>
+                <li><i class="c-indigo"></i>Background <b>9</b></li>
+                <li><i class="c-pink"></i>Alertas <b>2</b></li>
+              </ul>
+            </div>
+          </div>
+
           <div class="mockup-status">
             <div class="mockup-status-head">
               <div class="s-title">SYSTEM <span>SECURE</span></div>
@@ -471,6 +546,7 @@
       const gpu = 40 + Math.floor(Math.random() * 40);
       const ram = 3 + Math.random() * 3;
       const temp = 48 + Math.floor(Math.random() * 16);
+      const fps = 210 + Math.floor(Math.random() * 55);
       document.getElementById('m-cpu-v').textContent = cpu;
       document.getElementById('m-cpu-b').style.width = cpu + '%';
       document.getElementById('m-gpu-v').textContent = gpu;
@@ -479,6 +555,10 @@
       document.getElementById('m-ram-b').style.width = Math.round(ram / 16 * 100) + '%';
       document.getElementById('m-temp-v').textContent = temp;
       document.getElementById('m-temp-b').style.width = temp + '%';
+      const fpsEl = document.getElementById('m-fps-v');
+      if (fpsEl) fpsEl.textContent = String(fps);
+      const tip = document.querySelector('.mch-tip text');
+      if (tip) tip.textContent = fps + ' FPS';
     }, 1600);
 
     initReveal();
