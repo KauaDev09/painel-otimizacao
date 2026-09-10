@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import Checkout from './pages/Checkout';
@@ -11,10 +12,26 @@ import Sucesso from './pages/Sucesso';
 import Suporte from './pages/Suporte';
 import Termos from './pages/Termos';
 
+const AdminApp = lazy(() => import('./admin/AdminApp'));
+
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route
+          path="admin/*"
+          element={
+            <Suspense
+              fallback={
+                <div style={{ padding: 40, color: '#e8eef7', background: '#070b12', minHeight: '100vh' }}>
+                  Carregando admin…
+                </div>
+              }
+            >
+              <AdminApp />
+            </Suspense>
+          }
+        />
         <Route element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="planos" element={<Planos />} />

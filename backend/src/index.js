@@ -173,13 +173,13 @@ async function handleRequest(req, res) {
     return;
   }
 
-  // ---- Painel administrativo mantém-se em /admin ----
-  if (pathname === '/admin' || pathname === '/admin/' || pathname === '/admin/index.html') {
+  // ---- Painel administrativo legado em /admin (só sem build React) ----
+  if (!USE_SPA && (pathname === '/admin' || pathname === '/admin/' || pathname === '/admin/index.html')) {
     return serveAdmin(res);
   }
 
-  // ---- Assets estáticos do painel admin (/admin/imagem.png etc.) ----
-  if (pathname.startsWith('/admin/')) {
+  // ---- Assets estáticos do painel admin legado (/admin/imagem.png etc.) ----
+  if (!USE_SPA && pathname.startsWith('/admin/')) {
     const route = pathname.replace(/^\/admin\//, '');
     const safe = path.normalize(route).replace(/^(\.\.[\/\\])+/, '');
     const filePath = path.join(ADMIN_DIR, safe);
@@ -190,7 +190,7 @@ async function handleRequest(req, res) {
   }
 
   // ---- Site React (web/dist) quando buildado ----
-  if (USE_SPA && !pathname.startsWith('/api/') && !pathname.startsWith('/admin')) {
+  if (USE_SPA && !pathname.startsWith('/api/')) {
     const rel = pathname === '/' ? 'index.html' : pathname.replace(/^\//, '');
     const safe = path.normalize(rel).replace(/^(\.\.[\/\\])+/, '');
     const filePath = path.join(WEB_DIST, safe);
