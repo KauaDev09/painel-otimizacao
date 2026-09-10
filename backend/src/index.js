@@ -23,6 +23,10 @@ const accessLog = require('./services/accessLog');
 const ADMIN_DIR = path.join(__dirname, '..', 'admin');
 const ADMIN_HTML = path.join(ADMIN_DIR, 'index.html');
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
+// Site React (Vite). Se web/dist existir, serve a SPA; senão, HTML legado em public/.
+const WEB_DIST = path.join(__dirname, '..', '..', 'web', 'dist');
+const WEB_INDEX = path.join(WEB_DIST, 'index.html');
+const USE_SPA = fs.existsSync(WEB_INDEX);
 
 const PUBLIC_PAGES = {
   '/': 'index.html',
@@ -185,12 +189,26 @@ async function handleRequest(req, res) {
     }
   }
 
-  // ---- Páginas públicas do SaaS (landing, planos, etc.) ----
+  // ---- Site React (web/dist) quando buildado ----
+  if (USE_SPA && !pathname.startsWith('/api/') && !pathname.startsWith('/admin')) {
+    const rel = pathname === '/' ? 'index.html' : pathname.replace(/^\//, '');
+    const safe = path.normalize(rel).replace(/^(\.\.[\/\\])+/, '');
+    const filePath = path.join(WEB_DIST, safe);
+    if (safe && filePath.startsWith(WEB_DIST) && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      const ext = path.extname(filePath).toLowerCase() || '.html';
+      return serveStatic(res, filePath, CONTENT_TYPES[ext] || 'application/octet-stream');
+    }
+    if (PUBLIC_PAGES[pathname] || !path.extname(pathname)) {
+      return serveStatic(res, WEB_INDEX, CONTENT_TYPES['.html']);
+    }
+  }
+
+  // ---- Páginas públicas legadas (landing HTML) ----
   if (PUBLIC_PAGES[pathname]) {
     return serveStatic(res, path.join(PUBLIC_DIR, PUBLIC_PAGES[pathname]), CONTENT_TYPES['.html']);
   }
 
-  // ---- Arquivos estáticos (/assets/*) ----
+  // ---- Arquivos estáticos (/assets/*) — legado public/ ----
   if (pathname.startsWith('/assets/')) {
     const route = pathname.replace(/^\/assets\//, '');
     const safe = path.normalize(route).replace(/^(\.\.[\/\\])+/, '');

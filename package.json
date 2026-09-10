@@ -1,0 +1,9 @@
+{
+  "name": "orion-optimizer",
+  "private": true,
+  "scripts": {
+    "dev:web": "npm --prefix web run dev",
+    "build": "npm --prefix web install && npm --prefix web run build",
+    "build:web": "npm --prefix web run build"
+  }
+}
