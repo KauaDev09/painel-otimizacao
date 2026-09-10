@@ -13,15 +13,19 @@ loadEnv();
 const mysql = require('mysql2/promise');
 
 const RELEASE = {
-  version: '2.1.8',
-  filename: 'ORION.OPTIMIZER.Setup-2.1.8.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.8/ORION.OPTIMIZER.Setup-2.1.8.exe',
+  version: '2.1.9',
+  filename: 'ORION.OPTIMIZER.Setup-2.1.9.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.9/ORION.OPTIMIZER.Setup-2.1.9.exe',
   changelog: [
-    'Visual: nova paleta Framer (roxo/magenta #8c45ff + lime #cbff00).',
-    'Site, admin e app desktop alinhados no mesmo color profile.',
-    'Login e sidebar com accents atualizados.'
+    'CRÍTICO Tela: não grava mais no OSD do monitor; só gama software.',
+    'Corrigido bug de brilho DDC (100% → 50%) e VCP perigosos.',
+    'Reparo SFC/DISM: timeouts longos; correção rápida sem chkdsk/pause.',
+    'Scripts de jogos não removem mais Calculator/Photos/apps do Windows.',
+    'Windows Balanced não desativa mais o UAC.',
+    'Helper de tela pré-compilado + overlay de brilho funcional.',
+    'DNS Extreme em adapters conectados; undo NVIDIA telemetria corrigido.'
   ].join('\n'),
-  obrigatoria: false,
+  obrigatoria: true,
   exige_pagamento: false,
   preco: 15
 };
