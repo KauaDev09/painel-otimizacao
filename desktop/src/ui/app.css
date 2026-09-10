@@ -4,21 +4,21 @@
    -webkit-app-region.
    ------------------------------------------------------------------ */
 
-/* Tokens cromáticos Orion — KernelGuard system intelligence (navy + cyan) */
+/* Tokens cromáticos Orion — datasheet técnico (âmbar funcional) */
 :root {
-  --orion-bg: #070b12;
-  --orion-surface: #0f1520;
-  --orion-text-primary: #e8eef7;
-  --orion-text-secondary: #8b9bb4;
-  --orion-icon-default: #38bdf8;
-  --orion-icon-active: #22d3ee;
-  --orion-hover-fg: #7dd3fc;
-  --orion-hover-glow: rgba(34, 211, 238, 0.18);
-  --orion-hover-border: #0284c7;
-  --orion-selected-bg: rgba(56, 189, 248, 0.12);
-  --orion-core-1: #3b82f6;
-  --orion-core-2: #22d3ee;
-  --orion-lime: #4ade80;
+  --orion-bg: #0d0f10;
+  --orion-surface: #141618;
+  --orion-text-primary: #edebe4;
+  --orion-text-secondary: #7a7e82;
+  --orion-icon-default: #e8a33d;
+  --orion-icon-active: #f0b45a;
+  --orion-hover-fg: #e8a33d;
+  --orion-hover-glow: rgba(232, 163, 61, 0.16);
+  --orion-hover-border: #c4842a;
+  --orion-selected-bg: rgba(232, 163, 61, 0.12);
+  --orion-core-1: #e8a33d;
+  --orion-core-2: #c4842a;
+  --orion-lime: #6bbf8a;
 }
 
 html,
@@ -30,8 +30,8 @@ body,
 body {
   margin: 0;
   background:
-    radial-gradient(1100px 560px at 8% -12%, rgba(59, 130, 246, 0.1), transparent 55%),
-    radial-gradient(900px 480px at 92% 0%, rgba(34, 211, 238, 0.07), transparent 50%),
+    radial-gradient(900px 480px at 8% -12%, rgba(232, 163, 61, 0.06), transparent 55%),
+    radial-gradient(700px 400px at 92% 0%, rgba(107, 191, 138, 0.04), transparent 50%),
     var(--orion-bg);
   color: var(--orion-text-primary);
   font-family: Inter, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
@@ -72,7 +72,7 @@ input,
 select,
 textarea {
   background: var(--orion-surface);
-  border: 1px solid rgba(56, 189, 248, 0.16);
+  border: 1px solid rgba(232, 163, 61, 0.2);
   border-radius: 8px;
   color: var(--orion-text-primary);
   outline: none;

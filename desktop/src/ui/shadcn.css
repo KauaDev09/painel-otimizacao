@@ -4,46 +4,45 @@
 
 /* ------------------------------------------------------------------
    ORION DESIGN TOKENS (shadcn/ui — new-york, dark)
-   KernelGuard-inspired: navy #070b12 / #0f1520, cyan #38bdf8 / #22d3ee
+   Datasheet: #0D0F10 + âmbar #E8A33D (atenção/risco)
    ------------------------------------------------------------------ */
 @layer base {
   :root {
-    /* --orion-bg #070b12 */
-    --background: 216 42% 5%;
-    /* --orion-text-primary #e8eef7 */
-    --foreground: 214 47% 94%;
+    /* --orion-bg #0d0f10 */
+    --background: 210 11% 6%;
+    /* --orion-text-primary #edebe4 */
+    --foreground: 45 20% 91%;
 
-    /* --orion-surface #0f1520 */
-    --card: 217 36% 9%;
-    --card-foreground: 214 47% 94%;
+    /* --orion-surface #141618 */
+    --card: 210 7% 9%;
+    --card-foreground: 45 20% 91%;
 
-    --popover: 217 36% 9%;
-    --popover-foreground: 214 47% 94%;
+    --popover: 210 7% 9%;
+    --popover-foreground: 45 20% 91%;
 
-    /* --orion-icon-default #38bdf8 */
-    --primary: 199 89% 60%;
-    --primary-foreground: 216 42% 6%;
+    /* --orion-icon-default #e8a33d */
+    --primary: 36 79% 57%;
+    --primary-foreground: 35 83% 9%;
 
-    --secondary: 217 32% 12%;
-    --secondary-foreground: 214 28% 72%;
+    --secondary: 210 6% 12%;
+    --secondary-foreground: 210 3% 72%;
 
-    --muted: 217 30% 12%;
-    /* --orion-text-secondary #8b9bb4 */
-    --muted-foreground: 215 20% 63%;
+    --muted: 210 6% 12%;
+    /* --orion-text-secondary #7a7e82 */
+    --muted-foreground: 210 3% 49%;
 
-    --accent: 217 35% 14%;
-    /* --orion-hover-fg #7dd3fc */
-    --accent-foreground: 199 95% 74%;
+    --accent: 210 6% 14%;
+    /* âmbar claro */
+    --accent-foreground: 36 79% 62%;
 
-    --destructive: 0 72% 55%;
+    --destructive: 8 65% 62%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 25% 18%;
-    --input: 215 25% 18%;
-    /* ring cyan */
-    --ring: 199 89% 60%;
+    --border: 210 5% 18%;
+    --input: 210 5% 18%;
+    --ring: 36 79% 57%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     color-scheme: dark;
   }

@@ -1,7 +1,7 @@
 export const CONSENT_KEY = 'orion_cookie_consent';
 
 const FONTS =
-  'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap';
+  'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap';
 
 export function hasConsent() {
   try {
