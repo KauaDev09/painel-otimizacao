@@ -238,7 +238,7 @@ export function Limpeza({ onNavigate }: { onNavigate?: (view: string) => void })
   const askRepair = (rep: RepairOption) => {
     setConfirm({
       title: `Executar "${rep.name}"?`,
-      text: `Pode levar ~${rep.estimatedMinutes ?? '?'} minutos. O PC continua utilizável, mas fique sem fazer tarefas pesadas.`,
+      text: `Pode levar ~${rep.estimatedMinutes ?? '?'} minutos. Aceite o UAC de administrador. O PC continua utilizável, mas evite tarefas pesadas até terminar.`,
       confirmLabel: 'EXECUTAR',
       onConfirm: () => { setConfirm(null); void runRepair(rep); },
     });
@@ -263,7 +263,7 @@ export function Limpeza({ onNavigate }: { onNavigate?: (view: string) => void })
   const askQuickFix = () => {
     setConfirm({
       title: 'Executar a correção rápida legada?',
-      text: 'Executa o script clássico "Arrumar Windows" (chkdsk, SFC e DISM em sequência). Pode levar vários minutos.',
+      text: 'Executa DISM RestoreHealth e em seguida SFC /scannow. Pode levar vários minutos. Aceite o UAC de administrador quando solicitado.',
       confirmLabel: 'EXECUTAR',
       onConfirm: () => { setConfirm(null); void runQuickFix(); },
     });
@@ -434,7 +434,7 @@ export function Limpeza({ onNavigate }: { onNavigate?: (view: string) => void })
               <div className="flex flex-col rounded-lg bg-black/20 p-4 shadow-[inset_0_0_0_1px_var(--orion-selected-bg)]">
                 <p className="m-0 text-sm font-semibold text-foreground">Correção rápida (legado)</p>
                 <p className="mt-1 flex-1 text-xs text-muted-foreground">
-                  Executa o script clássico &quot;Arrumar Windows&quot; (chkdsk, SFC e DISM em sequência).
+                  Executa DISM RestoreHealth seguido de SFC /scannow (sem chkdsk). Pode levar vários minutos e exige administrador.
                 </p>
                 <button
                   type="button"

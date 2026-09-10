@@ -1,7 +1,9 @@
 'use strict';
 
-// DisplayService — controle direto da tela no Windows (estilo painel NVIDIA).
-// Gama ramp por monitor (rápido) + DDC/CI no hardware (debounce, evita lag).
+// DisplayService — controle da tela no Windows.
+// Padrão: só gamma ramp (software, sessão) — seguro e reversível.
+// DDC/CI no hardware do monitor SOMENTE quando forceDdc=true (explícito).
+// Nunca auto-aplicar DDC no debounce do slider (bug antigo alterava o OSD).
 // Helper nativo fica residente — não spawna processo a cada slider.
 
 const fs = require('fs');
@@ -12,6 +14,9 @@ const CSC_CANDIDATES = [
   path.join(process.env.WINDIR || 'C:\\Windows', 'Microsoft.NET', 'Framework64', 'v4.0.30319', 'csc.exe'),
   path.join(process.env.WINDIR || 'C:\\Windows', 'Microsoft.NET', 'Framework', 'v4.0.30319', 'csc.exe')
 ];
+
+// Bump quando a lógica DDC/gamma muda — força recompilar o helper em PCs com exe antigo.
+const HELPER_BUILD = 3;
 
 let rampExePromise = null;
 let helperProc = null;
@@ -30,22 +35,66 @@ function helperDir() {
   return path.join(process.env.LOCALAPPDATA || process.env.TEMP || '.', 'orion-optimizer', 'helpers');
 }
 
+function packagedHelperPath() {
+  const name = `displayRamp-v${HELPER_BUILD}.exe`;
+  // Dev: ao lado do .cs em src/modules/helpers
+  const dev = path.join(__dirname, 'helpers', name);
+  if (fs.existsSync(dev)) return dev;
+  // Empacotado: extraResources/helpers (fora do asar)
+  try {
+    if (process.resourcesPath) {
+      const prod = path.join(process.resourcesPath, 'helpers', name);
+      if (fs.existsSync(prod)) return prod;
+    }
+  } catch (_) { /* ok */ }
+  return null;
+}
+
 function ensureRampExe() {
   if (rampExePromise) return rampExePromise;
   rampExePromise = (async () => {
     const dir = helperDir();
     fs.mkdirSync(dir, { recursive: true });
-    const exe = path.join(dir, 'displayRamp.exe');
-    const bundled = path.join(__dirname, 'displayRamp.cs');
+    const exe = path.join(dir, `displayRamp-v${HELPER_BUILD}.exe`);
+    const bundledCs = path.join(__dirname, 'displayRamp.cs');
     const src = path.join(dir, 'displayRamp.cs');
-    try { fs.copyFileSync(bundled, src); } catch (_) { /* asar → disco */ }
+    try { if (fs.existsSync(bundledCs)) fs.copyFileSync(bundledCs, src); } catch (_) { /* asar → disco */ }
+
+    // Preferir binário pré-compilado (funciona sem csc.exe no PC do cliente).
+    const packaged = packagedHelperPath();
+    if (packaged) {
+      try {
+        const needCopy = !fs.existsSync(exe) || fs.statSync(exe).size !== fs.statSync(packaged).size
+          || fs.statSync(exe).mtimeMs < fs.statSync(packaged).mtimeMs;
+        if (needCopy) {
+          killHelper();
+          fs.copyFileSync(packaged, exe);
+        }
+        if (fs.existsSync(exe) && fs.statSync(exe).size > 1024) return exe;
+      } catch (err) {
+        console.error('[display] falha ao copiar helper empacotado:', err && err.message);
+      }
+    }
+
+    // Remove helpers de builds anteriores (ex.: displayRamp.exe sem versão).
     try {
-      const srcStat = fs.existsSync(src) ? fs.statSync(src) : fs.statSync(bundled);
+      for (const name of fs.readdirSync(dir)) {
+        if (/^displayRamp(-v\d+)?\.exe$/i.test(name) && name.toLowerCase() !== path.basename(exe).toLowerCase()) {
+          try { fs.rmSync(path.join(dir, name), { force: true }); } catch (_) { /* ok */ }
+        }
+      }
+    } catch (_) { /* ok */ }
+    try {
+      const srcStat = fs.existsSync(src) ? fs.statSync(src) : (fs.existsSync(bundledCs) ? fs.statSync(bundledCs) : null);
       const exeStat = fs.existsSync(exe) ? fs.statSync(exe) : null;
-      if (exeStat && exeStat.mtimeMs >= srcStat.mtimeMs && exeStat.size > 1024) return exe;
+      if (exeStat && srcStat && exeStat.mtimeMs >= srcStat.mtimeMs && exeStat.size > 1024) return exe;
+      if (exeStat && !srcStat && exeStat.size > 1024) return exe;
     } catch (_) { /* recompila */ }
+    // Fallback: compilar no PC (só se csc existir).
+    killHelper();
     const csc = CSC_CANDIDATES.find((p) => fs.existsSync(p));
-    if (!csc || !fs.existsSync(src)) return null;
+    if (!csc || !fs.existsSync(src)) return fs.existsSync(exe) ? exe : null;
+    try { fs.rmSync(exe, { force: true }); } catch (_) { /* ok */ }
     await new Promise((resolve, reject) => {
       execFile(csc, ['/nologo', '/optimize+', '/out:' + exe, src], { windowsHide: true }, (err, _o, stderr) => {
         if (err) reject(new Error(String(stderr || err.message)));
@@ -54,7 +103,7 @@ function ensureRampExe() {
     });
     return fs.existsSync(exe) ? exe : null;
   })().catch((err) => {
-    console.error('[display] falha ao compilar helper de tela:', err && err.message);
+    console.error('[display] falha ao preparar helper de tela:', err && err.message);
     rampExePromise = null;
     return null;
   });
@@ -288,24 +337,12 @@ async function applyOnce(raw, withDdc) {
   };
 }
 
-function scheduleDdc(opts) {
-  lastDdcOpts = opts;
-  if (ddcTimer) clearTimeout(ddcTimer);
-  ddcTimer = setTimeout(() => {
-    ddcTimer = null;
-    const next = lastDdcOpts;
-    lastDdcOpts = null;
-    if (!next) return;
-    applyOnce(next, true).catch(() => {});
-  }, 420);
-}
-
 /**
  * Aplica na tela real.
- * Slider: só gamma ramp (leve). Ao soltar / após debounce: DDC no monitor físico.
+ * Slider / presets / redefine: só gamma ramp (software).
+ * DDC no monitor físico apenas com forceDdc=true (ação explícita).
  */
 async function applyScreenRamp(opts = {}) {
-  const forceDdc = !!(opts && opts.forceDdc);
   applyPending = opts;
   if (applyInflight) return applyInflight;
 
@@ -315,8 +352,10 @@ async function applyScreenRamp(opts = {}) {
       while (applyPending) {
         const next = applyPending;
         applyPending = null;
+        const forceDdc = !!(next && next.forceDdc);
+        // Cancela qualquer DDC legado agendado (versões antigas do módulo).
+        if (ddcTimer) { clearTimeout(ddcTimer); ddcTimer = null; lastDdcOpts = null; }
         last = await applyOnce(next, forceDdc);
-        if (!forceDdc) scheduleDdc(next);
       }
     } finally {
       applyInflight = null;

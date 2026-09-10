@@ -229,6 +229,7 @@ async function clean(ids, opts = {}) {
   });
 
   const { results, launchError } = await runner.runSteps(steps, {
+    requireAdmin: wanted.some((t) => !!t.requiresAdmin),
     onStepEnd: (name, ok, message) => { if (opts.onStep) opts.onStep(name, ok, message); }
   });
 

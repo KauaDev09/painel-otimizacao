@@ -225,9 +225,10 @@ const MOCK_CLEAN_TARGETS = [
 ];
 
 const MOCK_REPAIR_OPTIONS = [
-  { id: 'sfc', name: 'Verificação SFC', description: 'Verifica e corrige arquivos do sistema.', estimatedMinutes: 10, requiresAdmin: true },
-  { id: 'dism', name: 'Reparo DISM', description: 'Repara a imagem do Windows.', estimatedMinutes: 15, requiresAdmin: true },
-  { id: 'chkdsk', name: 'Verificação de disco', description: 'Verifica erros no sistema de arquivos.', estimatedMinutes: 8, requiresAdmin: true }
+  { id: 'repair.sfc', name: 'Verificar arquivos do sistema (SFC)', description: 'Analisa e repara arquivos corrompidos do Windows (SFC /scannow).', estimatedMinutes: 27, requiresAdmin: true },
+  { id: 'repair.dism.health', name: 'Verificar saúde da imagem (DISM)', description: 'Checa a integridade da imagem (CheckHealth + ScanHealth).', estimatedMinutes: 27, requiresAdmin: true },
+  { id: 'repair.dism.restore', name: 'Restaurar imagem do sistema (DISM)', description: 'Repara a imagem com RestoreHealth.', estimatedMinutes: 36, requiresAdmin: true },
+  { id: 'repair.complete', name: 'Reparo completo', description: 'DISM RestoreHealth seguido de SFC.', estimatedMinutes: 54, requiresAdmin: true }
 ];
 
 const MOCK_OPERATIONS = [

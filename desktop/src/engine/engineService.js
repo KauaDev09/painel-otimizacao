@@ -201,7 +201,9 @@ async function applyItems(ids, opts = {}) {
     steps.unshift({ name: 'Ponto de restauração do Windows', path: tmpFiles[0] });
   }
 
+  const needsAdmin = !!opts.createRestorePoint || items.some((it) => !!it.requiresAdmin);
   const { results, logText, launchError } = await runner.runSteps(steps, {
+    requireAdmin: needsAdmin,
     onStepEnd: (name, ok, message) => { if (opts.onStep) opts.onStep(name, ok, message); }
   });
 
@@ -260,8 +262,9 @@ async function undoItem(id) {
     const ops = _loadOperations();
     for (let i = ops.length - 1; i >= 0; i--) {
       const rec = (ops[i].items || []).find((x) => x.id === it.id);
-      if (rec && rec.backupReg && fs.existsSync(rec.backupReg)) {
-        const r = await protection.restoreRegistryBackup(rec.backupReg);
+      const backups = [].concat(rec && rec.backupReg ? rec.backupReg : []).filter((f) => f && fs.existsSync(f));
+      if (backups.length) {
+        const r = await protection.restoreRegistryBackup(backups);
         return done(r);
       }
     }
@@ -309,7 +312,7 @@ function getOperation(opId) {
     items: (op.items || []).map((r) => ({
       id: r.id,
       name: r.name,
-      hasBackup: !!(r.backupReg && fs.existsSync(r.backupReg))
+      hasBackup: [].concat(r.backupReg || []).some((f) => f && fs.existsSync(f))
     }))
   };
 }

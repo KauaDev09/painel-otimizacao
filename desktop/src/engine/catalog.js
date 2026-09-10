@@ -390,17 +390,17 @@ const ITEMS = [
     id: 'win.balanced',
     name: 'Windows Balanced',
     category: 'windows',
-    description: 'Otimização equilibrada: limpeza de temporários, desativação de UAC, IPv6, VBS, CFG, ajustes de memória, DWM, acessibilidade, Game DVR, prefetch/superfetch e configurações de privacidade/ publicidade.',
-    benefit: 'Sistema mais responsivo no uso diário com segurança reduzida (UAC/VBS off). Bom equilíbrio entre desempenho e funcionalidade.',
+    description: 'Otimização equilibrada: limpeza de temporários, IPv6, VBS/CFG, memória, DWM, Game DVR, prefetch e privacidade. Não desativa o UAC.',
+    benefit: 'Sistema mais responsivo no uso diário. Bom equilíbrio entre desempenho e funcionalidade.',
     risk: 'medium',
     requiresAdmin: true,
-    confirm: false,
+    confirm: true,
     profiles: ['balanced', 'performance', 'gaming', 'advanced'],
     proOnly: true,
     icon: 'zap',
     apply: script('windows/performance/Windows Balanced.bat'),
-    undo: ps('reg add "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System" /v EnableLUA /t REG_DWORD /d 1 /f; reg add "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System" /v ConsentPromptBehaviorAdmin /t REG_DWORD /d 5 /f'),
-    registryKeys: ['HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System', 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management']
+    undo: undoBackup(),
+    registryKeys: ['HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management', 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\DeviceGuard']
   },
   {
     id: 'win.extreme',
@@ -699,7 +699,7 @@ const ITEMS = [
     proOnly: true,
     vendor: 'nvidia',
     apply: script('gpu/nvidia/Desativar Telemetria NVIDIA.bat'),
-    undo: ps('Set-Service NvTelemetryContainer -StartupType Disabled -ErrorAction SilentlyContinue')
+    undo: ps('Set-Service NvTelemetryContainer -StartupType Manual -ErrorAction SilentlyContinue; Start-Service NvTelemetryContainer -ErrorAction SilentlyContinue')
   },
   {
     id: 'gpu.nvidia.hags.off',
@@ -941,7 +941,12 @@ function getScriptsBase() {
 }
 
 function resolveScript(relFile) {
-  return path.join(getScriptsBase(), relFile);
+  return path.join(scriptsSync.getScriptsBase(), relFile);
 }
 
-module.exports = { CATEGORIES, CATEGORY_ICONS, RISK_LABELS, ITEMS, DRIVER_DOWNLOAD_ITEMS, getItem, resolveScript };
+/** Invalida cache (após scriptsSync.reinit). */
+function invalidateScriptsBase() {
+  _scriptsBase = null;
+}
+
+module.exports = { CATEGORIES, CATEGORY_ICONS, RISK_LABELS, ITEMS, DRIVER_DOWNLOAD_ITEMS, getItem, resolveScript, invalidateScriptsBase };

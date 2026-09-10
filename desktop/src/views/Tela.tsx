@@ -203,7 +203,8 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
   const resetAll = async () => {
     setBusy(true);
     setSelectedPreset('Padrão');
-    await applyValues(DEFAULTS, true);
+    // Só gamma ramp (software). Nunca reescrever OSD do monitor no REDEFINIR.
+    await applyValues(DEFAULTS, false);
     if (selectedRef.current) {
       const map = { ...perMonitorRef.current, [selectedRef.current]: DEFAULTS };
       perMonitorRef.current = map;
@@ -234,7 +235,8 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
       temperature: p.temperature ?? 100,
     };
     setSelectedPreset(name);
-    await applyValues(next, true);
+    // Presets usam só a curva de gama (reversível). Não alteram o OSD do monitor.
+    await applyValues(next, false);
     if (selectedRef.current) {
       const map = { ...perMonitorRef.current, [selectedRef.current]: next };
       perMonitorRef.current = map;
@@ -252,7 +254,7 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
     pendingRef.current = stored;
     setValues(stored);
     setSelectedPreset(null);
-    applyValues(stored, true);
+    applyValues(stored, false);
     persist(stored, id, perMonitorRef.current);
   };
 
@@ -263,7 +265,9 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="m-0 text-2xl font-bold text-foreground">Tela</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Controle direto do monitor — brilho, cor, gama e temperatura.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Ajustes de brilho, cor e gama via software (curva de gama). Não altera as configurações salvas no monitor.
+          </p>
         </div>
         <button
           type="button"

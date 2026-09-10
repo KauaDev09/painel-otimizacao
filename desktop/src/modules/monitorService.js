@@ -79,14 +79,22 @@ $out.gpuVramMB = if ($g0 -and $g0.AdapterRAM -gt 0) { [math]::Round([double]$g0.
 $out | ConvertTo-Json -Compress
 `;
 
-/** Fallback leve: só engines 3D (AMD/Intel/NVIDIA sem nvidia-smi). */
+/** Fallback leve: engines 3D sem depender de locale (Get-Counter em inglês falha no Windows PT). */
 const GPU_COUNTER_PS = `
 $ErrorActionPreference = 'SilentlyContinue'
 $sum = $null
 try {
-  $samples = (Get-Counter '\\GPU Engine(*engtype_3D)\\Utilization Percentage' -ErrorAction Stop).CounterSamples
-  $sum = ($samples | Measure-Object -Property CookedValue -Sum).Sum
+  $engines = Get-CimInstance Win32_PerfFormattedData_GPUPerformanceCounters_GPUEngine -ErrorAction Stop
+  if ($engines) {
+    $sum = ($engines | Where-Object { $_.Name -match 'engtype_3D' } | Measure-Object -Property UtilizationPercentage -Sum).Sum
+  }
 } catch { }
+if ($null -eq $sum) {
+  try {
+    $samples = (Get-Counter '\\GPU Engine(*engtype_3D)\\Utilization Percentage' -ErrorAction Stop).CounterSamples
+    $sum = ($samples | Measure-Object -Property CookedValue -Sum).Sum
+  } catch { }
+}
 if ($null -ne $sum) { [math]::Min(100, [math]::Round([double]$sum, 0)) } else { 'null' }
 `;
 

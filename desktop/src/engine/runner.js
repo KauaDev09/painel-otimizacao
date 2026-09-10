@@ -16,11 +16,18 @@ const os = require('os');
 const path = require('path');
 
 const ALLOWED_SUFFIXES = new Set(['.bat', '.cmd', '.reg', '.ps1']);
-const SEQUENCE_TIMEOUT_MS = 30 * 60 * 1000; // 30 min por sequência
+const DEFAULT_SEQUENCE_TIMEOUT_MS = 30 * 60 * 1000; // 30 min padrão
+const MAX_SEQUENCE_TIMEOUT_MS = 120 * 60 * 1000; // teto 2h (DISM+SFC longos)
 const MARK_SEQ_START = '@@MSO_SEQ_START@@';
 const MARK_SEQ_END = '@@MSO_SEQ_END@@';
 const stepStartMark = (i) => `@@MSO_STEP_${i}_START@@`;
 const stepEndMark = (i) => `@@MSO_STEP_${i}_END@@`;
+
+function resolveTimeoutMs(opts) {
+  const raw = opts && Number(opts.timeoutMs);
+  if (!Number.isFinite(raw) || raw <= 0) return DEFAULT_SEQUENCE_TIMEOUT_MS;
+  return Math.min(Math.max(60_000, Math.round(raw)), MAX_SEQUENCE_TIMEOUT_MS);
+}
 
 let logsDir = null;
 let workDir = null;
@@ -116,7 +123,7 @@ function buildOrchestrator(steps, logPath) {
   return orchPath;
 }
 
-function launchElevated(orchPath) {
+function launchElevated(orchPath, timeoutMs) {
   // Elevação única e silenciosa via PowerShell (janela oculta).
   // Aspas duplas normais ao redor do caminho: cmd.exe NÃO entende \" (barra
   // invertida não é escape no cmd) e o Start-Process do PS 5.1 junta os
@@ -125,16 +132,16 @@ function launchElevated(orchPath) {
     "$p = Start-Process -FilePath 'cmd.exe' " +
     `-ArgumentList '/c','"${orchPath}"' ` +
     '-Verb RunAs -WindowStyle Hidden -PassThru -Wait; exit $p.ExitCode';
-  return spawnProc(psExe(), ['-NoProfile', '-NonInteractive', '-Command', psCommand], SEQUENCE_TIMEOUT_MS + 300000);
+  return spawnProc(psExe(), ['-NoProfile', '-NonInteractive', '-Command', psCommand], timeoutMs + 300000);
 }
 
-function launchNormal(orchPath) {
+function launchNormal(orchPath, timeoutMs) {
   return new Promise((resolve) => {
     const child = spawn('cmd.exe', ['/c', orchPath], { windowsHide: true });
     let settled = false;
     const timer = setTimeout(() => {
       if (!settled) { settled = true; child.kill(); resolve({ code: 1, error: 'A otimização demorou demais e foi interrompida.' }); }
-    }, SEQUENCE_TIMEOUT_MS);
+    }, timeoutMs);
     child.on('error', (err) => { if (!settled) { settled = true; clearTimeout(timer); resolve({ code: 1, error: String(err.message || err) }); } });
     child.on('close', (code) => { if (!settled) { settled = true; clearTimeout(timer); resolve({ code: code == null ? 1 : code }); } });
   });
@@ -159,8 +166,12 @@ function spawnProc(exe, args, timeoutMs) {
  * Executa uma sequência [{name, path}] silenciosamente.
  * Retorna { results: [{name, ok, message}], logText, launchError }.
  */
-async function runSteps(stepsInput, { onStepEnd } = {}) {
+async function runSteps(stepsInput, { onStepEnd, timeoutMs, requireAdmin } = {}) {
   if (!logsDir) throw new Error('LogsDir do runner não configurado.');
+  const sequenceTimeoutMs = resolveTimeoutMs({ timeoutMs });
+  // Eleva só quando explicitamente pedido (padrão true para não quebrar chamadas antigas
+  // que sempre esperavam UAC). Limpeza/otimização sem admin passam requireAdmin:false.
+  const needsAdmin = requireAdmin !== false;
   const prepared = [];       // passos validados
   const resultMap = new Map(); // index em prepared -> resultado mutável
   const results = [];        // resultados na ordem original da entrada
@@ -198,9 +209,13 @@ async function runSteps(stepsInput, { onStepEnd } = {}) {
             if (!seenEnd.has(idx) && resultMap.has(idx)) {
               seenEnd.add(idx);
               const res = resultMap.get(idx);
-              const ok = code === 0;
+              // SFC: 0 ok; DISM frequentemente 0. Códigos informativos conhecidos → aviso ok.
+              const softOk = code === 3010 || code === 3011; // reboot required / success variants
+              const ok = code === 0 || softOk;
               res.ok = ok;
-              res.message = ok ? `${res.name} concluído.` : friendlyError(code, res.name);
+              res.message = ok
+                ? (softOk ? `${res.name} concluído (reinício recomendado).` : `${res.name} concluído.`)
+                : friendlyError(code, res.name);
               if (onStepEnd) onStepEnd(res.name, ok, res.message);
             }
           }
@@ -212,10 +227,10 @@ async function runSteps(stepsInput, { onStepEnd } = {}) {
   })();
 
   let launch;
-  if (isElevated()) {
-    launch = await launchNormal(orchPath);
+  if (isElevated() || !needsAdmin) {
+    launch = await launchNormal(orchPath, sequenceTimeoutMs);
   } else {
-    launch = await launchElevated(orchPath);
+    launch = await launchElevated(orchPath, sequenceTimeoutMs);
     if (launch.code === 1223) {
       launch.error = 'Execução cancelada — permissão de administrador negada.';
     }
@@ -244,8 +259,8 @@ async function runSteps(stepsInput, { onStepEnd } = {}) {
 
 /** Executa um único script (.bat/.reg/.ps1). */
 async function runSingle(name, file, opts) {
-  const { results, logText } = await runSteps([{ name, path: file }], opts);
-  return { result: results[0] || { name, ok: false, message: 'Falha desconhecida.' }, logText };
+  const { results, logText, launchError } = await runSteps([{ name, path: file }], opts);
+  return { result: results[0] || { name, ok: false, message: 'Falha desconhecida.' }, logText, launchError: launchError || null };
 }
 
 /**

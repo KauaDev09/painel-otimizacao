@@ -94,7 +94,8 @@ internal static class Program
             return 0;
         }
 
-        double sat = 100, con = 100, bri = 100, gamma = 100, temp = 100, cx = -1, cy = -1, ddc = 1;
+        // ddc default 0: só gamma ramp, a menos que o app peça DDC explicitamente.
+        double sat = 100, con = 100, bri = 100, gamma = 100, temp = 100, cx = -1, cy = -1, ddc = 0;
         ParseNums(args, 0, ref sat, ref con, ref bri, ref gamma, ref temp, ref cx, ref cy, ref ddc);
         WriteResult(Apply(sat, con, bri, gamma, temp, cx, cy, ddc >= 0.5));
         return 0;
@@ -114,7 +115,7 @@ internal static class Program
                 payload = payload.Substring(6);
 
             string[] parts = payload.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-            double sat = 100, con = 100, bri = 100, gamma = 100, temp = 100, cx = -1, cy = -1, ddc = 1;
+            double sat = 100, con = 100, bri = 100, gamma = 100, temp = 100, cx = -1, cy = -1, ddc = 0;
             ParseNums(parts, 0, ref sat, ref con, ref bri, ref gamma, ref temp, ref cx, ref cy, ref ddc);
             WriteResult(Apply(sat, con, bri, gamma, temp, cx, cy, ddc >= 0.5));
         }
@@ -313,12 +314,16 @@ internal static class Program
         return 7; // 10000K+
     }
 
+    // UI usa 0–200 (%); VCP 0x10/0x12 esperam tipicamente 0–100.
+    // NÃO dividir por 2 (bug antigo: 100% → brilho 50 no OSD do monitor).
+    // NÃO escrever VCP 0x62 (em muitos monitores é VOLUME do alto-falante).
+    // NÃO escrever VCP 0x0C (preset de temperatura) — altera o OSD de forma
+    // permanente e imprevisível entre fabricantes.
+    // satPct/tempPct só afetam a gamma ramp (mantidos na assinatura por compatibilidade).
     static bool ApplyDdc(List<MonitorTarget> targets, double briPct, double conPct, double satPct, double tempPct)
     {
-        uint bri = (uint)Math.Max(0, Math.Min(100, Math.Round(briPct / 2.0)));
-        uint con = (uint)Math.Max(0, Math.Min(100, Math.Round(conPct / 2.0)));
-        uint sat = (uint)Math.Max(0, Math.Min(100, Math.Round(satPct / 2.0)));
-        uint tempPreset = TempToDdcPreset(tempPct);
+        uint bri = (uint)Math.Max(0, Math.Min(100, Math.Round(briPct > 100 ? 100 : briPct)));
+        uint con = (uint)Math.Max(0, Math.Min(100, Math.Round(conPct > 100 ? 100 : conPct)));
 
         bool any = false;
         if (targets == null) return false;
@@ -336,9 +341,7 @@ internal static class Program
                 {
                     IntPtr h = mons[j].hPhysicalMonitor;
                     if (Native.SetVCPFeature(h, 0x10, bri)) any = true; // brilho
-                    Native.SetVCPFeature(h, 0x12, con);                 // contraste
-                    Native.SetVCPFeature(h, 0x62, sat);                 // saturação
-                    Native.SetVCPFeature(h, 0x0C, tempPreset);          // temperatura de cor
+                    if (Native.SetVCPFeature(h, 0x12, con)) any = true; // contraste
                 }
             }
             finally

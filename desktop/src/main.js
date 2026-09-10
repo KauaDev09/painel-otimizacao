@@ -194,7 +194,7 @@ function createWindow() {
     const disp = settingsService.get().display || {};
     const needsRestore = ['saturation', 'contrast', 'brightness', 'gamma', 'temperature']
       .some((k) => Number(disp[k] ?? 100) !== 100);
-    if (needsRestore) applyScreenRampAndOverlay({ ...disp, forceDdc: true }).catch(() => {});
+    if (needsRestore) applyScreenRampAndOverlay({ ...disp, forceDdc: false }).catch(() => {});
     // Biblioteca em idle — não bloqueia a UI na abertura.
     setTimeout(() => {
       try { appLibrary.warmupLibrary(); } catch (_) { /* ok */ }
@@ -289,7 +289,8 @@ app.whenReady().then(() => {
       if (!filePath || !fs.existsSync(filePath)) {
         return new Response('Not found', { status: 404 });
       }
-      return net.fetch('file:///' + filePath.replace(/\\/g, '/'));
+      const { pathToFileURL } = require('url');
+      return net.fetch(pathToFileURL(filePath).href);
     } catch (_) {
       return new Response('Error', { status: 500 });
     }
@@ -299,7 +300,10 @@ app.whenReady().then(() => {
   registerIpc();
   createWindow();
   setTimeout(() => {
-    try { require('./engine/scriptsSync').reinit(); } catch (_) { /* ok */ }
+    try {
+      require('./engine/scriptsSync').reinit();
+      try { require('./engine/catalog').invalidateScriptsBase(); } catch (_) { /* ok */ }
+    } catch (_) { /* ok */ }
   }, 400);
   setTimeout(() => {
     biosManager.verifyPending().then((res) => {

@@ -103,13 +103,24 @@ function syncDisplays() {
 
 function setAlpha(alpha) {
   syncDisplays();
+  const a = Number(alpha) || 0;
   for (const entry of overlays.values()) {
     (entry.ready || Promise.resolve()).then(() => {
-      if (overlays.size) {
+      if (!overlays.has(entry.displayKey)) return;
+      try {
+        if (a <= 0.001) {
+          if (entry.win.isVisible()) entry.win.hide();
+          entry.win.webContents.executeJavaScript(
+            `document.body.style.background='rgba(0,0,0,0)';`
+          ).catch(() => {});
+          return;
+        }
         entry.win.webContents.executeJavaScript(
-          `document.body.style.background='rgba(0,0,0,${alpha})';`
+          `document.body.style.background='rgba(0,0,0,${a})';`
         ).catch(() => {});
-      }
+        // show:false na criação — sem showInactive o fallback de brilho nunca aparece.
+        if (!entry.win.isVisible()) entry.win.showInactive();
+      } catch (_) { /* janela destruída */ }
     }).catch(() => {});
   }
 }
@@ -125,7 +136,10 @@ function setBrightness(percent) {
 function hide() {
   for (const entry of overlays.values()) {
     (entry.ready || Promise.resolve()).then(() => {
-      entry.win.webContents.executeJavaScript(`document.body.style.background='rgba(0,0,0,0)';`).catch(() => {});
+      try {
+        entry.win.webContents.executeJavaScript(`document.body.style.background='rgba(0,0,0,0)';`).catch(() => {});
+        if (entry.win.isVisible()) entry.win.hide();
+      } catch (_) { /* ok */ }
     }).catch(() => {});
   }
 }

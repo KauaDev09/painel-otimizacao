@@ -181,9 +181,9 @@ reg add "HKLM\SOFTWARE\Microsoft\MSMQ\Parameters" /v "TCPNoDelay" /t REG_DWORD /
 reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v "TcpAckFrequency" /t REG_DWORD /d 1 /f >nul 2>&1
 reg add "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" /v "TCPNoDelay" /t REG_DWORD /d 1 /f >nul 2>&1
 
-:: DNS Cloudflare
-netsh interface ip set dns "Ethernet" static 1.1.1.1 primary >nul 2>&1
-netsh interface ip add dns "Ethernet" 8.8.8.8 index=2 >nul 2>&1
+:: DNS Cloudflare/Google em adapters conectados (não assume nome "Ethernet")
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+"Get-NetAdapter -ErrorAction SilentlyContinue | Where-Object { $_.Status -eq 'Up' -and $_.HardwareInterface } | ForEach-Object { try { Set-DnsClientServerAddress -InterfaceIndex $_.ifIndex -ServerAddresses @('1.1.1.1','8.8.8.8') -ErrorAction SilentlyContinue } catch {} }" >nul 2>&1
 ipconfig /flushdns >nul 2>&1
 
 :: TCP Optimize
