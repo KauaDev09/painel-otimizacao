@@ -6,8 +6,8 @@
 //   - desktop/package.json  → "name" e build.productName
 //   - backend/admin/index.html (marca visual)
 
-const APP_NAME = 'ORION OPTIMIZER';
-const APP_NAME_SHORT = 'Orion Optimizer';
+const APP_NAME = 'SevenFour';
+const APP_NAME_SHORT = 'SevenFour';
 const APP_VERSION = '2.1.10';
 const SUPPORT_EMAIL = '';
 // Suporte oficial via Discord (aberto pelo botão de suporte da interface).

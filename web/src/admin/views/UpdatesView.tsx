@@ -46,7 +46,7 @@ export default function UpdatesView() {
     }
     const v = versao.trim();
     setUrl(
-      `https://github.com/KauaDev09/painel-otimizacao/releases/download/v${v}/ORION-OPTIMIZER-Setup-${v}.exe`,
+      `https://github.com/KauaDev09/painel-otimizacao/releases/download/v${v}/SevenFour-Setup-${v}.exe`,
     );
     setMsg(
       'URL gerada. Confira o nome exato do asset na release (o script npm run release imprime a URL correta).',

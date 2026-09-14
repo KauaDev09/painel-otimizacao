@@ -187,7 +187,7 @@ export default function LicencasView() {
           </thead>
           <tbody>
             {licenses === null ? (
-              <TableLoading cols={9} title="Carregando licenças…" desc="O Orion está buscando as chaves emitidas." />
+              <TableLoading cols={9} title="Carregando licenças…" desc="O SevenFour está buscando as chaves emitidas." />
             ) : licenses.length === 0 ? (
               <TableEmpty cols={9} title="Nenhuma licença emitida" desc="Use o formulário acima para gerar a primeira chave." />
             ) : (

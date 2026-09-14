@@ -14,13 +14,12 @@ const mysql = require('mysql2/promise');
 
 const RELEASE = {
   version: '2.1.10',
-  filename: 'ORION.OPTIMIZER.Setup-2.1.10.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.10/ORION.OPTIMIZER.Setup-2.1.10.exe',
+  filename: 'SevenFour-Setup-2.1.10.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.10/SevenFour-Setup-2.1.10.exe',
   changelog: [
-    'CORREÇÃO: limpeza de arquivos temporários e DNS não falham mais com falso erro.',
-    'TEMP limpo em processo adiado (seguro) + race do runner corrigida.',
-    'Visual novo: navy + cyan (System Intelligence), sem roxo de template.',
-    'Dashboard, site e admin alinhados ao novo perfil de cores.'
+    'Identidade SevenFour (S4): dark + vermelho sinal no site, admin e app.',
+    'Logo S4 integrada; termos e privacidade atualizados.',
+    'Instalador e atalhos renomeados para SevenFour (versão 2.1.10).'
   ].join('\n'),
   obrigatoria: true,
   exige_pagamento: false,

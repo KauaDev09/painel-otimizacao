@@ -34,7 +34,7 @@ type Health = 'unknown' | 'online' | 'offline';
 const FAQ: { q: string; a: string }[] = [
   {
     q: 'Preciso de uma licença para usar o aplicativo?',
-    a: 'Sim. O acesso ao Orion exige uma Key válida, adquirida na Orion Store e validada com segurança no servidor. Sem Key, o painel não é liberado.',
+    a: 'Sim. O acesso ao SevenFour exige uma Key válida, adquirida na loja SevenFour e validada com segurança no servidor. Sem Key, o painel não é liberado.',
   },
   {
     q: 'Por que algumas otimizações pedem senha de administrador?',
@@ -46,7 +46,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'A análise altera alguma configuração da BIOS?',
-    a: 'A análise é somente leitura. Aplicações automáticas só ocorrem quando existe um método documentado e verificável, sempre com confirmação. Sem suporte seguro, o Orion mostra o guia de configuração manual — nunca finge que aplicou algo.',
+    a: 'A análise é somente leitura. Aplicações automáticas só ocorrem quando existe um método documentado e verificável, sempre com confirmação. Sem suporte seguro, o SevenFour mostra o guia de configuração manual — nunca finge que aplicou algo.',
   },
   {
     q: 'Posso usar em mais de um computador?',
@@ -221,7 +221,7 @@ export function Suporte({ onNavigate }: { onNavigate?: (view: string) => void })
 
           {/* Informações da versão */}
           <Section title="Informações da versão" icon={<Info className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
-            <InfoRow label="Aplicativo" value={meta?.appName || 'ORION OPTIMIZER'} />
+            <InfoRow label="Aplicativo" value={meta?.appName || 'SevenFour'} />
             <InfoRow label="Versão instalada" value={meta?.version ? `v${meta.version}` : '—'} />
             <InfoRow label="Modo de análise" value="Somente leitura (BIOS) · reversível (Windows)" />
             {onNavigate && (

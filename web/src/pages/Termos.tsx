@@ -7,13 +7,13 @@ export default function Termos() {
         <div className="kicker">Legal</div>
         <h1>Termos de uso</h1>
         <p className="lead">
-          Última atualização: 5 de setembro de 2026. Ao baixar o instalador, comprar uma key ou usar
+          Última atualização: 14 de setembro de 2026. Ao baixar o instalador, comprar uma key ou usar
           o painel, você concorda com isto.
         </p>
 
-        <h2>1. O que é o Orion</h2>
+        <h2>1. O que é o SevenFour</h2>
         <p>
-          O Orion Optimizer é um aplicativo para Windows que analisa hardware e aplica otimizações
+          O SevenFour (S4) é um aplicativo para Windows que analisa hardware e aplica otimizações
           escolhidas por você. O instalador é público. O painel completo exige chave de licença
           paga.
         </p>
@@ -52,7 +52,7 @@ export default function Termos() {
 
         <h2>7. Propriedade</h2>
         <p>
-          O software, a marca e o painel web são da Orion. Você recebe licença de uso, não a
+          O software, a marca e o painel web são da SevenFour. Você recebe licença de uso, não a
           propriedade do código do aplicativo.
         </p>
 

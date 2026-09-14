@@ -82,7 +82,7 @@ export default function DownloadsView() {
           </div>
           <div>
             <label>Arquivo</label>
-            <input value={filename} placeholder="ORION-OPTIMIZER-Setup-2.1.0.exe" onChange={(e) => setFilename(e.target.value)} />
+            <input value={filename} placeholder="SevenFour-Setup-2.1.10.exe" onChange={(e) => setFilename(e.target.value)} />
           </div>
           <div style={{ minWidth: 320 }}>
             <label>URL do download</label>

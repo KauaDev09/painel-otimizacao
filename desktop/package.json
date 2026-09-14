@@ -1,9 +1,9 @@
 {
   "name": "orion-optimizer",
   "version": "2.1.10",
-  "description": "ORION OPTIMIZER — análise de BIOS, otimização do Windows, game boost, limpeza e manutenção para Windows.",
+  "description": "SevenFour (S4) — análise de BIOS, otimização do Windows, game boost, limpeza e manutenção para Windows.",
   "main": "src/main.js",
-  "author": "Orion",
+  "author": "SevenFour",
   "license": "Proprietary",
   "private": true,
   "scripts": {
@@ -41,8 +41,8 @@
   },
   "build": {
     "appId": "com.orion.optimizer",
-    "productName": "ORION OPTIMIZER",
-    "copyright": "Copyright © 2026 Orion",
+    "productName": "SevenFour",
+    "copyright": "Copyright © 2026 SevenFour",
     "directories": {
       "output": "release",
       "buildResources": "build"
@@ -73,7 +73,7 @@
         }
       ],
       "icon": "build/icon.ico",
-      "artifactName": "${productName} Setup-${version}.${ext}"
+      "artifactName": "SevenFour-Setup-${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -81,8 +81,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "ORION OPTIMIZER",
-      "uninstallDisplayName": "ORION OPTIMIZER"
+      "shortcutName": "SevenFour",
+      "uninstallDisplayName": "SevenFour"
     }
   },
   "allowScripts": {

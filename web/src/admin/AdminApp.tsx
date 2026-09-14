@@ -240,7 +240,7 @@ export default function AdminApp() {
             <div className="sidebar-plan">
               <p className="sidebar-plan-label">Plano atual</p>
               <p className="sidebar-plan-name">Pro Anual</p>
-              <p className="sidebar-plan-exp">Painel administrativo Orion</p>
+              <p className="sidebar-plan-exp">Painel administrativo SevenFour</p>
               <button type="button" className="sidebar-plan-btn">
                 Gerenciar plano
               </button>

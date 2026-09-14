@@ -540,7 +540,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
               </p>
             )}
             <p className="mt-3 text-xs text-muted-foreground">
-              O Orion não afirma que a opção foi aplicada até verificar o hardware de novo.
+              O SevenFour não afirma que a opção foi aplicada até verificar o hardware de novo.
             </p>
           </div>
         ),
@@ -548,7 +548,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
       if (verify && api.biosScheduleVerify) {
         await api.biosScheduleVerify(id);
         await refreshBios();
-        toast('info', 'Operação pendente criada. Após reiniciar, o Orion verifica o resultado.');
+        toast('info', 'Operação pendente criada. Após reiniciar, o SevenFour verifica o resultado.');
       }
     } catch (err) {
       toast('error', errMsg(err, 'Não foi possível abrir o guia.'));
@@ -612,7 +612,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
         okLabel: 'OTIMIZAR BIOS',
         body: (
           <div>
-            <p className="m-0 mb-2">O Orion pretende:</p>
+            <p className="m-0 mb-2">O SevenFour pretende:</p>
             <KV label="Alteração" value={dash(preview.setting)} />
             <KV label="Atual" value={dash(preview.current)} />
             <KV label="Novo" value={dash(preview.next)} />
@@ -650,7 +650,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
             Restaurar o estado anterior de <span className="font-semibold text-foreground">{item?.name || id}</span>?
           </p>
           <p className="mt-2 text-xs text-muted-foreground">
-            O Orion tentará reverter a alteração usando o snapshot salvo. Se não for possível, será indicado um rollback manual.
+            O SevenFour tentará reverter a alteração usando o snapshot salvo. Se não for possível, será indicado um rollback manual.
           </p>
         </div>
       ),
@@ -702,7 +702,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
       body: (
         <div>
           <p className="m-0">
-            Salve seu trabalho antes de continuar. Após a reinicialização, o Orion verificará automaticamente as otimizações pendentes.
+            Salve seu trabalho antes de continuar. Após a reinicialização, o SevenFour verificará automaticamente as otimizações pendentes.
           </p>
           <p className="mt-3 flex items-start gap-2 text-xs text-amber-400">
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
@@ -788,7 +788,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
         <div className="flex flex-wrap items-center gap-3 rounded-lg bg-amber-500/10 px-4 py-3 text-sm text-amber-400">
           <Power className="h-4 w-4 shrink-0" />
           <span className="flex-1">
-            Há otimizações aguardando reinicialização. O Orion confirmará o resultado na próxima inicialização.
+            Há otimizações aguardando reinicialização. O SevenFour confirmará o resultado na próxima inicialização.
           </span>
           {api.biosVerifyPending && (
             <button

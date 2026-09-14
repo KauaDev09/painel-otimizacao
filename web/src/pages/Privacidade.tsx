@@ -7,13 +7,13 @@ export default function Privacidade() {
         <div className="kicker">LGPD</div>
         <h1>Política de privacidade</h1>
         <p className="lead">
-          Última atualização: 5 de setembro de 2026. Diz o que coletamos, por quê, e como você apaga
+          Última atualização: 14 de setembro de 2026. Diz o que coletamos, por quê, e como você apaga
           tudo.
         </p>
 
         <h2>1. Quem controla</h2>
         <p>
-          Orion Optimizer (site e aplicativo Windows). Pedidos sobre dados:{' '}
+          SevenFour / S4 (site e aplicativo Windows). Pedidos sobre dados:{' '}
           <Link to="/suporte">/suporte</Link> ou o{' '}
           <a href="https://discord.gg/e3jHfF7ANp" target="_blank" rel="noopener noreferrer">
             Discord oficial
@@ -116,7 +116,7 @@ export default function Privacidade() {
 
         <h2>7. Onde processa</h2>
         <p>
-          Servidores de aplicação e banco usados pelo site (hospedagem do Orion). O app fala com essa
+          Servidores de aplicação e banco usados pelo site (hospedagem do SevenFour). O app fala com essa
           API para validar a key.
         </p>
 

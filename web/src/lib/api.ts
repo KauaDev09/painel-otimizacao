@@ -14,8 +14,8 @@ export class ApiError extends Error {
 
 export const PUBLIC_INSTALLER = {
   version: '2.1.10',
-  filename: 'ORION.OPTIMIZER.Setup-2.1.10.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.10/ORION.OPTIMIZER.Setup-2.1.10.exe',
+  filename: 'SevenFour-Setup-2.1.10.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.10/SevenFour-Setup-2.1.10.exe',
   releaseNotes:
     'Discord oficial no suporte. Fonte Inter. Login e Configurações com o novo canal. Instalador público; o painel abre com a key.',
   size: '~108 MB',
