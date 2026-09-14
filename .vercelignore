@@ -1,5 +1,7 @@
-# Root project — only backend/ is deployed (Vercel root directory = backend)
+# Deploy from repo root: React SPA (web/) + API serverless (api/)
 desktop/
+desktop/release-rebuild/
+desktop/release-s4/
 release/
 Windows Boost - Essential/
 Icons Navegations/
@@ -15,6 +17,7 @@ node_modules/
 *.log
 *.tmp
 README.md
-.gitignore
 **/release/
 **/node_modules/
+web/node_modules/
+web/dist/
