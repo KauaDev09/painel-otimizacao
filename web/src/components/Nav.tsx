@@ -1,24 +1,36 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { clearToken, isAuthed } from '../lib/api';
+import { scrollToHash } from '../lib/scroll';
 import BrandMark from './BrandMark';
 
 type NavProps = {
   showMenu?: boolean;
 };
 
+const HASH_LINKS = [
+  { to: '/#produto', label: 'Produto', hash: 'produto' },
+  { to: '/#recursos', label: 'Recursos', hash: 'recursos' },
+  { to: '/#como-funciona', label: 'Como funciona', hash: 'como-funciona' },
+] as const;
+
+const PAGE_LINKS = [
+  { to: '/planos', label: 'Planos' },
+  { to: '/download', label: 'Download' },
+  { to: '/suporte', label: 'Suporte' },
+] as const;
+
 export default function Nav({ showMenu = true }: NavProps) {
   const [authed, setAuthed] = useState(isAuthed());
   const [menuOpen, setMenuOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
-  const lastY = useRef(0);
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     setAuthed(isAuthed());
     setMenuOpen(false);
-  }, [location.pathname]);
+  }, [location.pathname, location.hash]);
 
   useEffect(() => {
     const nav = navRef.current;
@@ -27,11 +39,6 @@ export default function Nav({ showMenu = true }: NavProps) {
     const apply = () => {
       const y = window.scrollY || 0;
       nav.classList.toggle('scrolled', y > 16);
-      const inner = nav.querySelector('.nav-inner');
-      const open = inner?.classList.contains('nav-open');
-      if (!open && y > lastY.current + 4 && y > 72) nav.classList.add('is-hidden');
-      else if (y < lastY.current - 2 || y < 48) nav.classList.remove('is-hidden');
-      lastY.current = y;
     };
 
     window.addEventListener('scroll', apply, { passive: true });
@@ -49,6 +56,27 @@ export default function Nav({ showMenu = true }: NavProps) {
     setMenuOpen(false);
   }
 
+  function handleHashClick(e: MouseEvent<HTMLAnchorElement>, hash: string) {
+    e.preventDefault();
+    closeMenu();
+
+    const go = () => {
+      scrollToHash(hash);
+    };
+
+    if (location.pathname === '/') {
+      if (location.hash === `#${hash}`) {
+        go();
+      } else {
+        navigate({ pathname: '/', hash: `#${hash}` }, { replace: false });
+        // Layout also scrolls; this covers same-tick / already-mounted Home.
+        requestAnimationFrame(go);
+      }
+    } else {
+      navigate({ pathname: '/', hash: `#${hash}` });
+    }
+  }
+
   return (
     <nav className="nav" ref={navRef}>
       <div className={`nav-inner${menuOpen ? ' nav-open' : ''}`}>
@@ -58,24 +86,20 @@ export default function Nav({ showMenu = true }: NavProps) {
 
         {showMenu && (
           <div className="nav-menu">
-            <Link to="/#produto" onClick={closeMenu}>
-              Produto
-            </Link>
-            <Link to="/#recursos" onClick={closeMenu}>
-              Recursos
-            </Link>
-            <Link to="/#como-funciona" onClick={closeMenu}>
-              Como funciona
-            </Link>
-            <Link to="/planos" onClick={closeMenu}>
-              Planos
-            </Link>
-            <Link to="/download" onClick={closeMenu}>
-              Download
-            </Link>
-            <Link to="/suporte" onClick={closeMenu}>
-              Suporte
-            </Link>
+            {HASH_LINKS.map((item) => (
+              <Link
+                key={item.hash}
+                to={item.to}
+                onClick={(e) => handleHashClick(e, item.hash)}
+              >
+                {item.label}
+              </Link>
+            ))}
+            {PAGE_LINKS.map((item) => (
+              <Link key={item.to} to={item.to} onClick={closeMenu}>
+                {item.label}
+              </Link>
+            ))}
           </div>
         )}
 

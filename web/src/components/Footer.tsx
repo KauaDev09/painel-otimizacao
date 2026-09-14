@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState, type MouseEvent } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { API } from '../lib/api';
+import { scrollToHash } from '../lib/scroll';
 import BrandMark from './BrandMark';
 
 type FooterProps = {
@@ -10,6 +11,8 @@ type FooterProps = {
 export default function Footer({ variant = 'full' }: FooterProps) {
   const year = new Date().getFullYear();
   const [version, setVersion] = useState('');
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (variant !== 'full') return;
@@ -20,6 +23,18 @@ export default function Footer({ variant = 'full' }: FooterProps) {
       })
       .catch(() => {});
   }, [variant]);
+
+  function handleHashClick(e: MouseEvent<HTMLAnchorElement>, hash: string) {
+    e.preventDefault();
+    if (location.pathname === '/') {
+      if (location.hash !== `#${hash}`) {
+        navigate({ pathname: '/', hash: `#${hash}` });
+      }
+      requestAnimationFrame(() => scrollToHash(hash));
+    } else {
+      navigate({ pathname: '/', hash: `#${hash}` });
+    }
+  }
 
   if (variant === 'minimal') {
     return (
@@ -51,9 +66,15 @@ export default function Footer({ variant = 'full' }: FooterProps) {
           </div>
           <div className="footer-col">
             <h4>Produto</h4>
-            <Link to="/#produto">Painel</Link>
-            <Link to="/#como-funciona">Como funciona</Link>
-            <Link to="/#faq">Perguntas</Link>
+            <Link to="/#produto" onClick={(e) => handleHashClick(e, 'produto')}>
+              Painel
+            </Link>
+            <Link to="/#como-funciona" onClick={(e) => handleHashClick(e, 'como-funciona')}>
+              Como funciona
+            </Link>
+            <Link to="/#faq" onClick={(e) => handleHashClick(e, 'faq')}>
+              Perguntas
+            </Link>
           </div>
           <div className="footer-col">
             <h4>Comprar</h4>

@@ -5,5 +5,9 @@
     "dev:web": "npm --prefix web run dev",
     "build": "npm --prefix web install && npm --prefix web run build",
     "build:web": "npm --prefix web run build"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "mysql2": "^3.11.0"
   }
 }

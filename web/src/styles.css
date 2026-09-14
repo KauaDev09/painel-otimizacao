@@ -145,9 +145,7 @@ code, .mono { font-family: var(--font-mono); }
 .nav {
   position: fixed; top: 14px; left: 0; right: 0; z-index: 100;
   pointer-events: none;
-  transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.nav.is-hidden { transform: translateY(calc(-100% - 24px)); }
 .nav-inner {
   pointer-events: auto;
   max-width: var(--container); margin: 0 auto; padding: 10px 14px 10px 16px;
@@ -360,7 +358,7 @@ code, .mono { font-family: var(--font-mono); }
 /* ============================================================
    SEÇÕES
    ============================================================ */
-.section { padding: 104px 0; position: relative; }
+.section { padding: 104px 0; position: relative; scroll-margin-top: 96px; }
 .section-alt {
   background: transparent;
   border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);

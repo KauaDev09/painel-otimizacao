@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { hasConsent, injectFonts, pingAccess } from '../lib/consent';
+import { scrollToHash } from '../lib/scroll';
 import CookieConsent from './CookieConsent';
 import Footer from './Footer';
 import Nav from './Nav';
@@ -23,11 +24,11 @@ export default function Layout() {
 
   useEffect(() => {
     if (location.hash) {
-      const el = document.querySelector(location.hash);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.scrollTo(0, 0);
+      // Delay past route paint so Home section ids exist when coming from /planos etc.
+      const t = window.setTimeout(() => scrollToHash(location.hash), 0);
+      return () => window.clearTimeout(t);
     }
+    window.scrollTo(0, 0);
   }, [location.pathname, location.hash]);
 
   useEffect(() => {
