@@ -106,7 +106,7 @@ class MercadoPagoProvider {
       }
       const pay = await this._post('/v1/payments', {
         transaction_amount: amount,
-        description: `SevenFour — Plano ${plan.name}`,
+        description: `SevenOptimizer — Plano ${plan.name}`,
         payment_method_id: 'pix',
         external_reference: externalRef,
         notification_url: notificationUrl,
@@ -126,11 +126,11 @@ class MercadoPagoProvider {
     // Cartão de crédito (ou padrão): preferência com redirecionamento.
     const item = {
       id: String(order.id || externalRef),
-      title: `SevenFour — Plano ${plan.name}`,
+      title: `SevenOptimizer — Plano ${plan.name}`,
       quantity: 1,
       unit_price: amount,
       currency_id: String(order.currency || 'BRL'),
-      description: plan.description || 'Licença SevenFour'
+      description: plan.description || 'Licença SevenOptimizer'
     };
     const body = {
       items: [item],

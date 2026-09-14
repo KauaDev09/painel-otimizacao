@@ -26,7 +26,7 @@ export default function Footer({ variant = 'full' }: FooterProps) {
       <footer className="footer">
         <div className="container">
           <div className="footer-bottom">
-            <span>© {year} SevenFour.</span>
+            <span>© {year} SevenOptimizer.</span>
             <span>
               <Link to="/privacidade">Privacidade</Link> · <Link to="/termos">Termos</Link>
             </span>
@@ -42,7 +42,7 @@ export default function Footer({ variant = 'full' }: FooterProps) {
         <div className="footer-grid">
           <div className="footer-brand">
             <Link to="/">
-              <BrandMark />
+              <BrandMark variant="wordmark" />
             </Link>
             <p>
               Diagnóstico e otimização para Windows — leitura de hardware, ajustes sob sua escolha e
@@ -77,7 +77,7 @@ export default function Footer({ variant = 'full' }: FooterProps) {
           </div>
         </div>
         <div className="footer-bottom">
-          <span>© {year} SevenFour (S4).</span>
+          <span>© {year} SevenOptimizer (S4).</span>
           {version && (
             <span className="mono" style={{ color: 'var(--text-muted)' }}>
               {version}

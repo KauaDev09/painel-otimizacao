@@ -314,7 +314,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
         </div>
         {meta?.version && (
           <span className="rounded-full bg-[var(--orion-surface)] px-3 py-1 text-xs font-semibold text-muted-foreground">
-            {meta.appName || 'SevenFour'} · v{meta.version}
+            {meta.appName || 'SevenOptimizer'} · v{meta.version}
           </span>
         )}
       </div>
@@ -562,7 +562,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
 
           {/* Sobre */}
           <Section title="Sobre o aplicativo" icon={<Info className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
-            <InfoRow label="Aplicativo" value={meta?.appName || 'SevenFour'} />
+            <InfoRow label="Aplicativo" value={meta?.appName || 'SevenOptimizer'} />
             <InfoRow label="Versão" value={meta?.version ? `v${meta.version}` : '—'} />
             <InfoRow label="Configurações" value="%APPDATA%/orion-optimizer" mono />
             <p className="mt-3 text-xs text-muted-foreground">

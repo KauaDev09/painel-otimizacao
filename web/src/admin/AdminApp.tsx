@@ -152,15 +152,15 @@ export default function AdminApp() {
           <div className="login-header">
             <div className="login-brand">
               <img
-                src="/assets/s4-logo.png"
-                alt="SevenFour"
+                src="/assets/s4-icon.png"
+                alt="SevenOptimizer"
                 className="login-logo-icon"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
               <span className="login-logo-text">
-                SEVENFOUR<span className="login-logo-sub">PAINEL ADMINISTRATIVO</span>
+                SEVENOPTIMIZER<span className="login-logo-sub">PAINEL ADMINISTRATIVO</span>
               </span>
             </div>
           </div>
@@ -205,8 +205,8 @@ export default function AdminApp() {
           >
             <div className="sidebar-brand">
               <img
-                src="/assets/s4-logo.png"
-                alt="SevenFour"
+                src="/assets/s4-icon.png"
+                alt="SevenOptimizer"
                 className="sidebar-logo"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
@@ -214,7 +214,7 @@ export default function AdminApp() {
               />
               <div className="sidebar-brand-text">
                 <h1>S4</h1>
-                <p>SEVENFOUR</p>
+                <p>SEVENOPTIMIZER</p>
               </div>
             </div>
 
@@ -240,7 +240,7 @@ export default function AdminApp() {
             <div className="sidebar-plan">
               <p className="sidebar-plan-label">Plano atual</p>
               <p className="sidebar-plan-name">Pro Anual</p>
-              <p className="sidebar-plan-exp">Painel administrativo SevenFour</p>
+              <p className="sidebar-plan-exp">Painel administrativo SevenOptimizer</p>
               <button type="button" className="sidebar-plan-btn">
                 Gerenciar plano
               </button>

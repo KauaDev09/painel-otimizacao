@@ -9,7 +9,7 @@ function Splash() {
     <div className="flex h-full items-center justify-center bg-black">
       <div className="flex flex-col items-center gap-4">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">SevenFour</span>
+        <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">SevenOptimizer</span>
       </div>
     </div>
   );

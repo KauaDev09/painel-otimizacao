@@ -1,7 +1,8 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { NAV } from './nav';
-import logoUrl from '../ui/assets/s4-logo.png';
+import logoUrl from '../ui/assets/s4-icon.png';
+import logoFullUrl from '../ui/assets/s4-logo-horizontal-dark.png';
 
 interface SidebarProps {
   view: string;
@@ -25,16 +26,14 @@ export function Sidebar({ view, onNavigate, collapsed, onToggle, version }: Side
           collapsed && 'justify-center px-2'
         )}
       >
-        <img src={logoUrl} alt="SevenFour" className="h-9 w-9 shrink-0 rounded-md object-cover" />
-        {!collapsed && (
-          <div className="leading-none">
-            <div className="text-sm font-bold tracking-[0.12em] text-foreground">
-              SEVEN<span className="text-[var(--orion-icon-default)]">FOUR</span>
-            </div>
-            <div className="mt-1 text-[0.62rem] font-semibold tracking-[0.28em] text-muted-foreground">
-              S4
-            </div>
-          </div>
+        {collapsed ? (
+          <img src={logoUrl} alt="SevenOptimizer" className="h-9 w-9 shrink-0 rounded-md object-cover" />
+        ) : (
+          <img
+            src={logoFullUrl}
+            alt="SevenOptimizer"
+            className="h-8 w-auto max-w-[168px] object-contain"
+          />
         )}
       </div>
 

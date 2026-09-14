@@ -28,7 +28,7 @@ export default function DownloadPanel({ className = '' }: DownloadPanelProps) {
   return (
     <div className={`download-panel ${className}`.trim()} data-spotlight>
       <div className="ver">v{download.version}</div>
-      <h3>SevenFour</h3>
+      <h3>SevenOptimizer</h3>
       <p>Windows 10 / 11 · 64 bits</p>
       <p className="dl-free">Download público · ativação por key de licença</p>
       <div className="dl-meta">

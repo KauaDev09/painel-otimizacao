@@ -13,7 +13,7 @@ export default function Privacidade() {
 
         <h2>1. Quem controla</h2>
         <p>
-          SevenFour / S4 (site e aplicativo Windows). Pedidos sobre dados:{' '}
+          SevenOptimizer / S4 (site e aplicativo Windows). Pedidos sobre dados:{' '}
           <Link to="/suporte">/suporte</Link> ou o{' '}
           <a href="https://discord.gg/e3jHfF7ANp" target="_blank" rel="noopener noreferrer">
             Discord oficial
@@ -116,7 +116,7 @@ export default function Privacidade() {
 
         <h2>7. Onde processa</h2>
         <p>
-          Servidores de aplicação e banco usados pelo site (hospedagem do SevenFour). O app fala com essa
+          Servidores de aplicação e banco usados pelo site (hospedagem do SevenOptimizer). O app fala com essa
           API para validar a key.
         </p>
 

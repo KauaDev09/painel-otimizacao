@@ -40,7 +40,7 @@ export default function PainelView() {
         <PageHeading title="Painel" desc="Visão geral da sua plataforma" />
         <div className="cards">
           <div className="stat" style={{ gridColumn: '1 / -1' }}>
-            <StateBox type="loading" title="Sintetizando dados…" desc="O SevenFour está calculando suas estatísticas." />
+            <StateBox type="loading" title="Sintetizando dados…" desc="O SevenOptimizer está calculando suas estatísticas." />
           </div>
         </div>
       </>

@@ -53,7 +53,7 @@ export default function Home() {
               <span className="accent-word">Windows</span>
             </h1>
             <p className="sub">
-              SevenFour lê o hardware e a configuração do sistema, organiza os ajustes por módulo e
+              SevenOptimizer lê o hardware e a configuração do sistema, organiza os ajustes por módulo e
               aplica somente o que você autorizar — com histórico para desfazer quando quiser.
             </p>
             <div className="hero-ctas">
@@ -155,7 +155,7 @@ export default function Home() {
               </div>
               <h3>BIOS e memória</h3>
               <p>
-                Leitura de parâmetros e perfil de memória. O SevenFour não grava firmware: mostra o
+                Leitura de parâmetros e perfil de memória. O SevenOptimizer não grava firmware: mostra o
                 que está ativo e o que pode ser revisado manualmente no setup.
               </p>
             </Reveal>
@@ -408,6 +408,12 @@ export default function Home() {
         <div className="container">
           <Reveal className="cta-band" data-spotlight>
             <div>
+              <img
+                className="brand-logo-full"
+                src="/assets/s4-logo-horizontal-dark.png"
+                alt="SevenOptimizer"
+                style={{ height: 44, marginBottom: 16 }}
+              />
               <div className="kicker" style={{ marginBottom: 12 }}>
                 Próximo passo
               </div>

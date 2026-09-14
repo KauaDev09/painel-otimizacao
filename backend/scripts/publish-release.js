@@ -14,12 +14,12 @@ const mysql = require('mysql2/promise');
 
 const RELEASE = {
   version: '2.1.10',
-  filename: 'SevenFour-Setup-2.1.10.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.10/SevenFour-Setup-2.1.10.exe',
+  filename: 'SevenOptimizer-Setup-2.1.10.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.10/SevenOptimizer-Setup-2.1.10.exe',
   changelog: [
-    'Identidade SevenFour (S4): dark + vermelho sinal no site, admin e app.',
+    'Identidade SevenOptimizer (S4): dark + vermelho sinal no site, admin e app.',
     'Logo S4 integrada; termos e privacidade atualizados.',
-    'Instalador e atalhos renomeados para SevenFour (versão 2.1.10).'
+    'Instalador e atalhos renomeados para SevenOptimizer (versão 2.1.10).'
   ].join('\n'),
   obrigatoria: true,
   exige_pagamento: false,

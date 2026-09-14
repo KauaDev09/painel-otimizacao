@@ -2,7 +2,7 @@
   "name": "bios-optimizer-server",
   "version": "1.0.0",
   "private": true,
-  "description": "API de licenciamento e sincronização do SevenFour (Node puro + MySQL).",
+  "description": "API de licenciamento e sincronização do SevenOptimizer (Node puro + MySQL).",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js"

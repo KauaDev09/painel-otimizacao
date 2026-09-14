@@ -473,7 +473,7 @@ export function Historico({ onNavigate }: { onNavigate?: (view: string) => void 
         </div>
         <p className="mb-3 text-sm text-muted-foreground">
           Gere um relatório completo da última análise (HTML) ou exporte o perfil de hardware em JSON. Os arquivos são salvos
-          em Documentos › SevenFour.
+          em Documentos › SevenOptimizer.
         </p>
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={generateReport} disabled={reportBusy} className={secondaryBtn}>

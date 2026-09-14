@@ -46,7 +46,7 @@ const STORE_URL = 'https://orion-store-dun.vercel.app';
 
 const ERROR_MAP: Record<string, string> = {
   LICENSE_NOT_FOUND: 'Key inválida — verifique se digitou corretamente.',
-  LICENSE_EXPIRED: 'Licença expirada — renove na loja SevenFour.',
+  LICENSE_EXPIRED: 'Licença expirada — renove na loja SevenOptimizer.',
   LICENSE_BLOCKED: 'Licença bloqueada — contate o suporte.',
   VERSION_NOT_AUTHORIZED: 'Esta versão não está autorizada pela sua licença.',
   DEVICE_LIMIT: 'Limite de dispositivos atingido para esta key.',
@@ -55,7 +55,7 @@ const ERROR_MAP: Record<string, string> = {
 
 const REASON_LABEL: Record<string, string> = {
   PRODUCT_NOT_ACTIVATED: 'Nenhuma key ativada neste computador.',
-  LICENSE_EXPIRED: 'Licença expirada — renove na loja SevenFour.',
+  LICENSE_EXPIRED: 'Licença expirada — renove na loja SevenOptimizer.',
   LICENSE_BLOCKED: 'Licença bloqueada — contate o suporte.',
   VERSION_NOT_AUTHORIZED: 'Esta versão não está autorizada pela sua licença.',
   VALIDATION_REQUIRED: 'É necessário revalidar a licença online.',
@@ -476,7 +476,7 @@ export function Licenca({ onNavigate }: { onNavigate?: (view: string) => void })
             </div>
             <p className="mb-5 text-sm text-muted-foreground">
               A licença será removida deste computador e você voltará para a tela de acesso. Será necessário informar a key novamente
-              para usar o SevenFour aqui.
+              para usar o SevenOptimizer aqui.
             </p>
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setConfirmLogout(false)} disabled={loggingOut} className={secondaryBtn}>

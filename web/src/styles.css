@@ -1,5 +1,5 @@
-﻿/* ============================================================
-   SEVENFOUR (S4) — storefront
+/* ============================================================
+   SEVENOPTIMIZER (S4) — storefront
    Dark tech · acento vermelho sinal · glass controlado
    Display/corpo: Inter · mono: IBM Plex
    ============================================================ */
@@ -180,6 +180,13 @@ code, .mono { font-family: var(--font-mono); }
 .brand .brand-mark img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .brand .brand-mark svg { color: #fff; }
 .brand .accent { color: var(--accent); font-weight: 700; }
+.brand-full { gap: 0; }
+.brand-logo-full {
+  height: 34px; width: auto; max-width: 220px;
+  display: block; object-fit: contain;
+}
+.nav.scrolled .brand-logo-full { height: 28px; }
+.footer-brand .brand-logo-full { height: 40px; max-width: 260px; margin-bottom: 4px; }
 
 .nav-menu { display: flex; gap: 2px; margin-left: auto; }
 .nav-menu a {
@@ -227,7 +234,7 @@ code, .mono { font-family: var(--font-mono); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
 /* ============================================================
-   HERO — SevenFour
+   HERO — SevenOptimizer
    ============================================================ */
 .hero {
   padding: 148px 0 40px; text-align: left; position: relative;

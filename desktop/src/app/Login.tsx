@@ -2,7 +2,7 @@ import React from 'react';
 import { KeyRound } from 'lucide-react';
 import { useApi } from '@/api';
 import { OrionReactiveCore } from '@/components/orion-reactive-core';
-import logoUrl from '../ui/assets/s4-logo.png';
+import logoFullUrl from '../ui/assets/s4-logo-horizontal-dark.png';
 
 const STORE_URL = 'https://orion-optimizer-ten.vercel.app/planos';
 const DISCORD_URL = 'https://discord.gg/e3jHfF7ANp';
@@ -31,7 +31,7 @@ export function Login() {
     } catch (err) {
       const map: Record<string, string> = {
         LICENSE_NOT_FOUND: 'Key inválida — verifique se digitou corretamente.',
-        LICENSE_EXPIRED: 'Licença expirada — renove na loja SevenFour.',
+        LICENSE_EXPIRED: 'Licença expirada — renove na loja SevenOptimizer.',
         LICENSE_BLOCKED: 'Licença bloqueada — fale no Discord oficial.',
         VERSION_NOT_AUTHORIZED: 'Esta versão não está autorizada pela sua licença.',
         DEVICE_LIMIT: 'Limite de dispositivos atingido para esta key.',
@@ -60,16 +60,8 @@ export function Login() {
     <div className="drag-region relative flex h-full items-center justify-center bg-[var(--orion-bg)]">
       <OrionReactiveCore className="absolute inset-0 z-0" />
       <div className="no-drag login-in relative z-10 w-[min(400px,92vw)] rounded-2xl bg-[rgba(18,18,22,0.78)] p-10 text-center shadow-[0_0_0_1px_rgba(255,59,63,0.18),0_20px_60px_rgba(0,0,0,0.5),0_0_40px_rgba(255,59,63,0.12)] backdrop-blur-md">
-        <div className="mb-6 flex items-center justify-center gap-3">
-          <img src={logoUrl} alt="SevenFour" className="h-10 w-10 rounded-lg object-cover" />
-          <div className="text-left leading-none">
-            <div className="text-[1.2rem] font-bold tracking-[0.12em] text-foreground">
-              SEVEN<span className="text-[var(--orion-icon-default)]">FOUR</span>
-            </div>
-            <div className="mt-1 text-[0.68rem] font-semibold tracking-[0.28em] text-muted-foreground">
-              S4
-            </div>
-          </div>
+        <div className="mb-6 flex flex-col items-center gap-3">
+          <img src={logoFullUrl} alt="SevenOptimizer" className="h-10 w-auto max-w-[240px] object-contain" />
         </div>
 
         <h1 className="mb-1.5 text-[1.05rem] font-semibold text-foreground">Entrar no painel</h1>

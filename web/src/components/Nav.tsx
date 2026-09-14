@@ -52,8 +52,8 @@ export default function Nav({ showMenu = true }: NavProps) {
   return (
     <nav className="nav" ref={navRef}>
       <div className={`nav-inner${menuOpen ? ' nav-open' : ''}`}>
-        <Link to="/" aria-label="SevenFour — Início" onClick={closeMenu}>
-          <BrandMark />
+        <Link to="/" aria-label="SevenOptimizer — Início" onClick={closeMenu}>
+          <BrandMark variant="wordmark" />
         </Link>
 
         {showMenu && (

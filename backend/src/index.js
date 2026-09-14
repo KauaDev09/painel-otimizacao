@@ -1,6 +1,6 @@
 'use strict';
 
-// SEVENFOUR — API de licenciamento (Node puro, sem framework).
+// SEVENOPTIMIZER — API de licenciamento (Node puro, sem framework).
 // Responsável por: autenticação, validação/ativação/renovação/expiração/
 // bloqueio de licenças, gerenciamento de dispositivos, histórico e logs.
 //

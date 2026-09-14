@@ -11,9 +11,9 @@ export default function Termos() {
           o painel, você concorda com isto.
         </p>
 
-        <h2>1. O que é o SevenFour</h2>
+        <h2>1. O que é o SevenOptimizer</h2>
         <p>
-          O SevenFour (S4) é um aplicativo para Windows que analisa hardware e aplica otimizações
+          O SevenOptimizer (S4) é um aplicativo para Windows que analisa hardware e aplica otimizações
           escolhidas por você. O instalador é público. O painel completo exige chave de licença
           paga.
         </p>
@@ -52,7 +52,7 @@ export default function Termos() {
 
         <h2>7. Propriedade</h2>
         <p>
-          O software, a marca e o painel web são da SevenFour. Você recebe licença de uso, não a
+          O software, a marca e o painel web são da SevenOptimizer. Você recebe licença de uso, não a
           propriedade do código do aplicativo.
         </p>
 

@@ -68,7 +68,7 @@ export function Header({ view, collapsed, onMenu }: HeaderProps) {
           </svg>
         </button>
         <nav className="no-drag flex items-center gap-2 text-sm" aria-label="Tela atual">
-          <span className="text-[var(--orion-text-secondary)]">SevenFour</span>
+          <span className="text-[var(--orion-text-secondary)]">SevenOptimizer</span>
           <span className="text-[var(--orion-text-secondary)]/50">/</span>
           <h1 className="m-0 text-[1.05rem] font-semibold text-[var(--orion-text-primary)]">{title}</h1>
         </nav>
