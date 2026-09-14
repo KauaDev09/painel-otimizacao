@@ -50,10 +50,10 @@ export default function Suporte() {
       <div className="container">
         <Reveal className="section-head">
           <div className="kicker">Suporte</div>
-          <h2>Como podemos ajudar?</h2>
+          <h2>Atendimento técnico e licenças</h2>
           <p>
-            Licença, instalação, pagamento ou exclusão de dados. O canal oficial é o Discord —
-            resposta mais rápida pela comunidade e pela equipe.
+            Instalação, ativação de key, pagamento ou exclusão de dados. O canal oficial é o Discord
+            — canal preferencial para resposta da equipe.
           </p>
         </Reveal>
 

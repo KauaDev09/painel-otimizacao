@@ -7,9 +7,10 @@ export default function DownloadPage() {
       <div className="container">
         <Reveal className="section-head">
           <div className="kicker">Download</div>
-          <h2>Instale agora. Ative quando quiser.</h2>
+          <h2>Instalador público. Ativação por licença.</h2>
           <p>
-            O instalador é público e não pede cadastro. Sem a key, o painel permanece bloqueado.
+            Baixe sem cadastro. Sem a key, o painel permanece bloqueado até a validação da licença
+            no aplicativo.
           </p>
         </Reveal>
         <Reveal>

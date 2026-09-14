@@ -9,32 +9,32 @@ const homeFaq = [
   {
     question: 'O instalador é gratuito?',
     answer:
-      'Sim. O painel só abre com uma key válida, adquirida nos planos. Sem key não existe modo limitado.',
+      'Sim. O download é público. O painel completo exige uma key válida, adquirida em um dos planos. Não há modo de avaliação.',
   },
   {
-    question: 'Funciona no Windows 10?',
-    answer: 'Sim. Windows 10 e 11, 64 bits. Não roda em 32 bits.',
+    question: 'Quais versões do Windows são suportadas?',
+    answer: 'Windows 10 e Windows 11, edições 64 bits. Não há suporte a 32 bits.',
   },
   {
-    question: 'Ele altera arquivos protegidos do sistema?',
+    question: 'O software altera arquivos protegidos do sistema?',
     answer:
-      'Altera configurações do Windows de forma controlada e reversível. Quando o risco da BIOS sobe, o modo fica em leitura. Sem ativador e sem crack.',
+      'Ele modifica configurações e serviços do Windows de forma documentada e, sempre que possível, reversível. Operações de BIOS de alto risco permanecem em modo somente leitura. Não inclui ativador, crack ou bypass de licença da Microsoft.',
   },
   {
-    question: 'E se eu não gostar do resultado?',
+    question: 'Como desfazer uma otimização?',
     answer:
-      'O histórico do app restaura o item. O ponto de restauração do Windows continua disponível, mas não é o único caminho.',
+      'Pelo histórico do aplicativo, operação a operação. O ponto de restauração do Windows continua disponível como recurso complementar.',
   },
   {
-    question: 'A GPU não aparece. É falha do SevenFour?',
+    question: 'A GPU não aparece no painel. Por quê?',
     answer:
-      'A versão atual lê NVIDIA pelo nvidia-smi (mesmo fora do PATH) e AMD/Intel pelo Windows. Adaptador básico ou remoto é ignorado de propósito.',
+      'NVIDIA é lida via nvidia-smi (mesmo fora do PATH). AMD e Intel usam as APIs do Windows. Adaptadores básicos, virtuais ou de sessão remota são omitidos de propósito.',
   },
   {
-    question: 'Como a licença é entregue?',
+    question: 'Quando recebo a key?',
     answer: (
       <>
-        Após a confirmação do pagamento. Cole a key no login do aplicativo.{' '}
+        Assim que o pagamento for confirmado. A key é usada na tela de login do aplicativo.{' '}
         <Link to="/planos">Ver planos</Link>.
       </>
     ),
@@ -47,21 +47,21 @@ export default function Home() {
       <header className="hero">
         <div className="container hero-grid">
           <div>
-            <div className="hero-badge">Windows 10/11 · leitura direta de hardware</div>
+            <div className="hero-badge">Windows 10 e 11 · 64 bits</div>
             <h1>
-              O laudo do seu PC, não um{' '}
-              <span className="accent-word">score inventado</span>.
+              Diagnóstico e otimização com{' '}
+              <span className="accent-word">risco declarado</span>
             </h1>
             <p className="sub">
-              Cada ajuste mostra o risco antes de aplicar. Você decide item por item — com a
-              identidade SevenFour por trás do painel.
+              SevenFour lê hardware e configuração do sistema, apresenta o impacto de cada ajuste e
+              aplica somente o que você autorizar — com histórico para reverter.
             </p>
             <div className="hero-ctas">
               <Link to="/download" className="btn btn-lg btn-primary">
-                Baixar instalador →
+                Baixar instalador
               </Link>
               <Link to="/#produto" className="btn btn-lg btn-ghost">
-                Ver o painel
+                Conhecer o painel
               </Link>
             </div>
           </div>
@@ -72,11 +72,11 @@ export default function Home() {
       <section className="section" id="produto">
         <div className="container">
           <Reveal className="section-head">
-            <div className="kicker">O painel</div>
-            <h2>Seis áreas. Uma licença. Risco visível antes de aplicar.</h2>
+            <div className="kicker">Módulos</div>
+            <h2>Um painel. Seis módulos de trabalho.</h2>
             <p>
-              Ferramenta de diagnóstico e ajuste — não um “pacote milagroso”. O que importa fica em
-              destaque; o resto fica quieto.
+              Cada módulo cobre uma área do sistema. A licença libera o conjunto; a aplicação
+              continua sob sua confirmação.
             </p>
           </Reveal>
           <div className="feature-grid">
@@ -88,11 +88,11 @@ export default function Home() {
                   <path d="M6.5 12h5.2M6.5 15.6h5.2" />
                 </svg>
               </div>
-              <h3>Windows com controle</h3>
+              <h3>Configuração do Windows</h3>
               <p>
-                Serviços, telemetria, efeitos e energia. Cada item declara o risco antes de aplicar.
-                Alterações que podem afetar o boot exigem confirmação explícita — o núcleo do
-                produto.
+                Serviços, telemetria, efeitos visuais e plano de energia. Cada item exibe nível de
+                risco e, quando necessário, aviso de reinício. Alterações que podem afetar o boot
+                exigem confirmação explícita.
               </p>
             </Reveal>
             <Reveal as="article" className="feature-card side">
@@ -101,10 +101,10 @@ export default function Home() {
                   <path d="M7.15 8.7h9.7c2.15 0 3.55 2.05 2.95 4.05l-1.05 3.45a2.15 2.15 0 0 1-2.3 1.45H15l-1.15-2.05h-3.7L8.95 17.65H7.55a2.15 2.15 0 0 1-2.3-1.45L4.2 12.75c-.6-2 0.8-4.05 2.95-4.05Z" />
                 </svg>
               </div>
-              <h3>Modo jogo</h3>
+              <h3>Prioridade para jogos</h3>
               <p>
-                Prioridade no processo, menos overlay e menos segundo plano. Competitivo, FiveM e o
-                restante da biblioteca.
+                Ajuste de prioridade de processo, redução de overlays e processos em segundo plano.
+                Adequado a títulos competitivos, FiveM e uso geral de biblioteca.
               </p>
             </Reveal>
             <Reveal as="article" className="feature-card side">
@@ -114,9 +114,10 @@ export default function Home() {
                   <circle cx="16.15" cy="11.1" r="2.35" />
                 </svg>
               </div>
-              <h3>GPU de verdade</h3>
+              <h3>Monitoramento de GPU</h3>
               <p>
-                NVIDIA, AMD ou Intel. Uso ao vivo, inclusive quando o nvidia-smi não está no PATH.
+                Leitura de uso em tempo real para NVIDIA, AMD e Intel, incluindo cenários em que o
+                nvidia-smi não está no PATH do sistema.
               </p>
             </Reveal>
             <Reveal as="article" className="feature-card mid">
@@ -126,10 +127,10 @@ export default function Home() {
                   <path d="M3.5 9h17" />
                 </svg>
               </div>
-              <h3>Limpeza segura</h3>
+              <h3>Limpeza de arquivos temporários</h3>
               <p>
-                Temporários, cache e restos de instalador. Sem limpeza mágica de registro e sem
-                apagar saves.
+                Remove caches, temporários e resíduos de instaladores. Não executa “limpeza de
+                registro” destrutiva nem apaga saves de jogos.
               </p>
             </Reveal>
             <Reveal as="article" className="feature-card narrow">
@@ -141,7 +142,10 @@ export default function Home() {
                 </svg>
               </div>
               <h3>Inicialização</h3>
-              <p>O que sobe com o Windows, em lista. Ative ou desative sem abrir o Gerenciador.</p>
+              <p>
+                Lista programas e tarefas que sobem com o Windows. Ative ou desative sem abrir o
+                Gerenciador de Tarefas.
+              </p>
             </Reveal>
             <Reveal as="article" className="feature-card wide">
               <div className="ic" aria-hidden="true">
@@ -152,8 +156,9 @@ export default function Home() {
               </div>
               <h3>BIOS e memória</h3>
               <p>
-                Leitura e perfis. O SevenFour não flasheia a BIOS: mostra o que está ligado e o que vale
-                ajustar — quando o risco sobe, fica em modo leitura.
+                Leitura de parâmetros e perfil de memória. O SevenFour não grava firmware: indica o
+                que está ativo e o que merece revisão. Em risco elevado, o módulo permanece em
+                somente leitura.
               </p>
             </Reveal>
           </div>
@@ -163,29 +168,34 @@ export default function Home() {
       <section className="section section-alt" id="como-funciona">
         <div className="container flow">
           <Reveal className="section-head" style={{ marginBottom: 0 }}>
-            <div className="kicker">Como funciona</div>
-            <h2>Quatro passos. Sem assistente de 19 telas.</h2>
+            <div className="kicker">Fluxo de trabalho</div>
+            <h2>Quatro etapas, do laudo à aplicação.</h2>
             <p>
-              Analisa. Você escolhe. Aplica. Acompanha os medidores. Se não gostou, desfaz o item.
+              Sem assistente longo e sem pacotes opacos. Você analisa, seleciona, aplica e
+              acompanha.
             </p>
           </Reveal>
           <div className="steps">
             {[
-              ['01', 'Lê a máquina', 'Hardware, inicialização e serviços. Sem score inventado.'],
+              [
+                '01',
+                'Inventário do sistema',
+                'Coleta de hardware, inicialização e serviços relevantes — sem nota genérica de “saúde do PC”.',
+              ],
               [
                 '02',
-                'Você escolhe',
-                'Nada é aplicado sozinho. Itens de maior impacto pedem confirmação explícita.',
+                'Seleção assistida',
+                'Nenhuma otimização roda sozinha. Itens de impacto alto exigem confirmação antes da execução.',
               ],
               [
                 '03',
-                'Aplica e registra',
-                'O histórico fica no painel. Você restaura o item — não precisa restaurar o Windows inteiro.',
+                'Aplicação registrada',
+                'Cada operação entra no histórico do painel e pode ser revertida individualmente.',
               ],
               [
                 '04',
-                'Acompanha',
-                'CPU, GPU, RAM e temperatura no mesmo lugar. Se a GPU não aparecer, o SevenFour tenta outra fonte.',
+                'Telemetria local',
+                'CPU, GPU, memória e temperatura no mesmo lugar, para validar o efeito após a mudança.',
               ],
             ].map(([num, title, text]) => (
               <Reveal key={num} className="step">
@@ -201,11 +211,11 @@ export default function Home() {
       <section className="section">
         <div className="container flow">
           <Reveal className="section-head" style={{ marginBottom: 0 }}>
-            <div className="kicker">Diagnóstico</div>
-            <h2>Primeiro o laudo. Depois o bisturi.</h2>
+            <div className="kicker">Análise</div>
+            <h2>Primeiro o diagnóstico. Depois a intervenção.</h2>
             <p>
-              Essa tela é o recorte do que o app monta a partir do seu hardware — não um print
-              inventado de marketing.
+              O recorte abaixo corresponde ao que o aplicativo monta a partir da máquina local —
+              dados de sessão, não arte estático de marketing.
             </p>
           </Reveal>
           <Reveal className="diag" data-spotlight>
@@ -219,11 +229,11 @@ export default function Home() {
               </div>
             </div>
             {[
-              ['CPU', 'identificada no WMI', 'ok'],
-              ['GPU', 'NVIDIA / AMD / Intel + uso ao vivo', 'ok'],
-              ['Memória', 'ocupação e XMP quando existir', 'olhar'],
-              ['Inicialização', 'o que sobe sem você pedir', 'cortar'],
-              ['Windows', 'energia, visual, segundo plano', 'ajustável'],
+              ['CPU', 'identificação via WMI', 'ok'],
+              ['GPU', 'fabricante + utilização em tempo real', 'ok'],
+              ['Memória', 'ocupação e XMP, quando disponível', 'revisar'],
+              ['Inicialização', 'itens além do essencial', 'reduzir'],
+              ['Windows', 'energia, interface e segundo plano', 'ajustável'],
             ].map(([k, sub, st]) => (
               <div key={k} className="diag-row">
                 <div className="d">
@@ -243,8 +253,8 @@ export default function Home() {
       <section className="section section-alt" id="recursos">
         <div className="container">
           <Reveal className="section-head">
-            <div className="kicker">Controle</div>
-            <h2>Se algo sair do esperado, você desfaz. Se for arriscado, o app avisa.</h2>
+            <div className="kicker">Governança</div>
+            <h2>Transparência antes de aplicar. Reversão depois.</h2>
           </Reveal>
           <div className="trust-grid">
             <Reveal className="trust" data-spotlight data-glare>
@@ -256,30 +266,30 @@ export default function Home() {
                     <path d="M9.2 13.2h5.8M9.2 16.1h3.8" />
                   </svg>
                 </span>
-                Nada escondido
+                Critérios visíveis
               </h3>
               <p>
-                Risco, reinício e impacto aparecem antes. Ajustes que podem interromper o PC pedem
-                confirmação. Sem letra miúda.
+                Risco, necessidade de reinício e escopo do ajuste aparecem antes da execução. Não há
+                “pacote oculto” no rodapé.
               </p>
               <ul>
                 <li>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                     <path d="M20 6 9 17l-5-5" strokeLinecap="round" />
                   </svg>
-                  Descrição por ajuste, não por “pacote”
+                  Descrição por item, não por lote fechado
                 </li>
                 <li>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                     <path d="M20 6 9 17l-5-5" strokeLinecap="round" />
                   </svg>
-                  Impacto por categoria
+                  Classificação de impacto por categoria
                 </li>
                 <li>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                     <path d="M20 6 9 17l-5-5" strokeLinecap="round" />
                   </svg>
-                  Status depois de aplicar
+                  Status após a aplicação
                 </li>
               </ul>
             </Reveal>
@@ -291,30 +301,30 @@ export default function Home() {
                     <path d="M4.6 6.2v5h5" />
                   </svg>
                 </span>
-                Restauração por item
+                Rollback por operação
               </h3>
               <p>
-                O histórico do painel desfaz a operação. Restaurar o sistema inteiro não é o único
-                plano B.
+                O histórico do painel desfaz a mudança específica. Restaurar o Windows inteiro não é
+                o único caminho de recuperação.
               </p>
               <ul>
                 <li>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                     <path d="M20 6 9 17l-5-5" strokeLinecap="round" />
                   </svg>
-                  Por operação
+                  Reversão item a item
                 </li>
                 <li>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                     <path d="M20 6 9 17l-5-5" strokeLinecap="round" />
                   </svg>
-                  Sem wipe do disco
+                  Sem formatação do disco
                 </li>
                 <li>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                     <path d="M20 6 9 17l-5-5" strokeLinecap="round" />
                   </svg>
-                  BIOS em modo leitura quando o risco sobe
+                  BIOS em leitura quando o risco sobe
                 </li>
               </ul>
             </Reveal>
@@ -325,13 +335,13 @@ export default function Home() {
       <section className="section">
         <div className="container">
           <Reveal className="section-head">
-            <div className="kicker">Onde roda</div>
-            <h2>Feito no Windows. Para o Windows.</h2>
+            <div className="kicker">Compatibilidade</div>
+            <h2>Ambiente suportado</h2>
           </Reveal>
           <div className="compat">
             {[
-              ['Windows 10', '64 bits · 150 MB de disco'],
-              ['Windows 11', '64 bits · internet só na ativação'],
+              ['Windows 10', '64 bits · cerca de 150 MB em disco'],
+              ['Windows 11', '64 bits · conexão apenas na ativação da key'],
             ].map(([title, desc]) => (
               <Reveal key={title} className="compat-card" data-spotlight>
                 <div className="oslog">
@@ -347,7 +357,8 @@ export default function Home() {
             ))}
           </div>
           <Reveal as="p" className="compat-note">
-            2 GB de RAM livres. Sem driver adicional. Sem runtime extra além do próprio instalador.
+            Recomendado: 2 GB de RAM livres. Não exige driver proprietário adicional nem runtime
+            externo além do instalador.
           </Reveal>
         </div>
       </section>
@@ -355,15 +366,17 @@ export default function Home() {
       <section className="section section-alt" id="planos">
         <div className="container">
           <Reveal className="section-head">
-            <div className="kicker">Licença</div>
-            <h2>Escolha o plano. Receba a key.</h2>
+            <div className="kicker">Licenciamento</div>
+            <h2>Planos mensais com entrega automática da key</h2>
             <p>
-              PIX ou cartão. A chave é liberada após a confirmação do pagamento — sem fila de
-              atendimento.
+              Pagamento via PIX ou cartão. A chave é emitida após a confirmação do provedor de
+              pagamento.
             </p>
           </Reveal>
           <PlansGrid />
-          <p className="plans-footnote">O instalador é público. A key destrava o painel.</p>
+          <p className="plans-footnote">
+            O instalador é público. A key autoriza o uso do painel na máquina vinculada.
+          </p>
         </div>
       </section>
 
@@ -371,9 +384,10 @@ export default function Home() {
         <div className="container">
           <Reveal className="section-head">
             <div className="kicker">Download</div>
-            <h2>Instale agora. Ative quando quiser.</h2>
+            <h2>Instalador público. Ativação por licença.</h2>
             <p>
-              O instalador é público e não pede cadastro. Sem a key, o painel permanece bloqueado.
+              Baixe sem cadastro. Sem a key, o painel permanece bloqueado até a validação da
+              licença.
             </p>
           </Reveal>
           <Reveal>
@@ -385,8 +399,8 @@ export default function Home() {
       <section className="section section-alt" id="faq">
         <div className="container">
           <Reveal className="section-head">
-            <div className="kicker">Perguntas frequentes</div>
-            <h2>O que o suporte mais responde.</h2>
+            <div className="kicker">FAQ</div>
+            <h2>Perguntas técnicas frequentes</h2>
           </Reveal>
           <Faq items={homeFaq} />
         </div>
@@ -397,12 +411,12 @@ export default function Home() {
           <Reveal className="cta-band" data-spotlight>
             <div>
               <div className="kicker" style={{ marginBottom: 12 }}>
-                Pronto
+                Próximo passo
               </div>
-              <h2>Menos ruído. Mais desempenho.</h2>
+              <h2>Instale, ative e rode a análise inicial</h2>
               <p>
-                Baixe, cole a key e rode a análise. Em poucos minutos o painel mostra o que vale
-                ajustar.
+                Em poucos minutos o painel apresenta o inventário do sistema e as recomendações
+                disponíveis para a sua configuração.
               </p>
             </div>
             <Link to="/download" className="btn btn-lg btn-primary" data-magnet="12">

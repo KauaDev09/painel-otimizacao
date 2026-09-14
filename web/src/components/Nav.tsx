@@ -95,7 +95,7 @@ export default function Nav({ showMenu = true }: NavProps) {
                 Entrar
               </Link>
               <Link to="/planos" className="btn btn-primary" data-magnet="16">
-                Começar
+                Ver planos
               </Link>
             </>
           )}

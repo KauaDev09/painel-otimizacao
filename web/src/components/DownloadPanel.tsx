@@ -30,7 +30,7 @@ export default function DownloadPanel({ className = '' }: DownloadPanelProps) {
       <div className="ver">v{download.version}</div>
       <h3>SevenFour</h3>
       <p>Windows 10 / 11 · 64 bits</p>
-      <p className="dl-free">Download grátis · chave de licença necessária</p>
+      <p className="dl-free">Download público · ativação por key de licença</p>
       <div className="dl-meta">
         <div>
           <div className="k">Versão</div>
