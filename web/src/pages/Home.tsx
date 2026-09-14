@@ -26,7 +26,7 @@ const homeFaq = [
       'O histórico do app restaura o item. O ponto de restauração do Windows continua disponível, mas não é o único caminho.',
   },
   {
-    question: 'A GPU não aparece. É falha do Orion?',
+    question: 'A GPU não aparece. É falha do SevenFour?',
     answer:
       'A versão atual lê NVIDIA pelo nvidia-smi (mesmo fora do PATH) e AMD/Intel pelo Windows. Adaptador básico ou remoto é ignorado de propósito.',
   },
@@ -47,15 +47,18 @@ export default function Home() {
       <header className="hero">
         <div className="container hero-grid">
           <div>
-            <div className="hero-badge">Windows 10/11, leitura direta de hardware</div>
-            <h1>O laudo do seu PC, não um score inventado.</h1>
+            <div className="hero-badge">Windows 10/11 · leitura direta de hardware</div>
+            <h1>
+              O laudo do seu PC, não um{' '}
+              <span className="accent-word">score inventado</span>.
+            </h1>
             <p className="sub">
-              Cada ajuste mostra o risco antes de aplicar. Você decide item por item, não pacote
-              fechado.
+              Cada ajuste mostra o risco antes de aplicar. Você decide item por item — com a
+              identidade SevenFour por trás do painel.
             </p>
             <div className="hero-ctas">
               <Link to="/download" className="btn btn-lg btn-primary">
-                Baixar instalador
+                Baixar instalador →
               </Link>
               <Link to="/#produto" className="btn btn-lg btn-ghost">
                 Ver o painel
@@ -149,7 +152,7 @@ export default function Home() {
               </div>
               <h3>BIOS e memória</h3>
               <p>
-                Leitura e perfis. O Orion não flasheia a BIOS: mostra o que está ligado e o que vale
+                Leitura e perfis. O SevenFour não flasheia a BIOS: mostra o que está ligado e o que vale
                 ajustar — quando o risco sobe, fica em modo leitura.
               </p>
             </Reveal>
@@ -182,7 +185,7 @@ export default function Home() {
               [
                 '04',
                 'Acompanha',
-                'CPU, GPU, RAM e temperatura no mesmo lugar. Se a GPU não aparecer, o Orion tenta outra fonte.',
+                'CPU, GPU, RAM e temperatura no mesmo lugar. Se a GPU não aparecer, o SevenFour tenta outra fonte.',
               ],
             ].map(([num, title, text]) => (
               <Reveal key={num} className="step">

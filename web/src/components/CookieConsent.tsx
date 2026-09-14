@@ -26,7 +26,7 @@ export default function CookieConsent() {
   return (
     <div id="orion-cookie" role="dialog" aria-label="Aceitar cookies">
       <div className="ck-box">
-        <img className="ck-logo" src="/assets/icon.jpeg" alt="Orion" />
+        <img className="ck-logo" src="/assets/s4-logo.png" alt="SevenFour" />
         <div className="ck-copy">
           <strong>Aceitar cookies</strong>
           <p>

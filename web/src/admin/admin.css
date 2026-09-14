@@ -1,45 +1,45 @@
-/* Orion Admin — portado do painel vanilla */
+/* SevenFour Admin */
 
 :root {
-  --bg: #0d0f10;
-  --bg-2: #111315;
-  --bg-elevated: #141618;
-  --surface: #141618;
-  --surface-hover: #1a1d1f;
-  --surface-active: #222527;
-  --surface-2: #2a2e31;
-  --border: rgba(255,255,255,0.07);
-  --border-hover: rgba(255,255,255,0.12);
-  --border-active: rgba(255,255,255,0.16);
-  --text: #EDEBE4;
-  --text-secondary: #9A9D9F;
-  --text-dim: #7A7E82;
-  --primary: #E8A33D;
-  --primary-2: #F0B45A;
-  --primary-3: #E8A33D;
-  --indigo: #C4842A;
-  --primary-bg: rgba(232,163,61,0.13);
-  --primary-border: rgba(232,163,61,0.38);
-  --green: #6BBF8A;
-  --green-bg: rgba(107,191,138,0.10);
-  --yellow: #E8A33D;
-  --yellow-bg: rgba(232,163,61,0.10);
-  --red: #E07A6A;
-  --red-bright: #ECA090;
-  --red-bg: rgba(224,122,106,0.10);
+  --bg: #0a0a0b;
+  --bg-2: #0f0f11;
+  --bg-elevated: #141416;
+  --surface: #141416;
+  --surface-hover: #1a1a1e;
+  --surface-active: #222226;
+  --surface-2: #2a2a2e;
+  --border: rgba(255,255,255,0.08);
+  --border-hover: rgba(255,255,255,0.14);
+  --border-active: rgba(255,255,255,0.18);
+  --text: #F4F4F5;
+  --text-secondary: #A1A1AA;
+  --text-dim: #71717A;
+  --primary: #FF3B3F;
+  --primary-2: #FF5558;
+  --primary-3: #FF3B3F;
+  --indigo: #C81E22;
+  --primary-bg: rgba(255,59,63,0.13);
+  --primary-border: rgba(255,59,63,0.38);
+  --green: #34D399;
+  --green-bg: rgba(52,211,153,0.10);
+  --yellow: #F59E0B;
+  --yellow-bg: rgba(245,158,11,0.10);
+  --red: #FF3B3F;
+  --red-bright: #FF7073;
+  --red-bg: rgba(255,59,63,0.10);
   --blue: #8B9BB4;
   --blue-bg: rgba(139,155,180,0.10);
-  --lime: #6BBF8A;
-  --gradient-primary: linear-gradient(135deg, #E8A33D 0%, #C4842A 100%);
-  --gradient-subtle: linear-gradient(135deg, rgba(232,163,61,0.12), rgba(232,163,61,0.04));
+  --lime: #34D399;
+  --gradient-primary: linear-gradient(135deg, #FF3B3F 0%, #C81E22 100%);
+  --gradient-subtle: linear-gradient(135deg, rgba(255,59,63,0.14), rgba(255,59,63,0.04));
   --bg-ambient:
-    radial-gradient(1000px 520px at 82% -8%, rgba(232,163,61,0.08), transparent 60%),
-    radial-gradient(800px 480px at -5% 108%, rgba(107,191,138,0.06), transparent 55%),
-    radial-gradient(700px 400px at 50% 50%, rgba(232,163,61,0.03), transparent 60%);
+    radial-gradient(1000px 520px at 82% -8%, rgba(255,59,63,0.12), transparent 60%),
+    radial-gradient(800px 480px at -5% 108%, rgba(255,59,63,0.06), transparent 55%),
+    radial-gradient(700px 400px at 50% 50%, rgba(255,59,63,0.04), transparent 60%);
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.35);
   --shadow-md: 0 10px 30px rgba(0,0,0,0.42);
   --shadow-lg: 0 24px 60px rgba(0,0,0,0.56);
-  --glow: 0 0 0 1px rgba(232,163,61,0.22), 0 14px 38px rgba(0,0,0,0.35);
+  --glow: 0 0 0 1px rgba(255,59,63,0.28), 0 14px 38px rgba(255,59,63,0.18);
   --radius-sm: 12px;
   --radius-md: 16px;
   --radius-lg: 20px;

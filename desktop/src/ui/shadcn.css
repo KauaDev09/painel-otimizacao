@@ -3,46 +3,45 @@
 @tailwind utilities;
 
 /* ------------------------------------------------------------------
-   ORION DESIGN TOKENS (shadcn/ui — new-york, dark)
-   Datasheet: #0D0F10 + âmbar #E8A33D (atenção/risco)
+   SEVENFOUR DESIGN TOKENS (shadcn/ui — new-york, dark)
+   Dark #0A0A0B + vermelho sinal #FF3B3F
    ------------------------------------------------------------------ */
 @layer base {
   :root {
-    /* --orion-bg #0d0f10 */
-    --background: 210 11% 6%;
-    /* --orion-text-primary #edebe4 */
-    --foreground: 45 20% 91%;
+    /* --orion-bg #0a0a0b */
+    --background: 240 6% 4%;
+    /* --orion-text-primary #f4f4f5 */
+    --foreground: 240 5% 96%;
 
-    /* --orion-surface #141618 */
-    --card: 210 7% 9%;
-    --card-foreground: 45 20% 91%;
+    /* --orion-surface #141416 */
+    --card: 240 5% 8%;
+    --card-foreground: 240 5% 96%;
 
-    --popover: 210 7% 9%;
-    --popover-foreground: 45 20% 91%;
+    --popover: 240 5% 8%;
+    --popover-foreground: 240 5% 96%;
 
-    /* --orion-icon-default #e8a33d */
-    --primary: 36 79% 57%;
-    --primary-foreground: 35 83% 9%;
+    /* --orion-icon-default #ff3b3f */
+    --primary: 358 100% 62%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 6% 12%;
-    --secondary-foreground: 210 3% 72%;
+    --secondary: 240 4% 12%;
+    --secondary-foreground: 240 5% 70%;
 
-    --muted: 210 6% 12%;
-    /* --orion-text-secondary #7a7e82 */
-    --muted-foreground: 210 3% 49%;
+    --muted: 240 4% 12%;
+    /* --orion-text-secondary #a1a1aa */
+    --muted-foreground: 240 4% 65%;
 
-    --accent: 210 6% 14%;
-    /* âmbar claro */
-    --accent-foreground: 36 79% 62%;
+    --accent: 240 4% 14%;
+    --accent-foreground: 358 100% 68%;
 
-    --destructive: 8 65% 62%;
+    --destructive: 358 100% 62%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 5% 18%;
-    --input: 210 5% 18%;
-    --ring: 36 79% 57%;
+    --border: 240 4% 16%;
+    --input: 240 4% 16%;
+    --ring: 358 100% 62%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     color-scheme: dark;
   }

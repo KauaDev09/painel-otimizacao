@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { clearToken, isAuthed } from '../lib/api';
+import BrandMark from './BrandMark';
 
 type NavProps = {
   showMenu?: boolean;
@@ -51,11 +52,8 @@ export default function Nav({ showMenu = true }: NavProps) {
   return (
     <nav className="nav" ref={navRef}>
       <div className={`nav-inner${menuOpen ? ' nav-open' : ''}`}>
-        <Link to="/" className="brand" aria-label="Orion Optimizer — Início" onClick={closeMenu}>
-          <span className="brand-mark" aria-hidden="true">
-            <img src="/assets/icon.jpeg" alt="" />
-          </span>
-          ORION<span className="accent">OPTIMIZER</span>
+        <Link to="/" aria-label="SevenFour — Início" onClick={closeMenu}>
+          <BrandMark />
         </Link>
 
         {showMenu && (
@@ -97,7 +95,7 @@ export default function Nav({ showMenu = true }: NavProps) {
                 Entrar
               </Link>
               <Link to="/planos" className="btn btn-primary" data-magnet="16">
-                Ver planos
+                Começar
               </Link>
             </>
           )}

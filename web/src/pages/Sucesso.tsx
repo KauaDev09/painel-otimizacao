@@ -97,7 +97,7 @@ export default function Sucesso() {
 
   const subtitles: Record<View, string> = {
     loading: 'Consultando o servidor para confirmarmos sua compra.',
-    key: 'Sua licença foi gerada automaticamente. Use a chave abaixo no aplicativo ORION OPTIMIZER.',
+    key: 'Sua licença foi gerada automaticamente. Use a chave abaixo no aplicativo SevenFour.',
     pending: 'Estamos aguardando a confirmação do gateway.',
     error: errorMsg || 'Ocorreu um erro ao buscar seu pagamento.',
   };

@@ -4,21 +4,21 @@
    -webkit-app-region.
    ------------------------------------------------------------------ */
 
-/* Tokens cromáticos Orion — datasheet técnico (âmbar funcional) */
+/* Tokens cromáticos SevenFour — dark + vermelho sinal */
 :root {
-  --orion-bg: #0d0f10;
-  --orion-surface: #141618;
-  --orion-text-primary: #edebe4;
-  --orion-text-secondary: #7a7e82;
-  --orion-icon-default: #e8a33d;
-  --orion-icon-active: #f0b45a;
-  --orion-hover-fg: #e8a33d;
-  --orion-hover-glow: rgba(232, 163, 61, 0.16);
-  --orion-hover-border: #c4842a;
-  --orion-selected-bg: rgba(232, 163, 61, 0.12);
-  --orion-core-1: #e8a33d;
-  --orion-core-2: #c4842a;
-  --orion-lime: #6bbf8a;
+  --orion-bg: #0a0a0b;
+  --orion-surface: #141416;
+  --orion-text-primary: #f4f4f5;
+  --orion-text-secondary: #a1a1aa;
+  --orion-icon-default: #ff3b3f;
+  --orion-icon-active: #ff5558;
+  --orion-hover-fg: #ff3b3f;
+  --orion-hover-glow: rgba(255, 59, 63, 0.16);
+  --orion-hover-border: #c81e22;
+  --orion-selected-bg: rgba(255, 59, 63, 0.12);
+  --orion-core-1: #ff3b3f;
+  --orion-core-2: #c81e22;
+  --orion-lime: #34d399;
 }
 
 html,
@@ -30,8 +30,8 @@ body,
 body {
   margin: 0;
   background:
-    radial-gradient(900px 480px at 8% -12%, rgba(232, 163, 61, 0.06), transparent 55%),
-    radial-gradient(700px 400px at 92% 0%, rgba(107, 191, 138, 0.04), transparent 50%),
+    radial-gradient(900px 480px at 8% -12%, rgba(255, 59, 63, 0.10), transparent 55%),
+    radial-gradient(700px 400px at 92% 0%, rgba(255, 59, 63, 0.06), transparent 50%),
     var(--orion-bg);
   color: var(--orion-text-primary);
   font-family: Inter, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
@@ -72,7 +72,7 @@ input,
 select,
 textarea {
   background: var(--orion-surface);
-  border: 1px solid rgba(232, 163, 61, 0.2);
+  border: 1px solid rgba(255, 59, 63, 0.25);
   border-radius: 8px;
   color: var(--orion-text-primary);
   outline: none;
@@ -262,11 +262,11 @@ nav button:hover > svg {
   position: absolute;
   inset: 0;
   opacity: 0.4;
-  /* Pontos violetas discretos em treliças de espaçamentos diferentes (não linhas) */
+  /* Pontos vermelhos discretos em treliças de espaçamentos diferentes (não linhas) */
   background-image:
-    radial-gradient(rgba(56, 189, 248, 0.5) 1px, transparent 1px),
-    radial-gradient(rgba(56, 189, 248, 0.35) 1px, transparent 1px),
-    radial-gradient(rgba(56, 189, 248, 0.28) 1px, transparent 1px);
+    radial-gradient(rgba(255, 59, 63, 0.5) 1px, transparent 1px),
+    radial-gradient(rgba(255, 59, 63, 0.35) 1px, transparent 1px),
+    radial-gradient(rgba(255, 59, 63, 0.28) 1px, transparent 1px);
   background-size:
     47px 53px,
     83px 74px,
@@ -288,8 +288,8 @@ nav button:hover > svg {
   height: 70vmax;
   background: radial-gradient(
     closest-side,
-    rgba(56, 189, 248, 0.13),
-    rgba(59, 130, 246, 0.05) 45%,
+    rgba(255, 59, 63, 0.14),
+    rgba(200, 30, 34, 0.06) 45%,
     transparent 70%
   );
   transform: translate3d(
@@ -330,7 +330,7 @@ nav button:hover > svg {
   top: -150px;
   width: 420px;
   height: 300px;
-  border: 1px solid rgba(59, 130, 246, 0.55);
+  border: 1px solid rgba(200, 30, 34, 0.55);
   animation: orion-ring-spin 26s linear infinite;
   animation-duration: calc(26s / var(--ring-speed));
 }
@@ -341,7 +341,7 @@ nav button:hover > svg {
   top: -125px;
   width: 300px;
   height: 250px;
-  border: 1px solid rgba(56, 189, 248, 0.55);
+  border: 1px solid rgba(255, 59, 63, 0.55);
   animation: orion-ring-spin-rev 19s linear infinite;
   animation-duration: calc(19s / var(--ring-speed));
 }
@@ -372,8 +372,8 @@ nav button:hover > svg {
   height: 7px;
   margin: -3.5px 0 0 -3.5px;
   border-radius: 50%;
-  background: var(--orion-core-2, #22d3ee);
-  box-shadow: 0 0 14px rgba(34, 211, 238, 0.75);
+  background: var(--orion-core-2, #c81e22);
+  box-shadow: 0 0 14px rgba(255, 59, 63, 0.75);
 }
 
 .orion-core-orbital[data-o="1"] { animation: orion-orbit-a 15s linear infinite; animation-duration: calc(15s / var(--ring-speed)); }
@@ -403,7 +403,7 @@ nav button:hover > svg {
   width: 112px;
   height: 112px;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, rgba(125, 211, 252, 0.95), rgba(59, 130, 246, 0.55) 45%, rgba(56, 189, 248, 0) 75%);
+  background: radial-gradient(circle at 50% 50%, rgba(255, 120, 122, 0.95), rgba(255, 59, 63, 0.55) 45%, rgba(255, 59, 63, 0) 75%);
   filter: blur(0.5px);
   opacity: var(--core-glow);
 }
@@ -412,7 +412,7 @@ nav button:hover > svg {
   position: absolute;
   inset: -40px;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.28), rgba(56, 189, 248, 0) 65%);
+  background: radial-gradient(circle at 50% 50%, rgba(255, 59, 63, 0.28), rgba(255, 59, 63, 0) 65%);
   animation: orion-core-pulse 7s ease-in-out infinite;
 }
 

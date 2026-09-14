@@ -28,7 +28,7 @@ export default function DownloadPanel({ className = '' }: DownloadPanelProps) {
   return (
     <div className={`download-panel ${className}`.trim()} data-spotlight>
       <div className="ver">v{download.version}</div>
-      <h3>ORION OPTIMIZER</h3>
+      <h3>SevenFour</h3>
       <p>Windows 10 / 11 · 64 bits</p>
       <p className="dl-free">Download grátis · chave de licença necessária</p>
       <div className="dl-meta">

@@ -52,7 +52,7 @@ export default function PlansGrid({
             data-spotlight
             data-glare
           >
-            {isFeatured && <div className="tag">Mais escolhido</div>}
+            {isFeatured && <div className="tag">Recomendado</div>}
             <div className="name">{p.name}</div>
             <div className="price">
               {brl(p.price)}

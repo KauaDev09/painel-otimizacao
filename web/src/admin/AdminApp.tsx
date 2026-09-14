@@ -152,15 +152,15 @@ export default function AdminApp() {
           <div className="login-header">
             <div className="login-brand">
               <img
-                src="/admin/logo.jpeg"
-                alt="Orion"
+                src="/assets/s4-logo.png"
+                alt="SevenFour"
                 className="login-logo-icon"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
               <span className="login-logo-text">
-                ORION<span className="login-logo-sub">PAINEL ADMINISTRATIVO</span>
+                SEVENFOUR<span className="login-logo-sub">PAINEL ADMINISTRATIVO</span>
               </span>
             </div>
           </div>
@@ -205,16 +205,16 @@ export default function AdminApp() {
           >
             <div className="sidebar-brand">
               <img
-                src="/admin/logo.jpeg"
-                alt="Orion"
+                src="/assets/s4-logo.png"
+                alt="SevenFour"
                 className="sidebar-logo"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
               <div className="sidebar-brand-text">
-                <h1>ORION</h1>
-                <p>OPTIMIZER</p>
+                <h1>S4</h1>
+                <p>SEVENFOUR</p>
               </div>
             </div>
 

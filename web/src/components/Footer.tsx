@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { API } from '../lib/api';
+import BrandMark from './BrandMark';
 
 type FooterProps = {
   variant?: 'full' | 'minimal';
@@ -25,7 +26,7 @@ export default function Footer({ variant = 'full' }: FooterProps) {
       <footer className="footer">
         <div className="container">
           <div className="footer-bottom">
-            <span>© {year} ORION OPTIMIZER.</span>
+            <span>© {year} SevenFour.</span>
             <span>
               <Link to="/privacidade">Privacidade</Link> · <Link to="/termos">Termos</Link>
             </span>
@@ -40,15 +41,12 @@ export default function Footer({ variant = 'full' }: FooterProps) {
       <div className="container">
         <div className="footer-grid">
           <div className="footer-brand">
-            <Link to="/" className="brand">
-              <span className="brand-mark" aria-hidden="true">
-                <img src="/assets/icon.jpeg" alt="" />
-              </span>
-              ORION<span className="accent">OPTIMIZER</span>
+            <Link to="/">
+              <BrandMark />
             </Link>
             <p>
-              Otimização profissional para Windows — análise real, ajustes reversíveis e licença por
-              key.
+              Diagnóstico e otimização para Windows — leitura real de hardware, risco visível e
+              licença por key.
             </p>
           </div>
           <div className="footer-col">
@@ -79,7 +77,7 @@ export default function Footer({ variant = 'full' }: FooterProps) {
           </div>
         </div>
         <div className="footer-bottom">
-          <span>© {year} ORION OPTIMIZER.</span>
+          <span>© {year} SevenFour (S4).</span>
           {version && (
             <span className="mono" style={{ color: 'var(--text-muted)' }}>
               {version}
