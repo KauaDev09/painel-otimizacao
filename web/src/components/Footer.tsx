@@ -45,8 +45,8 @@ export default function Footer({ variant = 'full' }: FooterProps) {
               <BrandMark />
             </Link>
             <p>
-              Diagnóstico e otimização controlada para Windows — leitura de hardware, risco
-              declarado e reversão por operação.
+              Diagnóstico e otimização para Windows — leitura de hardware, ajustes sob sua escolha e
+              histórico para desfazer.
             </p>
           </div>
           <div className="footer-col">

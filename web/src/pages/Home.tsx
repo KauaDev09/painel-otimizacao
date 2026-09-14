@@ -18,7 +18,7 @@ const homeFaq = [
   {
     question: 'O software altera arquivos protegidos do sistema?',
     answer:
-      'Ele modifica configurações e serviços do Windows de forma documentada e, sempre que possível, reversível. Operações de BIOS de alto risco permanecem em modo somente leitura. Não inclui ativador, crack ou bypass de licença da Microsoft.',
+      'Ele modifica configurações e serviços do Windows de forma documentada e, sempre que possível, reversível. O módulo de BIOS permanece em modo somente leitura. Não inclui ativador, crack ou bypass de licença da Microsoft.',
   },
   {
     question: 'Como desfazer uma otimização?',
@@ -49,12 +49,12 @@ export default function Home() {
           <div>
             <div className="hero-badge">Windows 10 e 11 · 64 bits</div>
             <h1>
-              Diagnóstico e otimização com{' '}
-              <span className="accent-word">risco declarado</span>
+              Diagnóstico e otimização para{' '}
+              <span className="accent-word">Windows</span>
             </h1>
             <p className="sub">
-              SevenFour lê hardware e configuração do sistema, apresenta o impacto de cada ajuste e
-              aplica somente o que você autorizar — com histórico para reverter.
+              SevenFour lê o hardware e a configuração do sistema, organiza os ajustes por módulo e
+              aplica somente o que você autorizar — com histórico para desfazer quando quiser.
             </p>
             <div className="hero-ctas">
               <Link to="/download" className="btn btn-lg btn-primary">
@@ -75,8 +75,8 @@ export default function Home() {
             <div className="kicker">Módulos</div>
             <h2>Um painel. Seis módulos de trabalho.</h2>
             <p>
-              Cada módulo cobre uma área do sistema. A licença libera o conjunto; a aplicação
-              continua sob sua confirmação.
+              Cada módulo cobre uma área do sistema. A licença libera o conjunto; você escolhe o que
+              aplicar.
             </p>
           </Reveal>
           <div className="feature-grid">
@@ -90,9 +90,8 @@ export default function Home() {
               </div>
               <h3>Configuração do Windows</h3>
               <p>
-                Serviços, telemetria, efeitos visuais e plano de energia. Cada item exibe nível de
-                risco e, quando necessário, aviso de reinício. Alterações que podem afetar o boot
-                exigem confirmação explícita.
+                Serviços, telemetria, efeitos visuais e plano de energia. Cada item traz descrição
+                clara do que muda — e você decide o que aplicar.
               </p>
             </Reveal>
             <Reveal as="article" className="feature-card side">
@@ -156,9 +155,8 @@ export default function Home() {
               </div>
               <h3>BIOS e memória</h3>
               <p>
-                Leitura de parâmetros e perfil de memória. O SevenFour não grava firmware: indica o
-                que está ativo e o que merece revisão. Em risco elevado, o módulo permanece em
-                somente leitura.
+                Leitura de parâmetros e perfil de memória. O SevenFour não grava firmware: mostra o
+                que está ativo e o que pode ser revisado manualmente no setup.
               </p>
             </Reveal>
           </div>
@@ -185,7 +183,7 @@ export default function Home() {
               [
                 '02',
                 'Seleção assistida',
-                'Nenhuma otimização roda sozinha. Itens de impacto alto exigem confirmação antes da execução.',
+                'Nenhuma otimização roda sozinha. Você marca os itens e confirma antes da execução.',
               ],
               [
                 '03',
@@ -253,8 +251,8 @@ export default function Home() {
       <section className="section section-alt" id="recursos">
         <div className="container">
           <Reveal className="section-head">
-            <div className="kicker">Governança</div>
-            <h2>Transparência antes de aplicar. Reversão depois.</h2>
+            <div className="kicker">Controle</div>
+            <h2>Você escolhe o que aplicar. E pode desfazer depois.</h2>
           </Reveal>
           <div className="trust-grid">
             <Reveal className="trust" data-spotlight data-glare>
@@ -266,11 +264,11 @@ export default function Home() {
                     <path d="M9.2 13.2h5.8M9.2 16.1h3.8" />
                   </svg>
                 </span>
-                Critérios visíveis
+                Ajustes com descrição clara
               </h3>
               <p>
-                Risco, necessidade de reinício e escopo do ajuste aparecem antes da execução. Não há
-                “pacote oculto” no rodapé.
+                Cada operação mostra o que será alterado antes de rodar. Sem pacotes fechados e sem
+                surpresa no final.
               </p>
               <ul>
                 <li>
@@ -283,7 +281,7 @@ export default function Home() {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                     <path d="M20 6 9 17l-5-5" strokeLinecap="round" />
                   </svg>
-                  Classificação de impacto por categoria
+                  Organização por categoria
                 </li>
                 <li>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -301,11 +299,11 @@ export default function Home() {
                     <path d="M4.6 6.2v5h5" />
                   </svg>
                 </span>
-                Rollback por operação
+                Histórico para desfazer
               </h3>
               <p>
-                O histórico do painel desfaz a mudança específica. Restaurar o Windows inteiro não é
-                o único caminho de recuperação.
+                O painel registra cada operação. Se o resultado não agradar, você reverte o item —
+                sem precisar restaurar o Windows inteiro.
               </p>
               <ul>
                 <li>
@@ -324,7 +322,7 @@ export default function Home() {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                     <path d="M20 6 9 17l-5-5" strokeLinecap="round" />
                   </svg>
-                  BIOS em leitura quando o risco sobe
+                  BIOS apenas em leitura no painel
                 </li>
               </ul>
             </Reveal>
