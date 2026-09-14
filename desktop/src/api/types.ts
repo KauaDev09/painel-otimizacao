@@ -47,7 +47,7 @@ export interface OptimizationOperation {
 }
 
 /** Contrato da API disponível no renderer (preload no Electron, mock no preview). */
-export interface OrionApi {
+export interface SevenApi {
   getAppMeta(): Promise<AppMeta | undefined>;
   openExternal(url: string): Promise<void>;
   windowMinimize(): Promise<void>;
@@ -64,7 +64,8 @@ export interface OrionApi {
 
   analyze(): Promise<{ overall?: number; historyId?: string; scores?: { overall: number } }>;
   getLast(): Promise<AnalysisResultLike>;
-  onServiceStep(cb: (step: unknown) => void): void;
+  onServiceStep(cb: (step: unknown) => void): any;
+  onEngineStep?(cb: (step: { name?: string } & Record<string, unknown>) => void): any;
   monitorSnapshot(): Promise<MonitorSnapshot>;
   engineListOperations(): Promise<OptimizationOperation[]>;
   displayMonitors(): Promise<unknown>;
@@ -105,7 +106,7 @@ export interface OrionApi {
   settingsGet(): Promise<SettingsLike>;
   settingsSet(patch: unknown): Promise<unknown>;
 
-  [method: string]: unknown;
+  [method: string]: any;
 }
 
 export interface GameEntry {

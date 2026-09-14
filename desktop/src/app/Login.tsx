@@ -1,10 +1,10 @@
 import React from 'react';
 import { KeyRound } from 'lucide-react';
 import { useApi } from '@/api';
-import { OrionReactiveCore } from '@/components/orion-reactive-core';
+import { S4ReactiveCore } from '@/components/s4-reactive-core';
 import logoFullUrl from '../ui/assets/s4-logo-horizontal-dark.png';
 
-const STORE_URL = 'https://orion-optimizer-ten.vercel.app/planos';
+const STORE_URL = 'https://sevenoptimizer.com.br/planos';
 const DISCORD_URL = 'https://discord.gg/e3jHfF7ANp';
 
 export function Login() {
@@ -52,13 +52,13 @@ export function Login() {
       ? 'text-red-400'
       : msg?.kind === 'ok'
         ? 'text-green-400'
-        : 'text-[var(--orion-text-secondary)]';
+        : 'text-[var(--s4-text-secondary)]';
 
   const hasError = msg?.kind === 'err';
 
   return (
-    <div className="drag-region relative flex h-full items-center justify-center bg-[var(--orion-bg)]">
-      <OrionReactiveCore className="absolute inset-0 z-0" />
+    <div className="drag-region relative flex h-full items-center justify-center bg-[var(--s4-bg)]">
+      <S4ReactiveCore className="absolute inset-0 z-0" />
       <div className="no-drag login-in relative z-10 w-[min(400px,92vw)] rounded-2xl bg-[rgba(18,18,22,0.78)] p-10 text-center shadow-[0_0_0_1px_rgba(255,59,63,0.18),0_20px_60px_rgba(0,0,0,0.5),0_0_40px_rgba(255,59,63,0.12)] backdrop-blur-md">
         <div className="mb-6 flex flex-col items-center gap-3">
           <img src={logoFullUrl} alt="SevenOptimizer" className="h-10 w-auto max-w-[240px] object-contain" />
@@ -72,7 +72,7 @@ export function Login() {
         <div
           className={[
             'mb-3.5 flex items-center gap-2 rounded-lg border border-[rgba(255,255,255,0.06)] bg-black/40 px-3 py-2.5 transition-all duration-200 ease-out',
-            hasError ? 'border-red-500/60' : 'focus-within:border-[var(--orion-hover-border)] focus-within:shadow-[0_0_0_1px_var(--orion-hover-border),0_4px_16px_var(--orion-hover-glow)]',
+            hasError ? 'border-red-500/60' : 'focus-within:border-[var(--s4-hover-border)] focus-within:shadow-[0_0_0_1px_var(--s4-hover-border),0_4px_16px_var(--s4-hover-glow)]',
           ].join(' ')}
         >
           <KeyRound className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -91,7 +91,7 @@ export function Login() {
             type="button"
             tabIndex={0}
             onClick={() => setShowKey((s) => !s)}
-            className="shrink-0 text-[0.68rem] font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-[var(--orion-hover-fg)]"
+            className="shrink-0 text-[0.68rem] font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-[var(--s4-hover-fg)]"
           >
             {showKey ? 'Ocultar' : 'Mostrar'}
           </button>
@@ -101,7 +101,7 @@ export function Login() {
           type="button"
           disabled={busy}
           onClick={activate}
-          className="orion-glow mb-3 flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--orion-icon-active)] py-2.5 text-sm font-semibold text-black transition-colors duration-200 ease-out hover:bg-[var(--orion-hover-fg)] disabled:opacity-60"
+          className="s4-glow mb-3 flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--s4-icon-active)] py-2.5 text-sm font-semibold text-black transition-colors duration-200 ease-out hover:bg-[var(--s4-hover-fg)] disabled:opacity-60"
         >
           {busy ? (
             <>
@@ -127,11 +127,11 @@ export function Login() {
         </div>
         <p className="text-xs leading-relaxed text-muted-foreground/70">
           A key é validada no servidor. Há{' '}
-          <button type="button" className="underline underline-offset-2" onClick={() => api.openExternal?.('https://orion-optimizer-ten.vercel.app/privacidade')}>
+          <button type="button" className="underline underline-offset-2" onClick={() => api.openExternal?.('https://sevenoptimizer.com.br/privacidade')}>
             política de privacidade
           </button>{' '}
           e{' '}
-          <button type="button" className="underline underline-offset-2" onClick={() => api.openExternal?.('https://orion-optimizer-ten.vercel.app/termos')}>
+          <button type="button" className="underline underline-offset-2" onClick={() => api.openExternal?.('https://sevenoptimizer.com.br/termos')}>
             termos de uso
           </button>
           . Pedido de exclusão apaga a conta e o restante dos dados, não só o login.

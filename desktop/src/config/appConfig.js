@@ -12,8 +12,9 @@ const APP_VERSION = '2.1.10';
 const SUPPORT_EMAIL = '';
 // Suporte oficial via Discord (aberto pelo botão de suporte da interface).
 const OFFICIAL_URL = 'https://discord.gg/e3jHfF7ANp';
-// URL pública da API de licenças/atualizações (não é segredo).
-const DEFAULT_API_URL = 'https://orion-optimizer-ten.vercel.app';
+// Domínio público da loja/API. Sobrescreva com SEVEN_API_URL se necessário.
+const SITE_URL = 'https://sevenoptimizer.com.br';
+const DEFAULT_API_URL = SITE_URL;
 
 module.exports = {
   APP_NAME,
@@ -21,5 +22,6 @@ module.exports = {
   APP_VERSION,
   SUPPORT_EMAIL,
   OFFICIAL_URL,
+  SITE_URL,
   DEFAULT_API_URL
 };

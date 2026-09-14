@@ -1,6 +1,6 @@
 /*!
- * Orion Optimizer — aviso de cookies
- * Copyright (c) 2026 Orion
+ * SevenOptimizer — aviso de cookies
+ * Copyright (c) 2026 SevenOptimizer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,21 +26,21 @@
 'use strict';
 
 (function () {
-  var KEY = 'orion_cookie_consent';
+  var KEY = 's4_cookie_consent';
   var FONTS = 'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap';
 
   function read() {
     try { return localStorage.getItem(KEY) === 'accepted'; } catch (_) { return false; }
   }
 
-  window.OrionConsent = {
+  window.S4Consent = {
     accepted: read(),
     accept: accept,
     license: 'MIT'
   };
 
   function injectFonts() {
-    if (document.getElementById('orion-fonts')) return;
+    if (document.getElementById('s4-fonts')) return;
     var pre1 = document.createElement('link');
     pre1.rel = 'preconnect';
     pre1.href = 'https://fonts.googleapis.com';
@@ -49,7 +49,7 @@
     pre2.href = 'https://fonts.gstatic.com';
     pre2.crossOrigin = 'anonymous';
     var link = document.createElement('link');
-    link.id = 'orion-fonts';
+    link.id = 's4-fonts';
     link.rel = 'stylesheet';
     link.href = FONTS;
     document.head.appendChild(pre1);
@@ -95,8 +95,8 @@
 
   function accept() {
     try { localStorage.setItem(KEY, 'accepted'); } catch (_) {}
-    window.OrionConsent.accepted = true;
-    var bar = document.getElementById('orion-cookie');
+    window.S4Consent.accepted = true;
+    var bar = document.getElementById('s4-cookie');
     if (bar) bar.remove();
     document.documentElement.classList.remove('cookie-wait');
     injectFonts();
@@ -104,24 +104,24 @@
   }
 
   function banner() {
-    if (document.getElementById('orion-cookie')) return;
+    if (document.getElementById('s4-cookie')) return;
     document.documentElement.classList.add('cookie-wait');
     var el = document.createElement('div');
-    el.id = 'orion-cookie';
+    el.id = 's4-cookie';
     el.setAttribute('role', 'dialog');
     el.setAttribute('aria-label', 'Aceitar cookies');
     el.innerHTML =
       '<div class="ck-box">' +
-        '<img class="ck-logo" src="/assets/icon.jpeg" alt="Orion">' +
+        '<img class="ck-logo" src="/assets/icon.jpeg" alt="SevenOptimizer">' +
         '<div class="ck-copy">' +
           '<strong>Aceitar cookies</strong>' +
           '<p>Usamos cookies e armazenamento local para sessão da conta, segurança (log de acesso) e preferência deste aviso. Sem o aceite, scripts da interface, fontes externas e o registro de visita ficam bloqueados.</p>' +
           '<p class="ck-mit">Este aviso é <em>open source</em>, licença <strong>MIT</strong>. <a href="/privacidade">Política de privacidade</a> · <a href="/termos">Termos de uso</a></p>' +
         '</div>' +
-        '<button type="button" class="btn btn-primary" id="orion-cookie-ok">Aceitar cookies</button>' +
+        '<button type="button" class="btn btn-primary" id="s4-cookie-ok">Aceitar cookies</button>' +
       '</div>';
     document.body.appendChild(el);
-    document.getElementById('orion-cookie-ok').addEventListener('click', accept);
+    document.getElementById('s4-cookie-ok').addEventListener('click', accept);
   }
 
   function initScrollNav() {

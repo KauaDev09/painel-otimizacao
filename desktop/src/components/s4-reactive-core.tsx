@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * OrionReactiveCore — visual.md §3–§9
+ * S4ReactiveCore — visual.md §3–§9
  * Núcleo energético que reage ao cursor (parallax, inclinação, glow) com inércia
  * via lerp + requestAnimationFrame único por instância. Apenas `transform` e
  * `opacity` são animados. `pointer-events: none` em tudo.
  */
-type OrionReactiveCoreProps = {
+type S4ReactiveCoreProps = {
   className?: string;
   compact?: boolean;
 };
@@ -16,7 +16,7 @@ const CORE_X = 0.58;
 const CORE_Y = 0.45;
 const LERP = 0.08;
 
-export function OrionReactiveCore({ className = '', compact = false }: OrionReactiveCoreProps) {
+export function S4ReactiveCore({ className = '', compact = false }: S4ReactiveCoreProps) {
   const fieldRef = useRef<HTMLDivElement | null>(null);
   const target = useRef({ x: CORE_X, y: CORE_Y });
   const current = useRef({ x: CORE_X, y: CORE_Y });
@@ -86,25 +86,25 @@ export function OrionReactiveCore({ className = '', compact = false }: OrionReac
     <div
       ref={fieldRef}
       aria-hidden="true"
-      className={`orion-reactive-field${compact ? ' orion-compact' : ''} ${className}`}
+      className={`sevenoptimizer-reactive-field${compact ? ' sevenoptimizer-compact' : ''} ${className}`}
     >
-      {!compact && <div className="orion-grain" />}
-      <div className="orion-grid" />
-      <div className="orion-pointer-light" />
-      <div className="orion-core">
-        <div className="orion-core-ring-outer" />
-        <div className="orion-core-ring-inner" />
-        <div className="orion-core-orbital" data-o="1">
+      {!compact && <div className="sevenoptimizer-grain" />}
+      <div className="sevenoptimizer-grid" />
+      <div className="sevenoptimizer-pointer-light" />
+      <div className="sevenoptimizer-core">
+        <div className="sevenoptimizer-core-ring-outer" />
+        <div className="sevenoptimizer-core-ring-inner" />
+        <div className="sevenoptimizer-core-orbital" data-o="1">
           <i />
         </div>
-        <div className="orion-core-orbital" data-o="2">
+        <div className="sevenoptimizer-core-orbital" data-o="2">
           <i />
         </div>
-        <div className="orion-core-orbital" data-o="3">
+        <div className="sevenoptimizer-core-orbital" data-o="3">
           <i />
         </div>
-        <div className="orion-core-center">
-          <div className="orion-core-glow" />
+        <div className="sevenoptimizer-core-center">
+          <div className="sevenoptimizer-core-glow" />
         </div>
       </div>
     </div>

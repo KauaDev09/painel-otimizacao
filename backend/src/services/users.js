@@ -83,7 +83,7 @@ async function loginByKey({ key }) {
     user = await db.queryOne(config, 'SELECT * FROM usuarios WHERE id = ? LIMIT 1', [lic.usuario_id]);
   }
   if (!user) {
-    const fakeEmail = 'cli_' + k.replace(/-/g, '').toLowerCase() + '@orion.local';
+    const fakeEmail = 'cli_' + k.replace(/-/g, '').toLowerCase() + '@sevenoptimizer.local';
     user = await ensureUser({ name: 'Cliente', email: fakeEmail });
     if (user) {
       await db.query(config, 'UPDATE licencas SET usuario_id = ? WHERE id = ?', [user.id, lic.id]);

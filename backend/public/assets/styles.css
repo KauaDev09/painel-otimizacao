@@ -1,5 +1,5 @@
-﻿/* ============================================================
-   ORION OPTIMIZER — storefront
+/* ============================================================
+   SevenOptimizer — storefront
    Editorial · técnico · assimétrico
    Display: Plus Jakarta Sans · corpo: Inter · mono: IBM Plex
    ============================================================ */
@@ -760,23 +760,23 @@ code, .mono { font-family: var(--font-mono); }
 .legal-page ul { padding-left: 20px; display: grid; gap: 8px; margin: 10px 0 0; }
 .legal-page a { color: #c636ff; font-weight: 600; }
 
-#orion-cookie {
+#s4-cookie {
   position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 400;
 }
-#orion-cookie .ck-box {
+#s4-cookie .ck-box {
   max-width: var(--container); margin: 0 auto;
   display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
   padding: 16px 18px; border-radius: 20px;
   background: rgba(7, 11, 18, 0.94); border: 1px solid rgba(56, 189, 248, 0.28);
   box-shadow: var(--shadow-lg), 0 0 40px rgba(59, 130, 246, 0.12); backdrop-filter: blur(16px);
 }
-#orion-cookie .ck-logo { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
-#orion-cookie .ck-copy { flex: 1; min-width: 220px; }
-#orion-cookie .ck-copy strong { display: block; font-family: var(--font-display); font-size: 17px; margin-bottom: 4px; }
-#orion-cookie .ck-copy p { color: var(--text-2); font-size: 13.5px; margin: 0; }
-#orion-cookie .ck-mit { margin-top: 8px !important; font-size: 12px !important; color: var(--text-muted) !important; }
-#orion-cookie .ck-mit a { color: #c636ff; }
-#orion-cookie .btn { flex-shrink: 0; }
+#s4-cookie .ck-logo { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+#s4-cookie .ck-copy { flex: 1; min-width: 220px; }
+#s4-cookie .ck-copy strong { display: block; font-family: var(--font-display); font-size: 17px; margin-bottom: 4px; }
+#s4-cookie .ck-copy p { color: var(--text-2); font-size: 13.5px; margin: 0; }
+#s4-cookie .ck-mit { margin-top: 8px !important; font-size: 12px !important; color: var(--text-muted) !important; }
+#s4-cookie .ck-mit a { color: #c636ff; }
+#s4-cookie .btn { flex-shrink: 0; }
 
 .danger-zone {
   margin-top: 36px; padding: 22px; border-radius: 18px;

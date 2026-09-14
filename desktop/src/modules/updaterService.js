@@ -83,7 +83,7 @@ async function downloadUpdate(url) {
   const tempDir = path.join(app.getPath('temp'), APP_NAME.replace(/\s+/g, '_'));
   fs.mkdirSync(tempDir, { recursive: true });
 
-  const filename = `OrionOptimizer-Setup-${Date.now()}.exe`;
+  const filename = `SevenOptimizer-Setup-${Date.now()}.exe`;
   const destPath = path.join(tempDir, filename);
 
   try {

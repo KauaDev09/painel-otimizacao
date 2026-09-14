@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Entrar — ORION OPTIMIZER</title>
+  <title>Entrar — SevenOptimizer</title>
   <link rel="icon" type="image/jpeg" href="/assets/icon.jpeg">
   <script src="/assets/cookies.js"></script>
   <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body>
   <nav class="nav"><div class="nav-inner">
-    <a href="/" class="brand"><span class="brand-mark" aria-hidden="true"><img src="/assets/icon.jpeg" alt=""></span>ORION<span class="accent">OPTIMIZER</span></a>
+    <a href="/" class="brand"><span class="brand-mark" aria-hidden="true"><img src="/assets/icon.jpeg" alt=""></span>SevenOptimizer<span class="accent">OPTIMIZER</span></a>
     <div class="nav-actions" data-nav-actions></div>
   </div></nav>
 
@@ -47,7 +47,7 @@
         if (!key || key.length < 10) throw new Error('Informe uma chave de licença válida.');
         const res = await API.post('/api/v1/store/login-key', { key });
         setToken(res.token);
-        if (res.license) localStorage.setItem('orion_last_key', res.license.key);
+        if (res.license) localStorage.setItem('s4_last_key', res.license.key);
         toast('Bem-vindo!', 'ok');
         location.href = (new URLSearchParams(location.search).get('next')) || '/conta';
       } catch (err) {

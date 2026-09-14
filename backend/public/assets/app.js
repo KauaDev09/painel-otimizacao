@@ -1,5 +1,5 @@
 /* ============================================================
-   ORION OPTIMIZER — helpers do frontend SaaS
+   SevenOptimizer — helpers do frontend SaaS
    ============================================================ */
 
 const API = {
@@ -29,7 +29,7 @@ const API = {
   },
 };
 
-const TOKEN_KEY = 'orion_token';
+const TOKEN_KEY = 's4_token';
 
 function setToken(token) { localStorage.setItem(TOKEN_KEY, token); }
 function getToken() { return localStorage.getItem(TOKEN_KEY) || null; }
@@ -72,8 +72,8 @@ function brl(v) {
 
 const PUBLIC_INSTALLER = {
   version: '2.1.5',
-  filename: 'ORION.OPTIMIZER.Setup-2.1.5.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.5/ORION.OPTIMIZER.Setup-2.1.5.exe',
+  filename: 'SevenOptimizer.OPTIMIZER.Setup-2.1.5.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.5/SevenOptimizer.OPTIMIZER.Setup-2.1.5.exe',
   releaseNotes: 'Discord oficial no suporte. Fonte Inter. Login e Configurações com o novo canal. Instalador público; o painel abre com a key.',
   size: '~108 MB'
 };
@@ -95,7 +95,7 @@ async function loadDownloadPanel(el) {
   const notes = download.releaseNotes ? `<div class="changelog"><h4>Novidades</h4><pre>${escapeHtml(download.releaseNotes)}</pre></div>` : '';
   el.innerHTML = `
     <div class="ver">v${escapeHtml(download.version)}</div>
-    <h3>ORION OPTIMIZER</h3>
+    <h3>SevenOptimizer</h3>
     <p>Windows 10 / 11 · 64 bits</p>
     <p class="dl-free">Download grátis · chave de licença necessária</p>
     <div class="dl-meta">
@@ -114,10 +114,10 @@ async function loadDownloadPanel(el) {
     </div>
     <a class="btn btn-primary btn-lg" href="${escapeHtml(download.url)}" download data-magnet="12">Baixar instalador</a>
     ${notes}`;
-  if (window.OrionFX) {
-    window.OrionFX.initStarButtons();
-    window.OrionFX.initMagnet();
-    window.OrionFX.initSpotlight();
+  if (window.S4FX) {
+    window.S4FX.initStarButtons();
+    window.S4FX.initMagnet();
+    window.S4FX.initSpotlight();
   }
 }
 

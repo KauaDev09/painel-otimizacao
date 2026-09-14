@@ -6,7 +6,7 @@ const fs = require('fs');
 
 // Protocolo local p/ ícones e capas — sem base64 na RAM do renderer.
 protocol.registerSchemesAsPrivileged([{
-  scheme: 'orion-media',
+  scheme: 's4-media',
   privileges: {
     standard: true,
     secure: true,
@@ -103,13 +103,50 @@ function applyGeneralSettings(settings) {
   if (g.minimizeToTray) createTray();
 }
 
+function migrateLegacyUserData() {
+  // Mantém licença/histórico ao trocar o nome do pacote (orion-optimizer → sevenoptimizer).
+  try {
+    const appData = app.getPath('appData');
+    const legacyDirs = [
+      path.join(appData, 'orion-optimizer'),
+      path.join(appData, 'Orion Optimizer')
+    ];
+    const target = app.getPath('userData');
+    const targetLicense = path.join(target, 'license');
+    if (fs.existsSync(targetLicense)) return;
+
+    for (const legacy of legacyDirs) {
+      if (!fs.existsSync(legacy)) continue;
+      fs.mkdirSync(target, { recursive: true });
+      for (const name of fs.readdirSync(legacy)) {
+        const src = path.join(legacy, name);
+        const dest = path.join(target, name);
+        if (!fs.existsSync(dest)) {
+          fs.cpSync(src, dest, { recursive: true });
+        }
+      }
+      break;
+    }
+
+    const docs = app.getPath('documents');
+    const legacyDocs = path.join(docs, 'Orion Optimizer');
+    const newDocs = path.join(docs, 'SevenOptimizer');
+    if (fs.existsSync(legacyDocs) && !fs.existsSync(newDocs)) {
+      fs.cpSync(legacyDocs, newDocs, { recursive: true });
+    }
+  } catch (err) {
+    console.error('[main] migrateLegacyUserData:', err && err.message);
+  }
+}
+
 function initServices() {
+  migrateLegacyUserData();
   const docs = app.getPath('documents');
-  const reportsDir = path.join(docs, 'Orion Optimizer', 'Relatorios');
-  const rawDir = path.join(docs, 'Orion Optimizer', 'Dados');
+  const reportsDir = path.join(docs, 'SevenOptimizer', 'Relatorios');
+  const rawDir = path.join(docs, 'SevenOptimizer', 'Dados');
   reportService = new ReportService(reportsDir);
 
-  // Dados locais do aplicativo (%APPDATA%/orion-optimizer)
+  // Dados locais do aplicativo (%APPDATA%/sevenoptimizer)
   const userData = app.getPath('userData');
   historyService = new HistoryService(path.join(userData, 'history'));
 
@@ -283,7 +320,7 @@ function checkUpdatesOnStartup() {
 }
 
 app.whenReady().then(() => {
-  protocol.handle('orion-media', (request) => {
+  protocol.handle('s4-media', (request) => {
     try {
       const filePath = appLibrary.resolveMediaUrl(request.url);
       if (!filePath || !fs.existsSync(filePath)) {
@@ -393,7 +430,7 @@ function registerIpc() {
 
   ipcMain.handle('raw:export', (e, payload) => {
     if (!lastResult) throw new Error('Nenhuma análise concluída.');
-    const dir = path.join(app.getPath('documents'), 'Orion Optimizer', 'Dados');
+    const dir = path.join(app.getPath('documents'), 'SevenOptimizer', 'Dados');
     fs.mkdirSync(dir, { recursive: true });
     const stamp = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19);
     const file = path.join(dir, `dados-brutos-${stamp}.json`);

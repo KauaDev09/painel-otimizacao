@@ -9,7 +9,7 @@
 const fs = require('fs');
 const path = require('path');
 
-let baseDir = null; // ex.: %APPDATA%/orion-optimizer/protection
+let baseDir = null; // ex.: %APPDATA%/sevenoptimizer/protection
 
 function setBaseDir(dir) {
   baseDir = dir;
@@ -24,7 +24,7 @@ function getBaseDir() { return baseDir; }
  * então rodar antes do UAC único sempre falharia para usuário comum.
  * Sai 0 em sucesso e 1 em falha (o runner decide pelo código de saída).
  */
-function buildRestorePointScript(description = 'Orion Optimizer') {
+function buildRestorePointScript(description = 'SevenOptimizer') {
   const safeDesc = String(description).replace(/'/g, '').slice(0, 100);
   return `
 $ErrorActionPreference = 'Stop'
@@ -45,7 +45,7 @@ try {
  * Cria um ponto de restauração do Windows (uso direto/elevado).
  * Retorna { ok, message } — nunca lança.
  */
-async function createRestorePoint(description = 'Orion Optimizer') {
+async function createRestorePoint(description = 'SevenOptimizer') {
   const runner = require('./runner');
   const { stdout } = await runner.runPowerShellInline(buildRestorePointScript(description), 180000);
   const text = String(stdout || '').trim();

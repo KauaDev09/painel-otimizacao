@@ -318,7 +318,7 @@ function iconCacheDir() {
     const { app } = require('electron');
     if (app && app.getPath) return path.join(app.getPath('userData'), 'gameboost', 'icons');
   } catch (_) { /* preview */ }
-  return path.join(process.env.LOCALAPPDATA || process.env.TEMP || '.', 'orion-optimizer', 'gameboost', 'icons');
+  return path.join(process.env.LOCALAPPDATA || process.env.TEMP || '.', 'sevenoptimizer', 'gameboost', 'icons');
 }
 
 function fileHash(p, mtime) {
@@ -328,12 +328,12 @@ function fileHash(p, mtime) {
 
 function pathToMediaUrl(p) {
   const abs = path.resolve(String(p));
-  return 'orion-media://local/' + Buffer.from(abs, 'utf8').toString('base64url');
+  return 's4-media://local/' + Buffer.from(abs, 'utf8').toString('base64url');
 }
 
 function resolveMediaUrl(url) {
   const raw = String(url || '');
-  const m = /^orion-media:\/\/local\/([A-Za-z0-9_-]+)$/.exec(raw);
+  const m = /^s4-media:\/\/local\/([A-Za-z0-9_-]+)$/.exec(raw);
   if (!m) return null;
   try {
     return Buffer.from(m[1], 'base64url').toString('utf8');

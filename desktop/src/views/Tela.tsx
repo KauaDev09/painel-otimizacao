@@ -273,16 +273,16 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
           type="button"
           onClick={resetAll}
           disabled={busy}
-          className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-foreground disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-foreground disabled:opacity-60"
         >
           <RotateCcw className="h-4 w-4" />
           REDEFINIR
         </button>
       </div>
 
-      <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+      <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
         <div className="mb-3 flex items-center gap-2">
-          <MonitorIcon className="h-4 w-4 text-[var(--orion-icon-default)]" />
+          <MonitorIcon className="h-4 w-4 text-[var(--s4-icon-default)]" />
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             Telas ({monitors.length || 1})
           </span>
@@ -299,12 +299,12 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
                 onClick={() => m.id && selectMonitor(m.id)}
                 className={`min-w-[140px] flex-1 rounded-lg border px-4 py-3 text-left transition-colors ${
                   active
-                    ? 'border-[var(--orion-icon-active)] bg-[var(--orion-selected-bg)]'
+                    ? 'border-[var(--s4-icon-active)] bg-[var(--s4-selected-bg)]'
                     : 'border-white/10 bg-black/30 hover:border-white/25'
                 }`}
               >
                 <div className="mb-2 flex h-14 items-center justify-center rounded bg-black/40 text-lg font-bold text-foreground">
-                  {i + 1}{m.isPrimary ? <span className="ml-1 text-xs text-[var(--orion-icon-active)]">*</span> : null}
+                  {i + 1}{m.isPrimary ? <span className="ml-1 text-xs text-[var(--s4-icon-active)]">*</span> : null}
                 </div>
                 <p className="truncate text-sm font-medium text-foreground">{m.name || `Monitor ${i + 1}`}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
@@ -320,7 +320,7 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
               <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
               Controle ativo em {selected.name || 'monitor selecionado'}
             </span>
-            {applyHint && <span className="text-[var(--orion-icon-active)]">{applyHint}</span>}
+            {applyHint && <span className="text-[var(--s4-icon-active)]">{applyHint}</span>}
           </p>
         )}
       </div>
@@ -333,13 +333,13 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
         <ControlSlider label="Temperatura de Cor" value={values.temperature} display={formatValue('temperature', values.temperature)} onChange={(v) => handleChange('temperature', v)} />
       </div>
 
-      <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+      <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
         <div className="mb-3 flex items-center justify-between">
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Perfil</span>
           <button
             type="button"
             onClick={savePreset}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--orion-icon-active)] transition-colors hover:text-[var(--orion-hover-fg)]"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--s4-icon-active)] transition-colors hover:text-[var(--s4-hover-fg)]"
           >
             <Save className="h-3.5 w-3.5" />
             SALVAR PERFIL
@@ -356,8 +356,8 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
                 onClick={() => restorePreset(name)}
                 className={`rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-[var(--orion-icon-active)] text-black'
-                    : 'bg-black/40 text-muted-foreground hover:bg-[var(--orion-selected-bg)] hover:text-foreground'
+                    ? 'bg-[var(--s4-icon-active)] text-black'
+                    : 'bg-black/40 text-muted-foreground hover:bg-[var(--s4-selected-bg)] hover:text-foreground'
                 }`}
               >
                 {name}
@@ -373,8 +373,8 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
                 onClick={() => restorePreset(name)}
                 className={`rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-[var(--orion-icon-active)] text-black'
-                    : 'bg-black/40 text-muted-foreground hover:bg-[var(--orion-selected-bg)] hover:text-foreground'
+                    ? 'bg-[var(--s4-icon-active)] text-black'
+                    : 'bg-black/40 text-muted-foreground hover:bg-[var(--s4-selected-bg)] hover:text-foreground'
                 }`}
               >
                 {name}
@@ -396,7 +396,7 @@ function ControlSlider({ label, value, display, onChange, min = 0, max = 200 }: 
   max?: number;
 }) {
   return (
-    <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+    <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
       <div className="mb-3 flex items-center justify-between">
         <span className="text-sm font-medium text-foreground">{label}</span>
         <span className="text-sm font-semibold text-foreground tabular-nums">{display}</span>

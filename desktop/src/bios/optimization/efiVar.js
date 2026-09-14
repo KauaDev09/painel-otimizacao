@@ -263,7 +263,7 @@ function restoreScriptText() {
 }
 
 function writeTempScript(scriptText) {
-  const p = path.join(os.tmpdir(), `orion-efi-${Date.now()}-${process.pid}-${Math.random().toString(16).slice(2)}.ps1`);
+  const p = path.join(os.tmpdir(), `sevenoptimizer-efi-${Date.now()}-${process.pid}-${Math.random().toString(16).slice(2)}.ps1`);
   fs.writeFileSync(p, scriptText, 'utf8');
   return p;
 }

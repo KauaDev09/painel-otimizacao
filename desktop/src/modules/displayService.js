@@ -32,7 +32,7 @@ function helperDir() {
     const { app } = require('electron');
     if (app && app.getPath) return path.join(app.getPath('userData'), 'helpers');
   } catch (_) { /* preview */ }
-  return path.join(process.env.LOCALAPPDATA || process.env.TEMP || '.', 'orion-optimizer', 'helpers');
+  return path.join(process.env.LOCALAPPDATA || process.env.TEMP || '.', 'sevenoptimizer', 'helpers');
 }
 
 function packagedHelperPath() {

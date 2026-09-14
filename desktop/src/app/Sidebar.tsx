@@ -16,7 +16,7 @@ export function Sidebar({ view, onNavigate, collapsed, onToggle, version }: Side
   return (
     <aside
       className={cn(
-        'flex shrink-0 flex-col bg-[var(--orion-bg)] transition-[width] duration-300',
+        'flex shrink-0 flex-col bg-[var(--s4-bg)] transition-[width] duration-300',
         collapsed ? 'w-16' : 'w-60'
       )}
     >
@@ -55,17 +55,17 @@ export function Sidebar({ view, onNavigate, collapsed, onToggle, version }: Side
                   title={collapsed ? item.label : undefined}
                   onClick={() => onNavigate(item.view)}
                   className={cn(
-                    'orion-nav-item mb-0.5 flex w-full items-center gap-3 rounded-md border-0 px-2.5 py-2 text-sm font-medium shadow-none',
+                    's4-nav-item mb-0.5 flex w-full items-center gap-3 rounded-md border-0 px-2.5 py-2 text-sm font-medium shadow-none',
                     active
-                      ? 'bg-[var(--orion-selected-bg)] text-[var(--orion-text-primary)]'
-                      : 'bg-transparent text-[var(--orion-text-secondary)] hover:bg-[rgba(140,69,255,0.08)] hover:text-[var(--orion-hover-fg)]',
+                      ? 'bg-[var(--s4-selected-bg)] text-[var(--s4-text-primary)]'
+                      : 'bg-transparent text-[var(--s4-text-secondary)] hover:bg-[rgba(255,59,63,0.08)] hover:text-[var(--s4-hover-fg)]',
                     collapsed && 'justify-center px-0'
                   )}
                 >
                   <Icon
                     className={cn(
                       'h-5 w-5 shrink-0',
-                      active ? 'orion-icon-active' : 'orion-icon-violet'
+                      active ? 's4-icon-active' : 's4-icon-accent'
                     )}
                   />
                   {!collapsed && <span className="truncate">{item.label}</span>}
@@ -83,7 +83,7 @@ export function Sidebar({ view, onNavigate, collapsed, onToggle, version }: Side
             <button
               type="button"
               onClick={onToggle}
-              className="rounded-md p-1 text-[var(--orion-text-secondary)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)]"
+              className="rounded-md p-1 text-[var(--s4-text-secondary)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)]"
               title="Recolher menu"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -95,7 +95,7 @@ export function Sidebar({ view, onNavigate, collapsed, onToggle, version }: Side
           <button
             type="button"
             onClick={onToggle}
-            className="mx-auto block rounded-md p-1.5 text-[var(--orion-text-secondary)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)]"
+            className="mx-auto block rounded-md p-1.5 text-[var(--s4-text-secondary)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)]"
             title="Expandir menu"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

@@ -13,7 +13,7 @@ const mysql = require('mysql2/promise');
 
 const TARGET_VERSION = '2.0.6';
 const CANONICAL_URL =
-  'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.6/ORION.OPTIMIZER.Setup-2.0.6.exe';
+  'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.6/SevenOptimizer.OPTIMIZER.Setup-2.0.6.exe';
 
 (async () => {
   const conn = await mysql.createConnection({

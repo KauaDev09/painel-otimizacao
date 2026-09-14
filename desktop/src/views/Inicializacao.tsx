@@ -2,7 +2,7 @@ import React from 'react';
 import { Power, RefreshCcw, Search, ShieldCheck, X, Loader2 } from 'lucide-react';
 import { useApi } from '@/api';
 
-// ---------- Tipos locais (métodos ainda não tipados em OrionApi) ----------
+// ---------- Tipos locais (métodos ainda não tipados em SevenApi) ----------
 
 type Impact = 'Alto' | 'Médio' | 'Baixo' | 'Protegido' | 'Desconhecido' | string;
 
@@ -32,15 +32,15 @@ const BANNER_STYLE: Record<NonNullable<Banner>['kind'], string> = {
   ok: 'bg-green-500/15 text-green-400',
   warn: 'bg-amber-500/15 text-amber-400',
   error: 'bg-red-500/15 text-red-400',
-  info: 'bg-[var(--orion-selected-bg)] text-[var(--orion-icon-active)]',
+  info: 'bg-[var(--s4-selected-bg)] text-[var(--s4-icon-active)]',
 };
 
 const IMPACT_CLASS: Record<string, string> = {
   Alto: 'bg-red-500/15 text-red-400',
   Médio: 'bg-amber-500/15 text-amber-400',
   Baixo: 'bg-green-500/15 text-green-400',
-  Protegido: 'bg-[var(--orion-selected-bg)] text-muted-foreground',
-  Desconhecido: 'bg-[var(--orion-selected-bg)] text-muted-foreground',
+  Protegido: 'bg-[var(--s4-selected-bg)] text-muted-foreground',
+  Desconhecido: 'bg-[var(--s4-selected-bg)] text-muted-foreground',
 };
 
 const IMPACT_ORDER: Record<string, number> = { Alto: 0, Médio: 1, Baixo: 2, Desconhecido: 3, Protegido: 4 };
@@ -176,7 +176,7 @@ export function Inicializacao({ onNavigate }: { onNavigate?: (view: string) => v
             type="button"
             onClick={refresh}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:opacity-60"
           >
             <RefreshCcw className={'h-4 w-4 ' + (loading ? 'animate-spin' : '')} />
             {loading ? 'Atualizando…' : 'ATUALIZAR'}
@@ -194,9 +194,9 @@ export function Inicializacao({ onNavigate }: { onNavigate?: (view: string) => v
       )}
 
       {/* Resumo */}
-      <div className="flex flex-wrap items-center gap-6 rounded-lg bg-[var(--orion-surface)] px-5 py-4 text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-6 rounded-lg bg-[var(--s4-surface)] px-5 py-4 text-sm text-muted-foreground">
         <span className="flex items-center gap-2">
-          <Power className="h-4 w-4 text-[var(--orion-icon-default)]" />
+          <Power className="h-4 w-4 text-[var(--s4-icon-default)]" />
           <span className="text-foreground">{entries.length}</span> programa(s)
         </span>
         <span className="flex items-center gap-2">
@@ -212,7 +212,7 @@ export function Inicializacao({ onNavigate }: { onNavigate?: (view: string) => v
       {/* Toolbar */}
       <div className="flex flex-col gap-3">
         <div className="relative min-w-0 w-full max-w-xl">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--orion-icon-default)]" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--s4-icon-default)]" />
           <input
             type="text"
             value={query}
@@ -220,10 +220,10 @@ export function Inicializacao({ onNavigate }: { onNavigate?: (view: string) => v
             placeholder="Filtrar por nome, comando ou origem…"
             spellCheck={false}
             autoComplete="off"
-            className="box-border w-full min-w-0 max-w-full rounded-lg border-0 bg-[var(--orion-surface)] py-2 pl-9 pr-3 text-sm text-foreground shadow-none placeholder:text-muted-foreground"
+            className="box-border w-full min-w-0 max-w-full rounded-lg border-0 bg-[var(--s4-surface)] py-2 pl-9 pr-3 text-sm text-foreground shadow-none placeholder:text-muted-foreground"
           />
         </div>
-        <div className="inline-flex w-fit shrink-0 rounded-lg bg-[var(--orion-surface)] p-1">
+        <div className="inline-flex w-fit shrink-0 rounded-lg bg-[var(--s4-surface)] p-1">
           {([['all', 'Todos'], ['enabled', 'Ativos'], ['disabled', 'Desativados']] as [FilterState, string][]).map(([v, label]) => (
             <button
               key={v}
@@ -231,7 +231,7 @@ export function Inicializacao({ onNavigate }: { onNavigate?: (view: string) => v
               onClick={() => setFilter(v)}
               className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
                 filter === v
-                  ? 'bg-[var(--orion-selected-bg)] text-[var(--orion-hover-fg)]'
+                  ? 'bg-[var(--s4-selected-bg)] text-[var(--s4-hover-fg)]'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -242,10 +242,10 @@ export function Inicializacao({ onNavigate }: { onNavigate?: (view: string) => v
       </div>
 
       {/* Lista */}
-      <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+      <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
         {loading && entries.length === 0 && (
           <div className="p-6 text-center">
-            <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+            <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
             <p className="text-sm text-muted-foreground">Lendo programas de inicialização…</p>
           </div>
         )}
@@ -287,12 +287,12 @@ export function Inicializacao({ onNavigate }: { onNavigate?: (view: string) => v
                       ? 'Atalhos na pasta Inicializar não possuem estado "desativado"'
                       : 'Ativa/desativa sem apagar a entrada';
                   return (
-                    <tr key={key} className="border-t border-[var(--orion-selected-bg)] align-middle transition-colors hover:bg-[var(--orion-selected-bg)]/40">
+                    <tr key={key} className="border-t border-[var(--s4-selected-bg)] align-middle transition-colors hover:bg-[var(--s4-selected-bg)]/40">
                       <td className="py-2.5 pr-3">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="font-semibold text-foreground">{e.name}</span>
                           {e.protected && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--orion-selected-bg)] px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-[var(--orion-icon-active)]">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-[var(--s4-selected-bg)] px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-[var(--s4-icon-active)]">
                               <ShieldCheck className="h-3 w-3" />PROTEGIDO
                             </span>
                           )}
@@ -353,7 +353,7 @@ function Toggle({
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${
-          checked ? 'bg-[var(--orion-icon-active)]' : 'bg-[var(--orion-selected-bg)]'
+          checked ? 'bg-[var(--s4-icon-active)]' : 'bg-[var(--s4-selected-bg)]'
         }`}
       >
         {busy ? (
@@ -361,7 +361,7 @@ function Toggle({
         ) : (
           <span
             className={`inline-block h-4 w-4 rounded-full transition-transform ${
-              checked ? 'translate-x-[18px] bg-black' : 'translate-x-0.5 bg-[var(--orion-icon-default)]'
+              checked ? 'translate-x-[18px] bg-black' : 'translate-x-0.5 bg-[var(--s4-icon-default)]'
             }`}
           />
         )}

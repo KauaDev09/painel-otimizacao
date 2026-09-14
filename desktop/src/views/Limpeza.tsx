@@ -2,7 +2,7 @@ import React from 'react';
 import { Brush, Ruler, CheckSquare, Square, Wrench, Zap, ShieldAlert, Clock, CheckCircle2, XCircle, Loader2, X } from 'lucide-react';
 import { useApi } from '@/api';
 
-// ---------- Tipos locais (métodos ainda não tipados em OrionApi) ----------
+// ---------- Tipos locais (métodos ainda não tipados em SevenApi) ----------
 
 interface CleanTarget {
   id: string;
@@ -83,7 +83,7 @@ const BANNER_STYLE: Record<NonNullable<Banner>['kind'], string> = {
   ok: 'bg-green-500/15 text-green-400',
   warn: 'bg-amber-500/15 text-amber-400',
   error: 'bg-red-500/15 text-red-400',
-  info: 'bg-[var(--orion-selected-bg)] text-[var(--orion-icon-active)]',
+  info: 'bg-[var(--s4-selected-bg)] text-[var(--s4-icon-active)]',
 };
 
 // ---------- View ----------
@@ -140,7 +140,7 @@ export function Limpeza({ onNavigate }: { onNavigate?: (view: string) => void })
 
     return () => {
       alive = false;
-      if (typeof off === 'function') off();
+      if (typeof off === 'function') (off as () => void)();
       if (bannerTimer.current) clearTimeout(bannerTimer.current);
     };
   }, [api]);
@@ -292,14 +292,14 @@ export function Limpeza({ onNavigate }: { onNavigate?: (view: string) => void })
       )}
 
       {loading && (
-        <div className="rounded-lg bg-[var(--orion-surface)] p-8 text-center">
-          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+        <div className="rounded-lg bg-[var(--s4-surface)] p-8 text-center">
+          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
           <p className="text-sm text-muted-foreground">Carregando manutenção…</p>
         </div>
       )}
 
       {!loading && loadError && (
-        <div className="rounded-lg bg-[var(--orion-surface)] p-8 text-center">
+        <div className="rounded-lg bg-[var(--s4-surface)] p-8 text-center">
           <p className="text-sm text-red-400">Não foi possível carregar a manutenção: {loadError}</p>
         </div>
       )}
@@ -307,13 +307,13 @@ export function Limpeza({ onNavigate }: { onNavigate?: (view: string) => void })
       {!loading && !loadError && (
         <>
           {/* ---------- Limpeza ---------- */}
-          <Section title="Limpeza nativa" icon={<Brush className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+          <Section title="Limpeza nativa" icon={<Brush className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
             <div className="mb-4 flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onClick={measure}
                 disabled={measuring || anyBusy || !targets.length}
-                className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] shadow-[inset_0_0_0_1px_var(--orion-hover-border)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] shadow-[inset_0_0_0_1px_var(--s4-hover-border)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:opacity-60"
               >
                 <Ruler className={'h-4 w-4 ' + (measuring ? 'animate-pulse' : '')} />
                 {measuring ? 'MEDINDO…' : 'MEDIR TAMANHOS'}
@@ -322,7 +322,7 @@ export function Limpeza({ onNavigate }: { onNavigate?: (view: string) => void })
                 type="button"
                 onClick={toggleAll}
                 disabled={anyBusy || !targets.length}
-                className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] shadow-[inset_0_0_0_1px_var(--orion-hover-border)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] shadow-[inset_0_0_0_1px_var(--s4-hover-border)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:opacity-60"
               >
                 {allSelected ? <Square className="h-4 w-4" /> : <CheckSquare className="h-4 w-4" />}
                 {allSelected ? 'DESMARCAR TODAS' : 'MARCAR TODAS'}
@@ -331,7 +331,7 @@ export function Limpeza({ onNavigate }: { onNavigate?: (view: string) => void })
                 type="button"
                 onClick={askClean}
                 disabled={anyBusy || !selected.size}
-                className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)] disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)] disabled:opacity-60"
               >
                 {cleaning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brush className="h-4 w-4" />}
                 {cleaning ? 'LIMPANDO…' : 'LIMPAR SELECIONADAS'}
@@ -351,7 +351,7 @@ export function Limpeza({ onNavigate }: { onNavigate?: (view: string) => void })
                   <label
                     key={t.id}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors ${
-                      checked ? 'bg-[var(--orion-selected-bg)]' : 'bg-black/20 hover:bg-[var(--orion-selected-bg)]/50'
+                      checked ? 'bg-[var(--s4-selected-bg)]' : 'bg-black/20 hover:bg-[var(--s4-selected-bg)]/50'
                     }`}
                   >
                     <input
@@ -382,7 +382,7 @@ export function Limpeza({ onNavigate }: { onNavigate?: (view: string) => void })
 
           {/* ---------- Progresso (passos do motor) ---------- */}
           {(anyBusy || steps.length > 0) && (
-            <Section title="Execução" icon={<Loader2 className={'h-4 w-4 text-[var(--orion-icon-default)] ' + (anyBusy ? 'animate-spin' : '')} />}>
+            <Section title="Execução" icon={<Loader2 className={'h-4 w-4 text-[var(--s4-icon-default)] ' + (anyBusy ? 'animate-spin' : '')} />}>
               {anyBusy && steps.length === 0 && (
                 <p className="text-sm text-muted-foreground">
                   {cleaning ? 'Limpando… aguardando os passos do motor.' : 'Executando reparo… isto pode levar vários minutos.'}
@@ -405,7 +405,7 @@ export function Limpeza({ onNavigate }: { onNavigate?: (view: string) => void })
           )}
 
           {/* ---------- Reparos ---------- */}
-          <Section title="Reparo do sistema (SFC / DISM)" icon={<Wrench className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+          <Section title="Reparo do sistema (SFC / DISM)" icon={<Wrench className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               {repairs.map((r) => {
                 const running = runningRepair === r.id;
@@ -421,7 +421,7 @@ export function Limpeza({ onNavigate }: { onNavigate?: (view: string) => void })
                       type="button"
                       onClick={() => askRepair(r)}
                       disabled={anyBusy}
-                      className="mt-3 inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] shadow-[inset_0_0_0_1px_var(--orion-hover-border)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:opacity-60"
+                      className="mt-3 inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] shadow-[inset_0_0_0_1px_var(--s4-hover-border)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:opacity-60"
                     >
                       {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wrench className="h-4 w-4" />}
                       {running ? 'EXECUTANDO…' : 'EXECUTAR'}
@@ -431,7 +431,7 @@ export function Limpeza({ onNavigate }: { onNavigate?: (view: string) => void })
               })}
 
               {/* Correção rápida (legado) */}
-              <div className="flex flex-col rounded-lg bg-black/20 p-4 shadow-[inset_0_0_0_1px_var(--orion-selected-bg)]">
+              <div className="flex flex-col rounded-lg bg-black/20 p-4 shadow-[inset_0_0_0_1px_var(--s4-selected-bg)]">
                 <p className="m-0 text-sm font-semibold text-foreground">Correção rápida (legado)</p>
                 <p className="mt-1 flex-1 text-xs text-muted-foreground">
                   Executa DISM RestoreHealth seguido de SFC /scannow (sem chkdsk). Pode levar vários minutos e exige administrador.
@@ -440,7 +440,7 @@ export function Limpeza({ onNavigate }: { onNavigate?: (view: string) => void })
                   type="button"
                   onClick={askQuickFix}
                   disabled={anyBusy}
-                  className="mt-3 inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] shadow-[inset_0_0_0_1px_var(--orion-hover-border)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:opacity-60"
+                  className="mt-3 inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] shadow-[inset_0_0_0_1px_var(--s4-hover-border)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:opacity-60"
                 >
                   {runningRepair === 'quickfix' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
                   {runningRepair === 'quickfix' ? 'EXECUTANDO…' : 'EXECUTAR CORREÇÃO RÁPIDA'}
@@ -469,7 +469,7 @@ export function Limpeza({ onNavigate }: { onNavigate?: (view: string) => void })
 
 function Section({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+    <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
       <div className="mb-3 flex items-center gap-2">
         {icon}
         <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{title}</span>
@@ -481,7 +481,7 @@ function Section({ title, icon, children }: { title: string; icon?: React.ReactN
 
 function Badge({ children, icon }: { children: React.ReactNode; icon?: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-[var(--orion-selected-bg)] px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--orion-icon-active)]">
+    <span className="inline-flex items-center gap-1 rounded-full bg-[var(--s4-selected-bg)] px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--s4-icon-active)]">
       {icon}
       {children}
     </span>
@@ -507,7 +507,7 @@ function ConfirmDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onCancel}>
       <div
-        className="w-full max-w-md rounded-lg bg-[var(--orion-surface)] p-6 shadow-[0_0_40px_rgba(0,0,0,0.6)]"
+        className="w-full max-w-md rounded-lg bg-[var(--s4-surface)] p-6 shadow-[0_0_40px_rgba(0,0,0,0.6)]"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -518,7 +518,7 @@ function ConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] shadow-[inset_0_0_0_1px_var(--orion-hover-border)] transition-colors hover:bg-[var(--orion-selected-bg)]"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] shadow-[inset_0_0_0_1px_var(--s4-hover-border)] transition-colors hover:bg-[var(--s4-selected-bg)]"
           >
             CANCELAR
           </button>
@@ -528,7 +528,7 @@ function ConfirmDialog({
             className={
               danger
                 ? 'inline-flex items-center gap-2 rounded-lg bg-red-500/20 px-4 py-2 text-sm font-semibold text-red-400 transition-colors hover:bg-red-500/30'
-                : 'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)]'
+                : 'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)]'
             }
           >
             {confirmLabel}

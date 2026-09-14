@@ -132,9 +132,9 @@ export function Suporte({ onNavigate }: { onNavigate?: (view: string) => void })
   };
 
   const primaryBtn =
-    'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
+    'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
   const secondaryBtn =
-    'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
+    'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
 
   const healthLabel = health === 'online' ? 'Online' : health === 'offline' ? 'Offline' : 'Verificando…';
   const healthDot = health === 'online' ? 'bg-green-500' : health === 'offline' ? 'bg-red-400' : 'bg-muted-foreground animate-pulse';
@@ -160,7 +160,7 @@ export function Suporte({ onNavigate }: { onNavigate?: (view: string) => void })
           <button
             type="button"
             onClick={() => setToast(null)}
-            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-foreground"
+            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-foreground"
             aria-label="Fechar"
           >
             <X className="h-3.5 w-3.5" />
@@ -171,8 +171,8 @@ export function Suporte({ onNavigate }: { onNavigate?: (view: string) => void })
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         {/* FAQ */}
         <div className="lg:col-span-2">
-          <Section title="Perguntas frequentes" icon={<HelpCircle className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
-            <div className="divide-y divide-[var(--orion-selected-bg)]">
+          <Section title="Perguntas frequentes" icon={<HelpCircle className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
+            <div className="divide-y divide-[var(--s4-selected-bg)]">
               {FAQ.map((item, i) => {
                 const isOpen = open === i;
                 return (
@@ -181,11 +181,11 @@ export function Suporte({ onNavigate }: { onNavigate?: (view: string) => void })
                       type="button"
                       onClick={() => setOpen(isOpen ? null : i)}
                       aria-expanded={isOpen}
-                      className="flex w-full items-center gap-3 py-3 text-left transition-colors hover:text-[var(--orion-hover-fg)]"
+                      className="flex w-full items-center gap-3 py-3 text-left transition-colors hover:text-[var(--s4-hover-fg)]"
                     >
-                      <span className={`flex-1 text-sm font-medium ${isOpen ? 'text-[var(--orion-icon-active)]' : 'text-foreground'}`}>{item.q}</span>
+                      <span className={`flex-1 text-sm font-medium ${isOpen ? 'text-[var(--s4-icon-active)]' : 'text-foreground'}`}>{item.q}</span>
                       <ChevronDown
-                        className={`h-4 w-4 shrink-0 text-[var(--orion-icon-default)] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                        className={`h-4 w-4 shrink-0 text-[var(--s4-icon-default)] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                       />
                     </button>
                     {isOpen && <p className="m-0 pb-3 pr-8 text-sm leading-relaxed text-muted-foreground">{item.a}</p>}
@@ -199,7 +199,7 @@ export function Suporte({ onNavigate }: { onNavigate?: (view: string) => void })
         {/* Coluna direita */}
         <div className="space-y-5">
           {/* Status do serviço */}
-          <Section title="Status do serviço" icon={<Server className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+          <Section title="Status do serviço" icon={<Server className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
             <div className="flex items-center justify-between py-1.5 text-sm">
               <span className="text-muted-foreground">Licenciamento/API</span>
               <span className={`inline-flex items-center gap-2 font-medium ${healthText}`}>
@@ -220,19 +220,19 @@ export function Suporte({ onNavigate }: { onNavigate?: (view: string) => void })
           </Section>
 
           {/* Informações da versão */}
-          <Section title="Informações da versão" icon={<Info className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+          <Section title="Informações da versão" icon={<Info className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
             <InfoRow label="Aplicativo" value={meta?.appName || 'SevenOptimizer'} />
             <InfoRow label="Versão instalada" value={meta?.version ? `v${meta.version}` : '—'} />
             <InfoRow label="Modo de análise" value="Somente leitura (BIOS) · reversível (Windows)" />
             {onNavigate && (
-              <button type="button" onClick={() => onNavigate('settings')} className="mt-2 text-xs font-semibold text-[var(--orion-icon-active)] transition-colors hover:text-[var(--orion-hover-fg)]">
+              <button type="button" onClick={() => onNavigate('settings')} className="mt-2 text-xs font-semibold text-[var(--s4-icon-active)] transition-colors hover:text-[var(--s4-hover-fg)]">
                 Verificar atualizações em Configurações →
               </button>
             )}
           </Section>
 
           {/* Contato */}
-          <Section title="Contato" icon={<LifeBuoy className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+          <Section title="Contato" icon={<LifeBuoy className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
             <p className="m-0 mb-3 text-sm text-muted-foreground">
               Precisa de ajuda com licença, ativação ou reembolso? Fale no Discord oficial.
             </p>
@@ -258,7 +258,7 @@ export function Suporte({ onNavigate }: { onNavigate?: (view: string) => void })
 
 function Section({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+    <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
       <div className="mb-3 flex items-center gap-2">
         {icon}
         <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{title}</span>

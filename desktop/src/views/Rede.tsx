@@ -21,7 +21,7 @@ import { Sparkline } from '@/components/Sparkline';
 import type { MonitorSnapshot } from '@/api/types';
 
 // ---------------------------------------------------------------------------
-// Tipos locais (métodos ainda não tipados em OrionApi)
+// Tipos locais (métodos ainda não tipados em SevenApi)
 // ---------------------------------------------------------------------------
 
 interface NetAdapter {
@@ -413,7 +413,7 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
           type="button"
           onClick={loadInfo}
           disabled={infoLoading}
-          className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:opacity-60"
+          className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:opacity-60"
         >
           <RefreshCcw className={'h-4 w-4 ' + (infoLoading ? 'animate-spin' : '')} />
           {infoLoading ? 'Lendo…' : 'ATUALIZAR'}
@@ -442,10 +442,10 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
       )}
 
       {/* Tráfego ao vivo */}
-      <Section title="Tráfego ao vivo" icon={<Activity className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+      <Section title="Tráfego ao vivo" icon={<Activity className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <LiveStat
-            icon={<ArrowDown className="h-4 w-4 text-[var(--orion-icon-default)]" />}
+            icon={<ArrowDown className="h-4 w-4 text-[var(--s4-icon-default)]" />}
             label="Download"
             value={rx.value}
             unit={rx.unit}
@@ -453,7 +453,7 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
             desc={netAvailable ? 'Recebido agora' : 'Indisponível'}
           />
           <LiveStat
-            icon={<ArrowUp className="h-4 w-4 text-[var(--orion-icon-default)]" />}
+            icon={<ArrowUp className="h-4 w-4 text-[var(--s4-icon-default)]" />}
             label="Upload"
             value={tx.value}
             unit={tx.unit}
@@ -465,11 +465,11 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
       </Section>
 
       {/* Adaptadores */}
-      <Section title="Adaptadores ativos" icon={<Network className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+      <Section title="Adaptadores ativos" icon={<Network className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
         {infoError && <p className="mb-3 text-xs text-red-400">{infoError}</p>}
         {infoLoading && !info && (
           <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
             Lendo adaptadores…
           </div>
         )}
@@ -484,9 +484,9 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
                 <div key={`${a.name || 'adapter'}-${i}`} className="rounded-lg bg-black/20 px-4 py-3">
                   <div className="mb-2 flex items-center gap-2">
                     {isWireless(a) ? (
-                      <Wifi className="h-4 w-4 text-[var(--orion-icon-default)]" />
+                      <Wifi className="h-4 w-4 text-[var(--s4-icon-default)]" />
                     ) : (
-                      <Cable className="h-4 w-4 text-[var(--orion-icon-default)]" />
+                      <Cable className="h-4 w-4 text-[var(--s4-icon-default)]" />
                     )}
                     <span className="text-sm font-semibold text-foreground">{dash(a.name)}</span>
                     {a.type && <span className="text-xs text-muted-foreground">{a.type}</span>}
@@ -501,7 +501,7 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
             {dnsServers.length > 0 && (
               <div className="rounded-lg bg-black/20 px-4 py-3">
                 <div className="mb-2 flex items-center gap-2">
-                  <Server className="h-4 w-4 text-[var(--orion-icon-default)]" />
+                  <Server className="h-4 w-4 text-[var(--s4-icon-default)]" />
                   <span className="text-sm font-semibold text-foreground">Servidores DNS em uso</span>
                   <span className="text-xs text-muted-foreground">configuração atual</span>
                 </div>
@@ -519,7 +519,7 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
       {/* Testes */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         {/* Ping */}
-        <Section title="Ping test" icon={<Radio className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+        <Section title="Ping test" icon={<Radio className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <label className="text-xs text-muted-foreground" htmlFor="rede-ping-host">Destino</label>
             <input
@@ -537,7 +537,7 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
               type="button"
               onClick={runPing}
               disabled={pinging}
-              className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)] disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)] disabled:opacity-60"
             >
               <Radio className={'h-4 w-4 ' + (pinging ? 'animate-pulse' : '')} />
               {pinging ? 'MEDINDO…' : 'PING TEST'}
@@ -546,7 +546,7 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
           {pingError && <p className="text-xs text-red-400">{pingError}</p>}
           {pinging && (
             <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
               Enviando {DEFAULT_PING_COUNT} pacotes ICMP para {sanitizeHost(pingHost) || DEFAULT_PING_HOST}…
             </div>
           )}
@@ -583,7 +583,7 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
         </Section>
 
         {/* DNS */}
-        <Section title="DNS test" icon={<Globe className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+        <Section title="DNS test" icon={<Globe className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <label className="text-xs text-muted-foreground" htmlFor="rede-dns-domain">Domínio</label>
             <input
@@ -601,7 +601,7 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
               type="button"
               onClick={runDns}
               disabled={dnsTesting}
-              className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:opacity-60"
             >
               <Globe className={'h-4 w-4 ' + (dnsTesting ? 'animate-pulse' : '')} />
               {dnsTesting ? 'TESTANDO…' : 'DNS TEST'}
@@ -610,7 +610,7 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
           {dnsError && <p className="text-xs text-red-400">{dnsError}</p>}
           {dnsTesting && (
             <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
               Resolvendo {sanitizeHost(dnsDomain) || DEFAULT_DNS_DOMAIN} em cada servidor…
             </div>
           )}
@@ -644,11 +644,11 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
       </div>
 
       {/* Otimizações de rede */}
-      <Section title="Otimizações de rede disponíveis" icon={<Network className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+      <Section title="Otimizações de rede disponíveis" icon={<Network className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
         {itemsError && <p className="text-sm text-muted-foreground">{itemsError}</p>}
         {itemsLoading && items.length === 0 && !itemsError && (
           <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
             Carregando catálogo…
           </div>
         )}
@@ -662,14 +662,14 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
               const risk = it.risk || 'low';
               return (
                 <div key={it.id} className="flex flex-wrap items-start gap-3 rounded-lg bg-black/20 px-4 py-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--orion-selected-bg)]">
-                    <Network className="h-4 w-4 text-[var(--orion-icon-default)]" />
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--s4-selected-bg)]">
+                    <Network className="h-4 w-4 text-[var(--s4-icon-default)]" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-semibold text-foreground">{it.name}</span>
                       {it.proOnly ? (
-                        <span className="rounded-full bg-[var(--orion-icon-default)]/20 px-2 py-0.5 text-[0.62rem] font-semibold uppercase tracking-wider text-[var(--orion-icon-active)]">
+                        <span className="rounded-full bg-[var(--s4-icon-default)]/20 px-2 py-0.5 text-[0.62rem] font-semibold uppercase tracking-wider text-[var(--s4-icon-active)]">
                           PRO
                         </span>
                       ) : (
@@ -711,7 +711,7 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
                         type="button"
                         onClick={() => requestUndo(it)}
                         disabled={!!busyId}
-                        className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-foreground disabled:opacity-60"
+                        className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-foreground disabled:opacity-60"
                         title="Desfazer esta otimização"
                       >
                         <Undo2 className="h-3.5 w-3.5" />
@@ -722,10 +722,10 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
                       type="button"
                       onClick={() => requestApply(it)}
                       disabled={!!busyId}
-                      className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-3 py-2 text-xs font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:opacity-60"
+                      className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-3 py-2 text-xs font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:opacity-60"
                     >
                       {busy ? (
-                        <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+                        <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
                       ) : (
                         <Play className="h-3.5 w-3.5" />
                       )}
@@ -791,7 +791,7 @@ export function Rede({ onNavigate }: { onNavigate?: (view: string) => void }) {
 
 function Section({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+    <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
       <div className="mb-3 flex items-center gap-2">
         {icon}
         <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{title}</span>
@@ -880,21 +880,21 @@ function ConfirmDialog({
       role="dialog"
       aria-modal="true"
     >
-      <div className="w-full max-w-md rounded-lg bg-[var(--orion-surface)] p-5 shadow-[0_0_40px_rgba(0,0,0,0.6)]">
+      <div className="w-full max-w-md rounded-lg bg-[var(--s4-surface)] p-5 shadow-[0_0_40px_rgba(0,0,0,0.6)]">
         <h3 className="m-0 mb-3 text-base font-semibold text-foreground">{title}</h3>
         <div className="mb-5">{children}</div>
         <div className="flex justify-end gap-3">
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)]"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)]"
           >
             CANCELAR
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)]"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)]"
           >
             {confirmLabel}
           </button>

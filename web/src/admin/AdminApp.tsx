@@ -52,7 +52,7 @@ const NAV: { id: AdminView; icon: string; label: string }[] = [
 
 function applyTheme(mode: 'light' | 'dark') {
   document.body.classList.toggle('light-mode', mode === 'light');
-  localStorage.setItem('orionAdminTheme', mode);
+  localStorage.setItem('s4AdminTheme', mode);
 }
 
 export default function AdminApp() {
@@ -64,9 +64,17 @@ export default function AdminApp() {
   const [loginErr, setLoginErr] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>(
-    () => (localStorage.getItem('orionAdminTheme') === 'light' ? 'light' : 'dark'),
-  );
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const cur = localStorage.getItem('s4AdminTheme');
+    if (cur === 'light' || cur === 'dark') return cur;
+    const legacy = localStorage.getItem('orionAdminTheme');
+    if (legacy === 'light' || legacy === 'dark') {
+      localStorage.setItem('s4AdminTheme', legacy);
+      localStorage.removeItem('orionAdminTheme');
+      return legacy;
+    }
+    return 'dark';
+  });
 
   const logout = useCallback(() => {
     clearAdminToken();

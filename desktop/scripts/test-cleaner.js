@@ -12,7 +12,7 @@ const cleaner = require('../src/engine/cleanerService');
 const repair = require('../src/engine/repairService');
 
 async function main() {
-  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'orion-cleaner-test-'));
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sevenoptimizer-cleaner-test-'));
   const logsDir = path.join(tmpRoot, 'logs');
   runner.setLogsDir(logsDir);
 

@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Compra aprovada — ORION OPTIMIZER</title>
+  <title>Compra aprovada — SevenOptimizer</title>
   <link rel="icon" type="image/jpeg" href="/assets/icon.jpeg">
   <script src="/assets/cookies.js"></script>
   <link rel="stylesheet" href="/assets/styles.css">
 </head>
 <body>
   <nav class="nav"><div class="nav-inner">
-    <a href="/" class="brand"><span class="brand-mark" aria-hidden="true"><img src="/assets/icon.jpeg" alt=""></span>ORION<span class="accent">OPTIMIZER</span></a>
+    <a href="/" class="brand"><span class="brand-mark" aria-hidden="true"><img src="/assets/icon.jpeg" alt=""></span>SevenOptimizer<span class="accent">OPTIMIZER</span></a>
     <div class="nav-actions" data-nav-actions></div>
   </div></nav>
 
@@ -52,12 +52,12 @@
 
     function showKey(key) {
       document.getElementById('title').textContent = 'Pagamento confirmado!';
-      document.getElementById('subtitle').textContent = 'Sua licença foi gerada automaticamente. Use a chave abaixo no aplicativo ORION OPTIMIZER.';
+      document.getElementById('subtitle').textContent = 'Sua licença foi gerada automaticamente. Use a chave abaixo no aplicativo SevenOptimizer.';
       document.getElementById('key-block').style.display = 'block';
       document.getElementById('bottom-actions').style.display = 'flex';
       document.getElementById('success-key').textContent = key;
-      const saved = localStorage.getItem('orion_last_key');
-      if (saved !== key) { try { localStorage.setItem('orion_last_key', key); } catch(e){} }
+      const saved = localStorage.getItem('s4_last_key');
+      if (saved !== key) { try { localStorage.setItem('s4_last_key', key); } catch(e){} }
       document.getElementById('copy-key').addEventListener('click', (e) => {
         navigator.clipboard.writeText(key).then(() => { e.target.textContent='Copiado!'; setTimeout(()=>e.target.textContent='Copiar chave',1500); });
       });

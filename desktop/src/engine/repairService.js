@@ -69,7 +69,7 @@ async function runRepair(optionId, opts = {}) {
     const f = path.join(tmpDir, `repair-${i}.cmd`);
     fs.writeFileSync(
       f,
-      `@echo off\r\nchcp 65001 >nul\r\necho [ORION] ${cmd}\r\n${cmd}\r\nexit /b %errorlevel%\r\n`,
+      `@echo off\r\nchcp 65001 >nul\r\necho [SevenOptimizer] ${cmd}\r\n${cmd}\r\nexit /b %errorlevel%\r\n`,
       'utf8'
     );
     tmpFiles.push(f);

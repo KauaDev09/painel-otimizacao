@@ -24,7 +24,7 @@ export default function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div id="orion-cookie" role="dialog" aria-label="Aceitar cookies">
+    <div id="s4-cookie" role="dialog" aria-label="Aceitar cookies">
       <div className="ck-box">
         <img className="ck-logo" src="/assets/s4-icon.png" alt="SevenOptimizer" />
         <div className="ck-copy">

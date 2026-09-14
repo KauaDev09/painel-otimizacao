@@ -186,7 +186,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
 
     return () => {
       alive = false;
-      offs.forEach((off) => { if (typeof off === 'function') off(); });
+      offs.forEach((off) => { if (typeof off === 'function') (off as () => void)(); });
     };
   }, [api]);
 
@@ -288,7 +288,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
   };
 
   const openStore = () => {
-    const url = update?.update?.storeUrl || 'https://orion-store-dun.vercel.app';
+    const url = update?.update?.storeUrl || 'https://sevenoptimizer.com.br/planos';
     api.openExternal?.(url)?.catch(() => {});
   };
 
@@ -300,9 +300,9 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
           : 'text-muted-foreground';
 
   const primaryBtn =
-    'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
+    'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
   const secondaryBtn =
-    'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
+    'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
 
   return (
     <div className="view-appear space-y-6">
@@ -313,7 +313,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
           <p className="mt-1 text-sm text-muted-foreground">Preferências do aplicativo, otimização, monitoramento e atualizações.</p>
         </div>
         {meta?.version && (
-          <span className="rounded-full bg-[var(--orion-surface)] px-3 py-1 text-xs font-semibold text-muted-foreground">
+          <span className="rounded-full bg-[var(--s4-surface)] px-3 py-1 text-xs font-semibold text-muted-foreground">
             {meta.appName || 'SevenOptimizer'} · v{meta.version}
           </span>
         )}
@@ -327,7 +327,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
               ? 'bg-red-500/10 text-red-300'
               : toast.kind === 'ok'
                 ? 'bg-green-500/10 text-green-300'
-                : 'bg-[var(--orion-selected-bg)] text-foreground'
+                : 'bg-[var(--s4-selected-bg)] text-foreground'
           }`}
         >
           {toast.kind === 'ok' ? <Check className="h-4 w-4 shrink-0" /> : <Info className="h-4 w-4 shrink-0" />}
@@ -335,7 +335,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
           <button
             type="button"
             onClick={() => setToast(null)}
-            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-foreground"
+            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-foreground"
             aria-label="Fechar"
           >
             <X className="h-3.5 w-3.5" />
@@ -347,7 +347,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
         {/* Coluna esquerda */}
         <div className="space-y-5 lg:col-span-2">
           {/* Geral */}
-          <Section title="Geral" icon={<Settings className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+          <Section title="Geral" icon={<Settings className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
             <ToggleRow
               title="Iniciar com o Windows"
               desc="Abre o aplicativo minimizado ao ligar o computador."
@@ -373,7 +373,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
           </Section>
 
           {/* Otimização */}
-          <Section title="Otimização" icon={<SlidersHorizontal className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+          <Section title="Otimização" icon={<SlidersHorizontal className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
             <ToggleRow
               title="Criar ponto de restauração por padrão"
               desc="Marcado automaticamente ao aplicar otimizações."
@@ -400,7 +400,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
           </Section>
 
           {/* Monitoramento */}
-          <Section title="Monitoramento" icon={<Activity className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+          <Section title="Monitoramento" icon={<Activity className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
             <SelectRow
               title="Intervalo de atualização do Monitor"
               desc="Frequência de coleta das métricas em tempo real."
@@ -413,7 +413,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
           </Section>
 
           {/* Atualizações */}
-          <Section title="Atualizações" icon={<Download className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+          <Section title="Atualizações" icon={<Download className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
             <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
               <span className="text-muted-foreground">
                 Versão instalada: <strong className="text-foreground">{currentVersion ? `v${currentVersion}` : '—'}</strong>
@@ -444,7 +444,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
             {(phase === 'available' || phase === 'purchase') && update?.update && (
               <div className="mt-4 rounded-lg bg-black/30 p-4">
                 <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-[var(--orion-selected-bg)] px-2.5 py-0.5 text-[0.68rem] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <span className="rounded-full bg-[var(--s4-selected-bg)] px-2.5 py-0.5 text-[0.68rem] font-semibold uppercase tracking-wider text-muted-foreground">
                     Instalada: <strong className="text-foreground">v{update.currentVersion || meta?.version || '?'}</strong>
                   </span>
                   <span className="rounded-full bg-green-500/20 px-2.5 py-0.5 text-[0.68rem] font-semibold uppercase tracking-wider text-green-400">
@@ -487,7 +487,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
             {phase === 'downloading' && (
               <div className="mt-4 rounded-lg bg-black/30 p-4">
                 <div className="mb-2 flex items-center gap-3">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
                   <span className="flex-1 text-sm text-foreground">Baixando atualização...</span>
                   <button
                     type="button"
@@ -497,9 +497,9 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
                     CANCELAR
                   </button>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--orion-selected-bg)]">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--s4-selected-bg)]">
                   <div
-                    className="h-full rounded-full bg-[var(--orion-icon-active)] transition-[width] duration-200"
+                    className="h-full rounded-full bg-[var(--s4-icon-active)] transition-[width] duration-200"
                     style={{ width: `${Math.max(0, Math.min(100, progress.percent))}%` }}
                   />
                 </div>
@@ -514,7 +514,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
             {phase === 'installing' && (
               <div className="mt-4 rounded-lg bg-black/30 p-4">
                 <div className="flex items-center gap-3">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
                   <span className="text-sm text-foreground">{installMsg}</span>
                 </div>
                 <p className="m-0 mt-2 text-xs text-muted-foreground">O aplicativo será reiniciado automaticamente após a instalação.</p>
@@ -526,7 +526,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
         {/* Coluna direita */}
         <div className="space-y-5">
           {/* Licença (resumo) */}
-          <Section title="Licença" icon={<ShieldCheck className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+          <Section title="Licença" icon={<ShieldCheck className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
             {lic === null ? (
               <p className="text-sm text-muted-foreground">Verificando…</p>
             ) : lic.active ? (
@@ -561,17 +561,17 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
           </Section>
 
           {/* Sobre */}
-          <Section title="Sobre o aplicativo" icon={<Info className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+          <Section title="Sobre o aplicativo" icon={<Info className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
             <InfoRow label="Aplicativo" value={meta?.appName || 'SevenOptimizer'} />
             <InfoRow label="Versão" value={meta?.version ? `v${meta.version}` : '—'} />
-            <InfoRow label="Configurações" value="%APPDATA%/orion-optimizer" mono />
+            <InfoRow label="Configurações" value="%APPDATA%/sevenoptimizer" mono />
             <p className="mt-3 text-xs text-muted-foreground">
               As preferências são salvas localmente e aplicadas imediatamente. Ações com efeito no sistema (iniciar com o Windows) são
               registradas pelo próprio Windows.
             </p>
           </Section>
 
-          <Section title="Privacidade e exclusão" icon={<ShieldCheck className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+          <Section title="Privacidade e exclusão" icon={<ShieldCheck className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
             <p className="m-0 text-xs leading-relaxed text-muted-foreground">
               Coletamos key, hash da máquina, hostname, IP de ativação e — se você sincronizar — histórico de otimização. Log de acesso
               registra IP e rota na API. Pedido de exclusão apaga a conta e o restante, não só o login.
@@ -587,14 +587,14 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
               <button
                 type="button"
                 className={secondaryBtn}
-                onClick={() => api.openExternal?.('https://orion-optimizer-ten.vercel.app/privacidade')}
+                onClick={() => api.openExternal?.('https://sevenoptimizer.com.br/privacidade')}
               >
                 Política de privacidade
               </button>
               <button
                 type="button"
                 className={secondaryBtn}
-                onClick={() => api.openExternal?.('https://orion-optimizer-ten.vercel.app/termos')}
+                onClick={() => api.openExternal?.('https://sevenoptimizer.com.br/termos')}
               >
                 Termos de uso
               </button>
@@ -604,7 +604,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
               value={eraseConfirm}
               onChange={(e) => setEraseConfirm(e.target.value)}
               placeholder="APAGAR"
-              className="mt-2 w-full rounded-lg border border-[var(--orion-selected-bg)] bg-black/40 px-3 py-2 text-sm text-foreground outline-none"
+              className="mt-2 w-full rounded-lg border border-[var(--s4-selected-bg)] bg-black/40 px-3 py-2 text-sm text-foreground outline-none"
             />
             <button
               type="button"
@@ -622,7 +622,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
                 setEraseBusy(true);
                 setEraseMsg('Apagando…');
                 try {
-                  const res = await fetch('https://orion-optimizer-ten.vercel.app/api/v1/public/erase-request', {
+                  const res = await fetch('https://sevenoptimizer.com.br/api/v1/public/erase-request', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ key: lic.key, confirm: 'APAGAR' }),
@@ -654,7 +654,7 @@ export function Configuracoes({ onNavigate }: { onNavigate?: (view: string) => v
 
 function Section({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+    <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
       <div className="mb-3 flex items-center gap-2">
         {icon}
         <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{title}</span>
@@ -681,7 +681,7 @@ function ToggleRow({
 }) {
   const id = React.useId();
   return (
-    <div className={`flex items-center justify-between gap-4 py-3 ${last ? '' : 'border-b border-[var(--orion-selected-bg)]'}`}>
+    <div className={`flex items-center justify-between gap-4 py-3 ${last ? '' : 'border-b border-[var(--s4-selected-bg)]'}`}>
       <label htmlFor={id} className="flex-1 cursor-pointer">
         <p className="m-0 text-sm font-medium text-foreground">{title}</p>
         <p className="m-0 mt-0.5 text-xs text-muted-foreground">{desc}</p>
@@ -691,7 +691,7 @@ function ToggleRow({
         checked={checked}
         disabled={disabled}
         onCheckedChange={onChange}
-        className="data-[state=checked]:bg-[var(--orion-icon-active)] data-[state=unchecked]:bg-[var(--orion-selected-bg)]"
+        className="data-[state=checked]:bg-[var(--s4-icon-active)] data-[state=unchecked]:bg-[var(--s4-selected-bg)]"
       />
     </div>
   );
@@ -716,7 +716,7 @@ function SelectRow({
 }) {
   const id = React.useId();
   return (
-    <div className={`flex items-center justify-between gap-4 py-3 ${last ? '' : 'border-b border-[var(--orion-selected-bg)]'}`}>
+    <div className={`flex items-center justify-between gap-4 py-3 ${last ? '' : 'border-b border-[var(--s4-selected-bg)]'}`}>
       <label htmlFor={id} className="flex-1">
         <p className="m-0 text-sm font-medium text-foreground">{title}</p>
         {desc && <p className="m-0 mt-0.5 text-xs text-muted-foreground">{desc}</p>}
@@ -727,10 +727,10 @@ function SelectRow({
           value={value}
           disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
-          className="appearance-none rounded-lg border border-[var(--orion-selected-bg)] bg-black/40 py-1.5 pl-3 pr-8 text-sm text-foreground outline-none transition-colors focus:border-[var(--orion-hover-border)] disabled:opacity-60"
+          className="appearance-none rounded-lg border border-[var(--s4-selected-bg)] bg-black/40 py-1.5 pl-3 pr-8 text-sm text-foreground outline-none transition-colors focus:border-[var(--s4-hover-border)] disabled:opacity-60"
         >
           {options.map((o) => (
-            <option key={o.value} value={o.value} className="bg-[var(--orion-surface)] text-foreground">
+            <option key={o.value} value={o.value} className="bg-[var(--s4-surface)] text-foreground">
               {o.label}
             </option>
           ))}

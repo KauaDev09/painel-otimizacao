@@ -162,8 +162,8 @@ async function main() {
         'INSERT INTO downloads (version, filename, url, release_notes, is_latest, active) VALUES (?,?,?,?,1,1)',
         [
           '2.0.6',
-          'ORION.OPTIMIZER.Setup-2.0.6.exe',
-          'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.6/ORION.OPTIMIZER.Setup-2.0.6.exe',
+          'SevenOptimizer.OPTIMIZER.Setup-2.0.6.exe',
+          'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.6/SevenOptimizer.OPTIMIZER.Setup-2.0.6.exe',
           'Instalador oficial para Windows 10/11. Use o aplicativo grátis, sem chave. Os planos desbloqueiam recursos avançados.'
         ]
       );

@@ -1,6 +1,6 @@
 'use strict';
 
-/* Orion site motion — React Bits / Uiverse techniques, vanilla.
+/* SevenOptimizer site motion — React Bits / Uiverse techniques, vanilla.
    Spotlight, magnet, glare, tilt, star-border, click-spark, aurora, split text. */
 
 const REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -188,4 +188,4 @@ if (document.readyState === 'loading') {
   bootEffects();
 }
 
-window.OrionFX = { bootEffects, initSpotlight, initStarButtons, initMagnet };
+window.S4FX = { bootEffects, initSpotlight, initStarButtons, initMagnet };

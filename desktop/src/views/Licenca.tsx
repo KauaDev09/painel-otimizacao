@@ -42,7 +42,7 @@ interface LocalApi {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const STORE_URL = 'https://orion-store-dun.vercel.app';
+const STORE_URL = 'https://sevenoptimizer.com.br/planos';
 
 const ERROR_MAP: Record<string, string> = {
   LICENSE_NOT_FOUND: 'Key inválida — verifique se digitou corretamente.',
@@ -155,7 +155,7 @@ export function Licenca({ onNavigate }: { onNavigate?: (view: string) => void })
     } catch { /* ok */ }
     return () => {
       alive = false;
-      if (typeof off === 'function') off();
+      if (typeof off === 'function') (off as () => void)();
     };
   }, [api]);
 
@@ -234,11 +234,11 @@ export function Licenca({ onNavigate }: { onNavigate?: (view: string) => void })
   const reasonCode = lic?.reason || lic?.blockReason || null;
 
   const primaryBtn =
-    'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
+    'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
   const secondaryBtn =
-    'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
+    'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
   const dangerBtn =
-    'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-red-400 transition-colors hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-60';
+    'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-red-400 transition-colors hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-60';
 
   const msgClass = (m: Msg) =>
     m?.kind === 'err' ? 'text-red-400' : m?.kind === 'ok' ? 'text-green-400' : 'text-muted-foreground';
@@ -266,14 +266,14 @@ export function Licenca({ onNavigate }: { onNavigate?: (view: string) => void })
               ? 'bg-red-500/10 text-red-300'
               : msg.kind === 'ok'
                 ? 'bg-green-500/10 text-green-300'
-                : 'bg-[var(--orion-selected-bg)] text-foreground'
+                : 'bg-[var(--s4-selected-bg)] text-foreground'
           }`}
         >
           <span className="flex-1">{msg.text}</span>
           <button
             type="button"
             onClick={() => setMsg(null)}
-            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-foreground"
+            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-foreground"
             aria-label="Fechar"
           >
             <X className="h-3.5 w-3.5" />
@@ -282,8 +282,8 @@ export function Licenca({ onNavigate }: { onNavigate?: (view: string) => void })
       )}
 
       {loading ? (
-        <div className="rounded-lg bg-[var(--orion-surface)] p-8 text-center">
-          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+        <div className="rounded-lg bg-[var(--s4-surface)] p-8 text-center">
+          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
           <p className="text-sm text-muted-foreground">Verificando licença…</p>
         </div>
       ) : (
@@ -291,7 +291,7 @@ export function Licenca({ onNavigate }: { onNavigate?: (view: string) => void })
           {/* Coluna esquerda */}
           <div className="space-y-5 lg:col-span-2">
             {/* Estado */}
-            <Section title="Estado da licença" icon={<ShieldCheck className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+            <Section title="Estado da licença" icon={<ShieldCheck className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <span
                   className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[0.68rem] font-semibold uppercase tracking-wider ${
@@ -306,12 +306,12 @@ export function Licenca({ onNavigate }: { onNavigate?: (view: string) => void })
                   {active ? 'Ativa' : reasonCode === 'LICENSE_EXPIRED' ? 'Expirada' : reasonCode === 'LICENSE_BLOCKED' ? 'Bloqueada' : 'Inativa'}
                 </span>
                 {active && lic?.offlineGrace && (
-                  <span className="inline-flex items-center rounded-full bg-[var(--orion-selected-bg)] px-2.5 py-0.5 text-[0.68rem] font-semibold uppercase tracking-wider text-[var(--orion-icon-active)]">
+                  <span className="inline-flex items-center rounded-full bg-[var(--s4-selected-bg)] px-2.5 py-0.5 text-[0.68rem] font-semibold uppercase tracking-wider text-[var(--s4-icon-active)]">
                     Offline
                   </span>
                 )}
                 {plan && (
-                  <span className="inline-flex items-center rounded-full bg-[var(--orion-selected-bg)] px-2.5 py-0.5 text-[0.68rem] font-semibold uppercase tracking-wider text-[var(--orion-icon-active)]">
+                  <span className="inline-flex items-center rounded-full bg-[var(--s4-selected-bg)] px-2.5 py-0.5 text-[0.68rem] font-semibold uppercase tracking-wider text-[var(--s4-icon-active)]">
                     {plan}
                   </span>
                 )}
@@ -339,14 +339,14 @@ export function Licenca({ onNavigate }: { onNavigate?: (view: string) => void })
             </Section>
 
             {/* Key */}
-            <Section title="Key de licença" icon={<KeyRound className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+            <Section title="Key de licença" icon={<KeyRound className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
               {keyDisplay ? (
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="rounded-lg bg-black/40 px-3 py-2 font-mono text-sm tracking-wider text-foreground">{keyDisplay}</span>
                   <button
                     type="button"
                     onClick={() => setShowKey((s) => !s)}
-                    className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)]"
+                    className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)]"
                   >
                     {showKey ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                     {showKey ? 'Ocultar' : 'Mostrar'}
@@ -370,7 +370,7 @@ export function Licenca({ onNavigate }: { onNavigate?: (view: string) => void })
                 </button>
                 <button type="button" onClick={buy} className={secondaryBtn}>
                   <ExternalLink className="h-4 w-4" />
-                  ORION STORE
+                  SevenOptimizer
                 </button>
               </div>
 
@@ -384,7 +384,7 @@ export function Licenca({ onNavigate }: { onNavigate?: (view: string) => void })
                       'mb-3 flex items-center gap-2 rounded-lg border bg-black/40 px-3 py-2.5 transition-all duration-200 ease-out',
                       activateMsg?.kind === 'err'
                         ? 'border-red-500/60'
-                        : 'border-[var(--orion-selected-bg)] focus-within:border-[var(--orion-hover-border)]',
+                        : 'border-[var(--s4-selected-bg)] focus-within:border-[var(--s4-hover-border)]',
                     ].join(' ')}
                   >
                     <KeyRound className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -402,7 +402,7 @@ export function Licenca({ onNavigate }: { onNavigate?: (view: string) => void })
                     <button
                       type="button"
                       onClick={() => setShowNewKey((s) => !s)}
-                      className="shrink-0 text-[0.68rem] font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-[var(--orion-hover-fg)]"
+                      className="shrink-0 text-[0.68rem] font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-[var(--s4-hover-fg)]"
                     >
                       {showNewKey ? 'Ocultar' : 'Mostrar'}
                     </button>
@@ -426,7 +426,7 @@ export function Licenca({ onNavigate }: { onNavigate?: (view: string) => void })
           {/* Coluna direita */}
           <div className="space-y-5">
             {/* Dispositivo */}
-            <Section title="Dispositivo atual" icon={<Monitor className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+            <Section title="Dispositivo atual" icon={<Monitor className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
               <InfoRow label="Máquina" value={device} />
               <InfoRow label="Vinculada" value={lic?.key ? 'Sim' : 'Não'} valueClass={lic?.key ? 'text-green-400' : undefined} />
               {lic?.machineId && <InfoRow label="ID" value={String(lic.machineId).slice(0, 12) + '…'} />}
@@ -446,11 +446,11 @@ export function Licenca({ onNavigate }: { onNavigate?: (view: string) => void })
             </Section>
 
             {/* Recursos do plano */}
-            <Section title="Recursos do plano" icon={<ShieldCheck className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+            <Section title="Recursos do plano" icon={<ShieldCheck className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
               {active && lic?.features && lic.features.length > 0 ? (
                 <div className="flex flex-wrap gap-1.5">
                   {lic.features.map((f) => (
-                    <span key={f} className="inline-flex items-center gap-1 rounded-full bg-[var(--orion-selected-bg)] px-2.5 py-1 text-xs text-foreground">
+                    <span key={f} className="inline-flex items-center gap-1 rounded-full bg-[var(--s4-selected-bg)] px-2.5 py-1 text-xs text-foreground">
                       <Check className="h-3 w-3 text-green-400" />
                       {featureName(f)}
                     </span>
@@ -469,7 +469,7 @@ export function Licenca({ onNavigate }: { onNavigate?: (view: string) => void })
       {/* Modal de confirmação de logout */}
       {confirmLogout && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true">
-          <div className="w-full max-w-md rounded-lg bg-[var(--orion-surface)] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
+          <div className="w-full max-w-md rounded-lg bg-[var(--s4-surface)] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
             <div className="mb-3 flex items-center gap-2">
               <LogOut className="h-5 w-5 text-red-400" />
               <h3 className="m-0 text-lg font-semibold text-foreground">Desconectar esta máquina?</h3>
@@ -505,7 +505,7 @@ export function Licenca({ onNavigate }: { onNavigate?: (view: string) => void })
 
 function Section({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+    <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
       <div className="mb-3 flex items-center gap-2">
         {icon}
         <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{title}</span>

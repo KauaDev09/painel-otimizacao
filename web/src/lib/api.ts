@@ -1,4 +1,5 @@
-export const TOKEN_KEY = 'orion_token';
+export const TOKEN_KEY = 's4_token';
+const LEGACY_TOKEN_KEY = 'orion_token';
 
 export class ApiError extends Error {
   code?: string;
@@ -14,8 +15,8 @@ export class ApiError extends Error {
 
 export const PUBLIC_INSTALLER = {
   version: '2.1.10',
-  filename: 'SevenFour-Setup-2.1.10.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.10/SevenFour-Setup-2.1.10.exe',
+  filename: 'SevenOptimizer-Setup-2.1.10.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.10/SevenOptimizer-Setup-2.1.10.exe',
   releaseNotes:
     'Discord oficial no suporte. Fonte Inter. Login e Configurações com o novo canal. Instalador público; o painel abre com a key.',
   size: '~108 MB',
@@ -80,14 +81,36 @@ export type Payment = {
 
 export function setToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token);
+  try {
+    localStorage.removeItem(LEGACY_TOKEN_KEY);
+  } catch {
+    /* ignore */
+  }
 }
 
 export function getToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
+  const current = localStorage.getItem(TOKEN_KEY);
+  if (current) return current;
+  try {
+    const legacy = localStorage.getItem(LEGACY_TOKEN_KEY);
+    if (legacy) {
+      localStorage.setItem(TOKEN_KEY, legacy);
+      localStorage.removeItem(LEGACY_TOKEN_KEY);
+      return legacy;
+    }
+  } catch {
+    /* ignore */
+  }
+  return null;
 }
 
 export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
+  try {
+    localStorage.removeItem(LEGACY_TOKEN_KEY);
+  } catch {
+    /* ignore */
+  }
 }
 
 export function isAuthed() {

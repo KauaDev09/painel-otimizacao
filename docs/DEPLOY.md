@@ -1,4 +1,4 @@
-# Deploy — ORION OPTIMIZER (Vercel + TiDB Cloud + GitHub)
+# Deploy — SevenOptimizer (Vercel + TiDB Cloud + GitHub)
 
 Guia passo a passo para colocar a API (licenciamento) e o painel admin no ar
 com banco de dados online, sem precisar do Railway.
@@ -39,7 +39,7 @@ Pronto, o banco está no ar.
 ainda não está configurado neste ambiente. Exemplo:
 
 ```bash
-git remote add origin git@github.com:<seu-usuario>/orion-optimizer.git
+git remote add origin git@github.com:<seu-usuario>/sevenoptimizer-optimizer.git
 git push -u origin main
 ```
 
@@ -85,7 +85,7 @@ normal criado acima.
 
 O app usa a URL de produção como API padrão
 (`desktop/src/config/appConfig.js` → `DEFAULT_API_URL`). Ponto de produção atual:
-`https://orion-optimizer-ten.vercel.app`. Para mudar e redistribuir o instalador:
+`https://sevenoptimizer.com.br`. Para mudar e redistribuir o instalador:
 
 ```bash
 cd desktop
@@ -112,10 +112,10 @@ sempre ligado em vez de serverless — desnecessário para este volume.
 | TiDB Cloud | Starter `gateway01.us-east-1.prod.aws.tidbcloud.com:4000`, DB `bios_optimizer` |
 | Schema | `database/schema.sql` carregado (10 tabelas) |
 | Admin | `haridade` criado no banco |
-| Vercel projeto | `orion-optimizer` (root: `backend`) |
+| Vercel projeto | `sevenoptimizer-optimizer` (root: `backend`) |
 | Vercel env vars | `APP_SECRET`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `CORS_ORIGIN` |
-| URL produção | https://orion-optimizer-ten.vercel.app |
-| Painel admin | https://orion-optimizer-ten.vercel.app/admin |
+| URL produção | https://sevenoptimizer.com.br |
+| Painel admin | https://sevenoptimizer.com.br/admin |
 
 Envio de **novos deploys** (após alterações no backend):
 

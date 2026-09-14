@@ -216,9 +216,9 @@ export function Historico({ onNavigate }: { onNavigate?: (view: string) => void 
   };
 
   const secondaryBtn =
-    'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
+    'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
   const primaryBtn =
-    'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
+    'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
 
   return (
     <div className="view-appear space-y-6">
@@ -256,7 +256,7 @@ export function Historico({ onNavigate }: { onNavigate?: (view: string) => void 
               ? 'bg-red-500/10 text-red-300'
               : banner.kind === 'ok'
                 ? 'bg-green-500/10 text-green-300'
-                : 'bg-[var(--orion-selected-bg)] text-foreground'
+                : 'bg-[var(--s4-selected-bg)] text-foreground'
           }`}
         >
           {banner.kind === 'ok' ? <Check className="mt-0.5 h-4 w-4 shrink-0" /> : null}
@@ -270,7 +270,7 @@ export function Historico({ onNavigate }: { onNavigate?: (view: string) => void 
             <button
               type="button"
               onClick={() => openPath(banner.path as string)}
-              className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)]"
+              className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)]"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               ABRIR
@@ -279,7 +279,7 @@ export function Historico({ onNavigate }: { onNavigate?: (view: string) => void 
           <button
             type="button"
             onClick={() => setBanner(null)}
-            className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-foreground"
+            className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-foreground"
             aria-label="Fechar"
           >
             <X className="h-3.5 w-3.5" />
@@ -288,9 +288,9 @@ export function Historico({ onNavigate }: { onNavigate?: (view: string) => void 
       )}
 
       {/* Tabela */}
-      <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+      <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
         <div className="mb-3 flex items-center gap-2">
-          <History className="h-4 w-4 text-[var(--orion-icon-default)]" />
+          <History className="h-4 w-4 text-[var(--s4-icon-default)]" />
           <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Análises anteriores</span>
           {list.length > 0 && (
             <span className="ml-auto text-xs text-muted-foreground">
@@ -301,7 +301,7 @@ export function Historico({ onNavigate }: { onNavigate?: (view: string) => void 
 
         {loading && list.length === 0 ? (
           <div className="py-8 text-center">
-            <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+            <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
             <p className="text-sm text-muted-foreground">Carregando histórico…</p>
           </div>
         ) : list.length === 0 ? (
@@ -339,16 +339,16 @@ export function Historico({ onNavigate }: { onNavigate?: (view: string) => void 
                     <tr
                       key={e.id}
                       onClick={() => toggleSelect(e.id)}
-                      className={`cursor-pointer border-t border-[var(--orion-selected-bg)] transition-colors ${
-                        sel ? 'bg-[var(--orion-selected-bg)]' : 'hover:bg-[var(--orion-selected-bg)]/50'
+                      className={`cursor-pointer border-t border-[var(--s4-selected-bg)] transition-colors ${
+                        sel ? 'bg-[var(--s4-selected-bg)]' : 'hover:bg-[var(--s4-selected-bg)]/50'
                       }`}
                     >
                       <td className="px-2 py-2.5">
                         <span
                           className={`inline-flex h-4 w-4 items-center justify-center rounded border ${
                             sel
-                              ? 'border-[var(--orion-icon-active)] bg-[var(--orion-icon-active)] text-black'
-                              : 'border-[var(--orion-hover-border)]'
+                              ? 'border-[var(--s4-icon-active)] bg-[var(--s4-icon-active)] text-black'
+                              : 'border-[var(--s4-hover-border)]'
                           }`}
                           aria-checked={sel}
                           role="checkbox"
@@ -378,9 +378,9 @@ export function Historico({ onNavigate }: { onNavigate?: (view: string) => void 
 
       {/* Comparação */}
       {compare && (
-        <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+        <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
           <div className="mb-3 flex items-center gap-2">
-            <GitCompareArrows className="h-4 w-4 text-[var(--orion-icon-default)]" />
+            <GitCompareArrows className="h-4 w-4 text-[var(--s4-icon-default)]" />
             <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Antes → Depois</span>
           </div>
           <div className="overflow-x-auto">
@@ -394,7 +394,7 @@ export function Historico({ onNavigate }: { onNavigate?: (view: string) => void 
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-t border-[var(--orion-selected-bg)]">
+                <tr className="border-t border-[var(--s4-selected-bg)]">
                   <td className="px-2 py-2 font-semibold text-foreground">Score geral</td>
                   <td className="px-2 py-2 text-muted-foreground">{compare.before?.score}/100</td>
                   <td className="px-2 py-2 text-muted-foreground">{compare.after?.score}/100</td>
@@ -403,7 +403,7 @@ export function Historico({ onNavigate }: { onNavigate?: (view: string) => void 
                 {Object.entries(compare.categoriesDelta || {}).map(([cat, d]) => {
                   const delta = (d.after ?? 0) - (d.before ?? 0);
                   return (
-                    <tr key={cat} className="border-t border-[var(--orion-selected-bg)]">
+                    <tr key={cat} className="border-t border-[var(--s4-selected-bg)]">
                       <td className="px-2 py-2 text-foreground">{cat}</td>
                       <td className="px-2 py-2 text-muted-foreground">{d.before ?? '—'}%</td>
                       <td className="px-2 py-2 text-muted-foreground">{d.after ?? '—'}%</td>
@@ -411,7 +411,7 @@ export function Historico({ onNavigate }: { onNavigate?: (view: string) => void 
                     </tr>
                   );
                 })}
-                <tr className="border-t border-[var(--orion-selected-bg)]">
+                <tr className="border-t border-[var(--s4-selected-bg)]">
                   <td className="px-2 py-2 text-foreground">
                     <span className="mr-2 inline-block h-2 w-2 rounded-full bg-green-500" />Recomendadas
                   </td>
@@ -421,7 +421,7 @@ export function Historico({ onNavigate }: { onNavigate?: (view: string) => void 
                     {fmtDelta(compare.countsDelta?.recommended)}
                   </td>
                 </tr>
-                <tr className="border-t border-[var(--orion-selected-bg)]">
+                <tr className="border-t border-[var(--s4-selected-bg)]">
                   <td className="px-2 py-2 text-foreground">
                     <span className="mr-2 inline-block h-2 w-2 rounded-full bg-amber-400" />Opcionais
                   </td>
@@ -429,7 +429,7 @@ export function Historico({ onNavigate }: { onNavigate?: (view: string) => void 
                   <td className="px-2 py-2 text-muted-foreground">{compare.after?.counts?.optional ?? 0}</td>
                   <td className="px-2 py-2 text-right font-semibold text-muted-foreground">{fmtDelta(compare.countsDelta?.optional)}</td>
                 </tr>
-                <tr className="border-t border-[var(--orion-selected-bg)]">
+                <tr className="border-t border-[var(--s4-selected-bg)]">
                   <td className="px-2 py-2 text-foreground">
                     <span className="mr-2 inline-block h-2 w-2 rounded-full bg-red-400" />Críticas
                   </td>
@@ -451,7 +451,7 @@ export function Historico({ onNavigate }: { onNavigate?: (view: string) => void 
                   <div key={r.id} className="flex items-center gap-2 rounded-lg bg-black/30 px-3 py-2 text-xs">
                     <span className="flex-1 truncate font-mono text-foreground" title={r.id}>{r.id}</span>
                     <span className="text-muted-foreground">{r.from}</span>
-                    <span className="text-[var(--orion-icon-default)]">→</span>
+                    <span className="text-[var(--s4-icon-default)]">→</span>
                     <span className="text-foreground">{r.to}</span>
                   </div>
                 ))}
@@ -466,9 +466,9 @@ export function Historico({ onNavigate }: { onNavigate?: (view: string) => void 
       )}
 
       {/* Exportação */}
-      <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+      <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
         <div className="mb-3 flex items-center gap-2">
-          <FileText className="h-4 w-4 text-[var(--orion-icon-default)]" />
+          <FileText className="h-4 w-4 text-[var(--s4-icon-default)]" />
           <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Relatórios e exportação</span>
         </div>
         <p className="mb-3 text-sm text-muted-foreground">

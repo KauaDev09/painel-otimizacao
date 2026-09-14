@@ -1,11 +1,18 @@
-export const CONSENT_KEY = 'orion_cookie_consent';
+export const CONSENT_KEY = 's4_cookie_consent';
+const LEGACY_CONSENT_KEY = 'orion_cookie_consent';
 
 const FONTS =
   'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap';
 
 export function hasConsent() {
   try {
-    return localStorage.getItem(CONSENT_KEY) === 'accepted';
+    if (localStorage.getItem(CONSENT_KEY) === 'accepted') return true;
+    if (localStorage.getItem(LEGACY_CONSENT_KEY) === 'accepted') {
+      localStorage.setItem(CONSENT_KEY, 'accepted');
+      localStorage.removeItem(LEGACY_CONSENT_KEY);
+      return true;
+    }
+    return false;
   } catch {
     return false;
   }
@@ -14,6 +21,7 @@ export function hasConsent() {
 export function acceptConsent() {
   try {
     localStorage.setItem(CONSENT_KEY, 'accepted');
+    localStorage.removeItem(LEGACY_CONSENT_KEY);
   } catch {
     /* ignore */
   }
@@ -21,7 +29,7 @@ export function acceptConsent() {
 }
 
 export function injectFonts() {
-  if (document.getElementById('orion-fonts')) return;
+  if (document.getElementById('s4-fonts')) return;
 
   const pre1 = document.createElement('link');
   pre1.rel = 'preconnect';
@@ -33,7 +41,7 @@ export function injectFonts() {
   pre2.crossOrigin = 'anonymous';
 
   const link = document.createElement('link');
-  link.id = 'orion-fonts';
+  link.id = 's4-fonts';
   link.rel = 'stylesheet';
   link.href = FONTS;
 

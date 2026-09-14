@@ -1,5 +1,5 @@
 {
-  "name": "orion-optimizer",
+  "name": "sevenoptimizer",
   "private": true,
   "scripts": {
     "dev:web": "npm --prefix web run dev",

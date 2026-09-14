@@ -2,7 +2,7 @@ import React from 'react';
 import { Activity, RefreshCcw, Search, X, FolderOpen, Skull, ArrowUp, ArrowDown, ArrowUpDown, Pause, Play, Loader2 } from 'lucide-react';
 import { useApi } from '@/api';
 
-// ---------- Tipos locais (métodos ainda não tipados em OrionApi) ----------
+// ---------- Tipos locais (métodos ainda não tipados em SevenApi) ----------
 
 type PriorityLevel = 'Idle' | 'BelowNormal' | 'Normal' | 'AboveNormal' | 'High';
 
@@ -59,7 +59,7 @@ const BANNER_STYLE: Record<NonNullable<Banner>['kind'], string> = {
   ok: 'bg-green-500/15 text-green-400',
   warn: 'bg-amber-500/15 text-amber-400',
   error: 'bg-red-500/15 text-red-400',
-  info: 'bg-[var(--orion-selected-bg)] text-[var(--orion-icon-active)]',
+  info: 'bg-[var(--s4-selected-bg)] text-[var(--s4-icon-active)]',
 };
 
 const PRIORITY_OPTIONS: [PriorityLevel, string][] = [
@@ -289,8 +289,8 @@ export function Processos({ onNavigate }: { onNavigate?: (view: string) => void 
           <button
             type="button"
             onClick={() => setAutoRefresh((v) => !v)}
-            className={`inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold transition-colors hover:bg-[var(--orion-selected-bg)] ${
-              autoRefresh ? 'text-[var(--orion-icon-active)] hover:text-[var(--orion-hover-fg)]' : 'text-muted-foreground hover:text-foreground'
+            className={`inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold transition-colors hover:bg-[var(--s4-selected-bg)] ${
+              autoRefresh ? 'text-[var(--s4-icon-active)] hover:text-[var(--s4-hover-fg)]' : 'text-muted-foreground hover:text-foreground'
             }`}
             title={autoRefresh ? `Atualizando a cada ${REFRESH_MS / 1000}s` : 'Atualização automática pausada'}
           >
@@ -301,7 +301,7 @@ export function Processos({ onNavigate }: { onNavigate?: (view: string) => void 
             type="button"
             onClick={() => refresh(true)}
             disabled={refreshing}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:opacity-60"
           >
             <RefreshCcw className={'h-4 w-4 ' + (refreshing ? 'animate-spin' : '')} />
             {refreshing ? 'Atualizando…' : 'ATUALIZAR'}
@@ -319,9 +319,9 @@ export function Processos({ onNavigate }: { onNavigate?: (view: string) => void 
       )}
 
       {/* Resumo */}
-      <div className="flex flex-wrap items-center gap-6 rounded-lg bg-[var(--orion-surface)] px-5 py-4 text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-6 rounded-lg bg-[var(--s4-surface)] px-5 py-4 text-sm text-muted-foreground">
         <span className="flex items-center gap-2">
-          <Activity className="h-4 w-4 text-[var(--orion-icon-default)]" />
+          <Activity className="h-4 w-4 text-[var(--s4-icon-default)]" />
           <span className="text-foreground">{totals.count}</span> processo(s)
         </span>
         <span className="flex items-center gap-2">
@@ -337,7 +337,7 @@ export function Processos({ onNavigate }: { onNavigate?: (view: string) => void 
 
       {/* Busca */}
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--orion-icon-default)]" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--s4-icon-default)]" />
         <input
           type="text"
           value={query}
@@ -345,15 +345,15 @@ export function Processos({ onNavigate }: { onNavigate?: (view: string) => void 
           placeholder="Filtrar por nome, PID ou fabricante…"
           spellCheck={false}
           autoComplete="off"
-          className="w-full rounded-lg bg-[var(--orion-surface)] py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground"
+          className="w-full rounded-lg bg-[var(--s4-surface)] py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground"
         />
       </div>
 
       {/* Tabela */}
-      <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+      <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
         {loading && (
           <div className="p-6 text-center">
-            <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+            <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
             <p className="text-sm text-muted-foreground">Lendo processos…</p>
           </div>
         )}
@@ -385,7 +385,7 @@ export function Processos({ onNavigate }: { onNavigate?: (view: string) => void 
                 {visible.map((p) => {
                   const busy = busyPids.has(p.id);
                   return (
-                    <tr key={`${p.id}-${p.name}`} className="border-t border-[var(--orion-selected-bg)] align-middle transition-colors hover:bg-[var(--orion-selected-bg)]/40">
+                    <tr key={`${p.id}-${p.name}`} className="border-t border-[var(--s4-selected-bg)] align-middle transition-colors hover:bg-[var(--s4-selected-bg)]/40">
                       <td className="py-2 pr-3">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="font-semibold text-foreground" title={p.path || p.name}>{p.name}</span>
@@ -405,7 +405,7 @@ export function Processos({ onNavigate }: { onNavigate?: (view: string) => void 
                             value={PRIORITY_OPTIONS.some(([v]) => v === p.priority) ? p.priority : 'Normal'}
                             disabled={busy}
                             onChange={(e) => changePriority(p, e.target.value as PriorityLevel)}
-                            className="rounded-md bg-[var(--orion-bg)] px-2 py-1 text-xs text-foreground disabled:opacity-60"
+                            className="rounded-md bg-[var(--s4-bg)] px-2 py-1 text-xs text-foreground disabled:opacity-60"
                           >
                             {PRIORITY_OPTIONS.map(([v, lbl]) => (
                               <option key={v} value={v}>{lbl}</option>
@@ -420,7 +420,7 @@ export function Processos({ onNavigate }: { onNavigate?: (view: string) => void 
                               type="button"
                               onClick={() => openLocation(p)}
                               title="Abrir local do arquivo"
-                              className="inline-flex items-center gap-1 rounded-md bg-[var(--orion-surface)] px-2 py-1 text-[0.65rem] font-semibold text-[var(--orion-icon-active)] shadow-[inset_0_0_0_1px_var(--orion-hover-border)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)]"
+                              className="inline-flex items-center gap-1 rounded-md bg-[var(--s4-surface)] px-2 py-1 text-[0.65rem] font-semibold text-[var(--s4-icon-active)] shadow-[inset_0_0_0_1px_var(--s4-hover-border)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)]"
                             >
                               <FolderOpen className="h-3 w-3" />
                               LOCAL
@@ -481,7 +481,7 @@ function SortTh({
         type="button"
         onClick={() => onClick(k)}
         className={`inline-flex items-center gap-1 uppercase tracking-[0.14em] transition-colors hover:text-foreground ${
-          isActive ? 'text-[var(--orion-icon-active)]' : 'text-muted-foreground'
+          isActive ? 'text-[var(--s4-icon-active)]' : 'text-muted-foreground'
         }`}
       >
         {label}
@@ -496,7 +496,7 @@ function SortTh({
 function Badge({ children, tone }: { children: React.ReactNode; tone: 'neutral' | 'accent' }) {
   const cls = tone === 'accent'
     ? 'bg-green-500/15 text-green-400'
-    : 'bg-[var(--orion-selected-bg)] text-[var(--orion-icon-active)]';
+    : 'bg-[var(--s4-selected-bg)] text-[var(--s4-icon-active)]';
   return (
     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider ${cls}`}>
       {children}
@@ -522,7 +522,7 @@ function ConfirmDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onCancel}>
       <div
-        className="w-full max-w-md rounded-lg bg-[var(--orion-surface)] p-6 shadow-[0_0_40px_rgba(0,0,0,0.6)]"
+        className="w-full max-w-md rounded-lg bg-[var(--s4-surface)] p-6 shadow-[0_0_40px_rgba(0,0,0,0.6)]"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -533,7 +533,7 @@ function ConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] shadow-[inset_0_0_0_1px_var(--orion-hover-border)] transition-colors hover:bg-[var(--orion-selected-bg)]"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] shadow-[inset_0_0_0_1px_var(--s4-hover-border)] transition-colors hover:bg-[var(--s4-selected-bg)]"
           >
             CANCELAR
           </button>

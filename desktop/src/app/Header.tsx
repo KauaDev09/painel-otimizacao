@@ -55,12 +55,12 @@ export function Header({ view, collapsed, onMenu }: HeaderProps) {
   ];
 
   return (
-    <header className="drag-region relative z-20 flex h-14 shrink-0 items-center justify-between bg-[var(--orion-bg)] px-6">
+    <header className="drag-region relative z-20 flex h-14 shrink-0 items-center justify-between bg-[var(--s4-bg)] px-6">
       <div className="flex items-center gap-4">
         <button
           type="button"
           onClick={onMenu}
-          className="no-drag rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)]"
+          className="no-drag rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)]"
           title="Menu"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -68,15 +68,15 @@ export function Header({ view, collapsed, onMenu }: HeaderProps) {
           </svg>
         </button>
         <nav className="no-drag flex items-center gap-2 text-sm" aria-label="Tela atual">
-          <span className="text-[var(--orion-text-secondary)]">SevenOptimizer</span>
-          <span className="text-[var(--orion-text-secondary)]/50">/</span>
-          <h1 className="m-0 text-[1.05rem] font-semibold text-[var(--orion-text-primary)]">{title}</h1>
+          <span className="text-[var(--s4-text-secondary)]">SevenOptimizer</span>
+          <span className="text-[var(--s4-text-secondary)]/50">/</span>
+          <h1 className="m-0 text-[1.05rem] font-semibold text-[var(--s4-text-primary)]">{title}</h1>
         </nav>
       </div>
 
       <div className="flex items-center gap-3">
-        <span className="no-drag inline-flex items-center gap-1.5 rounded-full bg-[var(--orion-surface)] px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-wider text-[var(--orion-text-secondary)]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[var(--orion-icon-default)]" />
+        <span className="no-drag inline-flex items-center gap-1.5 rounded-full bg-[var(--s4-surface)] px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-wider text-[var(--s4-text-secondary)]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--s4-icon-default)]" />
           {plan || '…'}
         </span>
 
@@ -86,7 +86,7 @@ export function Header({ view, collapsed, onMenu }: HeaderProps) {
               key={key}
               type="button"
               onClick={win[key]}
-              className="orion-win-btn flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-[var(--orion-icon-default)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)]"
+              className="s4-win-btn flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-[var(--s4-icon-default)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)]"
               aria-label={label}
             >
               {icon}
@@ -96,7 +96,7 @@ export function Header({ view, collapsed, onMenu }: HeaderProps) {
 
         <button
           type="button"
-          className="no-drag orion-icon-violet rounded-full p-1.5 transition-colors hover:text-[var(--orion-hover-fg)]"
+          className="no-drag s4-icon-accent rounded-full p-1.5 transition-colors hover:text-[var(--s4-hover-fg)]"
           aria-label="Perfil"
         >
           <User className="h-[18px] w-[18px]" />

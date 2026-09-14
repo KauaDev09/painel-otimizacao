@@ -48,7 +48,7 @@ const STATUS_LABELS: Record<SessionState, string> = {
 };
 
 const STATUS_COLOR: Record<SessionState, string> = {
-  idle: 'bg-[var(--orion-icon-default)]/20 text-[var(--orion-icon-active)]',
+  idle: 'bg-[var(--s4-icon-default)]/20 text-[var(--s4-icon-active)]',
   pending: 'bg-amber-500/20 text-amber-400',
   running: 'bg-green-500/20 text-green-400',
   ended: 'bg-muted text-muted-foreground',
@@ -185,7 +185,7 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
     return () => {
       alive = false;
       clearInterval(t);
-      if (typeof off === 'function') off();
+      if (typeof off === 'function') (off as () => void)();
     };
   }, [api, loadGames, loadLibrary, pollStatus]);
 
@@ -273,9 +273,9 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
 
   return (
     <div className="view-appear flex h-full min-h-[560px] gap-5 overflow-hidden">
-      <div className="flex w-56 shrink-0 flex-col rounded-lg bg-[var(--orion-surface)] px-3 py-4">
+      <div className="flex w-56 shrink-0 flex-col rounded-lg bg-[var(--s4-surface)] px-3 py-4">
         <div className="mb-3 flex items-center gap-2 px-2">
-          <Gamepad2 className="h-4 w-4 text-[var(--orion-icon-default)]" />
+          <Gamepad2 className="h-4 w-4 text-[var(--s4-icon-default)]" />
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Jogos</span>
         </div>
         <div className="flex-1 overflow-y-auto">
@@ -288,21 +288,21 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
                   onClick={() => setSelected(g.id)}
                   className={`flex flex-1 items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors ${
                     isActive
-                      ? 'bg-[var(--orion-selected-bg)] text-foreground'
-                      : 'text-muted-foreground hover:bg-[var(--orion-selected-bg)]/50 hover:text-foreground'
+                      ? 'bg-[var(--s4-selected-bg)] text-foreground'
+                      : 'text-muted-foreground hover:bg-[var(--s4-selected-bg)]/50 hover:text-foreground'
                   }`}
                 >
                   {icons[g.path] ? (
                     <img src={icons[g.path]} alt="" className="h-6 w-6 shrink-0 rounded object-contain" />
                   ) : (
-                    <Gamepad2 className="h-4 w-4 shrink-0 text-[var(--orion-icon-default)]" />
+                    <Gamepad2 className="h-4 w-4 shrink-0 text-[var(--s4-icon-default)]" />
                   )}
                   <span className="line-clamp-1 flex-1 font-medium">{g.name}</span>
                   {!g.isDefault && games.some((x) => x.id === g.id) && (
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); removeGame(g.id); }}
-                      className="hidden h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-red-400 group-hover:inline-flex"
+                      className="hidden h-5 w-5 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-red-400 group-hover:inline-flex"
                       title="Remover"
                     >
                       <Trash2 className="h-3 w-3" />
@@ -316,7 +316,7 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
         <button
           type="button"
           onClick={addGame}
-          className="mt-2 flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-foreground"
+          className="mt-2 flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-foreground"
         >
           <Plus className="h-4 w-4" />
           ADICIONAR JOGO
@@ -325,14 +325,14 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
 
       <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
         {!active ? (
-          <div className="mb-5 flex flex-col items-center justify-center rounded-lg bg-[var(--orion-surface)] p-10 text-center">
-            <Gamepad2 className="mb-4 h-10 w-10 text-[var(--orion-icon-default)]/40" />
+          <div className="mb-5 flex flex-col items-center justify-center rounded-lg bg-[var(--s4-surface)] p-10 text-center">
+            <Gamepad2 className="mb-4 h-10 w-10 text-[var(--s4-icon-default)]/40" />
             <p className="mb-1 text-lg font-semibold text-foreground">Nenhum jogo selecionado</p>
             <p className="mb-5 text-sm text-muted-foreground">Adicione um jogo ou escolha um da biblioteca.</p>
             <button
               type="button"
               onClick={addGame}
-              className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)]"
+              className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)]"
             >
               <Plus className="h-4 w-4" />
               ADICIONAR JOGO
@@ -375,7 +375,7 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
                   type="button"
                   onClick={() => startSession(active)}
                   disabled={busy}
-                  className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)] disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)] disabled:opacity-60"
                 >
                   <Power className="h-4 w-4" />
                   INICIAR JOGO
@@ -385,7 +385,7 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
                   type="button"
                   onClick={stopSession}
                   disabled={busy}
-                  className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-5 py-2.5 text-sm font-semibold text-red-400 transition-colors hover:bg-[var(--orion-selected-bg)] disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-5 py-2.5 text-sm font-semibold text-red-400 transition-colors hover:bg-[var(--s4-selected-bg)] disabled:opacity-60"
                 >
                   <Power className="h-4 w-4" />
                   ENCERRAR SESSÃO
@@ -395,7 +395,7 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
                 type="button"
                 onClick={runAnalyze}
                 disabled={analyzeBusy}
-                className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:opacity-60"
               >
                 <Activity className={'h-4 w-4 ' + (analyzeBusy ? 'animate-spin' : '')} />
                 {analyzeBusy ? 'Analisando…' : 'ANALISAR GAME BOOST'}
@@ -418,7 +418,7 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
             )}
           </div>
           {library.length === 0 ? (
-            <p className="rounded-lg bg-[var(--orion-surface)] px-4 py-6 text-sm text-muted-foreground">
+            <p className="rounded-lg bg-[var(--s4-surface)] px-4 py-6 text-sm text-muted-foreground">
               Nenhum aplicativo detectado ainda. Adicione um jogo manualmente ou instale Steam/Epic para popular a biblioteca.
             </p>
           ) : (
@@ -430,7 +430,7 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
                   return (
                     <div
                       key={g.id}
-                      className="group relative h-44 w-36 shrink-0 overflow-hidden rounded-lg bg-[var(--orion-surface)]"
+                      className="group relative h-44 w-36 shrink-0 overflow-hidden rounded-lg bg-[var(--s4-surface)]"
                     >
                       <button
                         type="button"
@@ -493,7 +493,7 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
         </div>
 
         {analyze && (
-          <div className="rounded-lg bg-[var(--orion-surface)] p-5">
+          <div className="rounded-lg bg-[var(--s4-surface)] p-5">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-3xl font-bold text-foreground">{analyze.score}</span>
@@ -523,7 +523,7 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recomendações</p>
                 {analyze.recommendations.map((r) => (
                   <div key={r.id} className="mb-2 flex gap-3 rounded-lg bg-black/20 px-3 py-2.5 text-sm">
-                    <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-[var(--orion-icon-default)]" />
+                    <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-[var(--s4-icon-default)]" />
                     <div>
                       <p className="font-medium text-foreground">{r.name || r.id}</p>
                       <p className="mt-0.5 text-xs text-muted-foreground">{r.recommendation}</p>

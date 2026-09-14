@@ -1,5 +1,5 @@
 {
-  "name": "orion-optimizer",
+  "name": "sevenoptimizer",
   "version": "2.1.10",
   "description": "SevenOptimizer (S4) — análise de BIOS, otimização do Windows, game boost, limpeza e manutenção para Windows.",
   "main": "src/main.js",
@@ -40,7 +40,7 @@
     "vite": "^8.2.2"
   },
   "build": {
-    "appId": "com.orion.optimizer",
+    "appId": "com.sevenoptimizer.app",
     "productName": "SevenOptimizer",
     "copyright": "Copyright © 2026 SevenOptimizer",
     "directories": {

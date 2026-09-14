@@ -1,4 +1,4 @@
-# ORION OPTIMIZER
+# SevenOptimizer
 
 Produto único composto por três partes:
 
@@ -38,7 +38,7 @@ Gerar instalador Windows (NSIS):
 ```bash
 cd desktop
 npm run dist
-# saída: desktop/release/"ORION OPTIMIZER Setup-<versão>.exe"
+# saída: desktop/release/"SevenOptimizer Setup-<versão>.exe"
 ```
 
 Ícone: `desktop/build/icon.ico` (gerado a partir de `image/iconinstaller.png`).

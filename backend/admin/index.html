@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <meta name="theme-color" content="#0a0a0a" />
-  <title>Orion Optimizer — Painel Administrativo</title>
+  <title>SevenOptimizer — Painel Administrativo</title>
   <style>
     :root {
       --bg: #070b12;
@@ -609,10 +609,10 @@
     <div class="login-orb"></div>
     <div class="login-header">
       <div class="login-brand">
-        <img src="/admin/logo.jpeg" alt="Orion" class="login-logo-icon"
+        <img src="/admin/logo.jpeg" alt="SevenOptimizer" class="login-logo-icon"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
         <span class="sidebar-logo-fallback" style="display:none;width:46px;height:46px;"><span class="ico" data-ico="zap"></span></span>
-        <span class="login-logo-text">ORION<span class="login-logo-sub">PAINEL ADMINISTRATIVO</span></span>
+        <span class="login-logo-text">SevenOptimizer<span class="login-logo-sub">PAINEL ADMINISTRATIVO</span></span>
       </div>
     </div>
     <div class="login-welcome">
@@ -637,11 +637,11 @@
       <!-- Sidebar -->
       <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-          <img src="/admin/logo.jpeg" alt="Orion" class="sidebar-logo"
+          <img src="/admin/logo.jpeg" alt="SevenOptimizer" class="sidebar-logo"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
           <span class="sidebar-logo-fallback" style="display:none;"><span class="ico" data-ico="zap"></span></span>
           <div class="sidebar-brand-text">
-            <h1>ORION</h1>
+            <h1>SevenOptimizer</h1>
             <p>OPTIMIZER</p>
           </div>
         </div>
@@ -667,7 +667,7 @@
         <div class="sidebar-plan">
           <p class="sidebar-plan-label">Plano atual</p>
           <p class="sidebar-plan-name">Pro Anual</p>
-          <p class="sidebar-plan-exp">Painel administrativo Orion</p>
+          <p class="sidebar-plan-exp">Painel administrativo SevenOptimizer</p>
           <button class="sidebar-plan-btn">Gerenciar plano</button>
         </div>
 
@@ -828,7 +828,7 @@
               </div>
               <div class="toolbar">
                 <div><label>Versão (X.Y.Z)</label><input id="updVersao" placeholder="2.1.0" /></div>
-                <div style="min-width:340px"><label>URL de download do .exe</label><input id="updUrl" type="url" placeholder="https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.0/ORION-OPTIMIZER-Setup-2.1.0.exe" /></div>
+                <div style="min-width:340px"><label>URL de download do .exe</label><input id="updUrl" type="url" placeholder="https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.0/SevenOptimizer-OPTIMIZER-Setup-2.1.0.exe" /></div>
                 <div style="margin-bottom:1px"><button id="updGenUrl" class="btn btn-outline" title="Monta a URL padrão do GitHub Releases para a versão informada">Gerar URL GitHub</button></div>
                 <div><label>Obrigatória</label>
                   <select id="updObri"><option value="0">Não</option><option value="1">Sim</option></select></div>
@@ -919,8 +919,8 @@
               <h2>Cadastrar / atualizar versão</h2>
               <div class="toolbar" style="flex-wrap:wrap">
                 <div><label>Versão (X.Y.Z)</label><input id="dlVersion" placeholder="2.1.0"></div>
-                <div><label>Arquivo</label><input id="dlFilename" placeholder="ORION-OPTIMIZER-Setup-2.1.0.exe"></div>
-                <div style="min-width:320px"><label>URL do download</label><input id="dlUrl" type="url" placeholder="https://.../ORION-OPTIMIZER-Setup-2.1.0.exe"></div>
+                <div><label>Arquivo</label><input id="dlFilename" placeholder="SevenOptimizer-OPTIMIZER-Setup-2.1.0.exe"></div>
+                <div style="min-width:320px"><label>URL do download</label><input id="dlUrl" type="url" placeholder="https://.../SevenOptimizer-OPTIMIZER-Setup-2.1.0.exe"></div>
                 <div style="margin-bottom:1px"><label>Última versão</label><select id="dlLatest"><option value="1">Sim</option><option value="0">Não</option></select></div>
                 <div style="margin-bottom:1px;align-self:flex-end"><button id="dlSave" class="btn btn-primary">Salvar</button></div>
               </div>
@@ -1058,7 +1058,7 @@ const MASCOT = {
 function stateBox(type, title = '', desc = '', inner = '') {
   const img = MASCOT[type] || MASCOT.empty;
   return `<div class="state-box ${type}">
-    <img src="${img}" alt="Orion" onerror="this.style.display='none';" />
+    <img src="${img}" alt="SevenOptimizer" onerror="this.style.display='none';" />
     ${title ? `<div class="state-title">${title}</div>` : ''}
     ${desc ? `<div class="state-desc">${desc}</div>` : ''}
     ${inner ? `<div class="state-actions">${inner}</div>` : ''}
@@ -1123,11 +1123,11 @@ if (sidebar) {
 
 /* ---------- Theme toggle ---------- */
 (function initTheme() {
-  const saved = localStorage.getItem('orionAdminTheme');
+  const saved = localStorage.getItem('s4AdminTheme');
   const apply = (mode) => {
     document.body.classList.toggle('light-mode', mode === 'light');
     $$('#themeToggle .th-opt').forEach(o => o.classList.toggle('on', o.dataset.t === (mode === 'light' ? 'light' : 'dark')));
-    localStorage.setItem('orionAdminTheme', mode);
+    localStorage.setItem('s4AdminTheme', mode);
   };
   apply(saved === 'light' ? 'light' : 'dark');
   $('#themeToggle').addEventListener('click', () => {
@@ -1199,7 +1199,7 @@ async function fillGenPlans() {
 async function loadLicenses() {
   await fillGenPlans();
   const ltbody = $('#tblLic tbody');
-  ltbody.innerHTML = '<tr><td colspan="9">' + stateBox('loading', 'Carregando licenças…', 'O Orion está buscando as chaves emitidas.') + '</td></tr>';
+  ltbody.innerHTML = '<tr><td colspan="9">' + stateBox('loading', 'Carregando licenças…', 'O SevenOptimizer está buscando as chaves emitidas.') + '</td></tr>';
   const j = await call('/api/v1/admin/licenses');
   const rows = j.licenses.map((l) => `
     <tr>
@@ -1317,7 +1317,7 @@ function statCard(n, l, cls) {
 }
 async function loadStats() {
   const sc = $('#statsCards');
-  sc.innerHTML = '<div class="stat" style="grid-column:1/-1">' + stateBox('loading', 'Sintetizando dados…', 'O Orion está calculando suas estatísticas.') + '</div>';
+  sc.innerHTML = '<div class="stat" style="grid-column:1/-1">' + stateBox('loading', 'Sintetizando dados…', 'O SevenOptimizer está calculando suas estatísticas.') + '</div>';
   const j = await call('/api/v1/admin/stats');
   const s = j.stats;
   const lic = s.licencas || {};
@@ -1369,7 +1369,7 @@ $('#updGenUrl').addEventListener('click', () => {
     msg.classList.add('err');
     return;
   }
-  $('#updUrl').value = `https://github.com/KauaDev09/painel-otimizacao/releases/download/v${v}/ORION-OPTIMIZER-Setup-${v}.exe`;
+  $('#updUrl').value = `https://github.com/KauaDev09/painel-otimizacao/releases/download/v${v}/SevenOptimizer-OPTIMIZER-Setup-${v}.exe`;
   msg.textContent = 'URL gerada. Confira o nome exato do asset na release (o script npm run release imprime a URL correta).';
   msg.classList.add('ok');
 });

@@ -51,10 +51,10 @@ export default function Sucesso() {
         if (key) {
           setLicenseKey(key);
           setView('key');
-          const saved = localStorage.getItem('orion_last_key');
+          const saved = localStorage.getItem('s4_last_key');
           if (saved !== key) {
             try {
-              localStorage.setItem('orion_last_key', key);
+              localStorage.setItem('s4_last_key', key);
             } catch {
               /* ignore */
             }

@@ -52,8 +52,8 @@ type UndoAllState = 'idle' | 'busy' | 'done';
 
 interface ToastEntry { id: number; text: string; kind: 'info' | 'ok' | 'warn' | 'error' }
 
-const PRIMARY_BTN = 'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
-const SECONDARY_BTN = 'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
+const PRIMARY_BTN = 'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
+const SECONDARY_BTN = 'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
 
 function fmtDate(ts: number | string | undefined): string {
   if (ts == null) return '—';
@@ -136,7 +136,7 @@ export function Restauracao({ onNavigate }: { onNavigate?: (view: string) => voi
     });
     return () => {
       registered = false;
-      if (typeof off === 'function') off();
+      if (typeof off === 'function') (off as () => void)();
     };
   }, [api, toast]);
 
@@ -182,15 +182,15 @@ export function Restauracao({ onNavigate }: { onNavigate?: (view: string) => voi
       )}
 
       {loading && ops.length === 0 && !loadError && (
-        <div className="rounded-lg bg-[var(--orion-surface)] p-8 text-center">
-          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+        <div className="rounded-lg bg-[var(--s4-surface)] p-8 text-center">
+          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
           <p className="text-sm text-muted-foreground">Carregando histórico…</p>
         </div>
       )}
 
       {!loading && !loadError && ops.length === 0 && (
-        <div className="flex flex-col items-center rounded-lg bg-[var(--orion-surface)] p-10 text-center">
-          <History className="mb-3 h-10 w-10 text-[var(--orion-icon-default)]/40" />
+        <div className="flex flex-col items-center rounded-lg bg-[var(--s4-surface)] p-10 text-center">
+          <History className="mb-3 h-10 w-10 text-[var(--s4-icon-default)]/40" />
           <p className="mb-1 text-lg font-semibold text-foreground">Nenhuma operação registrada ainda.</p>
           <p className="mb-5 text-sm text-muted-foreground">As otimizações aplicadas em <b className="text-foreground">Windows</b> aparecerão aqui e poderão ser desfeitas.</p>
           <button type="button" onClick={() => onNavigate?.('optimize')} className={PRIMARY_BTN}>
@@ -201,7 +201,7 @@ export function Restauracao({ onNavigate }: { onNavigate?: (view: string) => voi
       )}
 
       {ops.length > 0 && (
-        <div className="overflow-hidden rounded-lg bg-[var(--orion-surface)]">
+        <div className="overflow-hidden rounded-lg bg-[var(--s4-surface)]">
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="text-left text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
@@ -218,12 +218,12 @@ export function Restauracao({ onNavigate }: { onNavigate?: (view: string) => voi
                 const ok = op.successCount ?? 0;
                 const allOk = total > 0 && ok === total;
                 return (
-                  <tr key={op.id} className="border-t border-[var(--orion-selected-bg)] transition-colors hover:bg-[var(--orion-selected-bg)]/40">
+                  <tr key={op.id} className="border-t border-[var(--s4-selected-bg)] transition-colors hover:bg-[var(--s4-selected-bg)]/40">
                     <td className="whitespace-nowrap px-5 py-3 text-muted-foreground">{fmtDate(op.ts)}</td>
                     <td className="px-5 py-3">
                       <span className="text-foreground">{op.label || '—'}</span>
                       {op.profile && (
-                        <span className="ml-2 inline-flex items-center rounded-full bg-[var(--orion-selected-bg)] px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--orion-icon-active)]">
+                        <span className="ml-2 inline-flex items-center rounded-full bg-[var(--s4-selected-bg)] px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--s4-icon-active)]">
                           {op.profile}
                         </span>
                       )}
@@ -237,7 +237,7 @@ export function Restauracao({ onNavigate }: { onNavigate?: (view: string) => voi
                         type="button"
                         onClick={() => openDetails(op.id)}
                         disabled={openingId != null}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--orion-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:opacity-60"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--s4-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:opacity-60"
                       >
                         {openingId === op.id ? 'Abrindo…' : 'DETALHES'}
                       </button>
@@ -268,10 +268,10 @@ export function Restauracao({ onNavigate }: { onNavigate?: (view: string) => voi
             <div
               key={t.id}
               className={`pointer-events-auto flex items-start gap-2 rounded-lg px-4 py-3 text-sm shadow-[0_8px_30px_rgba(0,0,0,0.5)] ring-1 ${
-                t.kind === 'error' ? 'bg-[var(--orion-surface)] text-red-400 ring-red-500/30'
-                  : t.kind === 'warn' ? 'bg-[var(--orion-surface)] text-amber-400 ring-amber-500/30'
-                    : t.kind === 'ok' ? 'bg-[var(--orion-surface)] text-green-400 ring-green-500/30'
-                      : 'bg-[var(--orion-surface)] text-foreground ring-[var(--orion-hover-border)]'
+                t.kind === 'error' ? 'bg-[var(--s4-surface)] text-red-400 ring-red-500/30'
+                  : t.kind === 'warn' ? 'bg-[var(--s4-surface)] text-amber-400 ring-amber-500/30'
+                    : t.kind === 'ok' ? 'bg-[var(--s4-surface)] text-green-400 ring-green-500/30'
+                      : 'bg-[var(--s4-surface)] text-foreground ring-[var(--s4-hover-border)]'
               }`}
             >
               <span className="flex-1">{t.text}</span>
@@ -370,13 +370,13 @@ function OperationDetailsDialog({ op, api, toast, undoingRef, onClose, onChanged
       aria-labelledby="opDetailsTitle"
       onClick={(e) => { if (e.target === e.currentTarget && !busy) onClose(); }}
     >
-      <div className="flex w-full max-w-xl flex-col rounded-lg bg-[var(--orion-surface)] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.6)] ring-1 ring-[var(--orion-hover-border)]">
+      <div className="flex w-full max-w-xl flex-col rounded-lg bg-[var(--s4-surface)] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.6)] ring-1 ring-[var(--s4-hover-border)]">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 id="opDetailsTitle" className="m-0 text-lg font-bold text-foreground">Operação de {fmtDate(op.ts)}</h2>
             <p className="mb-0 mt-1 text-sm text-muted-foreground">
               <b className="text-foreground">{op.label || '—'}</b> — {okCount}/{results.length} passos OK.
-              {op.profile && <span className="ml-1 text-[var(--orion-icon-active)]">· perfil {op.profile}</span>}
+              {op.profile && <span className="ml-1 text-[var(--s4-icon-active)]">· perfil {op.profile}</span>}
             </p>
           </div>
           <button
@@ -384,7 +384,7 @@ function OperationDetailsDialog({ op, api, toast, undoingRef, onClose, onChanged
             onClick={onClose}
             disabled={busy}
             aria-label="Fechar"
-            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-foreground disabled:opacity-60"
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-foreground disabled:opacity-60"
           >
             <X className="h-4 w-4" />
           </button>
@@ -398,7 +398,7 @@ function OperationDetailsDialog({ op, api, toast, undoingRef, onClose, onChanged
             const st = undoOne[it.id] || 'idle';
             const res = results[idx];
             return (
-              <li key={`${it.id}-${idx}`} className="flex items-center justify-between gap-3 rounded-lg bg-[var(--orion-bg)] px-3 py-2 text-sm">
+              <li key={`${it.id}-${idx}`} className="flex items-center justify-between gap-3 rounded-lg bg-[var(--s4-bg)] px-3 py-2 text-sm">
                 <span className="flex min-w-0 items-center gap-2">
                   {res ? (
                     res.ok
@@ -422,7 +422,7 @@ function OperationDetailsDialog({ op, api, toast, undoingRef, onClose, onChanged
                         ? 'bg-green-500/15 text-green-400'
                         : st === 'failed'
                           ? 'bg-red-500/15 text-red-400 hover:bg-red-500/25'
-                          : 'bg-[var(--orion-surface)] text-[var(--orion-icon-active)] hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)]'
+                          : 'bg-[var(--s4-surface)] text-[var(--s4-icon-active)] hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)]'
                     }`}
                   >
                     {st === 'busy' ? (
@@ -467,7 +467,7 @@ function OperationDetailsDialog({ op, api, toast, undoingRef, onClose, onChanged
           aria-labelledby="confirmUndoAllTitle"
           onClick={(e) => { if (e.target === e.currentTarget) setConfirmAll(false); }}
         >
-          <div className="w-full max-w-md rounded-lg bg-[var(--orion-surface)] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.6)] ring-1 ring-[var(--orion-hover-border)]">
+          <div className="w-full max-w-md rounded-lg bg-[var(--s4-surface)] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.6)] ring-1 ring-[var(--s4-hover-border)]">
             <h3 id="confirmUndoAllTitle" className="m-0 flex items-center gap-2 text-base font-bold text-foreground">
               <AlertTriangle className="h-4 w-4 text-amber-400" />
               Desfazer operação completa

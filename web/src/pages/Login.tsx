@@ -22,7 +22,7 @@ export default function Login() {
         { key: trimmed },
       );
       setToken(res.token);
-      if (res.license) localStorage.setItem('orion_last_key', res.license.key);
+      if (res.license) localStorage.setItem('s4_last_key', res.license.key);
       toast('Bem-vindo!', 'ok');
       navigate(params.get('next') || '/conta');
     } catch (err) {

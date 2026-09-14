@@ -1,34 +1,34 @@
 import React, { createContext, useContext } from 'react';
-import type { OrionApi } from './types';
+import type { SevenApi } from './types';
 
 declare global {
   interface Window {
-    OrionAPI?: OrionApi;
+    SevenAPI?: SevenApi;
   }
 }
 
-let singleton: OrionApi | null = null;
+let singleton: SevenApi | null = null;
 
 /** Obtém a API real (Electron) ou o mock de preview de forma singleton. */
-export async function getOrionApi(): Promise<OrionApi> {
+export async function getSevenApi(): Promise<SevenApi> {
   if (singleton) return singleton;
-  if (window.OrionAPI) {
-    singleton = window.OrionAPI;
+  if (window.SevenAPI) {
+    singleton = window.SevenAPI;
     return singleton;
   }
-  // Browser/preview sem o preload: carrega o mock (ele publica window.OrionAPI).
+  // Browser/preview sem o preload: carrega o mock (ele publica window.SevenAPI).
   await import('../ui/mock-api.js');
-  singleton = window.OrionAPI ?? ({} as OrionApi);
+  singleton = window.SevenAPI ?? ({} as SevenApi);
   return singleton;
 }
 
-const ApiContext = createContext<OrionApi | null>(null);
+const ApiContext = createContext<SevenApi | null>(null);
 
-export function ApiProvider({ api, children }: { api: OrionApi; children: React.ReactNode }) {
+export function ApiProvider({ api, children }: { api: SevenApi; children: React.ReactNode }) {
   return <ApiContext.Provider value={api}>{children}</ApiContext.Provider>;
 }
 
-export function useApi(): OrionApi {
+export function useApi(): SevenApi {
   const api = useContext(ApiContext);
   if (!api) throw new Error('useApi deve ser usado dentro de <ApiProvider>');
   return api;
@@ -36,11 +36,11 @@ export function useApi(): OrionApi {
 
 /** Hook que resolve a API e a publica no contexto. */
 export function useApiBootstrap() {
-  const [api, setApi] = React.useState<OrionApi | null>(null);
+  const [api, setApi] = React.useState<SevenApi | null>(null);
   const [error, setError] = React.useState<unknown>(null);
 
   React.useEffect(() => {
-    getOrionApi()
+    getSevenApi()
       .then((a) => setApi(a))
       .catch((e) => setError(e));
   }, []);

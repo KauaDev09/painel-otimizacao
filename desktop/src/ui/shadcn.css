@@ -8,19 +8,19 @@
    ------------------------------------------------------------------ */
 @layer base {
   :root {
-    /* --orion-bg #0a0a0b */
+    /* --s4-bg #0a0a0b */
     --background: 240 6% 4%;
-    /* --orion-text-primary #f4f4f5 */
+    /* --s4-text-primary #f4f4f5 */
     --foreground: 240 5% 96%;
 
-    /* --orion-surface #141416 */
+    /* --s4-surface #141416 */
     --card: 240 5% 8%;
     --card-foreground: 240 5% 96%;
 
     --popover: 240 5% 8%;
     --popover-foreground: 240 5% 96%;
 
-    /* --orion-icon-default #ff3b3f */
+    /* --s4-icon-default #ff3b3f */
     --primary: 358 100% 62%;
     --primary-foreground: 0 0% 100%;
 
@@ -28,7 +28,7 @@
     --secondary-foreground: 240 5% 70%;
 
     --muted: 240 4% 12%;
-    /* --orion-text-secondary #a1a1aa */
+    /* --s4-text-secondary #a1a1aa */
     --muted-foreground: 240 4% 65%;
 
     --accent: 240 4% 14%;

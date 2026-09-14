@@ -225,7 +225,7 @@ async function clean(ids, opts = {}) {
         '  Get-ChildItem -LiteralPath $root -Force -ErrorAction SilentlyContinue | ForEach-Object {',
         '    if ($_.Name -like "msoclean-*") { return }',
         '    if ($_.Name -like "msorepair-*") { return }',
-        '    if ($_.Name -like "orion-*") { return }',
+        '    if ($_.Name -like "sevenoptimizer-*") { return }',
         '    try { Remove-Item -LiteralPath $_.FullName -Recurse -Force -ErrorAction Stop } catch {}',
         '  }',
         '}',

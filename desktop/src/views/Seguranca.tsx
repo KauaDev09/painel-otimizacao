@@ -102,7 +102,7 @@ const LEVEL_META: Record<Level, { label: string; color: string; text: string }> 
   critical: { label: 'CRÍTICA', color: '#f87171', text: 'text-red-400' },
   recommended: { label: 'RECOMENDADA', color: '#4ade80', text: 'text-green-400' },
   optional: { label: 'OPCIONAL', color: '#fbbf24', text: 'text-amber-400' },
-  informational: { label: 'INFORMATIVA', color: 'var(--orion-text-secondary)', text: 'text-muted-foreground' },
+  informational: { label: 'INFORMATIVA', color: 'var(--s4-text-secondary)', text: 'text-muted-foreground' },
   advanced: { label: 'AVANÇADA', color: '#fb923c', text: 'text-orange-400' },
 };
 const RISK_LABEL: Record<string, string> = { low: 'RISCO BAIXO', medium: 'RISCO MÉDIO', high: 'RISCO ALTO', info: 'INFORMATIVO' };
@@ -110,7 +110,7 @@ const RISK_CLASS: Record<string, string> = {
   low: 'bg-green-500/15 text-green-400',
   medium: 'bg-amber-500/15 text-amber-400',
   high: 'bg-red-500/15 text-red-400',
-  info: 'bg-[var(--orion-selected-bg)] text-muted-foreground',
+  info: 'bg-[var(--s4-selected-bg)] text-muted-foreground',
 };
 const IMPACT_LABEL: Record<string, string> = { low: 'IMPACTO BAIXO', medium: 'IMPACTO MÉDIO', high: 'IMPACTO ALTO' };
 
@@ -155,7 +155,7 @@ const BANNER_CLASS: Record<BannerType, string> = {
   success: 'bg-green-500/10 text-green-400',
   error: 'bg-red-500/10 text-red-400',
   warning: 'bg-amber-500/10 text-amber-400',
-  info: 'bg-[var(--orion-selected-bg)] text-[var(--orion-icon-active)]',
+  info: 'bg-[var(--s4-selected-bg)] text-[var(--s4-icon-active)]',
 };
 
 function BannerIcon({ type }: { type: BannerType }) {
@@ -168,7 +168,7 @@ function BannerIcon({ type }: { type: BannerType }) {
 
 function Section({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+    <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
       <div className="mb-3 flex items-center gap-2">
         {icon}
         <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{title}</span>
@@ -208,11 +208,11 @@ function ProtRow({ label, value, extra }: { label: string; value: boolean | null
 function ScoreRing({ value }: { value: number }) {
   const circumference = 2 * Math.PI * 38;
   const offset = circumference - (value / 100) * circumference;
-  const color = value >= 80 ? 'var(--orion-icon-active)' : value >= 50 ? 'var(--orion-icon-default)' : '#ef4444';
+  const color = value >= 80 ? 'var(--s4-icon-active)' : value >= 50 ? 'var(--s4-icon-default)' : '#ef4444';
   return (
     <div className="relative flex h-28 w-28 items-center justify-center">
       <svg className="h-28 w-28 -rotate-90" viewBox="0 0 80 80">
-        <circle cx="40" cy="40" r="38" fill="none" stroke="var(--orion-selected-bg)" strokeWidth="4" />
+        <circle cx="40" cy="40" r="38" fill="none" stroke="var(--s4-selected-bg)" strokeWidth="4" />
         <circle cx="40" cy="40" r="38" fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} className="transition-all duration-700 ease-out" />
       </svg>
       <div className="absolute flex flex-col items-center">
@@ -232,12 +232,12 @@ function Badges({ risk, impact, reboot }: { risk?: string; impact?: string; rebo
         </span>
       )}
       {impact && (
-        <span className="rounded-md bg-[var(--orion-selected-bg)] px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="rounded-md bg-[var(--s4-selected-bg)] px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-muted-foreground">
           {IMPACT_LABEL[impact] || impact}
         </span>
       )}
       {reboot && (
-        <span className="rounded-md bg-[var(--orion-selected-bg)] px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="rounded-md bg-[var(--s4-selected-bg)] px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-muted-foreground">
           REINICIALIZAÇÃO NECESSÁRIA
         </span>
       )}
@@ -249,7 +249,7 @@ function RecCard({ rec, onDetails }: { rec: Recommendation; onDetails: (rec: Rec
   const meta = levelMeta(rec.effectiveLevel);
   const status = (rec.statusText || '').replace(/^Status: /, '');
   return (
-    <div className="rounded-lg border-l-4 bg-[var(--orion-surface)] px-5 py-4" style={{ borderLeftColor: meta.color }}>
+    <div className="rounded-lg border-l-4 bg-[var(--s4-surface)] px-5 py-4" style={{ borderLeftColor: meta.color }}>
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="m-0 text-sm font-semibold text-foreground">{rec.name}</p>
@@ -270,7 +270,7 @@ function RecCard({ rec, onDetails }: { rec: Recommendation; onDetails: (rec: Rec
       <button
         type="button"
         onClick={() => onDetails(rec)}
-        className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[var(--orion-selected-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-hover-glow)] hover:text-[var(--orion-hover-fg)]"
+        className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[var(--s4-selected-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-hover-glow)] hover:text-[var(--s4-hover-fg)]"
       >
         VER DETALHES
         <ChevronRight className="h-3.5 w-3.5" />
@@ -291,13 +291,13 @@ function Modal({ title, onClose, children, footer, wide }: {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className={`flex max-h-[90vh] w-full flex-col rounded-lg bg-[var(--orion-surface)] shadow-[0_0_40px_rgba(0,0,0,0.6)] ${wide ? 'max-w-2xl' : 'max-w-lg'}`}>
+      <div className={`flex max-h-[90vh] w-full flex-col rounded-lg bg-[var(--s4-surface)] shadow-[0_0_40px_rgba(0,0,0,0.6)] ${wide ? 'max-w-2xl' : 'max-w-lg'}`}>
         <div className="flex items-start justify-between gap-4 px-5 pt-4">
           {title ? <h3 className="m-0 text-base font-semibold text-foreground">{title}</h3> : <span />}
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-foreground"
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-foreground"
             title="Fechar"
           >
             <X className="h-4 w-4" />
@@ -313,7 +313,7 @@ function Modal({ title, onClose, children, footer, wide }: {
 function ModalSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mt-3">
-      <p className="m-0 mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--orion-icon-active)]">{title}</p>
+      <p className="m-0 mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--s4-icon-active)]">{title}</p>
       <div className="text-sm text-muted-foreground">{children}</div>
     </div>
   );
@@ -356,7 +356,7 @@ export function Seguranca({ onNavigate }: { onNavigate?: (view: string) => void 
     });
     return () => {
       alive.current = false;
-      if (typeof off === 'function') off();
+      if (typeof off === 'function') (off as () => void)();
       if (bannerTimer.current) clearTimeout(bannerTimer.current);
     };
   }, [api]);
@@ -435,8 +435,8 @@ export function Seguranca({ onNavigate }: { onNavigate?: (view: string) => void 
   const smartscreenOn = ss.explorer != null ? String(ss.explorer).toLowerCase() !== 'off' : null;
   const busy = analyzing || scanning;
 
-  const secondaryBtn = 'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:opacity-60';
-  const primaryBtn = 'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)] disabled:opacity-60';
+  const secondaryBtn = 'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:opacity-60';
+  const primaryBtn = 'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)] disabled:opacity-60';
 
   return (
     <div className="view-appear space-y-6">
@@ -478,16 +478,16 @@ export function Seguranca({ onNavigate }: { onNavigate?: (view: string) => void 
 
       {/* Progresso */}
       {busy && (
-        <div className="flex items-center gap-3 rounded-lg bg-[var(--orion-surface)] px-5 py-3 text-sm text-muted-foreground">
-          <div className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+        <div className="flex items-center gap-3 rounded-lg bg-[var(--s4-surface)] px-5 py-3 text-sm text-muted-foreground">
+          <div className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
           <span>{stepLabel}</span>
         </div>
       )}
 
       {/* Estado vazio */}
       {!result && !analyzing && (
-        <div className="rounded-lg bg-[var(--orion-surface)] p-8 text-center">
-          <Shield className="mx-auto mb-3 h-10 w-10 text-[var(--orion-icon-default)]/40" />
+        <div className="rounded-lg bg-[var(--s4-surface)] p-8 text-center">
+          <Shield className="mx-auto mb-3 h-10 w-10 text-[var(--s4-icon-default)]/40" />
           <p className="mb-3 text-sm text-muted-foreground">
             Execute a análise para ver o estado do Microsoft Defender e das proteções do Windows.
           </p>
@@ -503,7 +503,7 @@ export function Seguranca({ onNavigate }: { onNavigate?: (view: string) => void 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
             {/* Coluna esquerda */}
             <div className="space-y-5 lg:col-span-2">
-              <Section title="Microsoft Defender" icon={<ShieldCheck className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+              <Section title="Microsoft Defender" icon={<ShieldCheck className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
                 {d.available === false && (
                   <p className="mb-2 flex items-center gap-2 text-xs text-red-400">
                     <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
@@ -530,7 +530,7 @@ export function Seguranca({ onNavigate }: { onNavigate?: (view: string) => void 
                 />
               </Section>
 
-              <Section title="Antivírus registrados" icon={<Bug className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+              <Section title="Antivírus registrados" icon={<Bug className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
                 {avProducts.length ? (
                   avProducts.map((a, i) => <ProtRow key={`${a.name || 'av'}-${i}`} label={a.name || 'Antivírus'} value={a.enabled} />)
                 ) : (
@@ -538,7 +538,7 @@ export function Seguranca({ onNavigate }: { onNavigate?: (view: string) => void 
                 )}
               </Section>
 
-              <Section title="Proteções do sistema" icon={<Lock className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+              <Section title="Proteções do sistema" icon={<Lock className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
                 <ProtRow label="Firewall (Domínio)" value={fw.domain} />
                 <ProtRow label="Firewall (Privado)" value={fw.private} />
                 <ProtRow label="Firewall (Público)" value={fw.public} />
@@ -549,7 +549,7 @@ export function Seguranca({ onNavigate }: { onNavigate?: (view: string) => void 
 
             {/* Coluna direita */}
             <div className="space-y-5">
-              <Section title="Security Score" icon={<ShieldCheck className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+              <Section title="Security Score" icon={<ShieldCheck className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
                 <div className="flex flex-col items-center py-2">
                   <ScoreRing value={result.score} />
                 </div>
@@ -570,7 +570,7 @@ export function Seguranca({ onNavigate }: { onNavigate?: (view: string) => void 
                 </ul>
               </Section>
 
-              <Section title="Ameaças" icon={<ShieldAlert className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+              <Section title="Ameaças" icon={<ShieldAlert className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
                 <InfoRow label="Total registrado" value={threatCount} />
                 <InfoRow
                   label="Ativas agora"
@@ -580,7 +580,7 @@ export function Seguranca({ onNavigate }: { onNavigate?: (view: string) => void 
                   <button
                     type="button"
                     onClick={scrollToThreats}
-                    className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--orion-selected-bg)] px-4 py-2 text-xs font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-hover-glow)] hover:text-[var(--orion-hover-fg)]"
+                    className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--s4-selected-bg)] px-4 py-2 text-xs font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-hover-glow)] hover:text-[var(--s4-hover-fg)]"
                   >
                     VER AMEAÇAS
                     <ChevronRight className="h-3.5 w-3.5" />
@@ -593,11 +593,11 @@ export function Seguranca({ onNavigate }: { onNavigate?: (view: string) => void 
           {/* Ameaças detectadas */}
           <section ref={threatsRef} className="space-y-3">
             <div className="flex items-center gap-2">
-              <ShieldAlert className="h-4 w-4 text-[var(--orion-icon-default)]" />
+              <ShieldAlert className="h-4 w-4 text-[var(--s4-icon-default)]" />
               <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Ameaças detectadas</span>
               {threats.length > 0 && <span className="text-xs text-muted-foreground">({threats.length})</span>}
             </div>
-            <div className="overflow-x-auto rounded-lg bg-[var(--orion-surface)]">
+            <div className="overflow-x-auto rounded-lg bg-[var(--s4-surface)]">
               <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr className="text-left text-[0.65rem] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -614,7 +614,7 @@ export function Seguranca({ onNavigate }: { onNavigate?: (view: string) => void 
                       const sev = t.severityId ?? 0;
                       const sevCls = sev >= 4 ? 'text-red-400' : sev >= 1 ? 'text-amber-400' : 'text-foreground';
                       return (
-                        <tr key={`${t.name || 'threat'}-${i}`} className="border-t border-[var(--orion-selected-bg)]">
+                        <tr key={`${t.name || 'threat'}-${i}`} className="border-t border-[var(--s4-selected-bg)]">
                           <td className="px-4 py-2.5 text-muted-foreground">{t.detectedAt ? fmtDate(t.detectedAt) : '—'}</td>
                           <td className="px-4 py-2.5 font-semibold text-foreground" title={(t.resources || []).join('\n')}>{dash(t.name)}</td>
                           <td className={`px-4 py-2.5 ${sevCls}`}>{dash(t.severityLabel)}</td>
@@ -632,7 +632,7 @@ export function Seguranca({ onNavigate }: { onNavigate?: (view: string) => void 
                       );
                     })
                   ) : (
-                    <tr className="border-t border-[var(--orion-selected-bg)]">
+                    <tr className="border-t border-[var(--s4-selected-bg)]">
                       <td colSpan={5} className="px-4 py-4 text-center text-muted-foreground">
                         Nenhuma ameaça registrada pelo Microsoft Defender.
                       </td>
@@ -646,14 +646,14 @@ export function Seguranca({ onNavigate }: { onNavigate?: (view: string) => void 
           {/* Recomendações de segurança */}
           <section className="space-y-3">
             <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 text-[var(--orion-icon-default)]" />
+              <Shield className="h-4 w-4 text-[var(--s4-icon-default)]" />
               <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Recomendações de segurança</span>
               {recs.length > 0 && <span className="text-xs text-muted-foreground">({recs.length})</span>}
             </div>
             {recs.length ? (
               recs.map((r) => <RecCard key={r.id} rec={r} onDetails={setDetails} />)
             ) : (
-              <div className="flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-5 py-4 text-sm text-green-400">
+              <div className="flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-5 py-4 text-sm text-green-400">
                 <CheckCircle2 className="h-4 w-4 shrink-0" />
                 Nenhuma recomendação — proteções em dia.
               </div>
@@ -672,7 +672,7 @@ export function Seguranca({ onNavigate }: { onNavigate?: (view: string) => void 
               <button
                 type="button"
                 onClick={() => setConfirmScan(false)}
-                className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-selected-bg)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-hover-glow)] hover:text-[var(--orion-hover-fg)]"
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-selected-bg)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-hover-glow)] hover:text-[var(--s4-hover-fg)]"
               >
                 Cancelar
               </button>

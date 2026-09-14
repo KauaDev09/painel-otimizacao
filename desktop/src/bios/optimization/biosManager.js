@@ -423,7 +423,7 @@ class BiosManager {
     if (!pending.length) return { checked: [], payload: this.list() };
 
     this.logger.boot();
-    this.logger.log('Orion iniciado');
+    this.logger.log('SevenOptimizer iniciado');
     this.logger.log('Operação pendente encontrada');
 
     const payload = await this.scan();

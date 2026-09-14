@@ -3,7 +3,7 @@ import { Cpu, MemoryStick, HardDrive, Play, History, Flag, AlertTriangle, X, Gau
 import { useApi } from '@/api';
 
 // ---------------------------------------------------------------------------
-// Tipos locais (métodos ainda não tipados em OrionApi)
+// Tipos locais (métodos ainda não tipados em SevenApi)
 // ---------------------------------------------------------------------------
 
 type BenchKind = 'cpu' | 'ram' | 'disk';
@@ -106,17 +106,17 @@ const KIND_META: Record<BenchKind, { label: string; desc: string; icon: React.Re
   cpu: {
     label: 'CPU single/multi-thread',
     desc: '~15 s · carga determinística em 1 thread e em todas',
-    icon: <Cpu className="h-4 w-4 text-[var(--orion-icon-default)]" />,
+    icon: <Cpu className="h-4 w-4 text-[var(--s4-icon-default)]" />,
   },
   ram: {
     label: 'Banda de memória',
     desc: '~2 s · cópia de memória em GB/s',
-    icon: <MemoryStick className="h-4 w-4 text-[var(--orion-icon-default)]" />,
+    icon: <MemoryStick className="h-4 w-4 text-[var(--s4-icon-default)]" />,
   },
   disk: {
     label: 'Disco sequencial',
     desc: '~5–20 s · grava e lê 512 MB temporários',
-    icon: <HardDrive className="h-4 w-4 text-[var(--orion-icon-default)]" />,
+    icon: <HardDrive className="h-4 w-4 text-[var(--s4-icon-default)]" />,
   },
 };
 
@@ -219,7 +219,7 @@ export function Benchmark({ onNavigate }: { onNavigate?: (view: string) => void 
           type="button"
           onClick={() => setConfirmOpen(true)}
           disabled={running || kinds.length === 0}
-          className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)] disabled:opacity-60"
+          className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)] disabled:opacity-60"
         >
           <Play className="h-4 w-4" />
           {isFull ? 'EXECUTAR BENCHMARK COMPLETO' : 'EXECUTAR BENCHMARK'}
@@ -244,7 +244,7 @@ export function Benchmark({ onNavigate }: { onNavigate?: (view: string) => void 
       )}
 
       {/* Seleção de testes */}
-      <Section title="Testes a executar" icon={<Gauge className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+      <Section title="Testes a executar" icon={<Gauge className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           {ALL_KINDS.map((k) => {
             const meta = KIND_META[k];
@@ -253,7 +253,7 @@ export function Benchmark({ onNavigate }: { onNavigate?: (view: string) => void 
               <label
                 key={k}
                 className={`flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 transition-colors ${
-                  checked ? 'bg-[var(--orion-selected-bg)]' : 'bg-black/20 hover:bg-[var(--orion-selected-bg)]/50'
+                  checked ? 'bg-[var(--s4-selected-bg)]' : 'bg-black/20 hover:bg-[var(--s4-selected-bg)]/50'
                 } ${running ? 'pointer-events-none opacity-60' : ''}`}
               >
                 <input
@@ -279,8 +279,8 @@ export function Benchmark({ onNavigate }: { onNavigate?: (view: string) => void 
 
       {/* Estado executando */}
       {running && (
-        <div className="rounded-lg bg-[var(--orion-surface)] p-8 text-center">
-          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+        <div className="rounded-lg bg-[var(--s4-surface)] p-8 text-center">
+          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
           <p className="text-sm text-muted-foreground">
             {isFull
               ? 'Medindo CPU, memória e disco… isso pode levar até 40 segundos.'
@@ -293,7 +293,7 @@ export function Benchmark({ onNavigate }: { onNavigate?: (view: string) => void 
       {result && !running && <BenchResult entry={result} />}
 
       {/* Histórico */}
-      <Section title="Histórico de benchmarks" icon={<History className="h-4 w-4 text-[var(--orion-icon-default)]" />}>
+      <Section title="Histórico de benchmarks" icon={<History className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
         {historyError && <p className="mb-3 text-xs text-red-400">{historyError}</p>}
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-sm">
@@ -381,10 +381,10 @@ function BenchResult({ entry: b }: { entry: BenchEntry }) {
   }
 
   return (
-    <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+    <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
       <div className="mb-3 flex items-center gap-2">
-        <Flag className="h-4 w-4 text-[var(--orion-icon-default)]" />
-        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--orion-icon-active)]">
+        <Flag className="h-4 w-4 text-[var(--s4-icon-default)]" />
+        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--s4-icon-active)]">
           Resultado medido ({b.date.toLocaleTimeString('pt-BR')})
         </span>
       </div>
@@ -443,7 +443,7 @@ function Stat({ label, value, unit }: { label: string; value: string; unit: stri
 
 function Section({ title, icon, children }: { title: string; icon?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+    <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
       <div className="mb-3 flex items-center gap-2">
         {icon}
         <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{title}</span>
@@ -487,21 +487,21 @@ function ConfirmDialog({
       role="dialog"
       aria-modal="true"
     >
-      <div className="w-full max-w-md rounded-lg bg-[var(--orion-surface)] p-5 shadow-[0_0_40px_rgba(0,0,0,0.6)]">
+      <div className="w-full max-w-md rounded-lg bg-[var(--s4-surface)] p-5 shadow-[0_0_40px_rgba(0,0,0,0.6)]">
         <h3 className="m-0 mb-3 text-base font-semibold text-foreground">{title}</h3>
         <div className="mb-5">{children}</div>
         <div className="flex justify-end gap-3">
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)]"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)]"
           >
             CANCELAR
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)]"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)]"
           >
             {confirmLabel}
           </button>

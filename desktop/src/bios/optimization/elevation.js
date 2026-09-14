@@ -50,7 +50,7 @@ async function runElevatedCommand(commandLine, timeoutMs = 60000) {
     return runHidden('cmd.exe', ['/c', commandLine], timeoutMs);
   }
   const stamp = Date.now();
-  const scriptPath = path.join(os.tmpdir(), `orion-bios-${stamp}-${process.pid}.cmd`);
+  const scriptPath = path.join(os.tmpdir(), `sevenoptimizer-bios-${stamp}-${process.pid}.cmd`);
   fs.writeFileSync(scriptPath, `@echo off\r\nchcp 65001 >nul\r\n${commandLine}\r\nexit /b %errorlevel%\r\n`, 'utf8');
   const psCommand =
     "$p = Start-Process -FilePath 'cmd.exe' " +

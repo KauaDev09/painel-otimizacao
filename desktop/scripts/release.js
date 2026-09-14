@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Script de release automatizado para o Orion Optimizer.
+ * Script de release automatizado para o SevenOptimizer.
  *
  * Uso:
  *   node scripts/release.js patch    -> 2.0.0 -> 2.0.1
@@ -93,12 +93,12 @@ if (newVersion === currentVersion) {
 }
 
 const tag = `v${newVersion}`;
-const installerName = `ORION OPTIMIZER Setup-${newVersion}.exe`;
+const installerName = `SevenOptimizer-Setup-${newVersion}.exe`;
 const installerPath = path.join(ROOT, 'release', installerName);
 
 console.log('');
 console.log('-----------------------------------------------');
-console.log('       ORION OPTIMIZER - NOVO RELEASE');
+console.log('       SevenOptimizer - NOVO RELEASE');
 console.log('-----------------------------------------------');
 console.log(`  Versão atual:   ${currentVersion}`);
 console.log(`  Nova versão:    ${newVersion}`);
@@ -159,7 +159,7 @@ try { run(`git tag ${tag} -m "Release ${newVersion}"`); } catch (_) { console.lo
 run(`git push origin ${tag}`);
 
 const changelogPath = path.join(ROOT, 'release', 'NOTES.md');
-let notes = `# Orion Optimizer v${newVersion}\n\nInstalador do Windows (NSIS). Publicado automaticamente pelo script de release.\n\nDownload: \`${installerName}\``;
+let notes = `# SevenOptimizer v${newVersion}\n\nInstalador do Windows (NSIS). Publicado automaticamente pelo script de release.\n\nDownload: \`${installerName}\``;
 if (fs.existsSync(changelogPath)) {
   notes = fs.readFileSync(changelogPath, 'utf8');
 }
@@ -171,7 +171,7 @@ fs.writeFileSync(notesTemp, notes, 'utf8');
 const ghCmd =
   `gh release create ${tag} "${installerPath}" ` +
   `--repo ${OWNER}/${REPO} ` +
-  `--title "Orion Optimizer v${newVersion}" ` +
+  `--title "SevenOptimizer v${newVersion}" ` +
   `--notes-file "${notesTemp}"`;
 
 try {
@@ -199,7 +199,7 @@ console.log('  consiga baixar o instalador (caso contrário o download retorna 4
 console.log('  Rode uma vez (se necessário): gh repo edit ' + OWNER + '/' + REPO + ' --visibility public');
 console.log('');
 console.log('  1. Acesse o painel admin:');
-console.log('     https://orion-optimizer-ten.vercel.app/admin');
+console.log('     https://sevenoptimizer.com.br/admin');
 console.log('     Aba "Atualizações"');
 console.log('  2. Preencha: versão, changelog e a URL de download do .exe:');
 let canonicalAssetUrl = '';
@@ -212,9 +212,7 @@ try {
   if (json && json !== 'null') canonicalAssetUrl = json.replace(/^"|"$/g, '');
 } catch (_) { /* gh indisponível → usa fallback */ }
 if (!canonicalAssetUrl) {
-  // Fallback: o GitHub CLI troca espaços por pontos no nome do asset (verificado
-  // nas releases anteriores: "ORION.OPTIMIZER.Setup-2.1.0.exe").
-  canonicalAssetUrl = `https://github.com/${OWNER}/${REPO}/releases/download/${tag}/${installerName.replace(/ /g, '.')}`;
+  canonicalAssetUrl = `https://github.com/${OWNER}/${REPO}/releases/download/${tag}/${installerName}`;
 }
 console.log('     ' + canonicalAssetUrl);
 console.log('  3. Clique "PUBLICAR"');

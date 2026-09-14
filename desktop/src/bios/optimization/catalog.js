@@ -195,26 +195,26 @@ const MANUAL_STEPS = {
     'Abra o menu Tweaker / OC / AI Tweaker.',
     'Localize Extreme Memory Profile (XMP).',
     'Selecione Profile 1 e salve (F10).',
-    'Após o Windows iniciar, abra o Orion para confirmar a nova frequência.'
+    'Após o Windows iniciar, abra o SevenOptimizer para confirmar a nova frequência.'
   ],
   expo: [
     'Reinicie e entre na BIOS.',
     'Abra o menu de memória/overclock.',
     'Ative EXPO Profile 1.',
     'Salve e reinicie.',
-    'Confirme a frequência no Orion.'
+    'Confirme a frequência no SevenOptimizer.'
   ],
   docp: [
     'Reinicie e entre na BIOS ASUS.',
     'AI Tweaker → Ai Overclock Tuner → D.O.C.P.',
     'Selecione o perfil dos módulos, salve e reinicie.',
-    'Confirme a frequência no Orion.'
+    'Confirme a frequência no SevenOptimizer.'
   ],
   above_4g: [
     'Atualize o driver da GPU.',
     'Entre na BIOS e ative Above 4G Decoding.',
     'Salve. Em muitas placas o Resizable BAR só aparece depois deste passo.',
-    'Reinicie e confirme no painel do driver / Orion.'
+    'Reinicie e confirme no painel do driver / SevenOptimizer.'
   ],
   resizable_bar: [
     'Ative Above 4G Decoding primeiro, se ainda não estiver ativo.',
@@ -244,10 +244,10 @@ const MANUAL_STEPS = {
     'Entre na BIOS.',
     'Ative SVM Mode (AMD) ou Intel Virtualization Technology.',
     'Salve e reinicie.',
-    'Confirme no Orion se o firmware passou a reportar virtualização.'
+    'Confirme no SevenOptimizer se o firmware passou a reportar virtualização.'
   ],
   high_performance_plan: [
-    'O Orion aplica o plano via powercfg (API oficial do Windows).',
+    'O SevenOptimizer aplica o plano via powercfg (API oficial do Windows).',
     'Pode aparecer um prompt UAC.',
     'A verificação é imediata — sem reinício.'
   ]

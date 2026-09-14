@@ -3,7 +3,7 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { Home } from '@/views/Home';
 import { ComingSoon } from '@/views/ComingSoon';
-import { OrionReactiveCore } from '@/components/orion-reactive-core';
+import { S4ReactiveCore } from '@/components/s4-reactive-core';
 import { useApi } from '@/api';
 
 // Views pesadas sob demanda — menos RAM na abertura do painel.
@@ -41,7 +41,7 @@ class ViewErrorBoundary extends React.Component<
   render() {
     if (this.state.error) {
       return (
-        <div className="view-appear rounded-lg bg-[var(--orion-surface)] p-8">
+        <div className="view-appear rounded-lg bg-[var(--s4-surface)] p-8">
           <h2 className="m-0 text-lg font-semibold text-foreground">Não foi possível abrir esta tela</h2>
           <p className="mt-2 text-sm text-muted-foreground">{this.state.error.message}</p>
         </div>
@@ -99,7 +99,7 @@ export function Shell() {
 
   return (
     <div className="relative isolate flex h-full overflow-hidden bg-background">
-      <OrionReactiveCore compact className="absolute inset-0 z-0" />
+      <S4ReactiveCore compact className="absolute inset-0 z-0" />
       <div className="relative z-10 flex h-full min-w-0 flex-1 overflow-hidden">
         <Sidebar
           view={view}

@@ -5,7 +5,7 @@
 // Cada ferramenta é executada pelo caminho instalado (detectado no scan) e
 // direcionada ao módulo de BIOS/ajuste da marca, em vez de tentar gravar bytes
 // na NVRAM de forma insegura. A alteração concreta é confirmada dentro da
-// própria ferramenta pelo usuário; o Orion NUNCA inventa offsets (ver efiVar).
+// própria ferramenta pelo usuário; o SevenOptimizer NUNCA inventa offsets (ver efiVar).
 //
 // Segurança:
 //   1. Só age quando a ferramenta do fabricante foi realmente detectada.
@@ -83,7 +83,7 @@ function detectedToolKey(extra, boardVendor) {
 }
 
 // Capacidade: se a ferramenta do fabricante estiver instalada, o item entra em
-// modo automático (o Orion abre a ferramenta e o usuário confirma a alteração).
+// modo automático (o SevenOptimizer abre a ferramenta e o usuário confirma a alteração).
 function capabilityFor(item, scan) {
   const extra = (scan && scan.extra) || {};
   const board = (scan && scan.profile && scan.profile.motherboard) || {};
@@ -101,7 +101,7 @@ function capabilityFor(item, scan) {
     requiresAdmin: false,
     vendorTool: toolKey,
     tool: TOOL_LABELS[toolKey] || toolKey,
-    reason: `${TOOL_LABELS[toolKey] || toolKey} instalada. O Orion abre a ferramenta para confirmar a alteração.`
+    reason: `${TOOL_LABELS[toolKey] || toolKey} instalada. O SevenOptimizer abre a ferramenta para confirmar a alteração.`
   };
 }
 

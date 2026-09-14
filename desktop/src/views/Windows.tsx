@@ -80,8 +80,8 @@ interface LocalApi {
 // Constantes do catálogo de otimizações
 // ---------------------------------------------------------------------------
 
-const CUSTOM_PROFILE_KEY = 'orion.customProfile';
-const APPLIED_KEY = 'orion.appliedIds';
+const CUSTOM_PROFILE_KEY = 'sevenoptimizer.customProfile';
+const APPLIED_KEY = 'sevenoptimizer.appliedIds';
 const RISK_SORT: Record<string, number> = { high: 0, medium: 1, low: 2, info: 3 };
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -113,7 +113,7 @@ const RISK_BADGE_CLASS: Record<string, string> = {
   low: 'bg-green-500/15 text-green-400',
   medium: 'bg-amber-500/15 text-amber-400',
   high: 'bg-red-500/15 text-red-400',
-  info: 'bg-[var(--orion-selected-bg)] text-[var(--orion-icon-active)]',
+  info: 'bg-[var(--s4-selected-bg)] text-[var(--s4-icon-active)]',
 };
 const RISK_STRIPE_CLASS: Record<string, string> = {
   low: 'border-l-green-500/60',
@@ -167,9 +167,9 @@ function plural(n: number, singular: string, pluralForm: string): string {
   return `${n} ${n === 1 ? singular : pluralForm}`;
 }
 
-const PRIMARY_BTN = 'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
-const SECONDARY_BTN = 'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
-const SELECT_CLASS = 'rounded-lg bg-[var(--orion-bg)] px-3 py-2 text-sm text-foreground outline-none ring-1 ring-[var(--orion-selected-bg)] focus:ring-[var(--orion-hover-border)]';
+const PRIMARY_BTN = 'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
+const SECONDARY_BTN = 'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
+const SELECT_CLASS = 'rounded-lg bg-[var(--s4-bg)] px-3 py-2 text-sm text-foreground outline-none ring-1 ring-[var(--s4-selected-bg)] focus:ring-[var(--s4-hover-border)]';
 
 // ---------------------------------------------------------------------------
 // Componente principal
@@ -301,7 +301,7 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
     });
     return () => {
       registered = false;
-      if (typeof off === 'function') off();
+      if (typeof off === 'function') (off as () => void)();
     };
   }, [api, appendRunLog, toast]);
 
@@ -582,7 +582,7 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
             <button
               type="button"
               onClick={() => onNavigate?.('restore')}
-              className="font-semibold text-[var(--orion-icon-active)] transition-colors hover:text-[var(--orion-hover-fg)]"
+              className="font-semibold text-[var(--s4-icon-active)] transition-colors hover:text-[var(--s4-hover-fg)]"
             >
               Restauração
             </button>.
@@ -591,11 +591,11 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
       </div>
 
       {/* Barra de ação */}
-      <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+      <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="text-sm font-semibold text-foreground">Otimizações do Sistema</span>
-            <span className="rounded-full bg-[var(--orion-selected-bg)] px-2.5 py-0.5 text-xs font-semibold text-[var(--orion-icon-active)]">
+            <span className="rounded-full bg-[var(--s4-selected-bg)] px-2.5 py-0.5 text-xs font-semibold text-[var(--s4-icon-active)]">
               {selectedLabel}
             </span>
           </div>
@@ -621,9 +621,9 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
         </div>
         {progress && (
           <div className="mt-4 flex items-center gap-3">
-            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--orion-bg)]">
+            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--s4-bg)]">
               <div
-                className="h-full rounded-full bg-[var(--orion-icon-active)] transition-all duration-300"
+                className="h-full rounded-full bg-[var(--s4-icon-active)] transition-all duration-300"
                 style={{ width: `${Math.max(0, Math.min(100, progress.pct))}%` }}
               />
             </div>
@@ -640,8 +640,8 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
       )}
 
       {loading && !loadError && (
-        <div className="rounded-lg bg-[var(--orion-surface)] p-8 text-center">
-          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+        <div className="rounded-lg bg-[var(--s4-surface)] p-8 text-center">
+          <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
           <p className="text-sm text-muted-foreground">Carregando catálogo de otimizações…</p>
         </div>
       )}
@@ -677,8 +677,8 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
               />
             </div>
             {profileDiff && (
-              <div className="mt-3 flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-4 py-2.5 text-sm text-muted-foreground">
-                <ScanSearch className="h-4 w-4 text-[var(--orion-icon-default)]" />
+              <div className="mt-3 flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2.5 text-sm text-muted-foreground">
+                <ScanSearch className="h-4 w-4 text-[var(--s4-icon-default)]" />
                 <span>
                   <b className="text-foreground">{profileDiff.entering}</b> entram na seleção · <b className="text-foreground">{profileDiff.leaving}</b> saem
                 </span>
@@ -687,9 +687,9 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
           </section>
 
           {/* Toolbar de filtros */}
-          <div className="flex flex-wrap items-center gap-3 rounded-lg bg-[var(--orion-surface)] px-5 py-4">
-            <label className="flex min-w-[220px] flex-1 items-center gap-2 rounded-lg bg-[var(--orion-bg)] px-3 py-2 ring-1 ring-[var(--orion-selected-bg)] focus-within:ring-[var(--orion-hover-border)]">
-              <Search className="h-4 w-4 shrink-0 text-[var(--orion-icon-default)]" />
+          <div className="flex flex-wrap items-center gap-3 rounded-lg bg-[var(--s4-surface)] px-5 py-4">
+            <label className="flex min-w-[220px] flex-1 items-center gap-2 rounded-lg bg-[var(--s4-bg)] px-3 py-2 ring-1 ring-[var(--s4-selected-bg)] focus-within:ring-[var(--s4-hover-border)]">
+              <Search className="h-4 w-4 shrink-0 text-[var(--s4-icon-default)]" />
               <input
                 type="search"
                 value={searchInput}
@@ -716,7 +716,7 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
                 type="checkbox"
                 checked={unappliedOnly}
                 onChange={(e) => setUnappliedOnly(e.target.checked)}
-                className="h-4 w-4 accent-[var(--orion-icon-active)]"
+                className="h-4 w-4 accent-[var(--s4-icon-active)]"
               />
               Somente não aplicadas
             </label>
@@ -744,7 +744,7 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
 
           {/* Lista de itens */}
           {filtered.length === 0 ? (
-            <div className="flex flex-col items-center rounded-lg bg-[var(--orion-surface)] p-10 text-center">
+            <div className="flex flex-col items-center rounded-lg bg-[var(--s4-surface)] p-10 text-center">
               <Search className="mb-3 h-8 w-8 text-muted-foreground" strokeWidth={1.75} />
               <h3 className="m-0 text-base font-semibold text-foreground">Nenhuma otimização encontrada</h3>
               <p className="mb-4 mt-1 text-sm text-muted-foreground">Ajuste a busca ou os filtros para ver resultados.</p>
@@ -782,7 +782,7 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
 
           {/* Log de execução */}
           {runLog.length > 0 && (
-            <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+            <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Log de execução</span>
                 {!applying && (
@@ -847,10 +847,10 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
             <div
               key={t.id}
               className={`pointer-events-auto flex items-start gap-2 rounded-lg px-4 py-3 text-sm shadow-[0_8px_30px_rgba(0,0,0,0.5)] ring-1 ${
-                t.kind === 'error' ? 'bg-[var(--orion-surface)] text-red-400 ring-red-500/30'
-                  : t.kind === 'warn' ? 'bg-[var(--orion-surface)] text-amber-400 ring-amber-500/30'
-                    : t.kind === 'ok' ? 'bg-[var(--orion-surface)] text-green-400 ring-green-500/30'
-                      : 'bg-[var(--orion-surface)] text-foreground ring-[var(--orion-hover-border)]'
+                t.kind === 'error' ? 'bg-[var(--s4-surface)] text-red-400 ring-red-500/30'
+                  : t.kind === 'warn' ? 'bg-[var(--s4-surface)] text-amber-400 ring-amber-500/30'
+                    : t.kind === 'ok' ? 'bg-[var(--s4-surface)] text-green-400 ring-green-500/30'
+                      : 'bg-[var(--s4-surface)] text-foreground ring-[var(--s4-hover-border)]'
               }`}
             >
               <span className="flex-1">{t.text}</span>
@@ -880,8 +880,8 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
       onClick={onClick}
       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
         active
-          ? 'bg-[var(--orion-selected-bg)] text-[var(--orion-hover-fg)] ring-1 ring-[var(--orion-hover-border)]'
-          : 'bg-[var(--orion-surface)] text-muted-foreground hover:bg-[var(--orion-selected-bg)] hover:text-foreground'
+          ? 'bg-[var(--s4-selected-bg)] text-[var(--s4-hover-fg)] ring-1 ring-[var(--s4-hover-border)]'
+          : 'bg-[var(--s4-surface)] text-muted-foreground hover:bg-[var(--s4-selected-bg)] hover:text-foreground'
       }`}
     >
       {children}
@@ -898,11 +898,11 @@ function Switch({ checked, onChange, disabled }: { checked: boolean; onChange: (
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors disabled:opacity-60 ${
-        checked ? 'bg-[var(--orion-icon-active)]' : 'bg-[var(--orion-selected-bg)]'
+        checked ? 'bg-[var(--s4-icon-active)]' : 'bg-[var(--s4-selected-bg)]'
       }`}
     >
       <span
-        className={`inline-block h-4 w-4 rounded-full bg-[var(--orion-bg)] shadow transition-transform ${checked ? 'translate-x-[18px]' : 'translate-x-0.5'}`}
+        className={`inline-block h-4 w-4 rounded-full bg-[var(--s4-bg)] shadow transition-transform ${checked ? 'translate-x-[18px]' : 'translate-x-0.5'}`}
       />
     </button>
   );
@@ -924,14 +924,14 @@ function ProfileCard({ active, icon, name, description, footer, disabled, onClic
       disabled={disabled}
       className={`flex flex-col items-start gap-2 rounded-lg px-5 py-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
         active
-          ? 'bg-[var(--orion-selected-bg)] ring-1 ring-[var(--orion-hover-border)]'
-          : 'bg-[var(--orion-surface)] hover:bg-[var(--orion-selected-bg)]/60'
+          ? 'bg-[var(--s4-selected-bg)] ring-1 ring-[var(--s4-hover-border)]'
+          : 'bg-[var(--s4-surface)] hover:bg-[var(--s4-selected-bg)]/60'
       }`}
     >
-      <span className={active ? 'text-[var(--orion-hover-fg)]' : 'text-[var(--orion-icon-default)]'}>{icon}</span>
+      <span className={active ? 'text-[var(--s4-hover-fg)]' : 'text-[var(--s4-icon-default)]'}>{icon}</span>
       <span className="text-sm font-semibold text-foreground">{name}</span>
       <span className="text-xs leading-snug text-muted-foreground">{description}</span>
-      {footer && <span className="mt-auto text-xs font-medium text-[var(--orion-icon-active)]">{footer}</span>}
+      {footer && <span className="mt-auto text-xs font-medium text-[var(--s4-icon-active)]">{footer}</span>}
     </button>
   );
 }
@@ -976,11 +976,11 @@ function OptItemCard({ item, selected, applied, expanded, reverting, disabled, o
       tabIndex={0}
       onClick={() => { if (!disabled) onToggle(); }}
       onKeyDown={onKey}
-      className={`flex cursor-pointer gap-3 rounded-lg border-l-2 px-4 py-3.5 outline-none transition-colors focus-visible:ring-1 focus-visible:ring-[var(--orion-hover-border)] ${
-        RISK_STRIPE_CLASS[risk] || 'border-l-[var(--orion-hover-border)]'
-      } ${selected ? 'bg-[var(--orion-selected-bg)]' : 'bg-[var(--orion-surface)] hover:bg-[var(--orion-selected-bg)]/50'}`}
+      className={`flex cursor-pointer gap-3 rounded-lg border-l-2 px-4 py-3.5 outline-none transition-colors focus-visible:ring-1 focus-visible:ring-[var(--s4-hover-border)] ${
+        RISK_STRIPE_CLASS[risk] || 'border-l-[var(--s4-hover-border)]'
+      } ${selected ? 'bg-[var(--s4-selected-bg)]' : 'bg-[var(--s4-surface)] hover:bg-[var(--s4-selected-bg)]/50'}`}
     >
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--orion-bg)] text-[var(--orion-icon-default)]">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--s4-bg)] text-[var(--s4-icon-default)]">
         <Icon className="h-[18px] w-[18px]" />
       </div>
       <div className="min-w-0 flex-1">
@@ -1000,7 +1000,7 @@ function OptItemCard({ item, selected, applied, expanded, reverting, disabled, o
           </p>
         )}
         {expanded && (
-          <pre className="mb-0 mt-2 whitespace-pre-wrap break-all rounded-md bg-[var(--orion-bg)] px-3 py-2 font-mono text-[0.7rem] leading-relaxed text-muted-foreground">{hint}</pre>
+          <pre className="mb-0 mt-2 whitespace-pre-wrap break-all rounded-md bg-[var(--s4-bg)] px-3 py-2 font-mono text-[0.7rem] leading-relaxed text-muted-foreground">{hint}</pre>
         )}
       </div>
       <div className="flex shrink-0 flex-col items-end gap-2">
@@ -1013,14 +1013,14 @@ function OptItemCard({ item, selected, applied, expanded, reverting, disabled, o
             aria-hidden="true"
             onClick={(e) => e.stopPropagation()}
             onChange={() => { if (!disabled) onToggle(); }}
-            className="h-4 w-4 cursor-pointer accent-[var(--orion-icon-active)]"
+            className="h-4 w-4 cursor-pointer accent-[var(--s4-icon-active)]"
           />
           <button
             type="button"
             aria-label="Ver chave de registro"
             aria-expanded={expanded}
             onClick={(e) => { e.stopPropagation(); onToggleExpanded(); }}
-            className="inline-flex h-6 w-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-foreground"
+            className="inline-flex h-6 w-6 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-foreground"
           >
             <ChevronDown className={`h-4 w-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
           </button>
@@ -1030,7 +1030,7 @@ function OptItemCard({ item, selected, applied, expanded, reverting, disabled, o
             type="button"
             disabled={reverting || disabled}
             onClick={(e) => { e.stopPropagation(); onRevert(); }}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--orion-bg)] px-2.5 py-1 text-xs font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-[var(--orion-hover-fg)] disabled:opacity-60"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--s4-bg)] px-2.5 py-1 text-xs font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:opacity-60"
           >
             <RotateCcw className={'h-3 w-3 ' + (reverting ? 'animate-spin' : '')} />
             {reverting ? 'Revertendo…' : 'Reverter'}
@@ -1081,7 +1081,7 @@ function ConfirmApplyDialog({ chosen, rp, onCancel, onConfirm }: {
       aria-labelledby="confirmApplyTitle"
       onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
     >
-      <div className="w-full max-w-lg rounded-lg bg-[var(--orion-surface)] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.6)] ring-1 ring-[var(--orion-hover-border)]">
+      <div className="w-full max-w-lg rounded-lg bg-[var(--s4-surface)] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.6)] ring-1 ring-[var(--s4-hover-border)]">
         <h2 id="confirmApplyTitle" className="m-0 text-lg font-bold text-foreground">Confirmar aplicação</h2>
         <p className="mb-0 mt-3 text-sm text-foreground">
           Aplicar <b>{chosen.length}</b> otimização(ões)? Ponto de restauração: <b>{rp ? 'sim' : 'não'}</b>.

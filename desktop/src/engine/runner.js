@@ -1,7 +1,7 @@
 'use strict';
 
 // OptimizationRunner — execução silenciosa em lote com UAC único.
-// Porta para Node do motor do Orion Optimizer (src/runner.py):
+// Porta para Node do motor do SevenOptimizer (src/runner.py):
 //   - Nenhum processo mostra janela de console (windowsHide).
 //   - Scripts de uma operação são agrupados num orquestrador .cmd temporário e
 //     executados com UMA ÚNICA elevação UAC quando necessário.
@@ -48,7 +48,7 @@ function isTempPath(p) {
 function fallbackWorkDir() {
   const base = process.env.LOCALAPPDATA || process.env.APPDATA;
   const dir = base
-    ? path.join(base, 'orion-optimizer', 'engine', 'work')
+    ? path.join(base, 'sevenoptimizer', 'engine', 'work')
     : path.join(__dirname, '..', '..', 'state', 'engine-work');
   fs.mkdirSync(dir, { recursive: true });
   return dir;

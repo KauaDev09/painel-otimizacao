@@ -116,8 +116,8 @@ export function Home({ onNavigate }: HomeProps) {
     <div className="view-appear space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[rgba(34,197,94,0.28)] bg-[rgba(34,197,94,0.1)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--orion-lime,#4ade80)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--orion-lime,#4ade80)] shadow-[0_0_8px_rgba(74,222,128,0.8)]" />
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[rgba(34,197,94,0.28)] bg-[rgba(34,197,94,0.1)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--s4-lime,#4ade80)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--s4-lime,#4ade80)] shadow-[0_0_8px_rgba(74,222,128,0.8)]" />
             System Secure · Monitoramento ao vivo
           </div>
           <h2 className="m-0 text-2xl font-bold tracking-tight text-foreground">Dashboard do sistema</h2>
@@ -159,7 +159,7 @@ export function Home({ onNavigate }: HomeProps) {
           <div className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Recursos do Sistema
           </div>
-          <div className="rounded-lg bg-[var(--orion-surface)] p-5">
+          <div className="rounded-lg bg-[var(--s4-surface)] p-5">
             {(['cpu', 'gpu', 'ram'] as const).map((k) => {
               const values = hist.current[k];
               const last = values.length ? Math.round(values[values.length - 1]) : 0;
@@ -180,14 +180,14 @@ export function Home({ onNavigate }: HomeProps) {
           <div className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Informações do Sistema
           </div>
-          <div className="rounded-lg bg-[var(--orion-surface)] p-5">
+          <div className="rounded-lg bg-[var(--s4-surface)] p-5">
             <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
               Visão detalhada do hardware, firmware, saúde do sistema e recomendações.
             </p>
             <button
               type="button"
               onClick={() => onNavigate('dashboard')}
-              className="inline-flex items-center gap-2 rounded-lg text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:text-[var(--orion-hover-fg)]"
+              className="inline-flex items-center gap-2 rounded-lg text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:text-[var(--s4-hover-fg)]"
             >
               Abrir Diagnóstico do Sistema
             </button>

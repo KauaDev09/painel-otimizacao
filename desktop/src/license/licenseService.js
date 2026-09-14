@@ -44,7 +44,7 @@ class LicenseService {
   // estável do usuário+máquina (não há segredo hardcoded no binário).
   _cacheKey() {
     const secret = `${process.env.USERNAME || 'user'}\\${process.env.COMPUTERNAME || 'pc'}::${this.dir}`;
-    return crypto.scryptSync(secret, 'orion-license-cache:v2', 32);
+    return crypto.scryptSync(secret, 'sevenoptimizer-license-cache:v2', 32);
   }
 
   _load() {
@@ -116,7 +116,7 @@ class LicenseService {
           );
           const guid = String(stdout || '').trim();
           if (guid) {
-            return 'm-' + crypto.createHash('sha256').update(`orion::${guid}`).digest('hex').slice(0, 32);
+            return 'm-' + crypto.createHash('sha256').update(`sevenoptimizer::${guid}`).digest('hex').slice(0, 32);
           }
         } catch (_) { /* cai no fallback */ }
         const fallback = `${process.env.COMPUTERNAME || 'pc'}\\${process.env.USERNAME || 'user'}`;

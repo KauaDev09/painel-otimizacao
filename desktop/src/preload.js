@@ -2,7 +2,7 @@
 
 const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld('OrionAPI', {
+contextBridge.exposeInMainWorld('SevenAPI', {
   analyze: () => ipcRenderer.invoke('app:analyze'),
   getLast: () => ipcRenderer.invoke('app:getLast'),
   onStep: (cb) => {

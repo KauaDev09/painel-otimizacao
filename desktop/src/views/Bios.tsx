@@ -161,7 +161,7 @@ const LEVEL_META: Record<Level, { label: string; color: string; text: string }> 
   critical: { label: 'CRÍTICA', color: '#f87171', text: 'text-red-400' },
   recommended: { label: 'RECOMENDADA', color: '#4ade80', text: 'text-green-400' },
   optional: { label: 'OPCIONAL', color: '#fbbf24', text: 'text-amber-400' },
-  informational: { label: 'INFORMATIVA', color: 'var(--orion-text-secondary)', text: 'text-muted-foreground' },
+  informational: { label: 'INFORMATIVA', color: 'var(--s4-text-secondary)', text: 'text-muted-foreground' },
   advanced: { label: 'AVANÇADA', color: '#fb923c', text: 'text-orange-400' },
 };
 
@@ -175,7 +175,7 @@ const RISK_CLASS: Record<string, string> = {
   low: 'bg-green-500/15 text-green-400',
   medium: 'bg-amber-500/15 text-amber-400',
   high: 'bg-red-500/15 text-red-400',
-  info: 'bg-[var(--orion-selected-bg)] text-muted-foreground',
+  info: 'bg-[var(--s4-selected-bg)] text-muted-foreground',
 };
 const IMPACT_LABEL: Record<string, string> = {
   low: 'IMPACTO BAIXO',
@@ -266,7 +266,7 @@ const BANNER_CLASS: Record<BannerType, string> = {
   success: 'bg-green-500/10 text-green-400',
   error: 'bg-red-500/10 text-red-400',
   warning: 'bg-amber-500/10 text-amber-400',
-  info: 'bg-[var(--orion-selected-bg)] text-[var(--orion-icon-active)]',
+  info: 'bg-[var(--s4-selected-bg)] text-[var(--s4-icon-active)]',
 };
 
 function BannerIcon({ type }: { type: BannerType }) {
@@ -286,17 +286,17 @@ function Badges({ risk, impact, reboot, extra }: { risk?: string; impact?: strin
         </span>
       )}
       {impact && (
-        <span className="rounded-md bg-[var(--orion-selected-bg)] px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="rounded-md bg-[var(--s4-selected-bg)] px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-muted-foreground">
           {IMPACT_LABEL[impact] || impact}
         </span>
       )}
       {reboot && (
-        <span className="rounded-md bg-[var(--orion-selected-bg)] px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="rounded-md bg-[var(--s4-selected-bg)] px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-muted-foreground">
           REINICIALIZAÇÃO NECESSÁRIA
         </span>
       )}
       {(extra || []).map((e) => (
-        <span key={e} className="rounded-md bg-[var(--orion-selected-bg)] px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-muted-foreground">
+        <span key={e} className="rounded-md bg-[var(--s4-selected-bg)] px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-muted-foreground">
           {e}
         </span>
       ))}
@@ -308,7 +308,7 @@ function RecCard({ rec, onDetails }: { rec: Recommendation; onDetails: (rec: Rec
   const meta = levelMeta(rec.effectiveLevel);
   const status = (rec.statusText || '').replace(/^Status: /, '');
   return (
-    <div className="rounded-lg border-l-4 bg-[var(--orion-surface)] px-5 py-4" style={{ borderLeftColor: meta.color }}>
+    <div className="rounded-lg border-l-4 bg-[var(--s4-surface)] px-5 py-4" style={{ borderLeftColor: meta.color }}>
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="m-0 text-sm font-semibold text-foreground">{rec.name}</p>
@@ -329,7 +329,7 @@ function RecCard({ rec, onDetails }: { rec: Recommendation; onDetails: (rec: Rec
       <button
         type="button"
         onClick={() => onDetails(rec)}
-        className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[var(--orion-selected-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-hover-glow)] hover:text-[var(--orion-hover-fg)]"
+        className="mt-3 inline-flex items-center gap-2 rounded-lg bg-[var(--s4-selected-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-hover-glow)] hover:text-[var(--s4-hover-fg)]"
       >
         VER DETALHES
         <ChevronRight className="h-3.5 w-3.5" />
@@ -350,13 +350,13 @@ function Modal({ title, onClose, children, footer, wide }: {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className={`flex max-h-[90vh] w-full flex-col rounded-lg bg-[var(--orion-surface)] shadow-[0_0_40px_rgba(0,0,0,0.6)] ${wide ? 'max-w-2xl' : 'max-w-lg'}`}>
+      <div className={`flex max-h-[90vh] w-full flex-col rounded-lg bg-[var(--s4-surface)] shadow-[0_0_40px_rgba(0,0,0,0.6)] ${wide ? 'max-w-2xl' : 'max-w-lg'}`}>
         <div className="flex items-start justify-between gap-4 px-5 pt-4">
           {title ? <h3 className="m-0 text-base font-semibold text-foreground">{title}</h3> : <span />}
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-[var(--orion-selected-bg)] hover:text-foreground"
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-foreground"
             title="Fechar"
           >
             <X className="h-4 w-4" />
@@ -372,7 +372,7 @@ function Modal({ title, onClose, children, footer, wide }: {
 function ModalSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mt-3">
-      <p className="m-0 mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--orion-icon-active)]">{title}</p>
+      <p className="m-0 mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--s4-icon-active)]">{title}</p>
       <div className="text-sm text-muted-foreground">{children}</div>
     </div>
   );
@@ -467,7 +467,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
     });
     return () => {
       alive.current = false;
-      if (typeof off === 'function') off();
+      if (typeof off === 'function') (off as () => void)();
       if (bannerTimer.current) clearTimeout(bannerTimer.current);
       if (dialogRef.current) dialogRef.current.resolve(false);
     };
@@ -753,7 +753,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
           <p className="mt-1 text-sm text-muted-foreground">{foundLabel}</p>
           {bios?.hardware && (bios.hardware.board || bios.hardware.cpu) && (
             <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-              <CircuitBoard className="h-3.5 w-3.5 text-[var(--orion-icon-default)]" />
+              <CircuitBoard className="h-3.5 w-3.5 text-[var(--s4-icon-default)]" />
               {[bios.hardware.board, bios.hardware.cpu].filter(Boolean).join(' · ')}
               {bios.elevated === false && <span className="text-amber-400">· sem privilégios de administrador</span>}
             </p>
@@ -764,7 +764,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
             type="button"
             onClick={handleScan}
             disabled={scanning}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)] disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)] disabled:opacity-60"
           >
             <RefreshCcw className={'h-4 w-4 ' + (scanning ? 'animate-spin' : '')} />
             {scanning ? 'Analisando…' : 'ANALISAR'}
@@ -795,7 +795,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
               type="button"
               onClick={handleVerifyPending}
               disabled={verifying}
-              className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-selected-bg)] disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] disabled:opacity-60"
             >
               <RefreshCcw className={'h-3.5 w-3.5 ' + (verifying ? 'animate-spin' : '')} />
               {verifying ? 'Verificando…' : 'VERIFICAR AGORA'}
@@ -805,7 +805,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
             <button
               type="button"
               onClick={handleReboot}
-              className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-3 py-1.5 text-xs font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)]"
+              className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-3 py-1.5 text-xs font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)]"
             >
               <Power className="h-3.5 w-3.5" />
               REINICIAR AGORA
@@ -815,7 +815,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
       )}
 
       {verifyBanner && (
-        <div className="flex items-center gap-2 rounded-lg bg-[var(--orion-selected-bg)] px-4 py-3 text-sm text-[var(--orion-icon-active)]">
+        <div className="flex items-center gap-2 rounded-lg bg-[var(--s4-selected-bg)] px-4 py-3 text-sm text-[var(--s4-icon-active)]">
           <Info className="h-4 w-4 shrink-0" />
           <span className="flex-1">{verifyBanner}</span>
           <button type="button" onClick={() => setVerifyBanner(null)} className="text-current opacity-70 hover:opacity-100" title="Fechar">
@@ -835,8 +835,8 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
               onClick={() => setFilter(f.key)}
               className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
                 active
-                  ? 'bg-[var(--orion-icon-active)] text-black'
-                  : 'bg-[var(--orion-surface)] text-muted-foreground hover:bg-[var(--orion-selected-bg)] hover:text-foreground'
+                  ? 'bg-[var(--s4-icon-active)] text-black'
+                  : 'bg-[var(--s4-surface)] text-muted-foreground hover:bg-[var(--s4-selected-bg)] hover:text-foreground'
               }`}
             >
               {f.label}
@@ -848,27 +848,27 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
       {/* Otimizações de BIOS */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <CircuitBoard className="h-4 w-4 text-[var(--orion-icon-default)]" />
+          <CircuitBoard className="h-4 w-4 text-[var(--s4-icon-default)]" />
           <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Otimizações de BIOS</span>
           {hasScan && <span className="text-xs text-muted-foreground">({items.length})</span>}
         </div>
 
         {scanning && !hasScan && (
-          <div className="rounded-lg bg-[var(--orion-surface)] p-8 text-center">
-            <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--orion-icon-default)] border-t-transparent" />
+          <div className="rounded-lg bg-[var(--s4-surface)] p-8 text-center">
+            <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-[var(--s4-icon-default)] border-t-transparent" />
             <p className="text-sm text-muted-foreground">Detectando otimizações de firmware…</p>
           </div>
         )}
 
         {!scanning && !hasScan && (
-          <div className="rounded-lg bg-[var(--orion-surface)] p-8 text-center">
+          <div className="rounded-lg bg-[var(--s4-surface)] p-8 text-center">
             <p className="mb-3 text-sm text-muted-foreground">
               Execute ANALISAR para detectar otimizações de BIOS neste computador.
             </p>
             <button
               type="button"
               onClick={handleScan}
-              className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)]"
+              className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)]"
             >
               <RefreshCcw className="h-4 w-4" />
               ANALISAR
@@ -877,7 +877,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
         )}
 
         {hasScan && items.length === 0 && (
-          <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4 text-center text-sm text-muted-foreground">
+          <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4 text-center text-sm text-muted-foreground">
             Nenhuma otimização nesta categoria.
           </div>
         )}
@@ -892,7 +892,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
           const statusOk = status === 'active' || status === 'success';
           const statusFail = status === 'failed';
           return (
-            <div key={item.id} className="rounded-lg border-l-4 bg-[var(--orion-surface)] px-5 py-4" style={{ borderLeftColor: meta.color }}>
+            <div key={item.id} className="rounded-lg border-l-4 bg-[var(--s4-surface)] px-5 py-4" style={{ borderLeftColor: meta.color }}>
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p className="m-0 text-sm font-semibold text-foreground">{item.name}</p>
@@ -934,8 +934,8 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
                   disabled={disabled}
                   className={
                     outline
-                      ? 'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-selected-bg)] px-4 py-2 text-xs font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-hover-glow)] hover:text-[var(--orion-hover-fg)] disabled:opacity-60'
-                      : 'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-4 py-2 text-xs font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)] disabled:opacity-60'
+                      ? 'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-selected-bg)] px-4 py-2 text-xs font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-hover-glow)] hover:text-[var(--s4-hover-fg)] disabled:opacity-60'
+                      : 'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-4 py-2 text-xs font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)] disabled:opacity-60'
                   }
                 >
                   {outline ? <ClipboardList className="h-3.5 w-3.5" /> : <Power className="h-3.5 w-3.5" />}
@@ -945,7 +945,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
                   type="button"
                   onClick={() => handleBiosDryRun(item.id)}
                   disabled={busyId === item.id}
-                  className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-selected-bg)] px-4 py-2 text-xs font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-hover-glow)] hover:text-[var(--orion-hover-fg)] disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-selected-bg)] px-4 py-2 text-xs font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-hover-glow)] hover:text-[var(--s4-hover-fg)] disabled:opacity-60"
                 >
                   <Info className="h-3.5 w-3.5" />
                   {item.auto ? 'OTIMIZAR BIOS' : 'Otimizar BIOS'}
@@ -955,7 +955,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
                     type="button"
                     onClick={() => handleBiosRollback(item.id)}
                     disabled={busyId === item.id}
-                    className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-selected-bg)] px-4 py-2 text-xs font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-hover-glow)] hover:text-[var(--orion-hover-fg)] disabled:opacity-60"
+                    className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-selected-bg)] px-4 py-2 text-xs font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-hover-glow)] hover:text-[var(--s4-hover-fg)] disabled:opacity-60"
                   >
                     <Undo2 className="h-3.5 w-3.5" />
                     DESFAZER
@@ -972,18 +972,18 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
       {/* Recomendações da última análise */}
       <section className="space-y-3">
         <div className="flex items-center gap-2">
-          <ShieldAlert className="h-4 w-4 text-[var(--orion-icon-default)]" />
+          <ShieldAlert className="h-4 w-4 text-[var(--s4-icon-default)]" />
           <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Recomendações da análise</span>
           {totalRecs > 0 && <span className="text-xs text-muted-foreground">({totalRecs})</span>}
         </div>
 
         {!last && (
-          <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4 text-sm text-muted-foreground">
+          <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4 text-sm text-muted-foreground">
             Nenhuma análise disponível. Execute a análise na tela{' '}
             <button
               type="button"
               onClick={() => onNavigate?.('sistema')}
-              className="font-semibold text-[var(--orion-icon-active)] transition-colors hover:text-[var(--orion-hover-fg)]"
+              className="font-semibold text-[var(--s4-icon-active)] transition-colors hover:text-[var(--s4-hover-fg)]"
             >
               Sistema
             </button>{' '}
@@ -992,7 +992,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
         )}
 
         {last && groupsToShow.length === 0 && (
-          <div className="rounded-lg bg-[var(--orion-surface)] px-5 py-4 text-center text-sm text-muted-foreground">
+          <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4 text-center text-sm text-muted-foreground">
             Nenhuma recomendação nesta categoria.
           </div>
         )}
@@ -1011,13 +1011,13 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
       </section>
 
       {/* Logs de BIOS */}
-      <section className="rounded-lg bg-[var(--orion-surface)] px-5 py-4">
+      <section className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
         <button
           type="button"
           onClick={() => { setShowLogs((v) => !v); if (!showLogs) refreshLogs(); }}
           className="flex w-full items-center gap-2 text-left"
         >
-          <Terminal className="h-4 w-4 text-[var(--orion-icon-default)]" />
+          <Terminal className="h-4 w-4 text-[var(--s4-icon-default)]" />
           <span className="flex-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Logs de BIOS</span>
           <ChevronRight className={'h-4 w-4 text-muted-foreground transition-transform ' + (showLogs ? 'rotate-90' : '')} />
         </button>
@@ -1088,7 +1088,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
               <button
                 type="button"
                 onClick={() => closeDialog(false)}
-                className="inline-flex items-center gap-2 rounded-lg bg-[var(--orion-selected-bg)] px-4 py-2 text-sm font-semibold text-[var(--orion-icon-active)] transition-colors hover:bg-[var(--orion-hover-glow)] hover:text-[var(--orion-hover-fg)]"
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-selected-bg)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-hover-glow)] hover:text-[var(--s4-hover-fg)]"
               >
                 {dialog.cancelLabel || 'Cancelar'}
               </button>
@@ -1098,7 +1098,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
                 className={
                   dialog.danger
                     ? 'inline-flex items-center gap-2 rounded-lg bg-red-500/80 px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-red-400'
-                    : 'inline-flex items-center gap-2 rounded-lg bg-[var(--orion-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--orion-hover-fg)]'
+                    : 'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-icon-active)] px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-[var(--s4-hover-fg)]'
                 }
               >
                 {dialog.okLabel || 'Continuar'}

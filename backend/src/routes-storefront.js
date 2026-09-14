@@ -54,8 +54,8 @@ async function listPlans() {
 // downloads estiver vazia. Sem login, sem chave, sem liberação.
 const PUBLIC_INSTALLER = {
   version: '2.0.7',
-  filename: 'ORION.OPTIMIZER.Setup-2.0.7.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.7/ORION.OPTIMIZER.Setup-2.0.7.exe',
+  filename: 'SevenOptimizer.OPTIMIZER.Setup-2.0.7.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.7/SevenOptimizer.OPTIMIZER.Setup-2.0.7.exe',
   release_notes: 'Instalador oficial para Windows 10/11. Proteção por chave de licença, nova página de Tela e dashboard ao vivo.',
   is_latest: 1,
   created_at: '2026-09-04T12:00:00.000Z',

@@ -17,7 +17,7 @@ const { detectMemory } = require('../src/hardware/memoryService');
 const { selectProvider } = require('../src/bios/optimization/providers');
 
 function tmpMgr() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'orion-bios-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sevenoptimizer-bios-'));
   const mgr = new BiosManager();
   mgr.init(dir);
   return { mgr, dir };

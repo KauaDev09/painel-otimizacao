@@ -178,7 +178,7 @@ async function applyItems(ids, opts = {}) {
   let restorePointIdx = -1;
   if (opts.createRestorePoint) {
     const rpFile = path.join(opDir, 'restore-point.ps1');
-    fs.writeFileSync(rpFile, PS1_BOM + protection.buildRestorePointScript('Orion Optimizer - ' + (opts.label || 'otimizações')), 'utf8');
+    fs.writeFileSync(rpFile, PS1_BOM + protection.buildRestorePointScript('SevenOptimizer - ' + (opts.label || 'otimizações')), 'utf8');
     tmpFiles.push(rpFile);
     restorePointIdx = 0;
   }

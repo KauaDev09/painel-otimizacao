@@ -1,7 +1,7 @@
 'use strict';
 
 // ============================================================
-// MOCK OrionAPI — dados fictícios para preview no navegador
+// MOCK SevenAPI — dados fictícios para preview no navegador
 // ============================================================
 
 const MOCK_HARDWARE = {
@@ -260,7 +260,7 @@ const MOCK_STARTUP = [
 ];
 
 const MOCK_PROCESSES = [
-  { name: 'orion-optimizer.exe', pid: 1234, manufacturer: 'Orion', cpuSec: 12.5, ramMB: 85, priority: 'Normal', critical: false },
+  { name: 'SevenOptimizer.exe', pid: 1234, manufacturer: 'SevenOptimizer', cpuSec: 12.5, ramMB: 85, priority: 'Normal', critical: false },
   { name: 'chrome.exe', pid: 2345, manufacturer: 'Google LLC', cpuSec: 45.2, ramMB: 1200, priority: 'Normal', critical: false },
   { name: 'svchost.exe', pid: 890, manufacturer: 'Microsoft', cpuSec: 5.1, ramMB: 45, priority: 'Normal', critical: true },
   { name: 'dwm.exe', pid: 456, manufacturer: 'Microsoft', cpuSec: 2.3, ramMB: 120, priority: 'High', critical: true },
@@ -358,7 +358,7 @@ let _licenseState = {
   expiresAt: new Date(Date.now() + 365 * 86400000).toISOString(),
   daysLeft: 360,
   offlineGrace: false,
-  key: 'ORION-XXXX-YYYY-ZZZZ'
+  key: 'SevenOptimizer-XXXX-YYYY-ZZZZ'
 };
 
 const _listeners = {
@@ -421,7 +421,7 @@ const MOCK_BIOS_ITEMS = [
     expected: { key: 'enabled' },
     compatibility: 'Método automático disponível via Windows.',
     provider: 'asus', paths: ['Windows → Opções de energia → Alto desempenho'],
-    steps: ['O Orion aplica via powercfg.']
+    steps: ['O SevenOptimizer aplica via powercfg.']
   }
 ];
 
@@ -449,7 +449,7 @@ function mockBiosPayload() {
   };
 }
 
-window.OrionAPI = {
+window.SevenAPI = {
   analyze: async () => {
     for (let i = 0; i < 5; i++) {
       await delay(400);
@@ -507,11 +507,11 @@ window.OrionAPI = {
 
   generateReport: async () => {
     await delay(500);
-    return { htmlPath: 'C:\\Users\\User\\Documents\\orion-report.html', dir: 'C:\\Users\\User\\Documents' };
+    return { htmlPath: 'C:\\Users\\User\\Documents\\sevenoptimizer-report.html', dir: 'C:\\Users\\User\\Documents' };
   },
   exportRaw: async () => {
     await delay(300);
-    return 'C:\\Users\\User\\Documents\\orion-raw.json';
+    return 'C:\\Users\\User\\Documents\\sevenoptimizer-raw.json';
   },
   openPath: async () => {},
   openExternal: async () => {},
@@ -686,7 +686,7 @@ window.OrionAPI = {
     available: true,
     update: {
       version: '2.1.0',
-      url: 'https://example.com/OrionOptimizer-Setup-2.1.0.exe',
+      url: 'https://example.com/SevenOptimizer-Setup-2.1.0.exe',
       changelog: 'Correções de estabilidade, novo módulo de otimização de rede, melhorias no Game Boost.',
       mandatory: false,
       releasedAt: new Date().toISOString()
@@ -703,7 +703,7 @@ window.OrionAPI = {
         total: 45 * 1024 * 1024
       }));
     }
-    return { ok: true, filePath: 'C:\\Temp\\OrionOptimizer-Setup-2.1.0.exe' };
+    return { ok: true, filePath: 'C:\\Temp\\SevenOptimizer-Setup-2.1.0.exe' };
   },
   updateInstall: async (filePath) => {
     await delay(500);
