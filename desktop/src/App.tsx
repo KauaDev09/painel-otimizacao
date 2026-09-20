@@ -6,7 +6,7 @@ import { Shell } from '@/app/Shell';
 
 function Splash() {
   return (
-    <div className="flex h-full items-center justify-center bg-black">
+    <div className="flex h-full items-center justify-center bg-transparent">
       <div className="flex flex-col items-center gap-4">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         <span className="text-xs uppercase tracking-[0.3em] text-muted-foreground">SevenOptimizer</span>
@@ -38,7 +38,7 @@ export default function App() {
 
   if (error) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-3 bg-black p-6 text-center">
+      <div className="flex h-full flex-col items-center justify-center gap-3 bg-[rgba(10,10,11,0.65)] p-6 text-center backdrop-blur-sm">
         <span className="text-2xl">⚠️</span>
         <p className="text-sm text-foreground">Não foi possível iniciar o painel.</p>
         <pre className="max-w-lg overflow-auto text-xs text-muted-foreground">{String(error)}</pre>

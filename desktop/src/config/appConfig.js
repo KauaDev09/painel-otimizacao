@@ -8,7 +8,7 @@
 
 const APP_NAME = 'SevenOptimizer';
 const APP_NAME_SHORT = 'SevenOptimizer';
-const APP_VERSION = '2.1.12';
+const APP_VERSION = '2.1.13';
 const SUPPORT_EMAIL = '';
 // Suporte oficial via Discord (aberto pelo botão de suporte da interface).
 const OFFICIAL_URL = 'https://discord.gg/e3jHfF7ANp';

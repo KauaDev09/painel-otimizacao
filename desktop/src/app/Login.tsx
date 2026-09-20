@@ -57,7 +57,7 @@ export function Login() {
   const hasError = msg?.kind === 'err';
 
   return (
-    <div className="drag-region relative flex h-full items-center justify-center bg-[var(--s4-bg)]">
+    <div className="drag-region relative flex h-full items-center justify-center bg-transparent">
       <S4ReactiveCore className="absolute inset-0 z-0" />
       <div className="no-drag login-in relative z-10 w-[min(400px,92vw)] rounded-2xl bg-[rgba(18,18,22,0.78)] p-10 text-center shadow-[0_0_0_1px_rgba(255,59,63,0.18),0_20px_60px_rgba(0,0,0,0.5),0_0_40px_rgba(255,59,63,0.12)] backdrop-blur-md">
         <div className="mb-6 flex flex-col items-center gap-3">

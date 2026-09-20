@@ -127,8 +127,7 @@ body {
   margin: 0;
   background:
     radial-gradient(900px 480px at 8% -12%, rgba(255, 59, 63, 0.10), transparent 55%),
-    radial-gradient(700px 400px at 92% 0%, rgba(255, 59, 63, 0.06), transparent 50%),
-    var(--s4-bg);
+    radial-gradient(700px 400px at 92% 0%, rgba(255, 59, 63, 0.06), transparent 50%);
   color: var(--s4-text-primary);
   font-family: Inter, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
   font-feature-settings: "ss01", "cv11", "kern";

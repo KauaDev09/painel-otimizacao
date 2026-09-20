@@ -99,7 +99,7 @@ async function chatToAnthropic({ system, messages }) {
     if (res.status === 401 || res.status === 403) {
       return fail('SEVENIA_UPSTREAM_AUTH', 'A SevenIA está com problema de credencial no servidor.', 502);
     }
-    return fail('SEVENIA_UPSTREAM_ERROR', 'A SevenIA não respondeu agora. Tente novamente.', 502);
+    return fail('SEVENIA_UPSTREAM_ERROR', 'A IA está instável. Tente novamente.', 502);
   }
 
   const text = (Array.isArray(upstream.content) ? upstream.content : [])

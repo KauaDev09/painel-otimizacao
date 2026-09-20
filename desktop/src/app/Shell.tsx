@@ -98,7 +98,7 @@ export function Shell() {
   const props = { onNavigate: setView, view };
 
   return (
-    <div className="relative isolate flex h-full overflow-hidden bg-background">
+    <div className="relative isolate flex h-full overflow-hidden bg-transparent">
       <S4ReactiveCore compact className="absolute inset-0 z-0" />
       <div className="relative z-10 flex h-full min-w-0 flex-1 overflow-hidden">
         <Sidebar
