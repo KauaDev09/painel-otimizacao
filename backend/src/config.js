@@ -61,6 +61,20 @@ module.exports = {
     licenseRateWindowMs: 60000,
     // history/sync: por IP.
     historyRateLimit: Number(env.RATE_LIMIT_HISTORY || 120),
-    historyRateWindowMs: 60000
+    historyRateWindowMs: 60000,
+    // sevenia/chat: por IP.
+    seveniaIpRateLimit: Number(env.RATE_LIMIT_SEVENIA || 15),
+    seveniaIpRateWindowMs: 60000
+  },
+  // SevenIA — assistente de IA (Anthropic). A chave NUNCA sai do servidor.
+  sevenia: {
+    model: env.SEVENIA_MODEL || 'claude-sonnet-4-6',
+    apiKey: env.ANTHROPIC_API_KEY || '',
+    maxFreePerDay: Number(env.SEVENIA_LIMIT_FREE || 10),
+    maxProPerDay: Number(env.SEVENIA_LIMIT_PRO || 100),
+    maxHistory: Number(env.SEVENIA_MAX_HISTORY || 12),
+    maxMessageLength: Number(env.SEVENIA_MAX_MESSAGE || 4000),
+    timeoutMs: Number(env.SEVENIA_TIMEOUT_MS || 60000),
+    maxTokens: Number(env.SEVENIA_MAX_TOKENS || 1024)
   }
 };

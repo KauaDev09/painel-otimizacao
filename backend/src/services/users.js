@@ -66,6 +66,20 @@ async function login({ email, password }) {
   return { ok: true, user: publicUser(u), token: issueToken(u) };
 }
 
+// Garante um usuário sempre que a licença ainda não pertence a ninguém
+// (mesmo esquema de e-mail pseudo do login por chave). Retorna o user_id.
+async function ensureUserForLicense(lic) {
+  if (!lic) return null;
+  if (lic.usuario_id) return lic.usuario_id;
+  const fakeEmail = 'cli_' + String(lic.chave || '').replace(/-/g, '').toLowerCase() + '@sevenoptimizer.local';
+  const user = await ensureUser({ name: 'Cliente', email: fakeEmail });
+  if (user) {
+    await db.query(config, 'UPDATE licencas SET usuario_id = ? WHERE id = ?', [user.id, lic.id]);
+    return user.id;
+  }
+  return null;
+}
+
 async function loginByKey({ key }) {
   const k = String(key || '').trim().toUpperCase();
   if (!k || k.length < 10) return fail('INVALID_KEY', 'Chave de licença inválida.', 400);
@@ -78,17 +92,9 @@ async function loginByKey({ key }) {
     return fail('KEY_EXPIRED', 'Licença expirada.', 403);
   }
 
-  let user = null;
-  if (lic.usuario_id) {
-    user = await db.queryOne(config, 'SELECT * FROM usuarios WHERE id = ? LIMIT 1', [lic.usuario_id]);
-  }
-  if (!user) {
-    const fakeEmail = 'cli_' + k.replace(/-/g, '').toLowerCase() + '@sevenoptimizer.local';
-    user = await ensureUser({ name: 'Cliente', email: fakeEmail });
-    if (user) {
-      await db.query(config, 'UPDATE licencas SET usuario_id = ? WHERE id = ?', [user.id, lic.id]);
-    }
-  }
+  const uid = await ensureUserForLicense(lic);
+  if (!uid) return fail('USER_ERROR', 'Não foi possível criar o perfil do cliente.', 500);
+  const user = await db.queryOne(config, 'SELECT * FROM usuarios WHERE id = ? LIMIT 1', [uid]);
   if (!user) return fail('USER_ERROR', 'Não foi possível criar o perfil do cliente.', 500);
 
   return { ok: true, user: publicUser(user), token: issueToken(user), license: { key: lic.chave, plan: lic.plano || lic.plan_slug, status: lic.status } };
@@ -127,6 +133,8 @@ async function eraseAllDataForUser(user, motivo) {
     await runSafe(`DELETE FROM licencas WHERE id IN (${ph})`, ids);
   }
 
+  await runSafe('DELETE FROM plano_ia WHERE user_id = ?', [user.id]);
+  await runSafe('DELETE FROM uso_ia WHERE user_id = ?', [user.id]);
   await runSafe('DELETE FROM orders WHERE user_id = ?', [user.id]);
   await runSafe('DELETE FROM access_logs WHERE user_id = ?', [user.id]);
   await runSafe('UPDATE pagamentos SET licenca_id = NULL WHERE licenca_id IS NULL', []);
@@ -170,6 +178,7 @@ module.exports = {
   loginByKey,
   findByEmail,
   ensureUser,
+  ensureUserForLicense,
   publicUser,
   issueToken,
   eraseByUserId,

@@ -18,6 +18,7 @@ const licenseRoutes = require('./routes-license');
 const adminRoutes = require('./routes-admin');
 const appRoutes = require('./routes-app');
 const storefrontRoutes = require('./routes-storefront');
+const seveniaRoutes = require('./routes-sevenia');
 const accessLog = require('./services/accessLog');
 
 const ADMIN_DIR = path.join(__dirname, '..', 'admin');
@@ -112,6 +113,7 @@ licenseRoutes.register(router);
 adminRoutes.register(router);
 appRoutes.register(router);
 storefrontRoutes.register(router);
+seveniaRoutes.register(router);
 
 // ---------- Helpers HTTP ----------
 function sendJson(res, status, payload) {
