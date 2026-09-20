@@ -64,7 +64,12 @@ module.exports = {
     historyRateWindowMs: 60000,
     // sevenia/chat: por IP.
     seveniaIpRateLimit: Number(env.RATE_LIMIT_SEVENIA || 15),
-    seveniaIpRateWindowMs: 60000
+    seveniaIpRateWindowMs: 60000,
+    // admin/login: por IP.
+    adminLoginRateLimit: Number(env.RATE_LIMIT_ADMIN_LOGIN || 10),
+    // store register/login/login-key/checkout/cupom/erase: por IP.
+    storeAuthRateLimit: Number(env.RATE_LIMIT_AUTH || 10),
+    storeAuthRateWindowMs: 60000
   },
   // SevenIA — assistente de IA (Anthropic). A chave NUNCA sai do servidor.
   sevenia: {

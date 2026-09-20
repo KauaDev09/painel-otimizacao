@@ -42,6 +42,13 @@ function clientIp(req) {
   return ((req && req.socket && req.socket.remoteAddress) || '').slice(0, 45) || null;
 }
 
+function maskKey(key) {
+  const s = String(key || '').trim().slice(0, 32);
+  if (!s) return null;
+  if (s.length <= 8) return 'mascarada';
+  return `${s.slice(0, 4)}...${s.slice(-4)}`;
+}
+
 async function write(cfg, rec) {
   try {
     await ensureTable(cfg);
@@ -55,7 +62,9 @@ async function write(cfg, rec) {
         String(rec.method || 'GET').slice(0, 12),
         String(rec.userAgent || '').slice(0, 255) || null,
         rec.userId || null,
-        rec.licenseKey ? String(rec.licenseKey).slice(0, 32) : null,
+        // Chaves completas NUNCA são persistidas nos logs (privacidade/inventário):
+        // fica apenas uma versão mascarada. A fonte de verdade é a tabela licencas.
+        rec.licenseKey ? maskKey(rec.licenseKey) : null,
         String(rec.event || 'http').slice(0, 40)
       ]
     );

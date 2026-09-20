@@ -64,7 +64,7 @@ function serveStatic(res, filePath, contentType) {
       sendJson(res, 404, { ok: false, message: 'Arquivo não encontrado.' });
       return;
     }
-    res.writeHead(200, { 'Content-Type': contentType });
+    res.writeHead(200, { ...SECURITY_HEADERS, 'Content-Type': contentType });
     res.end(data);
   });
 }
@@ -108,7 +108,7 @@ class Router {
 }
 
 const router = new Router();
-router.get('/api/v1/health', async () => ({ ok: true, service: 'bios-optimizer-api', time: new Date().toISOString(), vurl: process.env.VERCEL_URL || null }));
+router.get('/api/v1/health', async () => ({ ok: true, service: 'bios-optimizer-api', time: new Date().toISOString() }));
 licenseRoutes.register(router);
 adminRoutes.register(router);
 appRoutes.register(router);
@@ -116,9 +116,18 @@ storefrontRoutes.register(router);
 seveniaRoutes.register(router);
 
 // ---------- Helpers HTTP ----------
+// Cabeçalhos de segurança padrão em toda resposta JSON/estático.
+const SECURITY_HEADERS = {
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'no-referrer',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
+};
+
 function sendJson(res, status, payload) {
   const body = JSON.stringify(payload);
   res.writeHead(status, {
+    ...SECURITY_HEADERS,
     'Content-Type': 'application/json; charset=utf-8',
     'Content-Length': Buffer.byteLength(body),
     'Access-Control-Allow-Origin': config.corsOrigin,

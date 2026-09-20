@@ -5,7 +5,8 @@
   "description": "API de licenciamento e sincronização do SevenOptimizer (Node puro + MySQL).",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "security:audit": "npm audit --omit=dev"
   },
   "engines": {
     "node": ">=22"

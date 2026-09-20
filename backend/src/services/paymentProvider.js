@@ -29,6 +29,8 @@ const NORMALIZE = {
   charged_back: 'refunded'
 };
 
+const WEBHOOK_PATH = '/api/v1/public/webhooks/mercadopago';
+
 function normalize(raw) {
   const key = String(raw || '').toLowerCase();
   return NORMALIZE[key] || 'pending';
@@ -43,6 +45,7 @@ class MercadoPagoProvider {
     this.authorization = `Bearer ${this.cfg.accessToken || ''}`;
     this.base = 'https://api.mercadopago.com';
     this.ready = !!(this.cfg.accessToken);
+    this.webhookSecret = this.cfg.webhookSecret || '';
     this.availableMethods = ['pix', 'credit_card'];
   }
 
@@ -175,9 +178,29 @@ class MercadoPagoProvider {
     }
   }
 
+  // Verifica a assinatura HMAC X-Signature do Mercado Pago (algoritmo oficial):
+  //   HMAC-SHA256(secret, `<data.id>.<TXT>.<caminho da URI>`).
+  // Retorna true (válida), false (inválida) ou null (segredo não configurado).
+  verifySignature(body, headers) {
+    if (!this.webhookSecret) return null;
+    const sig = String((headers && headers['x-signature']) || '');
+    const m = /ts=(\d+),\s*v1=([0-9a-f]{64})/i.exec(sig);
+    if (!m) return false;
+    const txt = (body && body.TXT) ? String(body.TXT) : JSON.stringify(body || {});
+    const id = String((body && body.data && body.data.id) || '');
+    const toSign = `${id}.${txt}.${WEBHOOK_PATH}`;
+    const expected = crypto.createHmac('sha256', this.webhookSecret).update(toSign).digest('hex');
+    return expected.toLowerCase() === m[2].toLowerCase();
+  }
+
   // Valida e interpreta o webhook recebido do Mercado Pago.
   // Retorna null (rejeitar silenciosamente) se inválido.
   async handleWebhook(body, headers) {
+    // Assinatura HMAC opcional: quando o segredo está configurado, mensagens
+    // sem assinatura válida são rejeitadas de imediato. Sem segredo, a
+    // re-consulta do pagamento no provedor segue como validação forte.
+    const valid = this.verifySignature(body, headers);
+    if (valid === false) return null;
     const type = body && (body.type || body.action);
     const data = body && body.data;
     const paymentId = data && (data.id != null ? String(data.id) : null);

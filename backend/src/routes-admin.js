@@ -9,14 +9,25 @@
 
 const db = require('./db');
 const config = require('./config');
+const crypto = require('crypto');
 const { signToken, verifyToken, hashPassword, verifyPassword, generateLicenseKey } = require('./util');
 const licensing = require('./services/licensing');
+const rateLimit = require('./rateLimit');
+const accessLog = require('./services/accessLog');
+
+// Comparação de strings com tempo constante (evita timing attack no token mestre).
+function safeEqualStr(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  const ba = Buffer.from(a, 'utf8');
+  const bb = Buffer.from(b, 'utf8');
+  return ba.length === bb.length && crypto.timingSafeEqual(ba, bb);
+}
 
 function isAuthorized(req) {
   const header = req.headers['authorization'] || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : null;
   if (!token) return null;
-  if (config.adminToken && token === config.adminToken) return { role: 'master' };
+  if (config.adminToken && safeEqualStr(token, config.adminToken)) return { role: 'master' };
   const payload = verifyToken(token, config.appSecret);
   if (payload && payload.typ === 'admin') return { role: 'admin', usuario: payload.usuario };
   return null;
@@ -453,7 +464,12 @@ async function licenseAction(id, body) {
 }
 
 function register(router) {
-  router.post('/api/v1/admin/login', async (body) => {
+  router.post('/api/v1/admin/login', async (body, _p, _u, req) => {
+    // Rate limit por IP contra brute-force de credenciais.
+    const rl = rateLimit.hit(`admin-login:${accessLog.clientIp(req) || 'unknown'}`, config.security.adminLoginRateLimit, 60000);
+    if (!rl.allowed) {
+      return { ok: false, code: 'RATE_LIMITED', message: `Muitas tentativas. Tente novamente em ${rl.retryAfter}s.`, status: 429 };
+    }
     const usuario = String((body && body.usuario) || '').trim();
     const senha = String((body && body.senha) || '');
     if (!usuario || !senha) return { ok: false, code: 'BAD_REQUEST', message: 'Usuário e senha obrigatórios.', status: 400 };

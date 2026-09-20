@@ -11,6 +11,7 @@ const db = require('./db');
 const config = require('./config');
 const { verifyToken } = require('./util');
 const rateLimit = require('./rateLimit');
+const backoffice = require('./services/accessLog');
 const { createProvider } = require('./services/paymentProvider');
 const licensing = require('./services/licensing');
 const users = require('./services/users');
@@ -18,6 +19,15 @@ const sevenia = require('./sevenia');
 
 function fail(code, message, status = 400) {
   return { ok: false, code, message, status };
+}
+
+// Rate limit por IP para rotas autenticadas/abertas da loja.
+function ipLimited(scope, req, limit) {
+  const rl = rateLimit.hit(`${scope}:${backoffice.clientIp(req) || 'unknown'}`, limit, config.security.storeAuthRateWindowMs);
+  return rl.allowed ? null : rl.retryAfter;
+}
+function rateLimitedRetry(retryAfter) {
+  return { ok: false, code: 'RATE_LIMITED', message: `Muitas tentativas. Tente novamente em ${retryAfter}s.`, status: 429 };
 }
 
 // ---- Auth de cliente (Bearer token) -------------
@@ -427,18 +437,34 @@ function register(router) {
   router.post('/api/v1/public/validar-key', async (body, _p, _u, req) => handleValidateKey(body, req));
 
   // ---- Autenticação de cliente ----
-  router.post('/api/v1/store/register', async (body) => handleRegister(body));
-  router.post('/api/v1/store/login', async (body) => handleLogin(body));
-  router.post('/api/v1/store/login-key', async (body) => handleLoginByKey(body));
+  router.post('/api/v1/store/register', async (body, _p, _u, req) => {
+    const ra = ipLimited('store-register', req, config.security.storeAuthRateLimit);
+    if (ra) return rateLimitedRetry(ra);
+    return handleRegister(body);
+  });
+  router.post('/api/v1/store/login', async (body, _p, _u, req) => {
+    const ra = ipLimited('store-login', req, config.security.storeAuthRateLimit);
+    if (ra) return rateLimitedRetry(ra);
+    return handleLogin(body);
+  });
+  router.post('/api/v1/store/login-key', async (body, _p, _u, req) => {
+    const ra = ipLimited('store-login-key', req, config.security.storeAuthRateLimit);
+    if (ra) return rateLimitedRetry(ra);
+    return handleLoginByKey(body);
+  });
 
   // ---- Checkout ----
   router.post('/api/v1/store/checkout', async (body, _params, _urlObj, req) => {
+    const ra = ipLimited('store-checkout', req, config.security.storeAuthRateLimit);
+    if (ra) return rateLimitedRetry(ra);
     const customer = getCustomer(req);
     return createCheckout(body, customer);
   });
 
   // Valida um cupom de desconto (retorna o percentual e o código, sem consumir).
-  router.post('/api/v1/public/validate-coupon', async (body) => {
+  router.post('/api/v1/public/validate-coupon', async (body, _p, _u, req) => {
+    const ra = ipLimited('store-coupon', req, config.security.storeAuthRateLimit);
+    if (ra) return rateLimitedRetry(ra);
     const r = await validateCoupon(body && body.coupon);
     if (!r.ok) return r;
     return {
@@ -475,7 +501,9 @@ function register(router) {
     return users.eraseByUserId(customer.id, 'pedido_conta');
   });
 
-  router.post('/api/v1/public/erase-request', async (body) => {
+  router.post('/api/v1/public/erase-request', async (body, _p, _u, req) => {
+    const ra = ipLimited('store-erase', req, config.security.storeAuthRateLimit);
+    if (ra) return rateLimitedRetry(ra);
     if (String((body && body.confirm) || '') !== 'APAGAR') {
       return fail('CONFIRM_REQUIRED', 'Digite APAGAR para confirmar a exclusão total.', 400);
     }
