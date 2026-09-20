@@ -8,6 +8,8 @@ const { verifyToken } = require('./util');
 const rateLimit = require('./rateLimit');
 const sevenia = require('./sevenia');
 const users = require('./services/users');
+const licensing = require('./services/licensing');
+const storefront = require('./routes-storefront');
 
 function fail(code, message, status = 400) {
   return { ok: false, code, message, status };
@@ -110,9 +112,39 @@ async function handleUsage(req) {
   return { ok: true, usage: await sevenia.usagePayload(principal.userId) };
 }
 
+async function handleProInfo(req) {
+  const customer = storefront.getCustomer(req);
+  if (!customer) return fail('UNAUTHORIZED', 'Faça login para contratar a SevenIA Pro.', 401);
+  const plan = await licensing.getPlanBySlug('sevenia_pro');
+  if (!plan) return fail('SEVENIA_PRO_UNAVAILABLE', 'SevenIA Pro indisponível no momento.', 404);
+  return {
+    ok: true,
+    plan: {
+      name: plan.name,
+      slug: plan.slug,
+      description: plan.description,
+      price: Number(plan.price),
+      currency: plan.currency,
+      billingType: plan.billing_type
+    }
+  };
+}
+
+async function handleProActivate(body, req) {
+  const customer = storefront.getCustomer(req);
+  if (!customer) return fail('UNAUTHORIZED', 'Faça login para ativar a SevenIA Pro.', 401);
+  const method = String((body && body.method) || 'pix').toLowerCase();
+  if (method !== 'pix' && method !== 'credit_card') {
+    return fail('BAD_REQUEST', 'Método de pagamento inválido.', 400);
+  }
+  return storefront.createCheckout({ plan: 'sevenia_pro', method, coupon: body && body.coupon }, customer);
+}
+
 function register(router) {
   router.post('/api/v1/sevenia/chat', async (body, _p, _u, req) => handleChat(body, req));
   router.get('/api/v1/sevenia/uso-hoje', async (_b, _p, _u, req) => handleUsage(req));
+  router.get('/api/v1/sevenia/ativar-pro', async (_b, _p, _u, req) => handleProInfo(req));
+  router.post('/api/v1/sevenia/ativar-pro', async (body, _p, _u, req) => handleProActivate(body, req));
 }
 
 module.exports = { register };

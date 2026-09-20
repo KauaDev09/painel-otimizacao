@@ -18,9 +18,11 @@ async function getPlan(userId) {
   return db.queryOne(config, 'SELECT * FROM plano_ia WHERE user_id = ? LIMIT 1', [userId]);
 }
 
-async function setPlan(userId, plano) {
+async function setPlan(userId, plano, orderId) {
   await getPlan(userId);
-  await db.query(config, 'UPDATE plano_ia SET plano = ?, data_ativacao = NOW() WHERE user_id = ?', [plano, userId]);
+  const orderSql = orderId ? ', order_id = ?' : '';
+  const params = orderId ? [plano, orderId, userId] : [plano, userId];
+  await db.query(config, `UPDATE plano_ia SET plano = ?, data_ativacao = NOW()${orderSql} WHERE user_id = ?`, params);
   return getUser(userId);
 }
 

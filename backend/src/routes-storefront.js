@@ -14,6 +14,7 @@ const rateLimit = require('./rateLimit');
 const { createProvider } = require('./services/paymentProvider');
 const licensing = require('./services/licensing');
 const users = require('./services/users');
+const sevenia = require('./sevenia');
 
 function fail(code, message, status = 400) {
   return { ok: false, code, message, status };
@@ -38,6 +39,7 @@ function serializePlan(p) {
     price: Number(p.price),
     currency: p.currency,
     billingType: p.billing_type,
+    productType: p.product_type || 'license',
     features: Array.isArray(p.features) ? p.features : (() => { try { return JSON.parse(p.features); } catch (_) { return []; } })()
   };
 }
@@ -45,7 +47,9 @@ function serializePlan(p) {
 async function listPlans() {
   const rows = await db.query(
     config,
-    'SELECT * FROM plans WHERE active = 1 ORDER BY sort_order ASC, id ASC'
+    `SELECT * FROM plans
+      WHERE active = 1 AND COALESCE(product_type, 'license') = 'license'
+      ORDER BY sort_order ASC, id ASC`
   );
   return rows.map(serializePlan);
 }
@@ -281,11 +285,21 @@ async function handleWebhook(body, headers) {
       ? await db.queryOne(config, 'SELECT * FROM usuarios WHERE id = ? LIMIT 1', [order.user_id])
       : null;
 
-    const grant = await licensing.grantLicenseForPaidOrder(order, customer);
-    if (!grant.ok) return grant;
-
-    await db.query(config, 'INSERT INTO logs (evento, licenca_id, detalhe, criado_em) VALUES (?, ?, ?, NOW())',
-      ['license.created', grant.license.id, JSON.stringify({ order: order.order_uuid, plan: order.plan_name })]);
+    // Produto SevenIA (assistente de IA) → ativa o plano Pro, não gera licença.
+    const planObj = await licensing.getPlanById(order.plan_id);
+    const isSeveniaProduct = planObj && planObj.product_type === 'sevenia';
+    if (isSeveniaProduct) {
+      if (order.user_id) {
+        const set = await sevenia.setPlan(order.user_id, 'pro', order.id);
+        await db.query(config, 'INSERT INTO logs (evento, detalhe, criado_em) VALUES (?, ?, NOW())',
+          ['sevenia.pro_activated', JSON.stringify({ userId: set.userId, order: order.order_uuid })]);
+      }
+    } else {
+      const grant = await licensing.grantLicenseForPaidOrder(order, customer);
+      if (!grant.ok) return grant;
+      await db.query(config, 'INSERT INTO logs (evento, licenca_id, detalhe, criado_em) VALUES (?, ?, ?, NOW())',
+        ['license.created', grant.license.id, JSON.stringify({ order: order.order_uuid, plan: order.plan_name })]);
+    }
   }
 
   return { ok: true, processed: true };
@@ -481,4 +495,4 @@ function register(router) {
   });
 }
 
-module.exports = { register };
+module.exports = { register, createCheckout, getCustomer };
