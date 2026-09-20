@@ -1,6 +1,6 @@
 {
   "name": "sevenoptimizer",
-  "version": "2.1.14",
+  "version": "2.1.15",
   "description": "SevenOptimizer (S4) — análise de BIOS, otimização do Windows, game boost, limpeza e manutenção para Windows.",
   "main": "src/main.js",
   "author": "SevenOptimizer",
