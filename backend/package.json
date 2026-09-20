@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node src/index.js",
     "test": "node --test test/*.test.js",
+    "test:e2e": "set RUN_E2E=1&& node --test --test-force-exit test/e2e.endpoints.test.js",
     "security:audit": "npm audit --omit=dev"
   },
   "engines": {
