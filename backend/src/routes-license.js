@@ -8,7 +8,7 @@
 
 const db = require('./db');
 const config = require('./config');
-const { signToken } = require('./util');
+const { signToken, cmpVer, isLifetimePlan } = require('./util');
 const rateLimit = require('./rateLimit');
 const licensing = require('./services/licensing');
 
@@ -97,20 +97,6 @@ function applyRateLimit(req, bucket, limit, windowMs) {
     };
   }
   return null;
-}
-
-function cmpVer(a, b) {
-  const pa = String(a || '0').split('.').map((n) => parseInt(n, 10) || 0);
-  const pb = String(b || '0').split('.').map((n) => parseInt(n, 10) || 0);
-  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-    const d = (pa[i] || 0) - (pb[i] || 0);
-    if (d) return d > 0 ? 1 : -1;
-  }
-  return 0;
-}
-
-function isLifetimePlan(lic) {
-  return !lic.expira_em || lic.plano === 'vitalicia' || lic.plano === 'lifetime';
 }
 
 async function currentPublishedVersion() {

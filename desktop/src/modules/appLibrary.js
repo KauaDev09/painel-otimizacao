@@ -407,5 +407,9 @@ module.exports = {
   getArtworkDataUrl,
   resolveShortcut,
   resolveMediaUrl,
-  warmupLibrary
+  warmupLibrary,
+  parseLibraryFolders,
+  parseAppManifest,
+  pathToMediaUrl,
+  dedupe
 };

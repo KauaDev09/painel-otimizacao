@@ -92,4 +92,4 @@ async function recordErasure(cfg, emailHash, motivo) {
   );
 }
 
-module.exports = { ensureTable, write, list, clientIp, recordErasure };
+module.exports = { ensureTable, write, list, clientIp, recordErasure, maskKey };

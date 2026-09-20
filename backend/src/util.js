@@ -53,6 +53,29 @@ function verifyPassword(password, stored) {
   }
 }
 
+// ---------- Comparação timing-safe / versões / plano ----------
+
+function safeEqualStr(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  const ba = Buffer.from(a, 'utf8');
+  const bb = Buffer.from(b, 'utf8');
+  return ba.length === bb.length && crypto.timingSafeEqual(ba, bb);
+}
+
+function cmpVer(a, b) {
+  const pa = String(a || '0').split('.').map((n) => parseInt(n, 10) || 0);
+  const pb = String(b || '0').split('.').map((n) => parseInt(n, 10) || 0);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const d = (pa[i] || 0) - (pb[i] || 0);
+    if (d) return d > 0 ? 1 : -1;
+  }
+  return 0;
+}
+
+function isLifetimePlan(lic) {
+  return !lic || !lic.expira_em || lic.plano === 'vitalicia' || lic.plano === 'lifetime';
+}
+
 // ---------- Chaves de licença XXXX-XXXX-XXXX-XXXX ----------
 const KEY_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sem I,O,0,1
 
@@ -64,4 +87,4 @@ function generateLicenseKey() {
   return `${group()}-${group()}-${group()}-${group()}`;
 }
 
-module.exports = { signToken, verifyToken, hashPassword, verifyPassword, generateLicenseKey };
+module.exports = { signToken, verifyToken, hashPassword, verifyPassword, generateLicenseKey, safeEqualStr, cmpVer, isLifetimePlan };
