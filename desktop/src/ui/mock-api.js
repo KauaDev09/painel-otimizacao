@@ -601,6 +601,7 @@ window.SevenAPI = {
   }),
   gameBoostRemoveGame: async () => ({ ok: true }),
   gameBoostSessionStatus: async () => ({ running: false, pending: false, session: null }),
+  gameBoostValidate: async (_id) => ({ ok: true }),
   gameBoostStartSession: async () => ({ ok: true, pending: true, gameName: 'Jogo mockado', message: 'O app está em modo de pré-visualização. O boost real é aplicado na versão instalada.' }),
   gameBoostStopSession: async () => ({ ok: true, message: 'Sessão encerrada.' }),
   gameBoostPickExe: async () => null,

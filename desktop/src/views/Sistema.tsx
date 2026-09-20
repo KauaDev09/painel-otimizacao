@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cpu, HardDrive, MemoryStick, Monitor, RefreshCcw, CircuitBoard, Lock, ShieldCheck, Gauge } from 'lucide-react';
+import { Cpu, HardDrive, MemoryStick, Monitor, RefreshCcw, CircuitBoard, Lock, ShieldCheck, Gauge, CircleCheck, ChevronRight } from 'lucide-react';
 import { useApi } from '@/api';
 import { Sparkline } from '@/components/Sparkline';
 import type { MonitorSnapshot } from '@/api/types';
@@ -52,7 +52,7 @@ function nd(val: unknown, unit = ''): string {
 function ScoreRing({ value }: { value: number }) {
   const circumference = 2 * Math.PI * 38;
   const offset = circumference - (value / 100) * circumference;
-  const color = value >= 80 ? 'var(--s4-icon-active)' : value >= 50 ? 'var(--s4-icon-default)' : '#ef4444';
+  const color = value >= 80 ? 'var(--s4-icon-active)' : value >= 50 ? 'var(--s4-icon-default)' : 'var(--s4-icon-default)';
   return (
     <div className="relative flex h-28 w-28 items-center justify-center">
       <svg className="h-28 w-28 -rotate-90" viewBox="0 0 80 80">
@@ -73,7 +73,10 @@ export function Sistema({ onNavigate }: { onNavigate?: (view: string) => void })
   const [snap, setSnap] = React.useState<MonitorSnapshot | null>(null);
   const [analyzing, setAnalyzing] = React.useState(false);
   const [updatedAt, setUpdatedAt] = React.useState<string | null>(null);
-  const hist = React.useRef<{ cpu: number[]; temp: number[]; gpu: number[] }>({ cpu: [], temp: [], gpu: [] });
+  const [justUpdated, setJustUpdated] = React.useState(false);
+  const [showRecs, setShowRecs] = React.useState(false);
+  const updateTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hist = React.useRef<{ cpu: number[]; temp: number[]; gpu: number[]; ram: number[] }>({ cpu: [], temp: [], gpu: [], ram: [] });
   const [, force] = React.useReducer((x: number) => x + 1, 0);
 
   const loadLast = React.useCallback(async () => {
@@ -98,6 +101,7 @@ export function Sistema({ onNavigate }: { onNavigate?: (view: string) => void })
         if (s?.tempC != null) { hist.current.temp.push(s.tempC); if (hist.current.temp.length > 40) hist.current.temp.shift(); }
         const gp = gpuPercent(s);
         if (gp != null) { hist.current.gpu.push(gp); if (hist.current.gpu.length > 40) hist.current.gpu.shift(); }
+        if (s?.ramPercent != null) { hist.current.ram.push(s.ramPercent); if (hist.current.ram.length > 40) hist.current.ram.shift(); }
         force();
       } catch { /* ok */ }
     };
@@ -118,10 +122,18 @@ export function Sistema({ onNavigate }: { onNavigate?: (view: string) => void })
     try {
       const res = await api.analyze() as { overall?: number; historyId?: string } | null;
       await loadLast();
-      setUpdatedAt(new Date().toLocaleTimeString());
+      const now = new Date().toLocaleTimeString();
+      setUpdatedAt(now);
+      setJustUpdated(true);
+      if (updateTimer.current) clearTimeout(updateTimer.current);
+      updateTimer.current = setTimeout(() => setJustUpdated(false), 3000);
     } catch { /* ok */ }
     setAnalyzing(false);
   };
+
+  React.useEffect(() => () => {
+    if (updateTimer.current) clearTimeout(updateTimer.current);
+  }, []);
 
   const profile = analysis?.profile;
   const score = analysis?.scores?.overall ?? null;
@@ -142,7 +154,14 @@ export function Sistema({ onNavigate }: { onNavigate?: (view: string) => void })
           <p className="mt-1 text-sm text-muted-foreground">Diagnóstico completo do hardware, firmware e saúde do PC.</p>
         </div>
         <div className="flex items-center gap-3">
-          {updatedAt && <span className="text-xs text-muted-foreground">{updatedAt}</span>}
+          {justUpdated ? (
+            <span className="inline-flex items-center gap-1.5 text-xs text-green-400">
+              <CircleCheck className="h-3.5 w-3.5" />
+              Atualizado{updatedAt ? ` · ${updatedAt}` : ''}
+            </span>
+          ) : (
+            updatedAt && <span className="text-xs text-muted-foreground">{updatedAt}</span>
+          )}
           <button
             type="button"
             onClick={handleAnalyze}
@@ -208,6 +227,7 @@ export function Sistema({ onNavigate }: { onNavigate?: (view: string) => void })
             <div className="space-y-5 lg:col-span-2">
               {/* Processador */}
               <Section title="Processador" icon={<Cpu className="h-4 w-4 text-[var(--s4-icon-default)]" />}>
+                <InfoRow label="Fabricante" value={nd(cpu?.brand)} />
                 <InfoRow label="Modelo" value={nd(cpu?.name)} />
                 <InfoRow label="Núcleos / Threads" value={cpu?.cores ? `${cpu.cores} / ${cpu.threads}` : 'N/D'} />
                 <InfoRow label="Clock base" value={nd(cpu?.baseClockMhz, 'MHz')} />
@@ -238,7 +258,29 @@ export function Sistema({ onNavigate }: { onNavigate?: (view: string) => void })
                 <InfoRow label="Tipo" value={nd(ram?.ddrType)} />
                 <InfoRow label="Velocidade config." value={nd(ram?.maxConfigMHz, 'MHz')} />
                 <InfoRow label="Velocidade anunciada" value={nd(ram?.maxRatedMHz, 'MHz')} />
-                <InfoRow label="Dual Channel" value={ram?.dualChannelLikely === true ? 'Provável' : ram?.dualChannelLikely === false ? 'Não' : 'N/D'} />
+                <InfoRow
+                  label="Dual Channel"
+                  value={ram?.dualChannelLikely === true ? 'Provável' : ram?.dualChannelLikely === false ? 'Não' : 'N/D'}
+                />
+                <div className="my-3 border-t border-white/5 pt-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <LiveStat label="Uso" value={snap?.ramPercent != null ? Math.round(snap.ramPercent) : null} unit="%" hist={hist.current.ram || []} />
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs text-muted-foreground">Em uso agora</span>
+                      <span className="text-lg font-semibold text-foreground">
+                        {snap?.ramUsedMB != null ? `${Math.round(snap.ramUsedMB)} / ${snap.ramTotalMB != null ? Math.round(snap.ramTotalMB) : '?'} MB` : '—'}
+                      </span>
+                      {snap?.ramTotalMB != null && snap?.ramTotalMB > 0 && snap?.ramUsedMB != null && (
+                        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-primary/20">
+                          <div
+                            className="h-full rounded-full bg-[var(--s4-icon-active)]"
+                            style={{ width: `${Math.min(100, (snap.ramUsedMB / snap.ramTotalMB) * 100)}%` }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </Section>
 
               {/* Placa-mãe e BIOS */}
@@ -317,6 +359,39 @@ export function Sistema({ onNavigate }: { onNavigate?: (view: string) => void })
                     {counts.optional ? <span className="text-muted-foreground">{counts.optional} opcionais</span> : null}
                     {!counts.critical && !counts.recommended && !counts.optional && <span className="text-green-400">Nenhuma recomendação</span>}
                   </div>
+                  {analysis?.recommendations && analysis.recommendations.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowRecs((v) => !v)}
+                      className="mt-3 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-[var(--s4-icon-active)] transition-colors hover:text-[var(--s4-hover-fg)]"
+                    >
+                      <ChevronRight className={'h-3.5 w-3.5 transition-transform ' + (showRecs ? 'rotate-90' : '')} />
+                      {showRecs ? 'Ocultar detalhes' : 'Ver detalhes'}
+                    </button>
+                  )}
+                  {showRecs && analysis?.recommendations && analysis.recommendations.length > 0 && (
+                    <div className="mt-3 space-y-2 border-t border-white/5 pt-3">
+                      {analysis.recommendations.map((r) => {
+                        const id = r.id || String(r.name || 'rec');
+                        return (
+                          <div key={id} className="flex gap-3 rounded-lg bg-black/25 px-3 py-2.5">
+                            <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-[var(--s4-icon-default)]" />
+                            <div className="min-w-0">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <p className="text-sm font-medium text-foreground">{r.name || id}</p>
+                                {r.effectiveLevel && (
+                                  <span className="rounded-full border border-white/10 px-2 py-0.5 font-mono text-[0.62rem] uppercase tracking-wider text-muted-foreground">
+                                    {r.effectiveLevel}
+                                  </span>
+                                )}
+                              </div>
+                              {r.reason && <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{r.reason}</p>}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </Section>
               )}
             </div>

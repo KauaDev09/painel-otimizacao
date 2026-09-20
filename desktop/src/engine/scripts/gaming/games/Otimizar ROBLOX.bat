@@ -1,5 +1,5 @@
-﻿@echo off
-REM ORION: debloat AppX removido dos scripts de jogo (nao remove Calculator/Photos/etc).
+@echo off
+REM SEVEN: debloat AppX removido dos scripts de jogo (nao remove Calculator/Photos/etc).
 chcp 65001 >nul
 cls
 setlocal enabledelayedexpansion

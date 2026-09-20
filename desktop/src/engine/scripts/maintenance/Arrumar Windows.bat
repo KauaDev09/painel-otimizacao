@@ -7,11 +7,11 @@ REM NÃO executa chkdsk (exige reboot e pode parecer "reset" do PC).
 setlocal
 set "ERR=0"
 
-echo [ORION] DISM RestoreHealth...
+echo [SEVEN] DISM RestoreHealth...
 dism /online /cleanup-image /restorehealth
 if errorlevel 1 set "ERR=%ERRORLEVEL%"
 
-echo [ORION] SFC /scannow...
+echo [SEVEN] SFC /scannow...
 sfc /scannow
 if errorlevel 1 set "ERR=%ERRORLEVEL%"
 

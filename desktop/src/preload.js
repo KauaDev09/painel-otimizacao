@@ -42,6 +42,7 @@ contextBridge.exposeInMainWorld('SevenAPI', {
   gameBoostAddGame: (payload) => ipcRenderer.invoke('gameboost:addGame', payload),
   gameBoostRemoveGame: (id) => ipcRenderer.invoke('gameboost:removeGame', id),
   gameBoostSessionStatus: () => ipcRenderer.invoke('gameboost:sessionStatus'),
+  gameBoostValidate: (id) => ipcRenderer.invoke('gameboost:validate', id),
   gameBoostStartSession: (id) => ipcRenderer.invoke('gameboost:startSession', id),
   gameBoostStopSession: () => ipcRenderer.invoke('gameboost:stopSession'),
   gameBoostPickExe: () => ipcRenderer.invoke('gameboost:pickExe'),

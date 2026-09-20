@@ -1,4 +1,4 @@
--- ORION OPTIMIZER — Schema do banco (MySQL 8+ / InnoDB / utf8mb4)
+-- SEVENOPTIMIZER — Schema do banco (MySQL 8+ / InnoDB / utf8mb4)
 -- Compatível com TiDB Cloud Serverless (MySQL-compatible).
 -- Aplicar: mysql -u root -p < sql/schema.sql  ou  colar no SQL Editor do TiDB.
 -- Nota TiDB: foreign keys são aceitas; se alguma versão antiga der warning,
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS licencas (
   usuario_id        INT UNSIGNED NULL,
   observacao        VARCHAR(255) NULL,
   versao_autorizada VARCHAR(20)  NULL,     -- versão do app liberada (vitalício + pacote de atualização)
-  pedido_loja       VARCHAR(64)  NULL,     -- id do pedido na Orion Store (primeira compra)
+  pedido_loja       VARCHAR(64)  NULL,     -- id do pedido na loja (primeira compra)
   criada_em         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   expira_em         DATETIME     NULL,     -- NULL = vitalício
   renovada_em       DATETIME NULL,

@@ -1,4 +1,4 @@
-# Orion Optimizer - Coletor de informacoes de hardware/BIOS.
+# SevenOptimizer - Coletor de informacoes de hardware/BIOS.
 # Executa consultas CIM/WMI e leituras de registro SOMENTE-LEITURA.
 # Nenhuma alteracao de sistema e feita por este script.
 $ErrorActionPreference = 'Stop'

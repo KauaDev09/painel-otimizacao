@@ -93,6 +93,11 @@ export interface SevenApi {
   }): Promise<GameEntry>;
   gameBoostRemoveGame(id: string): Promise<{ ok: boolean }>;
   gameBoostSessionStatus(): Promise<GameSessionStatus>;
+  gameBoostValidate(id: string): Promise<{
+    ok?: boolean;
+    reason?: string;
+    game?: { id?: string; name?: string; path?: string };
+  }>;
   gameBoostStartSession(id: string): Promise<GameStartResult>;
   gameBoostStopSession(): Promise<{ ok: boolean; message?: string }>;
   gameBoostPickExe(): Promise<string | null>;

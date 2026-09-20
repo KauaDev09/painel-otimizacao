@@ -8,6 +8,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'Consolas', 'monospace']
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

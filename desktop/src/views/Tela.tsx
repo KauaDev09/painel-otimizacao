@@ -152,6 +152,10 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
     valuesRef.current = next;
     setValues(next);
     const monitor = monitors.find((m) => m.id === selectedRef.current) || monitors.find((m) => m.isPrimary) || monitors[0];
+    if (!monitor) {
+      setApplyHint(null);
+      return;
+    }
     try {
       const res = await api.displayScreenRamp?.({
         brightness: next.brightness,
@@ -201,6 +205,7 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
   };
 
   const resetAll = async () => {
+    if (!window.confirm('Restaurar os ajustes de imagem e cor para o padrão?')) return;
     setBusy(true);
     setSelectedPreset('Padrão');
     // Só gamma ramp (software). Nunca reescrever OSD do monitor no REDEFINIR.
@@ -259,6 +264,7 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
   };
 
   const selected = monitors.find((m) => m.id === selectedId) || monitors.find((m) => m.isPrimary) || monitors[0];
+  const hasMonitor = monitors.length > 0;
 
   return (
     <div className="view-appear space-y-6">
@@ -272,7 +278,7 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
         <button
           type="button"
           onClick={resetAll}
-          disabled={busy}
+          disabled={busy || !hasMonitor}
           className="inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-foreground disabled:opacity-60"
         >
           <RotateCcw className="h-4 w-4" />
@@ -280,66 +286,150 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
         </button>
       </div>
 
-      <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
+      {/* --- MONITOR PRINCIPAL --- */}
+      <section className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
         <div className="mb-3 flex items-center gap-2">
           <MonitorIcon className="h-4 w-4 text-[var(--s4-icon-default)]" />
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            Telas ({monitors.length || 1})
+            Monitor principal ({hasMonitor ? monitors.length : 0})
           </span>
         </div>
-        <div className="flex flex-wrap gap-3">
-          {(monitors.length ? monitors : [{ id: 'default', name: 'Monitor padrão', connected: true, isPrimary: true }]).map((m, i) => {
-            const active = (m.id || String(i)) === (selected?.id || selectedId);
-            const res = m.width && m.height ? `${m.width}×${m.height}` : '';
-            const hz = m.refreshRate ? `${Math.round(m.refreshRate)} Hz` : '';
-            return (
-              <button
-                key={m.id || i}
-                type="button"
-                onClick={() => m.id && selectMonitor(m.id)}
-                className={`min-w-[140px] flex-1 rounded-lg border px-4 py-3 text-left transition-colors ${
-                  active
-                    ? 'border-[var(--s4-icon-active)] bg-[var(--s4-selected-bg)]'
-                    : 'border-white/10 bg-black/30 hover:border-white/25'
-                }`}
-              >
-                <div className="mb-2 flex h-14 items-center justify-center rounded bg-black/40 text-lg font-bold text-foreground">
-                  {i + 1}{m.isPrimary ? <span className="ml-1 text-xs text-[var(--s4-icon-active)]">*</span> : null}
-                </div>
-                <p className="truncate text-sm font-medium text-foreground">{m.name || `Monitor ${i + 1}`}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {res}{hz ? ` · ${hz}` : ''}{m.isPrimary ? ' · Primário' : ''}
-                </p>
-              </button>
-            );
-          })}
-        </div>
-        {selected && (
-          <p className="mt-3 inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-              Controle ativo em {selected.name || 'monitor selecionado'}
-            </span>
-            {applyHint && <span className="text-[var(--s4-icon-active)]">{applyHint}</span>}
-          </p>
+        {!hasMonitor ? (
+          <div className="rounded-lg border border-white/10 bg-black/30 px-4 py-6 text-center">
+            <p className="text-sm font-medium text-foreground">Nenhum monitor detectado</p>
+            <p className="mx-auto mt-1 max-w-md text-xs text-muted-foreground">
+              Conecte um monitor e reabra a aba Tela. Os ajustes ficam desabilitados enquanto nenhuma tela for reconhecida pelo sistema.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-wrap gap-3">
+              {monitors.map((m, i) => {
+                const active = m.id === (selected?.id || selectedId);
+                const res = m.width && m.height ? `${m.width}×${m.height}` : '';
+                const hz = m.refreshRate ? `${Math.round(m.refreshRate)} Hz` : '';
+                return (
+                  <button
+                    key={m.id || i}
+                    type="button"
+                    onClick={() => m.id && selectMonitor(m.id)}
+                    className={`min-w-[140px] flex-1 rounded-lg border px-4 py-3 text-left transition-colors ${
+                      active
+                        ? 'border-[var(--s4-icon-active)] bg-[var(--s4-selected-bg)]'
+                        : 'border-white/10 bg-black/30 hover:border-white/25'
+                    }`}
+                  >
+                    <div className="mb-2 flex h-14 items-center justify-center rounded bg-black/40 text-lg font-bold text-foreground">
+                      {i + 1}{m.isPrimary ? <span className="ml-1 text-xs text-[var(--s4-icon-active)]">*</span> : null}
+                    </div>
+                    <p className="truncate text-sm font-medium text-foreground">{m.name || `Monitor ${i + 1}`}</p>
+                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                      {res}{hz ? ` · ${hz}` : ''}{m.isPrimary ? ' · Primário' : ''}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+            {selected && (
+              <p className="mt-3 inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                  Controle ativo em {selected.name || 'monitor selecionado'}
+                </span>
+                {applyHint && <span className="text-[var(--s4-icon-active)]">{applyHint}</span>}
+              </p>
+            )}
+          </>
         )}
-      </div>
+      </section>
 
-      <div className="space-y-4">
-        <ControlSlider label="Brilho" value={values.brightness} display={formatValue('brightness', values.brightness)} onChange={(v) => handleChange('brightness', v)} />
-        <ControlSlider label="Contraste" value={values.contrast} display={formatValue('contrast', values.contrast)} onChange={(v) => handleChange('contrast', v)} />
-        <ControlSlider label="Saturação" value={values.saturation} display={formatValue('saturation', values.saturation)} onChange={(v) => handleChange('saturation', v)} />
-        <ControlSlider label="Gama" value={values.gamma} min={50} max={200} display={formatValue('gamma', values.gamma)} onChange={(v) => handleChange('gamma', v)} />
-        <ControlSlider label="Temperatura de Cor" value={values.temperature} display={formatValue('temperature', values.temperature)} onChange={(v) => handleChange('temperature', v)} />
-      </div>
+      {/* --- CONFIGURAÇÕES DE IMAGEM --- */}
+      <section className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
+        <div className="mb-4">
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            Configurações de imagem
+          </span>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Luminosidade e cor geral da imagem aplicadas via curva de gama.
+          </p>
+        </div>
+        <div className="border-t border-white/5">
+          <ControlSlider label="Brilho" value={values.brightness} display={formatValue('brightness', values.brightness)} disabled={!hasMonitor} onChange={(v) => handleChange('brightness', v)} />
+          <ControlSlider label="Contraste" value={values.contrast} display={formatValue('contrast', values.contrast)} disabled={!hasMonitor} onChange={(v) => handleChange('contrast', v)} />
+          <ControlSlider label="Saturação" value={values.saturation} display={formatValue('saturation', values.saturation)} disabled={!hasMonitor} onChange={(v) => handleChange('saturation', v)} />
+        </div>
+      </section>
 
-      <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
+      {/* --- CONTROLE DE COR --- */}
+      <section className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
+        <div className="mb-4">
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            Controle de cor
+          </span>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Gama, temperatura da cor e o método de aplicação atual.
+          </p>
+        </div>
+        <div className="border-t border-white/5">
+          <ControlSlider label="Gama" value={values.gamma} min={50} max={200} display={formatValue('gamma', values.gamma)} disabled={!hasMonitor} onChange={(v) => handleChange('gamma', v)} />
+          <ControlSlider label="Temperatura de Cor" value={values.temperature} display={formatValue('temperature', values.temperature)} disabled={!hasMonitor} onChange={(v) => handleChange('temperature', v)} />
+        </div>
+        <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-white/5 pt-3">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Método de aplicação</span>
+          {applyHint ? (
+            <span className="text-xs font-medium text-[var(--s4-icon-active)]">{applyHint}</span>
+          ) : (
+            <span className="text-xs text-muted-foreground">Curva de gama via software</span>
+          )}
+        </div>
+      </section>
+
+      {/* --- PRÉ-VISUALIZAÇÃO --- */}
+      <section className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
+        <div className="mb-3">
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            Pré-visualização
+          </span>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Referência visual dos ajustes de cor atuais.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto]">
+          <div className="flex h-32 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-[#0a0a0b] via-[#241215] to-[#3d0f11] shadow-[inset_0_0_28px_rgba(0,0,0,0.55)]">
+            <span className="rounded-full border border-white/10 px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-white/45">
+              {Math.round(values.brightness)}%B · {Math.round(values.contrast)}%C · {Math.round(values.saturation)}%S
+            </span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <div className="h-7 rounded bg-gradient-to-r from-[#ff3b3f] via-[#fff59d] to-[#2bd4ff]" />
+            <div className="grid h-10 grid-cols-7 rounded">
+              {['#ff3b3f', '#ff9430', '#fff59d', '#34d399', '#2bd4ff', '#7c7dff', '#ff7ce0'].map((c) => (
+                <div key={c} style={{ background: c }} />
+              ))}
+            </div>
+            <div className="grid h-7 grid-cols-8 rounded">
+              {['#000000', '#222222', '#444444', '#666666', '#888888', '#aaaaaa', '#cccccc', '#ffffff'].map((c) => (
+                <div key={c} style={{ background: c }} />
+              ))}
+            </div>
+            <div className="flex h-7 justify-center rounded">
+              {['#3a241b', '#5c3a28', '#7c4c32', '#9a6a45', '#c1947a', '#e0b49a'].map((c) => (
+                <div key={c} className="flex-1" style={{ background: c }} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* --- PERFIL --- */}
+      <section className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
         <div className="mb-3 flex items-center justify-between">
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Perfil</span>
           <button
             type="button"
             onClick={savePreset}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--s4-icon-active)] transition-colors hover:text-[var(--s4-hover-fg)]"
+            disabled={!hasMonitor}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--s4-icon-active)] transition-colors hover:text-[var(--s4-hover-fg)] disabled:opacity-60"
           >
             <Save className="h-3.5 w-3.5" />
             SALVAR PERFIL
@@ -354,7 +444,8 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
                 key={name}
                 type="button"
                 onClick={() => restorePreset(name)}
-                className={`rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                disabled={!hasMonitor}
+                className={`rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors disabled:opacity-60 ${
                   isActive
                     ? 'bg-[var(--s4-icon-active)] text-black'
                     : 'bg-black/40 text-muted-foreground hover:bg-[var(--s4-selected-bg)] hover:text-foreground'
@@ -371,7 +462,8 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
                 key={name}
                 type="button"
                 onClick={() => restorePreset(name)}
-                className={`rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                disabled={!hasMonitor}
+                className={`rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors disabled:opacity-60 ${
                   isActive
                     ? 'bg-[var(--s4-icon-active)] text-black'
                     : 'bg-black/40 text-muted-foreground hover:bg-[var(--s4-selected-bg)] hover:text-foreground'
@@ -382,21 +474,25 @@ export function Tela({ onNavigate }: { onNavigate?: (view: string) => void }) {
             );
           })}
         </div>
-      </div>
+        <p className="mt-3 border-t border-white/5 pt-3 text-xs text-muted-foreground">
+          RESTAURAR PERFIL devolve os controles do perfil selecionado. REDEFINIR zera todos os ajustes.
+        </p>
+      </section>
     </div>
   );
 }
 
-function ControlSlider({ label, value, display, onChange, min = 0, max = 200 }: {
+function ControlSlider({ label, value, display, onChange, min = 0, max = 200, disabled = false }: {
   label: string;
   value: number;
   display: string;
   onChange: (v: number) => void;
   min?: number;
   max?: number;
+  disabled?: boolean;
 }) {
   return (
-    <div className="rounded-lg bg-[var(--s4-surface)] px-5 py-4">
+    <div className="border-b border-white/5 py-4 last:border-0">
       <div className="mb-3 flex items-center justify-between">
         <span className="text-sm font-medium text-foreground">{label}</span>
         <span className="text-sm font-semibold text-foreground tabular-nums">{display}</span>
@@ -406,6 +502,7 @@ function ControlSlider({ label, value, display, onChange, min = 0, max = 200 }: 
         min={min}
         max={max}
         step={1}
+        disabled={disabled}
         onValueChange={([v]) => onChange(v)}
         className="w-full"
       />

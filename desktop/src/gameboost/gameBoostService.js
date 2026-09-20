@@ -479,6 +479,25 @@ class GameMode {
     return { ok: true };
   }
 
+  rawList() {
+    try {
+      const games = JSON.parse(fs.readFileSync(this.gamesFile(), 'utf8'));
+      return Array.isArray(games) ? games : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  validate(gameId) {
+    // Confere o caminho salvo SEM filtrar a lista, para detectar
+    // executáveis movidos/removidos mesmo fora do estado da lista.
+    const game = this.rawList().find((g) => String(g.id) === String(gameId));
+    if (!game) return { ok: false, reason: 'not-found' };
+    const steamUri = /^steam:\/\//i.test(String(game.path));
+    const exists = steamUri || fs.existsSync(game.path);
+    return { ok: exists, game: { id: game.id, name: game.name, path: game.path } };
+  }
+
   status() {
     let disk = null;
     try { disk = JSON.parse(fs.readFileSync(this.sessionFile(), 'utf8')); } catch (_) { /* ausente */ }

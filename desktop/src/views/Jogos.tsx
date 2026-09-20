@@ -1,5 +1,5 @@
 import React from 'react';
-import { Gamepad2, Plus, Trash2, Power, Activity, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Gamepad2, Plus, Trash2, Power, Activity, ChevronRight, ChevronLeft, CircleAlert, FolderOpen, RefreshCw } from 'lucide-react';
 import { useApi } from '@/api';
 
 interface GameEntry {
@@ -14,7 +14,7 @@ interface GameEntry {
   source?: string;
 }
 
-type SessionState = 'idle' | 'pending' | 'running' | 'ended' | 'cancelled' | 'error';
+type SessionState = 'idle' | 'pending' | 'launching' | 'running' | 'ended' | 'cancelled' | 'error';
 
 interface BoostCheck {
   key: string;
@@ -41,6 +41,7 @@ function gradientForName(name: string): string {
 const STATUS_LABELS: Record<SessionState, string> = {
   idle: 'PRONTO PARA INICIAR',
   pending: 'PREPARANDO BOOST',
+  launching: 'INICIANDO JOGO',
   running: 'EM EXECUÇÃO',
   ended: 'JOGO ENCERRADO',
   cancelled: 'Aguardando permissão…',
@@ -50,6 +51,7 @@ const STATUS_LABELS: Record<SessionState, string> = {
 const STATUS_COLOR: Record<SessionState, string> = {
   idle: 'bg-[var(--s4-icon-default)]/20 text-[var(--s4-icon-active)]',
   pending: 'bg-amber-500/20 text-amber-400',
+  launching: 'bg-amber-500/20 text-amber-400',
   running: 'bg-green-500/20 text-green-400',
   ended: 'bg-muted text-muted-foreground',
   cancelled: 'bg-red-500/15 text-red-400',
@@ -67,6 +69,7 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
   const [analyze, setAnalyze] = React.useState<AnalyzeResult | null>(null);
   const [busy, setBusy] = React.useState(false);
   const [analyzeBusy, setAnalyzeBusy] = React.useState(false);
+  const [missingExe, setMissingExe] = React.useState<string | null>(null);
   const [icons, setIcons] = React.useState<Record<string, string>>({});
   const [art, setArt] = React.useState<Record<string, string>>({});
   const iconQueue = React.useRef(new Set<string>());
@@ -107,7 +110,7 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
       const st = (await api.gameBoostSessionStatus?.()) as { running?: boolean; pending?: boolean; session?: { gameName?: string } } | null;
       if (st) {
         if (st.running) setSession('running');
-        else if (st.pending) setSession('pending');
+        else if (st.pending) setSession('launching');
         else setSession((prev) => (prev === 'idle' ? prev : 'idle'));
       }
     } catch { /* ok */ }
@@ -233,9 +236,18 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
     }
     if (!id) return;
     setBusy(true);
-    setSession('pending');
+    setMissingExe(null);
+    setSession('launching');
     setSessionMsg('Preparando boost…');
     try {
+      const valid = (await api.gameBoostValidate?.(id)) as { ok?: boolean } | null;
+      if (valid && valid.ok === false) {
+        setMissingExe(id);
+        setSession('error');
+        setSessionMsg('Executável não encontrado. Selecione novamente o local do jogo.');
+        setBusy(false);
+        return;
+      }
       const res = (await api.gameBoostStartSession?.(id)) as { ok?: boolean; pending?: boolean; message?: string; error?: string } | null;
       if (res?.error) {
         setSession('error');
@@ -246,6 +258,27 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
     } catch (err) {
       setSession('error');
       setSessionMsg((err as Error)?.message || 'Falha ao iniciar sessão.');
+    }
+    setBusy(false);
+  };
+
+  const relocateGame = async () => {
+    if (!active || busy) return;
+    const path = (await api.gameBoostPickExe?.()) as string | null;
+    if (!path) return;
+    setBusy(true);
+    try {
+      const item = (await api.gameBoostAddGame?.({ path })) as GameEntry | null;
+      if (!item) return;
+      await api.gameBoostRemoveGame?.(active.id);
+      await loadGames();
+      setMissingExe(null);
+      setSelected(item.id);
+      setSession('idle');
+      setSessionMsg('Local do jogo atualizado.');
+    } catch (err) {
+      setSession('error');
+      setSessionMsg((err as Error)?.message || 'Não foi possível atualizar o local do jogo.');
     }
     setBusy(false);
   };
@@ -297,7 +330,16 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
                   ) : (
                     <Gamepad2 className="h-4 w-4 shrink-0 text-[var(--s4-icon-default)]" />
                   )}
-                  <span className="line-clamp-1 flex-1 font-medium">{g.name}</span>
+                  <span className="min-w-0 flex-1 text-left">
+                    <span className={`block truncate leading-tight ${isActive ? 'font-medium' : ''}`}>{g.name}</span>
+                    <span className="block w-full truncate text-[0.62rem] leading-tight text-muted-foreground/70">{g.path}</span>
+                  </span>
+                  {session === 'running' && (
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-green-400" title="Em execução" />
+                  )}
+                  {(session === 'launching' || session === 'pending') && (
+                    <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-amber-400" title="Iniciando" />
+                  )}
                   {!g.isDefault && games.some((x) => x.id === g.id) && (
                     <button
                       type="button"
@@ -341,13 +383,17 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
         ) : (
           <>
             <div
-              className="relative mb-5 flex min-h-[200px] items-end overflow-hidden rounded-lg p-6 shadow-[0_0_40px_rgba(0,0,0,0.5)]"
+              className="relative mb-5 flex min-h-[200px] items-end overflow-hidden rounded-lg p-6 shadow-[0_18px_60px_rgba(0,0,0,0.5),0_0_42px_rgba(255,59,63,0.16)]"
               style={{
                 background: activeArt
                   ? `linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.78)), url(${activeArt}) center/cover no-repeat`
                   : gradientForName(active.name),
               }}
             >
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_32%_0%,rgba(255,59,63,0.28),transparent_62%)]" />
+              {activeArt === null && active.artworkPath && (
+                <div className="skeleton-shimmer pointer-events-none absolute inset-0" />
+              )}
               {activeIcon && !activeArt && (
                 <img
                   src={activeIcon}
@@ -369,8 +415,26 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
               </div>
             </div>
 
+            {missingExe && active && (
+              <div className="mb-4 flex items-center gap-3 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3">
+                <CircleAlert className="h-4 w-4 shrink-0 text-red-400" />
+                <p className="flex-1 text-sm text-red-200">
+                  Executável não encontrado. Selecione novamente o local do jogo.
+                </p>
+                <button
+                  type="button"
+                  onClick={relocateGame}
+                  disabled={busy}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--s4-icon-active)] px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-black transition-colors hover:bg-[var(--s4-hover-fg)] disabled:opacity-60"
+                >
+                  {busy ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <FolderOpen className="h-3.5 w-3.5" />}
+                  LOCALIZAR JOGO
+                </button>
+              </div>
+            )}
+
             <div className="mb-5 flex flex-wrap gap-3">
-              {session !== 'running' && session !== 'pending' ? (
+              {session !== 'running' && session !== 'pending' && session !== 'launching' ? (
                 <button
                   type="button"
                   onClick={() => startSession(active)}
@@ -400,6 +464,17 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
                 <Activity className={'h-4 w-4 ' + (analyzeBusy ? 'animate-spin' : '')} />
                 {analyzeBusy ? 'Analisando…' : 'ANALISAR GAME BOOST'}
               </button>
+              {!active.isDefault && games.some((g) => g.id === active.id) && (
+                <button
+                  type="button"
+                  onClick={() => removeGame(active.id)}
+                  disabled={busy}
+                  className="ml-auto inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2.5 text-sm font-semibold text-red-400 transition-colors hover:bg-[var(--s4-selected-bg)] disabled:opacity-60"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  REMOVER
+                </button>
+              )}
             </div>
           </>
         )}
@@ -442,6 +517,7 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
                             : gradientForName(g.name),
                         }}
                       >
+                        {!cover && g.artworkPath && <div className="skeleton-shimmer absolute inset-0" />}
                         {!cover && icon && (
                           <img src={icon} alt="" className="absolute left-1/2 top-[38%] h-16 w-16 -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-lg" />
                         )}

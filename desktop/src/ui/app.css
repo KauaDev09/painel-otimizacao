@@ -18,6 +18,8 @@
   --s4-selected-bg: rgba(255, 59, 63, 0.12);
   --s4-core-1: #ff3b3f;
   --s4-core-2: #c81e22;
+  --s4-core-3: #7d1618;
+  --s4-ambient: rgba(255, 59, 63, 0.08);
   --s4-lime: #34d399;
 }
 
@@ -72,18 +74,29 @@ input,
 select,
 textarea {
   background: var(--s4-surface);
-  border: 1px solid rgba(255, 59, 63, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   color: var(--s4-text-primary);
   outline: none;
   color-scheme: dark;
+  transition:
+    border-color 0.18s ease-out,
+    box-shadow 0.18s ease-out;
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: var(--s4-hover-border);
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: var(--s4-hover-border);
-  box-shadow: 0 0 0 1px var(--s4-hover-border);
+  border-color: var(--s4-icon-active);
+  box-shadow:
+    0 0 0 1px var(--s4-icon-active),
+    0 0 12px var(--s4-hover-glow);
 }
 
 input::placeholder,
@@ -124,21 +137,39 @@ a {
     opacity 0.18s ease-out;
 }
 
-/* Glow só em ações primárias — menu, janela e ícones ficam sem caixa. */
+/* Contrato universal de hover — todo elemento clicável reage com o assunto
+   cromático (visual.md §5): cor de assunto + anel + brilho na forma mais
+   discreta. Menu, janela, navegação e inputs ficam sem caixa. */
+button:hover:not(.s4-nav-item):not(.s4-win-btn),
+[role="button"]:hover,
+a:hover {
+  color: var(--s4-hover-fg);
+}
+
 button.s4-glow:hover,
-a.s4-glow:hover {
+a.s4-glow:hover,
+button.abuton:hover,
+a.abuton:hover {
   color: var(--s4-hover-fg);
   box-shadow:
     0 0 0 1px var(--s4-hover-border),
     0 4px 16px var(--s4-hover-glow);
 }
 
-button:hover:not(.s4-nav-item):not(.s4-win-btn) {
-  color: var(--s4-hover-fg);
+/* Sessões persistentes (resumo, análise, jogo em execução) sempre acesas. */
+button.s4-active {
+  color: var(--s4-icon-active);
+  box-shadow:
+    0 0 0 1px var(--s4-hover-border),
+    0 4px 16px var(--s4-hover-glow);
 }
 
-button:focus-visible {
-  outline: none;
+/* Acessibilidade — focar com teclado nunca fica invisível. */
+button:focus-visible,
+[role="button"]:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--s4-icon-active);
+  outline-offset: 2px;
 }
 
 button.s4-glow:focus-visible {
@@ -152,7 +183,7 @@ nav button,
   box-shadow: none !important;
 }
 
-/* Ícones funcionais em cyan (nunca cinza/branco neutro) */
+/* Ícones funcionais em vermelho (nunca cinza/branco neutro) */
 .s4-icon-accent {
   color: var(--s4-icon-default);
 }
@@ -261,22 +292,7 @@ nav button:hover > svg {
 .sevenoptimizer-grid {
   position: absolute;
   inset: 0;
-  opacity: 0.4;
-  /* Pontos vermelhos discretos em treliças de espaçamentos diferentes (não linhas) */
-  background-image:
-    radial-gradient(rgba(255, 59, 63, 0.5) 1px, transparent 1px),
-    radial-gradient(rgba(255, 59, 63, 0.35) 1px, transparent 1px),
-    radial-gradient(rgba(255, 59, 63, 0.28) 1px, transparent 1px);
-  background-size:
-    47px 53px,
-    83px 74px,
-    131px 109px;
-  background-position:
-    0 0,
-    23px 29px,
-    61px 13px;
-  mask-image: radial-gradient(130% 100% at 50% 40%, #000 20%, transparent 82%);
-  -webkit-mask-image: radial-gradient(130% 100% at 50% 40%, #000 20%, transparent 82%);
+  opacity: 0.06;
 }
 
 /* Glow que segue o cursor (com inércia via lerp) — posição via transform, não top/left */
@@ -423,7 +439,7 @@ nav button:hover > svg {
 
 /* --- Modo compact (dashboard — §9) -------------------------------- */
 .sevenoptimizer-compact {
-  opacity: 0.45;
+  opacity: 0.7;
   --core-x: 88%;
   --core-y: 22%;
   --core-scale: 0.55;
@@ -450,7 +466,7 @@ nav button:hover > svg {
 }
 
 /* ------------------------------------------------------------------
-   Scrollbar discreta (§6.4) — fina, quase invisível em repouso, roxa no hover
+   Scrollbar discreta (§6.4) — fina, quase invisível em repouso, assina no hover
    ------------------------------------------------------------------ */
 ::-webkit-scrollbar {
   width: 6px;
@@ -468,4 +484,27 @@ nav button:hover > svg {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--s4-hover-border);
+}
+
+/* Skeleton de carregamento (capa de jogo, ilustrações) */
+.skeleton-shimmer {
+  background: linear-gradient(
+    110deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  background-size: 200% 100%;
+  animation: s4-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes s4-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer {
+    animation: none;
+  }
 }

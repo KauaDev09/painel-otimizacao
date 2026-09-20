@@ -1,6 +1,6 @@
 @echo off
 echo ================================
-echo   ORION OPTIMIZER - Gerar Build
+echo   SEVENOPTIMIZER - Gerar Build
 echo ================================
 echo.
 

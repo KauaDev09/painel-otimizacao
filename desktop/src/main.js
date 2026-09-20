@@ -104,7 +104,7 @@ function applyGeneralSettings(settings) {
 }
 
 function migrateLegacyUserData() {
-  // Mantém licença/histórico ao trocar o nome do pacote (orion-optimizer → sevenoptimizer).
+  // Mantém licença/histórico de versões anteriores do app (pacote antigo).
   try {
     const appData = app.getPath('appData');
     const legacyDirs = [
@@ -501,6 +501,7 @@ function registerIpc() {
   ipcMain.handle('gameboost:addGame', (_e, payload) => gameMode.add(payload || {}));
   ipcMain.handle('gameboost:removeGame', (_e, id) => gameMode.remove(id));
   ipcMain.handle('gameboost:sessionStatus', () => gameMode.status());
+  ipcMain.handle('gameboost:validate', (_e, id) => gameMode.validate(id));
   ipcMain.handle('gameboost:startSession', async (_e, id) => {
     requireActiveLicense();
     return gameMode.start(id);
