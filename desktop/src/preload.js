@@ -2,6 +2,21 @@
 
 const { contextBridge, ipcRenderer } = require('electron');
 
+// ---- Compatibilidade máxima ----
+// O main injeta --s4-low-power=1 quando a renderização é por software (sem GPU)
+// ou via --s4-disable-effects. Em modo econômico o CSS degrada blur/glow/animações.
+function lowPowerMode() {
+  const arg = (process.argv || []).find((a) => String(a).indexOf('--s4-low-power=') === 0);
+  return arg === '--s4-low-power=1';
+}
+
+const lowPower = lowPowerMode();
+if (lowPower && typeof document !== 'undefined') {
+  document.documentElement.setAttribute('data-lowpower', '1');
+}
+
+contextBridge.exposeInMainWorld('s4Compat', { lowPower });
+
 contextBridge.exposeInMainWorld('SevenAPI', {
   analyze: () => ipcRenderer.invoke('app:analyze'),
   getLast: () => ipcRenderer.invoke('app:getLast'),

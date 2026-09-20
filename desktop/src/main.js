@@ -188,12 +188,28 @@ function initServices() {
   return rawDir;
 }
 
+// Compatibilidade máxima: detecta renderização por software (sem GPU ou GPU
+// bloqueada) e avisa o renderer/CSS para degradar efeitos pesados (glass/glow).
+// Também aceita a flag manual --s4-disable-effects para testes/uso em HW fraco.
+function isSoftwareRendering() {
+  try {
+    const st = app.getGPUFeatureStatus ? app.getGPUFeatureStatus() : null;
+    if (!st) return false;
+    const weak = (v) => v === 'software' || v === 'disabled' || v === 'blocklisted' || v === 'unavailable_off';
+    return weak(st.gpu_compositing) || weak(st.opengl);
+  } catch (_) {
+    return false;
+  }
+}
+
 function createWindow() {
+  const forcedCompatibility = process.argv.includes('--s4-disable-effects');
+  const lowPower = forcedCompatibility || isSoftwareRendering();
   mainWindow = new BrowserWindow({
     width: 1320,
     height: 860,
-    minWidth: 1040,
-    minHeight: 720,
+    minWidth: 960,
+    minHeight: 600,
     backgroundColor: '#000000',
     title: APP_NAME,
     icon: appIcon(),
@@ -205,7 +221,8 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
-      spellcheck: false
+      spellcheck: false,
+      additionalArguments: [`--s4-low-power=${lowPower ? 1 : 0}`]
     }
   });
   mainWindow.setMenuBarVisibility(false);

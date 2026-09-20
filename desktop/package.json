@@ -78,7 +78,8 @@
         }
       ],
       "icon": "build/icon.ico",
-      "artifactName": "SevenOptimizer-Setup-${version}.${ext}"
+      "artifactName": "SevenOptimizer-Setup-${version}.${ext}",
+      "requestedExecutionLevel": "asInvoker"
     },
     "nsis": {
       "oneClick": false,

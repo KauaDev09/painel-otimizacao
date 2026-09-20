@@ -20,10 +20,32 @@ const { assertFile } = require('../security/scriptIntegrity');
 const ALLOWED_SUFFIXES = new Set(['.bat', '.cmd', '.reg', '.ps1']);
 const DEFAULT_SEQUENCE_TIMEOUT_MS = 30 * 60 * 1000; // 30 min padrão
 const MAX_SEQUENCE_TIMEOUT_MS = 120 * 60 * 1000; // teto 2h (DISM+SFC longos)
+const MAX_LOG_FILES = 40; // mantém os 40 logs de run mais recentes
 const MARK_SEQ_START = '@@MSO_SEQ_START@@';
 const MARK_SEQ_END = '@@MSO_SEQ_END@@';
 const stepStartMark = (i) => `@@MSO_STEP_${i}_START@@`;
 const stepEndMark = (i) => `@@MSO_STEP_${i}_END@@`;
+
+// Rotação simples: um arquivo run-*.log por execução; remove os mais antigos.
+function pruneOldLogs() {
+  if (!logsDir) return;
+  try {
+    const entries = fs.readdirSync(logsDir, { withFileTypes: true });
+    const logs = entries
+      .filter((e) => e.isFile() && /^run-\d+\.log$/.test(e.name))
+      .map((e) => {
+        try { return { name: e.name, mtime: fs.statSync(path.join(logsDir, e.name)).mtimeMs }; }
+        catch (_) { return null; }
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.mtime - a.mtime);
+    for (const stale of logs.slice(MAX_LOG_FILES)) {
+      try { fs.unlinkSync(path.join(logsDir, stale.name)); } catch (_) { /* ok */ }
+    }
+  } catch (_) {
+    /* nunca bloqueia uma otimização */
+  }
+}
 
 function resolveTimeoutMs(opts) {
   const raw = opts && Number(opts.timeoutMs);
@@ -209,6 +231,7 @@ async function runSteps(stepsInput, { onStepEnd, timeoutMs, requireAdmin } = {})
   }
   if (!prepared.length) return { results, logText: '', launchError: null };
 
+  pruneOldLogs();
   const logPath = path.join(logsDir, `run-${Date.now()}.log`);
   const orchPath = buildOrchestrator(prepared, logPath);
 

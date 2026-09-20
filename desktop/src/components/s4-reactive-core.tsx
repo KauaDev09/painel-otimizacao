@@ -26,8 +26,10 @@ export function S4ReactiveCore({ className = '', compact = false }: S4ReactiveCo
     const el = fieldRef.current;
     if (!el) return;
 
-    /* Reduced motion / painel compacto: sem loop de rAF (evita lag). */
-    if (compact || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    /* Reduced motion / painel compacto / modo econômico (GPU software):
+       sem loop de rAF (evita lag em hardware fraco). */
+    const lowPower = (window as unknown as { s4Compat?: { lowPower?: boolean } }).s4Compat?.lowPower === true;
+    if (compact || lowPower || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const styles = el.style;
     let raf = 0;
