@@ -42,8 +42,8 @@
   border: 1px solid var(--s4-glass-border);
   border-top-color: var(--s4-glass-hair);
   border-radius: var(--s4-glass-radius);
-  backdrop-filter: blur(var(--s4-glass-blur)) saturate(var(--s4-glass-saturate));
-  -webkit-backdrop-filter: blur(var(--s4-glass-blur)) saturate(var(--s4-glass-saturate));
+  backdrop-filter: blur(calc(var(--s4-glass-blur) * 0.6)) saturate(var(--s4-glass-saturate));
+  -webkit-backdrop-filter: blur(calc(var(--s4-glass-blur) * 0.6)) saturate(var(--s4-glass-saturate));
   box-shadow: var(--s4-glass-shadow);
 }
 

@@ -117,8 +117,8 @@ code, .mono { font-family: var(--font-mono); }
   border: 1px solid var(--glass-border);
   border-top-color: var(--glass-hair);
   border-radius: var(--glass-radius);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(var(--glass-saturate));
   box-shadow: var(--glass-shadow);
 }
 
