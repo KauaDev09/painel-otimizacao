@@ -42,7 +42,7 @@ interface LocalApi {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const STORE_URL = 'https://sevenoptimizer.com.br/planos';
+const STORE_URL = 'https://orion-store-dun.vercel.app/planos';
 
 const ERROR_MAP: Record<string, string> = {
   LICENSE_NOT_FOUND: 'Key inválida — verifique se digitou corretamente.',

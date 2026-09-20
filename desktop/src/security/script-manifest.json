@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-20T20:49:02.410Z",
+  "generatedAt": "2026-09-20T21:24:13.314Z",
   "files": {
     "hardware/collector.ps1": "aa4f396c4660abe0d90b7d889df54d93edbc5ae242e418006ccf14b4f7714080",
     "security/securityCollector.ps1": "c4398cb53d18ede80d78dd0b7bb153947bbd77c51b11a8bde72691e181524bb5",

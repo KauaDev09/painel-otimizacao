@@ -1,3 +1,18 @@
+# SevenOptimizer v2.1.12
+
+## Correção de conectividade da licença
+
+- A URL da API de licenças foi atualizada para o deploy Vercel ativo
+  (`orion-optimizer-ten.vercel.app`), resolvendo o erro
+  “Falha na validação: Não foi possível conectar ao servidor de licenças”.
+- URL da loja/planos ajustada para o projeto correspondente.
+- Atualização 2.1.12 publicada e autorizada no servidor.
+
+Instale o instalador 2.1.12 manualmente nesta versão; o self-update fica
+disponível a partir dela.
+
+---
+
 # SevenOptimizer v2.1.11
 
 ## Hardening e confiabilidade
