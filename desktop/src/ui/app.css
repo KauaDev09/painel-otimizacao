@@ -21,6 +21,67 @@
   --s4-core-3: #7d1618;
   --s4-ambient: rgba(255, 59, 63, 0.08);
   --s4-lime: #34d399;
+
+  /* Liquid Glass — superfícies translúcidas com blur real (Frente 1) */
+  --s4-glass-bg: rgba(20, 20, 22, 0.64);
+  --s4-glass-bg-strong: rgba(14, 14, 16, 0.82);
+  --s4-glass-border: rgba(255, 255, 255, 0.09);
+  --s4-glass-hair: rgba(255, 255, 255, 0.17);
+  --s4-glass-blur: 18px;
+  --s4-glass-saturate: 1.35;
+  --s4-glass-radius: 14px;
+  --s4-glass-shadow: 0 18px 46px rgba(0, 0, 0, 0.5);
+  --s4-glass-glow: 0 0 0 1px rgba(255, 59, 63, 0.18), 0 10px 34px rgba(255, 59, 63, 0.1);
+}
+
+/* Liquid Glass — utilitários (superfície translúcida com blur real).
+   Aplicar nos componentes nas etapas seguintes; borda superior hairline
+   simula o rebordo de luz do vidro. */
+.s4-glass,
+.s4-glass-strong {
+  border: 1px solid var(--s4-glass-border);
+  border-top-color: var(--s4-glass-hair);
+  border-radius: var(--s4-glass-radius);
+  backdrop-filter: blur(var(--s4-glass-blur)) saturate(var(--s4-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--s4-glass-blur)) saturate(var(--s4-glass-saturate));
+  box-shadow: var(--s4-glass-shadow);
+}
+
+.s4-glass {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 40%), var(--s4-glass-bg);
+}
+
+.s4-glass-strong {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0) 36%), var(--s4-glass-bg-strong);
+}
+
+.s4-glass-glow {
+  box-shadow: var(--s4-glass-glow), var(--s4-glass-shadow);
+}
+
+/* Rail da janela (sidebar/header) — vidro sem raio nem sombra; a borda
+   fica por conta do componente (border-r / border-b). */
+.s4-rail {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0) 30%), var(--s4-glass-bg-strong);
+  backdrop-filter: blur(var(--s4-glass-blur)) saturate(var(--s4-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--s4-glass-blur)) saturate(var(--s4-glass-saturate));
+}
+
+/* Modais — painel de vidro forte. Seletores unlayered vencem as utilities
+   Tailwind (bg-[var(--s4-surface)] / shadow-[...]) em todas as views. */
+div.fixed.inset-0:has(> [role="dialog"]) {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+[role="dialog"] {
+  border: 1px solid var(--s4-glass-border);
+  border-top-color: var(--s4-glass-hair);
+  border-radius: var(--s4-glass-radius);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0) 36%), var(--s4-glass-bg-strong);
+  backdrop-filter: blur(var(--s4-glass-blur)) saturate(var(--s4-glass-saturate));
+  -webkit-backdrop-filter: blur(var(--s4-glass-blur)) saturate(var(--s4-glass-saturate));
+  box-shadow: var(--s4-glass-shadow), 0 0 0 1px rgba(255, 59, 63, 0.08);
 }
 
 html,

@@ -16,7 +16,7 @@ export function Sidebar({ view, onNavigate, collapsed, onToggle, version }: Side
   return (
     <aside
       className={cn(
-        'flex shrink-0 flex-col bg-[var(--s4-bg)] transition-[width] duration-300',
+        's4-rail flex shrink-0 flex-col border-r border-[var(--s4-glass-border)] transition-[width] duration-300',
         collapsed ? 'w-16' : 'w-60'
       )}
     >

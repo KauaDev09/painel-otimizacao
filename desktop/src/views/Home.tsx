@@ -15,7 +15,7 @@ interface LiveCardProps {
 
 function LiveCard({ icon: Icon, title, value, unit, desc, hist }: LiveCardProps) {
   return (
-    <div className="rounded-xl border border-[rgba(56,189,248,0.1)] bg-[linear-gradient(180deg,rgba(20,27,40,0.95),rgba(15,21,32,0.98))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+    <div className="s4-glass p-4">
       <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         {Icon && <Icon className="h-3.5 w-3.5 text-primary" />}
         <span>{title}</span>
@@ -159,7 +159,7 @@ export function Home({ onNavigate }: HomeProps) {
           <div className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Recursos do Sistema
           </div>
-          <div className="rounded-lg bg-[var(--s4-surface)] p-5">
+          <div className="s4-glass p-5">
             {(['cpu', 'gpu', 'ram'] as const).map((k) => {
               const values = hist.current[k];
               const last = values.length ? Math.round(values[values.length - 1]) : 0;
@@ -180,7 +180,7 @@ export function Home({ onNavigate }: HomeProps) {
           <div className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Informações do Sistema
           </div>
-          <div className="rounded-lg bg-[var(--s4-surface)] p-5">
+          <div className="s4-glass p-5">
             <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
               Visão detalhada do hardware, firmware, saúde do sistema e recomendações.
             </p>

@@ -55,7 +55,7 @@ export function Header({ view, collapsed, onMenu }: HeaderProps) {
   ];
 
   return (
-    <header className="drag-region relative z-20 flex h-14 shrink-0 items-center justify-between bg-[var(--s4-bg)] px-6">
+    <header className="drag-region s4-rail relative z-20 flex h-14 shrink-0 items-center justify-between border-b border-[var(--s4-glass-border)] px-6">
       <div className="flex items-center gap-4">
         <button
           type="button"
@@ -75,7 +75,7 @@ export function Header({ view, collapsed, onMenu }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-3">
-        <span className="no-drag inline-flex items-center gap-1.5 rounded-full bg-[var(--s4-surface)] px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-wider text-[var(--s4-text-secondary)]">
+        <span className="no-drag inline-flex items-center gap-1.5 rounded-full bg-[var(--s4-glass-bg)] px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-wider text-[var(--s4-text-secondary)] backdrop-blur-[6px]">
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--s4-icon-default)]" />
           {plan || '…'}
         </span>
