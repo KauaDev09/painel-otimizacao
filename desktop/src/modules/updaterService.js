@@ -106,13 +106,28 @@ function _downloadFile(url, destPath) {
       return;
     }
 
-    const mod = u.protocol === 'http:' ? http : https;
+    // TLS obrigatório: recusa downloads via http puro (permitido só em dev local).
+    if (u.protocol === 'http:' && process.env.SEVEN_ALLOW_HTTP !== '1') {
+      reject(new Error('Download inseguro (HTTP) recusado. Use HTTPS.'));
+      return;
+    }
+    const mod = u.protocol === 'https:' ? https : http;
 
     const req = mod.get(u, { timeout: 120000 }, (res) => {
-      // Segue redirecionamentos (301, 302, 307, 308)
+      // Segue redirecionamentos (301, 302, 307, 308) — revalidando o protocolo:
+      // um downgrade para http// é recusado.
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
         if (currentDownload === req) currentDownload = null;
-        _downloadFile(res.headers.location, destPath).then(resolve).catch(reject);
+        let next;
+        try { next = new URL(res.headers.location, u); } catch (_) {
+          reject(new Error('Redirecionamento de download inválido.'));
+          return;
+        }
+        if (!(next.protocol === 'https:' || (next.protocol === 'http:' && process.env.SEVEN_ALLOW_HTTP === '1'))) {
+          reject(new Error('Redirecionamento de download para protocolo inseguro (HTTP) recusado.'));
+          return;
+        }
+        _downloadFile(next.href, destPath).then(resolve).catch(reject);
         return;
       }
 
@@ -283,8 +298,13 @@ async function installUpdate(filePath) {
     '  Set-Content -LiteralPath $status -Value ("error:" + $_.Exception.Message) -Encoding ASCII',
     '}',
     'Start-Sleep -Milliseconds 600',
-    // 3) Relança o app fora de elevação para não herdar privilégios elevados
-    'if (Test-Path -LiteralPath $exe) { Start-Process -FilePath $exe } else { Set-Content -LiteralPath $status -Value "noexe" -Encoding ASCII }',
+    // 3) Relança o app FORA de elevação (via explorer, que executa como usuário
+    //    comum) para que o processo reaberto não herde o token elevado.
+    'if (Test-Path -LiteralPath $exe) { Start-Process -FilePath "explorer.exe" -ArgumentList $exe } else { Set-Content -LiteralPath $status -Value "noexe" -Encoding ASCII }',
+    'Start-Sleep -Milliseconds 1200',
+    // 4) Auto-limpeza do helper e do marcador de status após o relançamento.
+    'Remove-Item -LiteralPath $status -ErrorAction SilentlyContinue',
+    'Remove-Item -LiteralPath $PSCommandPath -ErrorAction SilentlyContinue',
     'exit 0'
   ].join('\n');
 

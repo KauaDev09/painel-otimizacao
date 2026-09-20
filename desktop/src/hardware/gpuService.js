@@ -6,17 +6,15 @@ const { asArray } = require('../utils/asArray');
 
 function findNvidiaSmi() {
   const candidates = [
-    'nvidia-smi',
     path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'nvidia-smi.exe'),
     path.join(process.env['ProgramW6432'] || 'C:\\Program Files', 'NVIDIA Corporation', 'NVSMI', 'nvidia-smi.exe'),
     path.join(process.env['ProgramFiles'] || 'C:\\Program Files', 'NVIDIA Corporation', 'NVSMI', 'nvidia-smi.exe'),
     path.join(process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)', 'NVIDIA Corporation', 'NVSMI', 'nvidia-smi.exe')
   ];
   for (const p of candidates) {
-    if (p === 'nvidia-smi') continue;
     try { if (fs.existsSync(p)) return p; } catch (_) { /* next */ }
   }
-  return 'nvidia-smi';
+  return null;
 }
 
 const MB = 1024 * 1024;

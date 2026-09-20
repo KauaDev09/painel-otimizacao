@@ -6,6 +6,15 @@
 const http = require('http');
 const https = require('https');
 
+// TLS obrigatório: HTTP puro é recusado por padrão. Só desenvolvimento local
+// explícito (SEVEN_ALLOW_HTTP=1) usa http:// (ex.: testes contra API local).
+function selectMod(u) {
+  if (u.protocol === 'https:') return https;
+  if (u.protocol === 'http:' && process.env.SEVEN_ALLOW_HTTP === '1') return http;
+  if (u.protocol === 'http:') throw new Error('Conexão insegura (HTTP) recusada pelo aplicativo.');
+  throw new Error('Protocolo de rede não suportado.');
+}
+
 function postJson(base, pathStr, body, { headers = {}, timeoutMs = 15000 } = {}) {
   return new Promise((resolve, reject) => {
     let u;
@@ -15,7 +24,7 @@ function postJson(base, pathStr, body, { headers = {}, timeoutMs = 15000 } = {})
       reject(new Error('Endereço da API inválido.'));
       return;
     }
-    const mod = u.protocol === 'http:' ? http : https;
+    const mod = selectMod(u);
     const data = JSON.stringify(body || {});
     const req = mod.request(
       u,
@@ -67,7 +76,7 @@ function getJson(base, pathStr, { headers = {}, timeoutMs = 15000 } = {}) {
       reject(new Error('Endereço da API inválido.'));
       return;
     }
-    const mod = u.protocol === 'http:' ? http : https;
+    const mod = selectMod(u);
     const req = mod.request(u, { method: 'GET', headers, timeout: timeoutMs }, (res) => {
       let buf = '';
       res.setEncoding('utf8');

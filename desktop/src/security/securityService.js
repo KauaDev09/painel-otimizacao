@@ -13,6 +13,8 @@ const psRunner = require('../hardware/psRunner');
 const { asArray } = require('../utils/asArray');
 
 const COLLECTOR_PATH = path.join(__dirname, 'securityCollector.ps1');
+const COLLECTOR_KEY = 'security/securityCollector.ps1';
+const integrity = require('./scriptIntegrity');
 
 function isoOrNull(v) {
   if (!v) return null;
@@ -40,6 +42,7 @@ function decodeProductState(state) {
 
 async function collect() {
   const script = fs.readFileSync(COLLECTOR_PATH, 'utf8');
+  integrity.assertContent(COLLECTOR_KEY, script);
   const { stdout, stderr } = await psRunner.runPowerShell(script, 45000);
   if (!stdout || !stdout.trim().startsWith('{')) {
     throw new Error(`Coletor de segurança não retornou JSON. stderr: ${String(stderr).slice(0, 200)}`);

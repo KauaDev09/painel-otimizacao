@@ -49,6 +49,7 @@ const settingsService = require('./modules/settingsService');
 const displayService = require('./modules/displayService');
 const appLibrary = require('./modules/appLibrary');
 const updaterService = require('./modules/updaterService');
+const audit = require('./modules/auditService');
 // screenOverlay acessa o módulo `screen` — só carrega depois de ready.
 let screenOverlay = null;
 function getScreenOverlay() {
@@ -530,41 +531,74 @@ function registerIpc() {
   ipcMain.handle('engine:apply', async (_e, payload) => {
     const ids = Array.isArray(payload && payload.ids) ? payload.ids.map(String) : [];
     ensureLicenseForItems(ids);
-    return engineService.applyItems(ids, {
-      label: payload && payload.label,
-      profile: (payload && payload.profile) || null,
-      createRestorePoint: !!(payload && payload.createRestorePoint),
-      onStep: sendEngineStep
-    });
+    try {
+      const result = await engineService.applyItems(ids, {
+        label: payload && payload.label,
+        profile: (payload && payload.profile) || null,
+        createRestorePoint: !!(payload && payload.createRestorePoint),
+        onStep: sendEngineStep
+      });
+      audit.record('engine', 'apply', 'ok', {
+        ids, count: ids.length,
+        label: (payload && payload.label) || null,
+        profile: (payload && payload.profile) || null
+      });
+      return result;
+    } catch (err) {
+      audit.record('engine', 'apply', 'error', { ids, message: String(err && err.message || err).slice(0, 300) });
+      throw err;
+    }
   });
   ipcMain.handle('engine:undoItem', async (_e, id) => {
     const item = engineService.listItems().find((i) => i.id === String(id));
     if (item && item.proOnly) requireActiveLicense();
-    return engineService.undoItem(id);
+    try {
+      const result = await engineService.undoItem(id);
+      audit.record('engine', 'undoItem', result && result.ok === false ? 'fail' : 'ok', { id: String(id), name: item && item.name });
+      return result;
+    } catch (err) {
+      audit.record('engine', 'undoItem', 'error', { id: String(id), message: String(err && err.message || err).slice(0, 300) });
+      throw err;
+    }
   });
   ipcMain.handle('engine:listOperations', () => engineService.listOperations());
   ipcMain.handle('engine:getOperation', (_e, opId) => engineService.getOperation(opId));
   ipcMain.handle('engine:undoOperation', async (_e, opId) => {
-    return engineService.undoOperation(opId, { onStep: sendEngineStep });
+    try {
+      const result = await engineService.undoOperation(opId, { onStep: sendEngineStep });
+      audit.record('engine', 'undoOperation', result && result.ok === false ? 'fail' : 'ok', { opId: String(opId) });
+      return result;
+    } catch (err) {
+      audit.record('engine', 'undoOperation', 'error', { opId: String(opId), message: String(err && err.message || err).slice(0, 300) });
+      throw err;
+    }
   });
 
   // ---- Limpeza nativa ----
   ipcMain.handle('cleaner:targets', () => cleanerService.listTargets());
   ipcMain.handle('cleaner:measure', (_e, ids) => cleanerService.measureTargets(Array.isArray(ids) ? ids.map(String) : undefined));
   ipcMain.handle('cleaner:clean', async (_e, ids) => {
-    return cleanerService.clean(Array.isArray(ids) ? ids.map(String) : [], { onStep: sendEngineStep });
+    const list = Array.isArray(ids) ? ids.map(String) : [];
+    try {
+      const result = await cleanerService.clean(list, { onStep: sendEngineStep });
+      audit.record('cleaner', 'clean', 'ok', { targets: list, count: list.length });
+      return result;
+    } catch (err) {
+      audit.record('cleaner', 'clean', 'error', { targets: list, message: String(err && err.message || err).slice(0, 300) });
+      throw err;
+    }
   });
 
   // ---- Reparo do sistema ----
   ipcMain.handle('repair:options', () => repairService.listOptions());
-  ipcMain.handle('repair:run', async (_e, optionId) => {
+  ipcMain.handle('repair:run', audit.wrap('repair:run', 'repair', 'run', async (_e, optionId) => {
     requireActiveLicense();
     return repairService.runRepair(optionId, { onStep: sendEngineStep });
-  });
-  ipcMain.handle('repair:quickfix', async () => {
+  }, (result, _e, optionId) => ({ option: optionId, ok: !!(result && result.ok === undefined ? true : result.ok) })));
+  ipcMain.handle('repair:quickfix', audit.wrap('repair:quickfix', 'repair', 'quickfix', async () => {
     requireActiveLicense();
     return repairService.runQuickFix({ onStep: sendEngineStep });
-  });
+  }));
 
   // ---- Monitor em tempo real (cache curto evita PowerShell empilhado) ----
   let snapshotCache = { data: null, ts: 0, inflight: null };
@@ -589,19 +623,26 @@ function registerIpc() {
     if (!entry || typeof entry.enabled !== 'boolean') {
       throw new Error('Solicitação inválida.');
     }
-    return startupService.setEnabled(entry, !!entry.enabled);
+    try {
+      const result = await startupService.setEnabled(entry, !!entry.enabled);
+      audit.record('startup', 'setEnabled', 'ok', { name: entry.name || entry.command || null, enabled: !!entry.enabled });
+      return result;
+    } catch (err) {
+      audit.record('startup', 'setEnabled', 'error', { name: entry.name || entry.command || null, message: String(err && err.message || err).slice(0, 300) });
+      throw err;
+    }
   });
 
   // ---- Processos ----
   ipcMain.handle('process:list', () => processService.listProcesses());
-  ipcMain.handle('process:kill', async (_e, { pid, name }) => {
+  ipcMain.handle('process:kill', audit.wrap('process:kill', 'process', 'kill', async (_e, { pid, name }) => {
     requireActiveLicense();
     return processService.killProcess(pid, name);
-  });
-  ipcMain.handle('process:setPriority', async (_e, { pid, name, level }) => {
+  }, (result, _e, args) => ({ pid: args && args.pid, name: args && args.name })));
+  ipcMain.handle('process:setPriority', audit.wrap('process:setPriority', 'process', 'setPriority', async (_e, { pid, name, level }) => {
     requireActiveLicense();
     return processService.setPriority(pid, name, level);
-  });
+  }, (result, _e, args) => ({ pid: args && args.pid, name: args && args.name, level: args && args.level })));
 
   // ---- Rede ----
   ipcMain.handle('network:info', () => networkService.getAdapterInfo());
@@ -641,7 +682,7 @@ function registerIpc() {
   // ---- Atualizações ----
   ipcMain.handle('update:check', () => updaterService.checkForUpdate(licenseService.getLicenseKey()));
   ipcMain.handle('update:download', (_e, url) => updaterService.downloadUpdate(url));
-  ipcMain.handle('update:install', (_e, filePath) => updaterService.installUpdate(filePath));
+  ipcMain.handle('update:install', audit.wrap('update:install', 'update', 'install', (_e, filePath) => updaterService.installUpdate(filePath), (result, _e, f) => ({ file: f ? path.basename(f) : null })));
   ipcMain.handle('update:cancel', () => updaterService.cancelDownload());
 
   // ---- Metadados do produto / saúde da API ----
@@ -714,16 +755,30 @@ function registerIpc() {
     const id = payload && payload.id;
     if (payload && payload.dryRunOnly) return biosManager.apply(String(id || ''), { dryRunOnly: true });
     requireActiveLicense();
-    return biosManager.apply(String(id || ''), {
-      reboot: !!(payload && payload.reboot),
-      dryRunOnly: false
-    });
+    try {
+      const result = await biosManager.apply(String(id || ''), {
+        reboot: !!(payload && payload.reboot),
+        dryRunOnly: false
+      });
+      audit.record('bios', 'apply', 'ok', { id: String(id), reboot: !!(payload && payload.reboot) });
+      return result;
+    } catch (err) {
+      audit.record('bios', 'apply', 'error', { id: String(id), message: String(err && err.message || err).slice(0, 300) });
+      throw err;
+    }
   });
   ipcMain.handle('bios:scheduleVerify', (_e, id) => biosManager.scheduleVerify(String(id || '')));
   ipcMain.handle('bios:verifyPending', () => biosManager.verifyPending());
   ipcMain.handle('bios:rollback', async (_e, id) => {
     requireActiveLicense();
-    return biosManager.rollback(String(id || ''));
+    try {
+      const result = await biosManager.rollback(String(id || ''));
+      audit.record('bios', 'rollback', 'ok', { id: String(id) });
+      return result;
+    } catch (err) {
+      audit.record('bios', 'rollback', 'error', { id: String(id), message: String(err && err.message || err).slice(0, 300) });
+      throw err;
+    }
   });
   ipcMain.handle('bios:reboot', async () => {
     requireActiveLicense();

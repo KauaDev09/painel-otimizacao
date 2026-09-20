@@ -7,8 +7,10 @@
 const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { assertContent } = require('../security/scriptIntegrity');
 
 const COLLECTOR_PATH = path.join(__dirname, 'collector.ps1');
+const COLLECTOR_KEY = 'hardware/collector.ps1';
 const TIMEOUT_MS = 60000;
 
 function toEncodedCommand(script) {
@@ -65,6 +67,7 @@ function missingCritical(data) {
 
 async function collectAll(log = () => {}) {
   const script = fs.readFileSync(COLLECTOR_PATH, 'utf8');
+  assertContent(COLLECTOR_KEY, script);
 
   // O serviço WMI/CIM pode falhar transitoriamente em algumas sessões; repete a
   // coleta inteira até obter as seções críticas ou esgotar as tentativas.
@@ -105,7 +108,9 @@ function queryNvidiaSmi(timeoutMs = 8000) {
   return new Promise((resolve) => {
     try {
       const { findNvidiaSmi } = require('./gpuService');
-      const child = spawn(findNvidiaSmi(), [
+      const exe = findNvidiaSmi();
+      if (!exe) return resolve(null);
+      const child = spawn(exe, [
         '--query-gpu=name,pcie.link.gen.current,pcie.link.gen.max,pcie.link.width.current,pcie.link.width.max,driver_version,memory.total',
         '--format=csv,noheader'
       ], { windowsHide: true });

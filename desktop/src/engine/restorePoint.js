@@ -25,7 +25,9 @@ function getBaseDir() { return baseDir; }
  * Sai 0 em sucesso e 1 em falha (o runner decide pelo código de saída).
  */
 function buildRestorePointScript(description = 'SevenOptimizer') {
-  const safeDesc = String(description).replace(/'/g, '').slice(0, 100);
+  // String PowerShell entre aspas simples: aspas internas escapadas dobrando ('') —
+  // escapar corretamente, em vez de apenas remover, preserva o texto.
+  const safeDesc = String(description).replace(/'/g, "''").slice(0, 100);
   return `
 $ErrorActionPreference = 'Stop'
 try {

@@ -103,30 +103,17 @@ let gpuCliPath = undefined; // cache da detecção do nvidia-smi
 function detectNvidiaSmi() {
   if (gpuCliPath !== undefined) return Promise.resolve(gpuCliPath);
   const cli = findNvidiaSmi();
+  if (!cli) {
+    gpuCliPath = null;
+    return Promise.resolve(gpuCliPath);
+  }
   // Caminho absoluto existente: confia sem --help (evita race/timeout).
-  if (cli && cli !== 'nvidia-smi' && fs.existsSync(cli)) {
+  if (fs.existsSync(cli)) {
     gpuCliPath = cli;
     return Promise.resolve(gpuCliPath);
   }
-  return new Promise((resolve) => {
-    let settled = false;
-    const done = (found) => {
-      if (settled) return;
-      settled = true;
-      gpuCliPath = found ? cli : null;
-      resolve(gpuCliPath);
-    };
-    const child = spawn(cli, ['--query-gpu=name', '--format=csv,noheader'], { windowsHide: true });
-    const timer = setTimeout(() => {
-      try { child.kill(); } catch (_) { /* ignore */ }
-      done(false);
-    }, 4000);
-    child.on('error', () => { clearTimeout(timer); done(false); });
-    child.on('close', (code) => {
-      clearTimeout(timer);
-      done(code === 0);
-    });
-  });
+  gpuCliPath = null;
+  return Promise.resolve(gpuCliPath);
 }
 
 function parseNvidiaLine(out) {

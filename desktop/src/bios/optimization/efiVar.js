@@ -18,6 +18,27 @@ const os = require('os');
 const path = require('path');
 const { runHidden, runElevatedCommand } = require('./elevation');
 
+// Argumentos injetados em linhas cmd.exe elevadas: restringir por whitelist
+// (nomes de variável EFI, GUIDs e hex são formatos conhecidos) elimina qualquer
+// interpolação de metacharacteres do shell a partir de dados graváveis
+// (efiOffsets.json / pending.json). Respeitando aspas duplas para o cmd.
+const EFI_NAME_RE = /^[A-Za-z0-9][A-Za-z0-9_.\-]{0,63}$/;
+const EFI_GUID_RE = /^\{[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\}$/;
+const EFI_HEX_RE = /^[0-9A-Fa-f]*$/;
+
+function efiNameArg(name) {
+  if (typeof name !== 'string' || !EFI_NAME_RE.test(name)) throw new Error('Nome de variável EFI inválido.');
+  return `"${name}"`;
+}
+function efiGuidArg(guid) {
+  if (typeof guid !== 'string' || !EFI_GUID_RE.test(guid)) throw new Error('GUID EFI inválido.');
+  return `"${guid}"`;
+}
+function efiHexArg(hex) {
+  if (typeof hex !== 'string' || !EFI_HEX_RE.test(hex)) throw new Error('Valor hexadecimal inválido.');
+  return hex;
+}
+
 const AMI_SETUP_GUID = '{E2C95E0B-5A9F-46D5-BE6A-70A6BA6F5A53}';
 const INSYDE_SETUP_GUID = '{8BE4DF61-93CA-11D2-AA0D-00E098032B8C}';
 const VAR_ATTRS = 0x7; // EFI_VARIABLE_NON_VOLATILE | BOOTSERVICE_ACCESS | RUNTIME_ACCESS
@@ -318,7 +339,7 @@ async function runPsApply(name, guid, entry, attrs) {
     const andMask = entry.andMask == null ? -1 : Number(entry.andMask) & 0xffffffff;
     const commandLine =
       `powershell.exe -NoProfile -ExecutionPolicy Bypass -NonInteractive -File "${scriptPath}" ` +
-      `-Name ${name} -Guid ${guid} -Offset ${Number(entry.offset)} -Size ${Number(entry.size) || 1} ` +
+      `-Name ${efiNameArg(name)} -Guid ${efiGuidArg(guid)} -Offset ${Number(entry.offset)} -Size ${Number(entry.size) || 1} ` +
       `-AndMask ${andMask} -Value ${Number(entry.value) & 0xffffffff} -Attrs ${attrs}`;
     const result = await runElevatedCommand(commandLine, 90000);
     const text = String(result.stdout || '');
@@ -352,7 +373,7 @@ async function runPsRestore(name, guid, bytesHex, attrs) {
   try {
     const commandLine =
       `powershell.exe -NoProfile -ExecutionPolicy Bypass -NonInteractive -File "${scriptPath}" ` +
-      `-Name ${name} -Guid ${guid} -BytesHex ${bytesHex} -Attrs ${attrs}`;
+      `-Name ${efiNameArg(name)} -Guid ${efiGuidArg(guid)} -BytesHex ${efiHexArg(bytesHex)} -Attrs ${attrs}`;
     const result = await runElevatedCommand(commandLine, 60000);
     const text = String(result.stdout || '');
     if (/^OK/im.test(text)) return { ok: true };

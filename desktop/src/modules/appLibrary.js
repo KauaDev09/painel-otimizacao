@@ -331,15 +331,36 @@ function pathToMediaUrl(p) {
   return 's4-media://local/' + Buffer.from(abs, 'utf8').toString('base64url');
 }
 
+// Diretórios que o protocolo s4-media tem permissão de servir (allow-list).
+// Impede que um renderer comprometido (ex.: falha de sanitização de URL) use
+// o protocolo para ler arquivos arbitrários do disco (bypassCSP amplifica o risco).
+function allowedMediaRoots() {
+  const roots = [];
+  const { app } = require('electron');
+  try {
+    if (app && app.isReady()) roots.push(path.resolve(app.getPath('userData')));
+  } catch (_) { /* pré-ready */ }
+  if (process.env.LOCALAPPDATA) roots.push(path.resolve(process.env.LOCALAPPDATA, 'sevenoptimizer'));
+  if (process.env.TEMP) roots.push(path.resolve(process.env.TEMP, 'sevenoptimizer'));
+  if (process.resourcesPath) roots.push(path.resolve(process.resourcesPath));
+  roots.push(path.resolve(__dirname, '..', '..')); // pasta do projeto (dev) / conteúdo do pacote
+  return roots;
+}
+
 function resolveMediaUrl(url) {
   const raw = String(url || '');
   const m = /^s4-media:\/\/local\/([A-Za-z0-9_-]+)$/.exec(raw);
   if (!m) return null;
+  let abs;
   try {
-    return Buffer.from(m[1], 'base64url').toString('utf8');
+    abs = Buffer.from(m[1], 'base64url').toString('utf8');
   } catch (_) {
     return null;
   }
+  const resolved = path.resolve(abs);
+  const roots = allowedMediaRoots();
+  const inside = roots.some((r) => resolved === r || resolved.startsWith(r + path.sep));
+  return inside ? resolved : null;
 }
 
 async function getIconDataUrl(exePath) {

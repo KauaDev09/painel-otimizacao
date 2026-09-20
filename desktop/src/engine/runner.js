@@ -14,6 +14,8 @@ const { spawn } = require('child_process');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const scriptsSync = require('./scriptsSync');
+const { assertFile } = require('../security/scriptIntegrity');
 
 const ALLOWED_SUFFIXES = new Set(['.bat', '.cmd', '.reg', '.ps1']);
 const DEFAULT_SEQUENCE_TIMEOUT_MS = 30 * 60 * 1000; // 30 min padrão
@@ -182,6 +184,23 @@ async function runSteps(stepsInput, { onStepEnd, timeoutMs, requireAdmin } = {})
       results.push({ name: step.name, ok: false, message: v.error });
       if (onStepEnd) onStepEnd(step.name, false, v.error);
     } else {
+      // Integridade SHA-256 (manifest gerado no build): scripts do motor
+      // espelhados são conferidos ANTES de entrar no orquestrador.
+      let integrityError = null;
+      try {
+        const base = scriptsSync.getScriptsBase();
+        const rel = path.relative(base, v.resolved);
+        if (rel && !path.isAbsolute(rel) && !rel.startsWith('..')) {
+          assertFile(path.join('engine', 'scripts', rel), v.resolved);
+        }
+      } catch (e) {
+        integrityError = e.message;
+      }
+      if (integrityError) {
+        results.push({ name: step.name, ok: false, message: integrityError });
+        if (onStepEnd) onStepEnd(step.name, false, integrityError);
+        continue;
+      }
       const entry = { name: step.name, ok: false, message: 'Aguardando' };
       resultMap.set(prepared.length, entry);
       prepared.push({ name: step.name, path: v.resolved });

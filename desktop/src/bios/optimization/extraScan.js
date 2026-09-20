@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 const { isElevated, runHidden } = require('./elevation');
+const { findNvidiaSmi } = require('../../hardware/gpuService');
 
 const HIGH_PERF = '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c';
 const BALANCED = '381b4222-f694-41f0-9685-ff5bb260df2e';
@@ -69,7 +70,9 @@ async function detectPowerPlan() {
 function queryNvidiaRebar(timeoutMs = 8000) {
   return new Promise((resolve) => {
     try {
-      const child = spawn('nvidia-smi', ['-q'], { windowsHide: true });
+      const exe = findNvidiaSmi();
+      if (!exe) return resolve(null);
+      const child = spawn(exe, ['-q'], { windowsHide: true });
       let out = '';
       let done = false;
       const finish = (v) => { if (!done) { done = true; clearTimeout(t); resolve(v); } };
