@@ -228,6 +228,11 @@ class LicenseService {
     return (this.cache && this.cache.key) || null;
   }
 
+  /** Token de sessão HMAC (typ client) para chamadas autenticadas no main. */
+  getToken() {
+    return (this.cache && this.cache.token) || null;
+  }
+
   async activate(keyRaw) {
     const key = String(keyRaw || '').trim().toUpperCase();
     if (!key) {

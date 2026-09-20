@@ -111,6 +111,13 @@ export interface SevenApi {
   settingsGet(): Promise<SettingsLike>;
   settingsSet(patch: unknown): Promise<unknown>;
 
+  // ---- SevenIA (assistente de IA) ----
+  seveniaUsage(): Promise<{ ok?: boolean; usage?: SeveniaUsage; offline?: boolean }>;
+  seveniaChat(payload: {
+    message: string;
+    history?: SeveniaChatMessage[];
+  }): Promise<SeveniaChatResult>;
+
   [method: string]: any;
 }
 
@@ -172,4 +179,25 @@ export interface DisplayStateLike {
   saturation?: number;
   gamma?: number;
   temperature?: number;
+}
+
+export interface SeveniaUsage {
+  plan?: 'free' | 'pro';
+  activatedAt?: string | null;
+  date?: string;
+  used?: number;
+  limit?: number;
+  remaining?: number;
+}
+
+export interface SeveniaChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface SeveniaChatResult {
+  ok?: boolean;
+  reply?: string;
+  model?: string;
+  usage?: SeveniaUsage;
 }

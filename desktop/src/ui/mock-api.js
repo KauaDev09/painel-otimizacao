@@ -718,6 +718,38 @@ window.SevenAPI = {
   getAppMeta: async () => ({ version: '2.0.0', buildDate: '2026-08-20', electron: '31.7.7', node: '20.x' }),
   appHealth: async () => ({ ok: true, api: 'online', license: 'valid' }),
 
+  // ---- SevenIA (assistente de IA, preview) ----
+  seveniaUsage: async () => ({
+    ok: true,
+    usage: {
+      plan: _licenseState.active ? 'free' : 'free',
+      activatedAt: null,
+      date: new Date().toISOString().slice(0, 10),
+      used: 2,
+      limit: 10,
+      remaining: 8
+    }
+  }),
+  seveniaChat: async (payload) => {
+    await delay(1200);
+    if (!_licenseState.active) {
+      const e = new Error('Ative sua licença para usar a SevenIA.');
+      e.code = 'LICENSE_REQUIRED';
+      throw e;
+    }
+    const text = String(payload && payload.message || '').trim();
+    const replies = {
+      'o que mexer agora': 'Comece pela aba Otimização: aplique o perfil "Equilibrado" para ganho imediato de responsividade sem arriscar estabilidade.', 
+      'melhore o fps': 'No Game Boost, ative o Game Mode, o plano de energia Alto desempenho e desligue a gravação em segundo plano (Game Bar).', 
+      'limpeza segura': 'Na aba Limpeza use apenas alvos seguros: arquivos temporários do usuário, cache do navegador e logs do Windows.'
+    };
+    const key = Object.keys(replies).find((k) => text.toLowerCase().includes(k));
+    const reply = key
+      ? replies[key]
+      : 'Sou a SevenIA, assistente de otimização do S4. Posso explicar qualquer aba do app, interpretar o laudo do sistema e sugerir próximos passos de otimização.';
+    return { ok: true, reply, model: 'claude-sonnet-4-6 (preview)', usage: { plan: 'free', date: new Date().toISOString().slice(0, 10), used: 3, limit: 10, remaining: 7 } };
+  },
+
   biosScan: async () => { await delay(400); _biosLogs.push('[preview] Scanner concluído'); return mockBiosPayload(); },
   biosList: async () => mockBiosPayload(),
   biosDryRun: async (id) => {

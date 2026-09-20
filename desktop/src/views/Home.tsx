@@ -1,8 +1,8 @@
 import React from 'react';
-import { Rocket, type LucideIcon } from 'lucide-react';
+import { Rocket, Send, Sparkles, type LucideIcon } from 'lucide-react';
 import { useApi } from '@/api';
 import { Sparkline } from '@/components/Sparkline';
-import type { MonitorSnapshot } from '@/api/types';
+import type { MonitorSnapshot, SeveniaChatMessage, SeveniaUsage } from '@/api/types';
 
 interface LiveCardProps {
   icon: LucideIcon | null;
@@ -193,6 +193,176 @@ export function Home({ onNavigate }: HomeProps) {
             </button>
           </div>
         </div>
+      </div>
+
+      <SeveniaPanel api={api} />
+    </div>
+  );
+}
+
+const CHAT_SUGGESTIONS = [
+  'O que devo otimizar agora?',
+  'Como melhorar meu FPS?',
+  'Sugira uma limpeza segura',
+  'Leia o laudo do sistema',
+];
+
+function SeveniaPanel({ api }: { api: ReturnType<typeof useApi> }) {
+  const [messages, setMessages] = React.useState<SeveniaChatMessage[]>([]);
+  const [input, setInput] = React.useState('');
+  const [sending, setSending] = React.useState(false);
+  const [usage, setUsage] = React.useState<SeveniaUsage | null>(null);
+  const [offline, setOffline] = React.useState(false);
+  const [err, setErr] = React.useState('');
+  const listRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    api
+      .seveniaUsage()
+      .then((r) => {
+        if (r.ok && r.usage) setUsage(r.usage);
+        else if (r.offline) setOffline(true);
+      })
+      .catch((e: { code?: string }) => {
+        if (e.code === 'LICENSE_REQUIRED') {
+          setErr('Ative sua licença na aba Licença para usar a SevenIA.');
+        }
+      });
+  }, [api]);
+
+  React.useEffect(() => {
+    const el = listRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [messages]);
+
+  async function send(preset?: string) {
+    const text = (preset || input).trim();
+    if (!text || sending) return;
+    const history = messages.slice(-12);
+    setMessages((m) => [...m, { role: 'user', content: text }]);
+    setInput('');
+    setErr('');
+    setSending(true);
+    try {
+      const res = await api.seveniaChat({ message: text, history });
+      if (res.ok && res.reply) {
+        setMessages((m) => [...m, { role: 'assistant', content: res.reply as string }]);
+        if (res.usage) setUsage(res.usage);
+      } else {
+        setErr('A SevenIA não retornou resposta.');
+      }
+    } catch (e) {
+      const code = (e as { code?: string }).code;
+      const map: Record<string, string> = {
+        LICENSE_REQUIRED: 'Ative sua licença na aba Licença para usar a SevenIA.',
+        SEVENIA_QUOTA: 'Limite diário de mensagens atingido. Volte amanhã ou ative a SevenIA Pro.',
+        RATE_LIMITED: 'Muitas mensagens em sequência. Aguarde um instante.',
+        NETWORK_ERROR: 'Sem conexão com o servidor da SevenIA. Verifique sua internet.',
+        SEVENIA_NOT_CONFIGURED: 'A SevenIA ainda não está configurada no servidor.',
+      };
+      setErr((code && map[code]) || (e as { message?: string }).message || 'Não foi possível falar com a SevenIA.');
+    } finally {
+      setSending(false);
+    }
+  }
+
+  const used = usage?.used ?? 0;
+  const limit = usage?.limit ?? 0;
+  const isPro = usage?.plan === 'pro';
+
+  return (
+    <div className="s4-glass p-5">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-[var(--s4-accent,#ff3b3f)]" />
+          <span className="text-sm font-semibold text-foreground">SevenIA — Assistente de IA</span>
+          <span
+            className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+              isPro
+                ? 'bg-[rgba(34,197,94,0.15)] text-[var(--s4-lime,#4ade80)]'
+                : 'bg-[rgba(255,255,255,0.08)] text-muted-foreground'
+            }`}
+          >
+            {isPro ? 'Pro' : 'Free'}
+          </span>
+        </div>
+        <div className="text-[11px] text-muted-foreground">
+          {offline ? 'Offline — sem conexão com o servidor' : `${used} de ${limit} mensagens hoje`}
+        </div>
+      </div>
+
+      <div
+        ref={listRef}
+        className="mb-3 max-h-[300px] min-h-[120px] space-y-2 overflow-y-auto rounded-lg border border-white/5 bg-black/20 p-3"
+      >
+        {!messages.length && !err ? (
+          <div className="py-6 text-center text-[13px] text-muted-foreground">
+            Pergunte sobre otimização do sistema, laudos, FPS, limpeza segura e muito mais.
+          </div>
+        ) : (
+          messages.map((m, i) => (
+            <div
+              key={i}
+              className={`max-w-[85%] whitespace-pre-wrap rounded-xl px-3 py-2 text-[13px] leading-relaxed ${
+                m.role === 'user'
+                  ? 'ml-auto bg-primary text-primary-foreground'
+                  : 'bg-white/5 text-foreground'
+              }`}
+            >
+              {m.content}
+            </div>
+          ))
+        )}
+        {err && (
+          <div className="rounded-lg bg-[rgba(255,59,63,0.08)] px-3 py-2 text-[12px] text-[var(--s4-outline,#ff6b6b)]">
+            {err}
+          </div>
+        )}
+        {sending && (
+          <div className="flex items-center gap-2 px-1 py-1 text-[12px] text-muted-foreground">
+            <span className="h-3 w-3 animate-spin rounded-full border-2 border-white/20 border-t-white/80" />
+            SevenIA pensando...
+          </div>
+        )}
+      </div>
+
+      <form
+        className="flex items-center gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void send();
+        }}
+      >
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          maxLength={4000}
+          placeholder="Pergunte para a SevenIA..."
+          className="h-10 flex-1 rounded-lg border border-white/10 bg-black/20 px-3 text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:border-[var(--s4-accent,#ff3b3f)] focus:outline-none"
+        />
+        <button
+          type="submit"
+          disabled={sending || !input.trim()}
+          className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
+        >
+          <Send className="h-3.5 w-3.5" />
+          Enviar
+        </button>
+      </form>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        {CHAT_SUGGESTIONS.map((s) => (
+          <button
+            key={s}
+            type="button"
+            onClick={() => void send(s)}
+            disabled={sending}
+            className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] text-muted-foreground transition-colors hover:border-white/20 hover:text-foreground disabled:opacity-40"
+          >
+            {s}
+          </button>
+        ))}
       </div>
     </div>
   );

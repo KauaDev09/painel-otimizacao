@@ -106,6 +106,10 @@ contextBridge.exposeInMainWorld('SevenAPI', {
   getAppMeta: () => ipcRenderer.invoke('app:meta'),
   appHealth: () => ipcRenderer.invoke('app:health'),
   openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url),
+
+  // ---- SevenIA (assistente de IA) ----
+  seveniaUsage: () => ipcRenderer.invoke('sevenia:usage'),
+  seveniaChat: (payload) => ipcRenderer.invoke('sevenia:chat', payload),
   onUpdateAvailable: (cb) => {
     const handler = (_e, res) => cb(res);
     ipcRenderer.on('update:available', handler);
