@@ -122,6 +122,12 @@ e2e('admin sem token → 401', async () => {
   assert.strictEqual(r.status, 401);
 });
 
+e2e('admin com token customer → 401 (typ errado)', async () => {
+  const customer = signToken({ typ: 'customer', uid: 1 }, config.appSecret, 3600);
+  const r = await api('/api/v1/admin/updates', { headers: { authorization: `Bearer ${customer}` } });
+  assert.strictEqual(r.status, 401);
+});
+
 e2e('store/account sem token e com typ errado → 401', async () => {
   const noToken = await api('/api/v1/store/account/keys');
   assert.strictEqual(noToken.status, 401);

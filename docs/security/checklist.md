@@ -29,14 +29,16 @@
 
 ### 3.1 Backend (OWASP-ish, contra staging)
 
-- [ ] `/api/v1/admin/login` responde 429 após exceder limite (IP) — brute-force.
-- [ ] `/api/v1/store/login|register|login-key|checkout` limitados por IP (429).
-- [ ] Token sem assinatura / `typ` errado no `Authorization` → 401 em `/admin/*` e
-      `/store/account/*`.
+> **Automatizado**: `cd backend && npm run test:security` (unit + E2E em uma instância
+> nova, contra a mesma base do `.env`; exige o banco acessível). Rodar antes de qualquer
+> release/runtime. Itens abaixo permanecem para auditoria manual pontual.
+
+- [ ] `npm run test:security` verde: 429 em `store/login` e `admin/login` (brute-force);
+      401 em `/admin/*` e `/store/account/*` (sem token e com `typ` errado); corpo
+      > 256 KB rejeitado; `../` em URLs neutralizado; headers `nosniff`/`DENY`;
+      chaves mascaradas em `access_logs` (unit `mask-key.test.js`).
 - [ ] Webhook: com `MERCADOPAGO_WEBHOOK_SECRET` setado, payload com assinatura
-      inválida é rejeitado (null); válida processa.
-- [ ] Corpo > 256 KB → 413/payload rejeitado; path traversal (`../`) em URLs → 404.
-- [ ] Chaves de licença em `access_logs` aparecem mascaradas.
+      inválida é rejeitado (null); válida processa (unit `payment-signature.test.js`).
 - [ ] Respostas têm `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`.
 
 ### 3.2 Desktop (Windows)
