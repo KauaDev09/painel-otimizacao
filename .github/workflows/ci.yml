@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Testes unitários/typecheck não precisam do binário do Electron (~100 MB).
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            desktop/package-lock.json
+            web/package-lock.json
+
+      - name: Backend unit tests
+        working-directory: backend
+        run: |
+          npm ci --no-audit --no-fund
+          npm test
+
+      - name: Backend security audit (high)
+        working-directory: backend
+        run: npm run security:audit
+
+      - name: Desktop typecheck + unit tests
+        working-directory: desktop
+        run: |
+          npm ci --no-audit --no-fund
+          npm run typecheck
+          npm test
+
+      - name: Desktop manifest consistency (hash-scripts)
+        working-directory: desktop
+        run: node scripts/verify-manifest.js
+
+      - name: Desktop security audit (high)
+        working-directory: desktop
+        run: npm run security:audit
+
+      - name: Web lint
+        working-directory: web
+        run: |
+          npm ci --no-audit --no-fund
+          npm run lint
+
+      - name: Web security audit (high)
+        working-directory: web
+        run: npm audit --omit=dev
