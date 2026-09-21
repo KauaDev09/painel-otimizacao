@@ -31,6 +31,7 @@ interface OptItem {
   applyHint?: string;
   registryKeys?: string[];
   applied?: boolean;
+  vendor?: string | null;
 }
 
 interface OptProfile {
@@ -70,6 +71,7 @@ interface LocalApi {
   engineListItems(): Promise<OptItem[]>;
   engineGetProfiles(): Promise<OptProfile[]>;
   engineGetDrivers(): Promise<DriverEntry[]>;
+  engineGpuContext?(): Promise<{ ok?: boolean; vendors?: string[] }>;
   engineApply(payload: { ids: string[]; label?: string; createRestorePoint?: boolean; profile?: string | null }): Promise<ApplyResult>;
   engineUndoItem(id: string): Promise<UndoResult>;
   onEngineStep(cb: (step: EngineStep) => void): void;
@@ -182,6 +184,7 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
   const [items, setItems] = React.useState<OptItem[]>([]);
   const [profiles, setProfiles] = React.useState<OptProfile[]>([]);
   const [drivers, setDrivers] = React.useState<DriverEntry[]>([]);
+  const [gpuVendors, setGpuVendors] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [loadError, setLoadError] = React.useState<string | null>(null);
 
@@ -249,16 +252,20 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
     setLoading(true);
     setLoadError(null);
     try {
-      const [its, profs, drvs] = await Promise.all([
+      const [its, profs, drvs, gpuCtx] = await Promise.all([
         api.engineListItems(),
         api.engineGetProfiles(),
         api.engineGetDrivers(),
+        typeof api.engineGpuContext === 'function'
+          ? api.engineGpuContext().catch(() => ({ vendors: [] as string[] }))
+          : Promise.resolve({ vendors: [] as string[] }),
       ]);
       if (!aliveRef.current) return;
       const list = Array.isArray(its) ? its : [];
       setItems(list);
       setProfiles(Array.isArray(profs) ? profs : []);
       setDrivers(Array.isArray(drvs) ? drvs : []);
+      setGpuVendors(Array.isArray(gpuCtx?.vendors) ? gpuCtx.vendors : []);
       const app = new Set(list.filter((i) => i.applied).map((i) => i.id));
       readJsonArray(APPLIED_KEY).forEach((id) => app.add(id));
       setApplied(app);
@@ -317,6 +324,7 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
   const filtered = React.useMemo(() => {
     const q = search.trim().toLowerCase();
     const list = items.filter((i) => {
+      if (gpuVendors.length > 0 && i.vendor && !gpuVendors.includes(i.vendor)) return false;
       if (catFilter !== 'all' && i.category !== catFilter) return false;
       if (riskFilter !== 'all' && i.risk !== riskFilter) return false;
       if (planFilter === 'pro' && !i.proOnly) return false;
@@ -334,7 +342,7 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
       sorted.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
     }
     return sorted;
-  }, [items, search, catFilter, riskFilter, planFilter, unappliedOnly, applied, sort]);
+  }, [items, search, catFilter, riskFilter, planFilter, unappliedOnly, applied, sort, gpuVendors]);
 
   const grouped = React.useMemo(() => {
     const map = new Map<string, OptItem[]>();
@@ -347,6 +355,12 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
   }, [filtered]);
 
   const filtersDirty = search !== '' || catFilter !== 'all' || riskFilter !== 'all' || planFilter !== 'all' || unappliedOnly || sort !== 'name';
+
+  // Só mostra drivers do fabricante de GPU realmente presente na máquina.
+  const visibleDrivers = React.useMemo(
+    () => (gpuVendors.length ? drivers.filter((d) => gpuVendors.includes(d.vendor)) : drivers),
+    [drivers, gpuVendors],
+  );
 
   const clearFilters = () => {
     setSearch('');
@@ -809,11 +823,16 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
           {/* Drivers oficiais */}
           <section>
             <GroupTitle>Drivers oficiais</GroupTitle>
-            {drivers.length === 0 ? (
+            {gpuVendors.length > 0 && (
+              <p className="mb-3 text-xs text-muted-foreground">
+                Exibindo apenas para {gpuVendors.map((v) => DRIVER_NAMES[v] || v).join(' / ')} — GPU detectada neste PC.
+              </p>
+            )}
+            {visibleDrivers.length === 0 ? (
               <p className="text-sm text-muted-foreground">Nenhum fabricante disponível.</p>
             ) : (
               <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
-                {drivers.map((d) => (
+                {visibleDrivers.map((d) => (
                   <ProfileCard
                     key={d.id}
                     icon={<Download className="h-6 w-6" strokeWidth={1.75} />}

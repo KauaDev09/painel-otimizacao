@@ -656,35 +656,6 @@ const ITEMS = [
     undoNote: 'O revert restaura os apps; serviços podem exigir ponto de restauração.'
   },
 
-  // ==================== PERFIS POR JOGO ====================
-  ...[
-    ['games.fivem', 'FiveM', 'Otimizar FIVE M.bat', 'cs2.exe|FiveM'],
-    ['games.gtav', 'GTA V', 'Otimizar GTA V.bat', 'GTA5.exe'],
-    ['games.valorant', 'Valorant', 'Otimizar Valorant.bat', 'VALORANT'],
-    ['games.cs2', 'Counter-Strike 2', 'Otimizar CS2.bat', 'cs2.exe'],
-    ['games.fortnite', 'Fortnite', 'Otimizar Fortnite.bat', 'FortniteClient'],
-    ['games.warzone', 'Warzone', 'Otimizar WARZONE.bat', 'Call of Duty'],
-    ['games.cod', 'Call of Duty (Black Ops)', 'Otimizar CALL OF DUTY BLACK OPS (TODOS).bat', 'BlackOps'],
-    ['games.minecraft', 'Minecraft', 'Otimizar Minecraft.bat', 'Minecraft'],
-    ['games.roblox', 'Roblox', 'Otimizar ROBLOX.bat', 'Roblox'],
-    ['games.rdr2', 'Red Dead Redemption 2', 'Otimizar RED DEAD REDEMPTION 2.bat', 'RDR2|Rdr2'],
-    ['games.battlefield', 'Battlefield', 'Otimizar BATTLEFIELD (TODOS).bat', 'Battlefield']
-  ].map(([id, game, file]) => ({
-    id,
-    name: `Perfil completo: ${game}`,
-    category: 'jogos',
-    description: `Aplica o conjunto de otimizações para ${game}: prioridade do processo, Game DVR desativado, serviços dispensáveis desligados e ajustes de energia.`,
-    benefit: 'Mais FPS estável e menos stutter durante o jogo.',
-    risk: 'high',
-    requiresAdmin: true,
-    confirm: true,
-    profiles: [],
-    proOnly: true,
-    apply: script(`gaming/games/${file}`),
-    undo: ps(servicesUndoPs),
-    registryKeys: ['HKCU\\System\\GameConfigStore']
-  })),
-
   // ==================== GPU / DRIVERS ====================
   {
     id: 'gpu.nvidia.telemetry.off',

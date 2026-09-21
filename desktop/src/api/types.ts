@@ -117,6 +117,21 @@ export interface SevenApi {
     message: string;
     history?: SeveniaChatMessage[];
   }): Promise<SeveniaChatResult>;
+  seveniaChatStream?(payload: {
+    message: string;
+    history?: SeveniaChatMessage[];
+    requestId?: string;
+  }): Promise<SeveniaChatResult>;
+  seveniaCancel?(requestId: string): Promise<{ ok?: boolean }>;
+  onSeveniaStream?(cb: (payload: { requestId?: string; type?: string; text?: string }) => void): (() => void) | void;
+
+  engineGpuContext?(): Promise<{ ok?: boolean; vendors?: string[] }>;
+  engineApply?(payload: {
+    ids: string[];
+    label?: string;
+    createRestorePoint?: boolean;
+    profile?: string | null;
+  }): Promise<{ ok?: boolean; error?: string; results?: { ok?: boolean; name?: string; message?: string }[] }>;
 
   [method: string]: any;
 }

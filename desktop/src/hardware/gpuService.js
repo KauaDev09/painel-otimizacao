@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const { asArray } = require('../utils/asArray');
+const { normalizeGpuVendors } = require('../lib/gpuVendor');
 
 function findNvidiaSmi() {
   const candidates = [
@@ -110,4 +111,26 @@ function detectGpus(raw, nvidiaSmiOut) {
   return gpus;
 }
 
-module.exports = { detectGpus, findNvidiaSmi };
+// Consulta leve (sem a coleta completa CIM/WMI) para saber qual(is) fabricante(s)
+// de GPU existem na máquina. Usada para filtrar as otimizações de GPU na UI.
+async function detectGpuVendors() {
+  try {
+    const { runPowerShell } = require('./psRunner');
+    const script = [
+      "$g = Get-CimInstance Win32_VideoController -ErrorAction SilentlyContinue |",
+      "Where-Object { $_.Name -and $_.Name -notmatch 'Basic Render|Remote Desktop|Basic Display' } |",
+      "Select-Object Name, AdapterCompatibility;",
+      "if ($g) { $g | ConvertTo-Json -Compress }"
+    ].join(' ');
+    const { stdout } = await runPowerShell(script, 15000);
+    const txt = String(stdout || '').trim();
+    if (!txt.startsWith('{') && !txt.startsWith('[')) return [];
+    const parsed = JSON.parse(txt);
+    const arr = Array.isArray(parsed) ? parsed : [parsed];
+    return normalizeGpuVendors(arr.map((g) => `${g.Name || ''} ${g.AdapterCompatibility || ''}`));
+  } catch (_) {
+    return [];
+  }
+}
+
+module.exports = { detectGpus, findNvidiaSmi, detectGpuVendors };

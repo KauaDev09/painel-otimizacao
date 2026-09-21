@@ -74,6 +74,7 @@ contextBridge.exposeInMainWorld('SevenAPI', {
   engineListItems: () => ipcRenderer.invoke('engine:listItems'),
   engineGetProfiles: () => ipcRenderer.invoke('engine:getProfiles'),
   engineGetDrivers: () => ipcRenderer.invoke('engine:getDrivers'),
+  engineGpuContext: () => ipcRenderer.invoke('engine:gpuContext'),
   engineApply: (payload) => ipcRenderer.invoke('engine:apply', payload),
   engineUndoItem: (id) => ipcRenderer.invoke('engine:undoItem', id),
   engineListOperations: () => ipcRenderer.invoke('engine:listOperations'),
@@ -125,6 +126,13 @@ contextBridge.exposeInMainWorld('SevenAPI', {
   // ---- SevenIA (assistente de IA) ----
   seveniaUsage: () => ipcRenderer.invoke('sevenia:usage'),
   seveniaChat: (payload) => ipcRenderer.invoke('sevenia:chat', payload),
+  seveniaChatStream: (payload) => ipcRenderer.invoke('sevenia:chatStream', payload),
+  seveniaCancel: (requestId) => ipcRenderer.invoke('sevenia:cancel', requestId),
+  onSeveniaStream: (cb) => {
+    const handler = (_e, payload) => cb(payload);
+    ipcRenderer.on('sevenia:stream', handler);
+    return () => ipcRenderer.removeListener('sevenia:stream', handler);
+  },
   onUpdateAvailable: (cb) => {
     const handler = (_e, res) => cb(res);
     ipcRenderer.on('update:available', handler);

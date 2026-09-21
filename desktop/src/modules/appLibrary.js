@@ -321,6 +321,14 @@ function iconCacheDir() {
   return path.join(process.env.LOCALAPPDATA || process.env.TEMP || '.', 'sevenoptimizer', 'gameboost', 'icons');
 }
 
+function artworkCacheDir() {
+  try {
+    const { app } = require('electron');
+    if (app && app.getPath) return path.join(app.getPath('userData'), 'gameboost', 'artwork');
+  } catch (_) { /* preview */ }
+  return path.join(process.env.LOCALAPPDATA || process.env.TEMP || '.', 'sevenoptimizer', 'gameboost', 'artwork');
+}
+
 function fileHash(p, mtime) {
   const crypto = require('crypto');
   return crypto.createHash('md5').update(String(p) + ':' + String(mtime)).digest('hex');
@@ -364,8 +372,21 @@ function resolveMediaUrl(url) {
 }
 
 async function getIconDataUrl(exePath) {
-  const resolved = resolveShortcut(exePath);
-  if (!resolved || !exists(resolved) || /^steam:\/\//i.test(resolved)) {
+  const raw = String(exePath || '');
+
+  // Atalho Steam: o caminho é steam://rungameid/<appId>, não um .exe. Busca o
+  // ícone/logo real no cache da Steam e copia para a pasta do app (allow-list).
+  const steamMatch = /^steam:\/\/rungameid\/(\d+)/i.exec(raw);
+  if (steamMatch) {
+    const icon = steamIconPath(steamMatch[1]);
+    if (!icon) return { ok: false, dataUrl: null };
+    const cached = cacheMediaFile(icon, iconCacheDir());
+    if (!cached) return { ok: false, dataUrl: null };
+    return { ok: true, dataUrl: null, fileUrl: pathToMediaUrl(cached) };
+  }
+
+  const resolved = resolveShortcut(raw);
+  if (!resolved || !exists(resolved)) {
     return { ok: false, dataUrl: null };
   }
   let st;
@@ -387,14 +408,46 @@ async function getIconDataUrl(exePath) {
   }
 }
 
+// Ícone/logo real de um app Steam a partir do cache local da própria Steam.
+function steamIconPath(appId) {
+  const root = steamRoot();
+  if (!root || !appId) return null;
+  const cacheDir = path.join(root, 'appcache', 'librarycache');
+  const candidates = [
+    path.join(cacheDir, appId + '_icon.jpg'),
+    path.join(cacheDir, appId + '_icon.png'),
+    path.join(cacheDir, appId, 'logo.png'),
+    path.join(cacheDir, appId + '_header.jpg'),
+    path.join(cacheDir, appId + '_library_600x900.jpg')
+  ];
+  return candidates.find(exists) || null;
+}
+
+// Copia um arquivo de mídia (ícone/capa) para uma pasta do app e devolve o
+// caminho copiado. O protocolo s4-media só serve arquivos dentro das raízes
+// permitidas (allowedMediaRoots); capas da Steam/Epic ficam fora delas.
+function cacheMediaFile(srcPath, destDir) {
+  if (!exists(srcPath)) return null;
+  let st;
+  try { st = fs.statSync(srcPath); } catch (_) { return null; }
+  const ext = path.extname(srcPath) || '.img';
+  const dest = path.join(destDir, fileHash(srcPath, st.mtimeMs) + ext);
+  if (exists(dest)) return dest;
+  try {
+    fs.mkdirSync(destDir, { recursive: true });
+    fs.copyFileSync(srcPath, dest);
+    return dest;
+  } catch (_) {
+    return null;
+  }
+}
+
 function getArtworkDataUrl(artworkPath) {
   const p = String(artworkPath || '');
   if (!exists(p)) return { ok: false, dataUrl: null };
-  try {
-    return { ok: true, dataUrl: null, fileUrl: pathToMediaUrl(p) };
-  } catch (_) {
-    return { ok: false, dataUrl: null };
-  }
+  const cached = cacheMediaFile(p, artworkCacheDir());
+  if (!cached) return { ok: false, dataUrl: null };
+  return { ok: true, dataUrl: null, fileUrl: pathToMediaUrl(cached) };
 }
 
 function warmupLibrary() {

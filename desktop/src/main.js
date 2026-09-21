@@ -419,6 +419,26 @@ function ensureLicenseForItems(ids) {
   if (hasPro) requireActiveLicense();
 }
 
+// ---- Fabricante(s) de GPU detectado(s) ----
+// A UI usa isso para exibir apenas as otimizações/drivers do hardware real.
+// Prefere o laudo já concluído; sem laudo, faz uma consulta CIM leve (com cache).
+let gpuVendorsCache = null; // { at:number, vendors:string[] }
+async function getDetectedGpuVendors() {
+  try {
+    const { normalizeGpuVendors } = require('./lib/gpuVendor');
+    if (lastResult && lastResult.profile && Array.isArray(lastResult.profile.gpu)) {
+      const fromProfile = normalizeGpuVendors(lastResult.profile.gpu.map((g) => g && g.vendor));
+      if (fromProfile.length) return fromProfile;
+    }
+    if (gpuVendorsCache && Date.now() - gpuVendorsCache.at < 5 * 60 * 1000) return gpuVendorsCache.vendors;
+    const vendors = await require('./hardware/gpuService').detectGpuVendors();
+    gpuVendorsCache = { at: Date.now(), vendors };
+    return vendors;
+  } catch (_) {
+    return [];
+  }
+}
+
 function registerIpc() {
   ipcMain.handle('app:analyze', async () => {
     if (analyzing) throw new Error('Uma análise já está em andamento.');
@@ -546,6 +566,7 @@ function registerIpc() {
   ipcMain.handle('engine:listItems', () => engineService.listItems());
   ipcMain.handle('engine:getProfiles', () => engineService.getProfiles());
   ipcMain.handle('engine:getDrivers', () => engineService.getDrivers());
+  ipcMain.handle('engine:gpuContext', async () => ({ ok: true, vendors: await getDetectedGpuVendors() }));
   ipcMain.handle('engine:apply', async (_e, payload) => {
     const ids = Array.isArray(payload && payload.ids) ? payload.ids.map(String) : [];
     ensureLicenseForItems(ids);
@@ -770,6 +791,184 @@ function registerIpc() {
       }
       return seveniaFailure(code, text);
     }
+  });
+
+  // ---- SevenIA: contexto do sistema + catálogo + streaming com cancelamento ----
+  const seveniaStreams = new Map(); // requestId -> AbortController
+
+  function buildSeveniaContext() {
+    try {
+      const p = (lastResult && lastResult.profile) || null;
+      if (!p) return '';
+      const lines = [];
+      if (p.cpu && p.cpu.name) lines.push('CPU: ' + p.cpu.name);
+      if (Array.isArray(p.gpu) && p.gpu.length) {
+        lines.push('GPU: ' + p.gpu.map((g) => (g && (g.name || g.vendor)) || '?').join(', '));
+      }
+      if (p.gpuSummary && p.gpuSummary.primaryName) lines.push('GPU principal: ' + p.gpuSummary.primaryName);
+      if (p.ram) {
+        const gb = p.ram.totalGB || p.ram.totalGb || p.ram.total;
+        if (gb) lines.push('RAM: ' + gb + ' GB');
+      }
+      if (p.os) lines.push('SO: ' + (p.os.caption || '') + (p.os.build ? ' (build ' + p.os.build + ')' : ''));
+      if (p.boot && p.boot.mode) lines.push('Boot: ' + p.boot.mode);
+      if (lastResult.scores && lastResult.scores.overall != null) {
+        lines.push('Pontuação geral: ' + lastResult.scores.overall);
+      }
+      return lines.join('\n');
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function buildSeveniaCatalog() {
+    try {
+      // Sem licença ativa, itens PRO não podem ser aplicados: não os ofereça à IA
+      // para evitar propor algo que o usuário não conseguirá executar.
+      const proAllowed = licenseService.getState().active;
+      return engineService.listItems()
+        .filter((i) => proAllowed || !i.proOnly)
+        .map((i) => ({
+          id: i.id, name: i.name, risk: i.risk, category: i.category, proOnly: !!i.proOnly
+        }));
+    } catch (_) {
+      return [];
+    }
+  }
+
+  // Leitura limitada e higienizada dos logs do próprio app (auditoria + último
+  // run do engine). Nada de arquivos arbitrários do disco: apenas o que o app
+  // escreve em userData. Segredos/chaves são mascarados antes de sair.
+  function tailFile(file, maxBytes) {
+    try {
+      const st = fs.statSync(file);
+      const start = Math.max(0, st.size - maxBytes);
+      const len = st.size - start;
+      if (len <= 0) return '';
+      const fd = fs.openSync(file, 'r');
+      const buf = Buffer.alloc(len);
+      fs.readSync(fd, buf, 0, len, start);
+      fs.closeSync(fd);
+      return buf.toString('utf8');
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function sanitizeLogText(text) {
+    return String(text || '')
+      .replace(/[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}/gi, '[LICENCA]')
+      .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, 'Bearer [TOKEN]')
+      .replace(/\b[A-Za-z0-9+/=]{40,}\b/g, '[REDACTED]');
+  }
+
+  function buildSeveniaLogs() {
+    try {
+      const chunks = [];
+      const audit = sanitizeLogText(tailFile(path.join(userData, 'audit.log'), 4000));
+      if (audit) {
+        chunks.push('Auditoria (últimas ações):\n' + audit.trim().split('\n').slice(-15).join('\n'));
+      }
+      const logsDir = path.join(userData, 'engine', 'logs');
+      let files = [];
+      try {
+        files = fs.readdirSync(logsDir).filter((f) => f.startsWith('run-') && f.endsWith('.log')).sort();
+      } catch (_) { /* sem logs ainda */ }
+      const latest = files[files.length - 1];
+      if (latest) {
+        const run = sanitizeLogText(tailFile(path.join(logsDir, latest), 3000));
+        if (run) {
+          chunks.push(`Último log do engine (${latest}):\n` + run.trim().split('\n').slice(-20).join('\n'));
+        }
+      }
+      return chunks.join('\n\n').slice(0, 3500);
+    } catch (_) {
+      return '';
+    }
+  }
+
+  ipcMain.handle('sevenia:chatStream', async (e, payload) => {
+    const { getApiBaseUrl } = require('./license/config');
+    const { postJsonStream } = require('./license/apiClient');
+    if (!licenseService.getToken()) {
+      return seveniaFailure('LICENSE_REQUIRED', 'Ative sua licença para usar a SevenIA.');
+    }
+    const message = String((payload && payload.message) || '').trim();
+    if (!message) return seveniaFailure('BAD_REQUEST', 'Digite uma mensagem para a SevenIA.');
+    const history = Array.isArray(payload && payload.history) ? payload.history : [];
+    const requestId = String((payload && payload.requestId) || Date.now());
+    const controller = new AbortController();
+    seveniaStreams.set(requestId, controller);
+    const send = (type, extra) => {
+      try { e.sender.send('sevenia:stream', { requestId, type, ...extra }); } catch (_) { /* janela fechada */ }
+    };
+    const authHeaders = { Authorization: `Bearer ${licenseService.getToken()}` };
+    const contextParts = [buildSeveniaContext(), buildSeveniaLogs()].filter(Boolean);
+    const body = {
+      message,
+      history: history.slice(-12),
+      context: contextParts.join('\n\n'),
+      catalog: buildSeveniaCatalog()
+    };
+    let emitted = false;
+    try {
+      return await postJsonStream(
+        getApiBaseUrl(),
+        '/api/v1/sevenia/chat/stream',
+        body,
+        {
+          headers: authHeaders,
+          timeoutMs: 90000,
+          signal: controller.signal,
+          onEvent: (ev, data) => {
+            if (ev === 'delta' && data && data.text) { emitted = true; send('delta', { text: data.text }); }
+          }
+        }
+      );
+    } catch (err) {
+      // Servidor implantado ainda sem streaming (rota inexistente) ou stream
+      // interrompido antes de qualquer texto → recorre ao endpoint clássico.
+      const streamUnsupported = (err && err.status === 404) || err.code === 'NOT_FOUND';
+      const interrupted = err.code === 'SEVENIA_STREAM_INTERRUPTED';
+      if (!emitted && (streamUnsupported || interrupted)) {
+        try {
+          const { postJson } = require('./license/apiClient');
+          const res = await postJson(
+            getApiBaseUrl(),
+            '/api/v1/sevenia/chat',
+            { message, history: history.slice(-12) },
+            { headers: authHeaders, timeoutMs: 90000 }
+          );
+          if (res && res.ok && res.reply) send('delta', { text: String(res.reply) });
+          return res;
+        } catch (fallbackErr) {
+          return seveniaFailure(
+            fallbackErr.code || 'SEVENIA_ERROR',
+            fallbackErr.message || 'Não foi possível falar com a SevenIA.'
+          );
+        }
+      }
+      const code = err.code || 'SEVENIA_ERROR';
+      let text = err.message || 'Não foi possível falar com a SevenIA.';
+      if (code === 'NETWORK_ERROR') {
+        text = 'Sem conexão com o servidor agora. Verifique sua internet e tente novamente.';
+      } else if (code === 'SEVENIA_TIMEOUT') {
+        text = 'A SevenIA está demorando para responder. Tente novamente.';
+      } else if (code === 'CANCELLED') {
+        text = 'Consulta cancelada.';
+      }
+      return seveniaFailure(code, text);
+    } finally {
+      seveniaStreams.delete(requestId);
+    }
+  });
+
+  ipcMain.handle('sevenia:cancel', async (_e, requestId) => {
+    const controller = seveniaStreams.get(String(requestId || ''));
+    if (controller) {
+      try { controller.abort(); } catch (_) { /* já encerrado */ }
+    }
+    return { ok: true };
   });
 
   // ---- Links externos (somente URLs http/https) ----

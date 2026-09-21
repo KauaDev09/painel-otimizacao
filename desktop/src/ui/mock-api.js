@@ -619,6 +619,7 @@ window.SevenAPI = {
     { id: 'driver-amd', vendor: 'amd' },
     { id: 'driver-intel', vendor: 'intel' }
   ],
+  engineGpuContext: async () => ({ ok: true, vendors: [] }),
   engineApply: async (payload) => {
     const ids = (payload && payload.ids) || [];
     const items = MOCK_ITEMS.filter((i) => ids.includes(i.id));
@@ -749,6 +750,21 @@ window.SevenAPI = {
       : 'Sou a SevenIA, assistente de otimização do S4. Posso explicar qualquer aba do app, interpretar o laudo do sistema e sugerir próximos passos de otimização.';
     return { ok: true, reply, model: 'claude-sonnet-4-6 (preview)', usage: { plan: 'free', date: new Date().toISOString().slice(0, 10), used: 3, limit: 10, remaining: 7 } };
   },
+  seveniaChatStream: async (payload) => {
+    await delay(700);
+    if (!_licenseState.active) {
+      const e = new Error('Ative sua licença para usar a SevenIA.');
+      e.code = 'LICENSE_REQUIRED';
+      throw e;
+    }
+    const text = String((payload && payload.message) || '').trim();
+    const reply = text.toLowerCase().includes('fps')
+      ? 'No Game Boost, ative o Game Mode, o plano de energia Alto desempenho e desligue a Game Bar.\n```sevenapply\n{"ids": ["games.task.priority"], "label": "Priorizar tarefas de jogos"}\n```'
+      : 'Sou a SevenIA (preview). Posso analisar o laudo do sistema e sugerir otimizações seguras.';
+    return { ok: true, reply, model: 'preview', usage: { plan: 'free', date: new Date().toISOString().slice(0, 10), used: 3, limit: 10, remaining: 7 } };
+  },
+  seveniaCancel: async () => ({ ok: true }),
+  onSeveniaStream: () => () => {},
 
   biosScan: async () => { await delay(400); _biosLogs.push('[preview] Scanner concluído'); return mockBiosPayload(); },
   biosList: async () => mockBiosPayload(),

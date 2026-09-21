@@ -250,7 +250,9 @@ async function handleRequest(req, res) {
       const status = intercepted.status >= 400 ? intercepted.status : 200;
       return sendJson(res, status, intercepted);
     }
-    const payload = await match.handler(body, match.params, urlObj, req);
+    const payload = await match.handler(body, match.params, urlObj, req, res);
+    // Handlers de streaming (SSE) assumem a resposta e terminam res sozinhos.
+    if (res.headersSent || res.writableEnded) return;
     const status = payload && payload.status >= 400 ? payload.status : 200;
     return sendJson(res, status, payload);
   } catch (err) {

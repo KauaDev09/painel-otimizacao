@@ -72,6 +72,7 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
   const [missingExe, setMissingExe] = React.useState<string | null>(null);
   const [icons, setIcons] = React.useState<Record<string, string>>({});
   const [art, setArt] = React.useState<Record<string, string>>({});
+  const [artFailed, setArtFailed] = React.useState<Set<string>>(() => new Set());
   const iconQueue = React.useRef(new Set<string>());
   const railRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -124,9 +125,9 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
     visibleLibrary.forEach((g) => { if (g.path) priority.add(g.path); });
     const paths = [...priority].filter((p) => p && !icons[p] && !iconQueue.current.has(p));
     const run = async () => {
-      const queue = paths.slice(0, 24);
+      const queue = paths.slice(0, 60);
       let i = 0;
-      const workers = Array.from({ length: Math.min(2, queue.length) }, async () => {
+      const workers = Array.from({ length: Math.min(4, queue.length) }, async () => {
         while (i < queue.length && !cancelled) {
           const p = queue[i++];
           if (!p || iconQueue.current.has(p) || icons[p]) continue;
@@ -159,11 +160,15 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
         try {
           const res = (await api.gameBoostGetArtwork?.(g.artworkPath)) as { ok?: boolean; dataUrl?: string | null; fileUrl?: string | null } | null;
           const url = res?.fileUrl || res?.dataUrl || null;
+          const key = g.artworkPath;
           if (!cancelled && url) {
-            const key = g.artworkPath;
             setArt((prev) => (prev[g.id] || prev[key] ? prev : { ...prev, [g.id]: url, [key]: url }));
+          } else if (!cancelled) {
+            setArtFailed((prev) => (prev.has(g.id) ? prev : new Set(prev).add(g.id).add(key)));
           }
-        } catch { /* sem arte */ }
+        } catch {
+          if (!cancelled) setArtFailed((prev) => (prev.has(g.id) ? prev : new Set(prev).add(g.id)));
+        }
       }
     };
     run();
@@ -391,7 +396,7 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
               }}
             >
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_32%_0%,rgba(230,57,70,0.28),transparent_62%)]" />
-              {activeArt === null && active.artworkPath && (
+              {activeArt === null && active.artworkPath && !artFailed.has(active.id) && !artFailed.has(active.artworkPath) && (
                 <div className="skeleton-shimmer pointer-events-none absolute inset-0" />
               )}
               {activeIcon && !activeArt && (
@@ -517,7 +522,7 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
                             : gradientForName(g.name),
                         }}
                       >
-                        {!cover && g.artworkPath && <div className="skeleton-shimmer absolute inset-0" />}
+                        {!cover && g.artworkPath && !artFailed.has(g.id) && !artFailed.has(g.artworkPath) && <div className="skeleton-shimmer absolute inset-0" />}
                         {!cover && icon && (
                           <img src={icon} alt="" className="absolute left-1/2 top-[38%] h-16 w-16 -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-lg" />
                         )}

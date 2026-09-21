@@ -76,12 +76,16 @@ module.exports = {
     // gemini-3.6-flash exige cota paga e responde devagar no free tier (503/429).
     // flash-lite é estável e rápido para o assistente do painel.
     model: env.SEVENIA_MODEL || 'gemini-3.5-flash-lite',
+    // Modelos tentados em sequência quando o principal está sem cota (429) ou
+    // indisponível (404/503). Mantém o assistente de pé sem trocar de provedor.
+    fallbackModels: (env.SEVENIA_FALLBACK_MODELS || 'gemini-flash-lite-latest')
+      .split(',').map((m) => m.trim()).filter(Boolean),
     apiKey: env.GEMINI_API_KEY || '',
     maxFreePerDay: Number(env.SEVENIA_LIMIT_FREE || 10),
     maxProPerDay: Number(env.SEVENIA_LIMIT_PRO || 100),
     maxHistory: Number(env.SEVENIA_MAX_HISTORY || 12),
     maxMessageLength: Number(env.SEVENIA_MAX_MESSAGE || 4000),
-    timeoutMs: Number(env.SEVENIA_TIMEOUT_MS || 30000),
-    maxTokens: Number(env.SEVENIA_MAX_TOKENS || 1024)
+    timeoutMs: Number(env.SEVENIA_TIMEOUT_MS || 45000),
+    maxTokens: Number(env.SEVENIA_MAX_TOKENS || 2048)
   }
 };
