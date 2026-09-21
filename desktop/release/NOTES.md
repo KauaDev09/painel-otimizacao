@@ -1,3 +1,17 @@
+# SevenOptimizer v2.1.16
+
+## Paleta profissional e SevenIA com Gemini
+
+- Nova identidade visual profissional aplicada ao painel e ao site (tokens de cor
+  unificados: fundo escuro elegante, acento vermelho de marca, cinzas neutros e
+  verde/amarelo/roxo reservados a status e IA).
+- SevenIA passa a usar Google Gemini (substitui o provedor anterior).
+- Ícones da barra lateral em cinza neutro; item ativo em vermelho da marca.
+- Status semânticos (licença/suporte) em verde ou vermelho; assistente e mascote
+  com acento roxo exclusivo.
+
+---
+
 # SevenOptimizer v2.1.12
 
 ## Correção de conectividade da licença
