@@ -1,10 +1,11 @@
 'use strict';
 
-// SevenIA — cliente do assistente de IA (Anthropic Claude) e cotas por usuário.
-// A chave ANTHROPIC_API_KEY vive SOMENTE neste servidor; o app nunca a recebe.
+// SevenIA — cliente do assistente de IA (Google Gemini) e cotas por usuário.
+// A chave GEMINI_API_KEY vive SOMENTE neste servidor; o app nunca a recebe.
 
 const db = require('./db');
 const config = require('./config');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 function fail(code, message, status = 400) {
   return { ok: false, code, message, status };
@@ -62,51 +63,51 @@ async function consume(userId) {
   );
 }
 
-// ---- Cliente HTTP da API Messages da Anthropic (fetch nativo, sem deps) ----
-async function chatToAnthropic({ system, messages }) {
+// ---- Cliente da API do Google Gemini (SDK oficial @google/generative-ai) ----
+function withTimeout(promise, ms) {
+  let timer;
+  const timeout = new Promise((_resolve, reject) => {
+    timer = setTimeout(() => reject(Object.assign(new Error('request timed out'), { name: 'AbortError' })), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
+async function chatToGemini({ system, messages }) {
   if (!config.sevenia.apiKey) {
     return fail('SEVENIA_NOT_CONFIGURED', 'SevenIA ainda não está configurada no servidor.', 503);
   }
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), config.sevenia.timeoutMs);
-  let res;
-  try {
-    res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': config.sevenia.apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: config.sevenia.model,
-        max_tokens: config.sevenia.maxTokens,
-        system,
-        messages
-      }),
-      signal: controller.signal
-    });
-  } catch (err) {
-    clearTimeout(timer);
-    const aborted = err && (err.name === 'AbortError' || err.code === 'ABORT_ERR');
-    return fail(aborted ? 'SEVENIA_TIMEOUT' : 'SEVENIA_NETWORK', 'Não foi possível falar com a SevenIA agora.', 502);
-  }
-  clearTimeout(timer);
+  const genAI = new GoogleGenerativeAI(config.sevenia.apiKey);
+  const model = genAI.getGenerativeModel({
+    model: config.sevenia.model,
+    systemInstruction: system,
+    generationConfig: { maxOutputTokens: config.sevenia.maxTokens }
+  });
+  const contents = messages.map((m) => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }]
+  }));
 
-  const upstream = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    if (res.status === 401 || res.status === 403) {
+  let result;
+  try {
+    result = await withTimeout(
+      model.generateContent({ contents }, { timeout: config.sevenia.timeoutMs }),
+      config.sevenia.timeoutMs + 10000
+    );
+  } catch (err) {
+    if (process.env.SEVENIA_DEBUG) console.error('[sevenia] upstream:', err && err.status, err && err.message);
+    const aborted = err && (err.name === 'AbortError' || String(err.message || '').toLowerCase().includes('timeout'));
+    if (aborted) {
+      return fail('SEVENIA_TIMEOUT', 'Não foi possível falar com a SevenIA agora.', 502);
+    }
+    const status = Number(err && err.status) || 0;
+    if (status === 401 || status === 403) {
       return fail('SEVENIA_UPSTREAM_AUTH', 'A SevenIA está com problema de credencial no servidor.', 502);
     }
     return fail('SEVENIA_UPSTREAM_ERROR', 'A IA está instável. Tente novamente.', 502);
   }
 
-  const text = (Array.isArray(upstream.content) ? upstream.content : [])
-    .filter((b) => b && b.type === 'text' && b.text)
-    .map((b) => b.text)
-    .join('\n')
-    .trim();
+  const text = String(result.response && result.response.text ? result.response.text() : '').trim();
   if (!text) return fail('SEVENIA_EMPTY', 'A SevenIA não retornou conteúdo.', 502);
   return { ok: true, text };
 }
@@ -119,5 +120,5 @@ module.exports = {
   usageToday,
   usagePayload,
   consume,
-  chatToAnthropic
+  chatToGemini
 };

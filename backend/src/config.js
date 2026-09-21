@@ -71,10 +71,10 @@ module.exports = {
     storeAuthRateLimit: Number(env.RATE_LIMIT_AUTH || 10),
     storeAuthRateWindowMs: 60000
   },
-  // SevenIA — assistente de IA (Anthropic). A chave NUNCA sai do servidor.
+  // SevenIA — assistente de IA (Google Gemini). A chave NUNCA sai do servidor.
   sevenia: {
-    model: env.SEVENIA_MODEL || 'claude-sonnet-4-6',
-    apiKey: env.ANTHROPIC_API_KEY || '',
+    model: env.SEVENIA_MODEL || 'gemini-3.6-flash',
+    apiKey: env.GEMINI_API_KEY || '',
     maxFreePerDay: Number(env.SEVENIA_LIMIT_FREE || 10),
     maxProPerDay: Number(env.SEVENIA_LIMIT_PRO || 100),
     maxHistory: Number(env.SEVENIA_MAX_HISTORY || 12),

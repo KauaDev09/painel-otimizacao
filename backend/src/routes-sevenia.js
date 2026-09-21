@@ -98,7 +98,7 @@ async function handleChat(body, req) {
     return { ...fail('SEVENIA_QUOTA', 'Limite diário de mensagens atingido na SevenIA.', 429), usage };
   }
 
-  const result = await sevenia.chatToAnthropic({ system: SYSTEM_PROMPT, messages });
+  const result = await sevenia.chatToGemini({ system: SYSTEM_PROMPT, messages });
   if (!result.ok) return result; // não consome cota se o modelo falhou
 
   await sevenia.consume(userId);
