@@ -76,7 +76,7 @@ export function Header({ view, collapsed, onMenu }: HeaderProps) {
 
       <div className="flex items-center gap-3">
         <span className="no-drag inline-flex items-center gap-1.5 rounded-full bg-[var(--s4-glass-bg)] px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-wider text-[var(--s4-text-secondary)] backdrop-blur-[6px]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[var(--s4-icon-default)]" />
+          <span className={`h-1.5 w-1.5 rounded-full ${plan === 'Sem licença' ? 'bg-[var(--text-disabled)]' : 'bg-[var(--status-success)]'}`} />
           {plan || '…'}
         </span>
 

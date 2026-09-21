@@ -4,42 +4,43 @@
 
 /* ------------------------------------------------------------------
    SEVENOPTIMIZER DESIGN TOKENS (shadcn/ui — new-york, dark)
-   Dark #0A0A0B + vermelho sinal #FF3B3F
+   Dark #0A0A0C · marca #E63946 · semânticas separadas (cores.txt)
    ------------------------------------------------------------------ */
 @layer base {
   :root {
-    /* --s4-bg #0a0a0b */
-    --background: 240 6% 4%;
-    /* --s4-text-primary #f4f4f5 */
-    --foreground: 240 5% 96%;
+    /* --s4-bg #0a0a0c */
+    --background: 240 5% 4%;
+    /* --text-primary #f5f5f7 */
+    --foreground: 240 6% 96%;
 
-    /* --s4-surface #141416 */
+    /* --s4-surface #131317 */
     --card: 240 5% 8%;
-    --card-foreground: 240 5% 96%;
+    --card-foreground: 240 6% 96%;
 
     --popover: 240 5% 8%;
-    --popover-foreground: 240 5% 96%;
+    --popover-foreground: 240 6% 96%;
 
-    /* --s4-icon-default #ff3b3f */
-    --primary: 358 100% 62%;
-    --primary-foreground: 0 0% 100%;
+    /* Marca (CTA principal) #e63946 */
+    --primary: 356 78% 56%;
+    --primary-foreground: 0 0% 0%;
 
     --secondary: 240 4% 12%;
     --secondary-foreground: 240 5% 70%;
 
     --muted: 240 4% 12%;
-    /* --s4-text-secondary #a1a1aa */
-    --muted-foreground: 240 4% 65%;
+    /* --text-secondary #a0a0a8 */
+    --muted-foreground: 240 5% 65%;
 
     --accent: 240 4% 14%;
-    --accent-foreground: 358 100% 68%;
+    --accent-foreground: 356 78% 64%;
 
-    --destructive: 358 100% 62%;
+    /* --status-danger #dc2626 (só erros/ações destrutivas) */
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 240 4% 16%;
     --input: 240 4% 16%;
-    --ring: 358 100% 62%;
+    --ring: 356 78% 56%;
 
     --radius: 0.75rem;
 

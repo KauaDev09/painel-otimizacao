@@ -274,7 +274,7 @@ function SeveniaPanel({ api }: { api: ReturnType<typeof useApi> }) {
     <div className="s4-glass p-5">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-[var(--s4-accent,#ff3b3f)]" />
+          <Sparkles className="h-4 w-4 text-[var(--ai-accent)]" />
           <span className="text-sm font-semibold text-foreground">SevenIA — Assistente de IA</span>
           <span
             className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
@@ -305,7 +305,7 @@ function SeveniaPanel({ api }: { api: ReturnType<typeof useApi> }) {
               key={i}
               className={`max-w-[85%] whitespace-pre-wrap rounded-xl px-3 py-2 text-[13px] leading-relaxed ${
                 m.role === 'user'
-                  ? 'ml-auto bg-primary text-primary-foreground'
+                  ? 'ml-auto bg-[var(--ai-accent)] text-white'
                   : 'bg-white/5 text-foreground'
               }`}
             >
@@ -314,7 +314,7 @@ function SeveniaPanel({ api }: { api: ReturnType<typeof useApi> }) {
           ))
         )}
         {err && (
-          <div className="rounded-lg bg-[rgba(255,59,63,0.08)] px-3 py-2 text-[12px] text-[var(--s4-outline,#ff6b6b)]">
+          <div className="rounded-lg bg-[rgba(220,38,38,0.1)] px-3 py-2 text-[12px] text-[var(--status-danger)]">
             {err}
           </div>
         )}
@@ -339,12 +339,12 @@ function SeveniaPanel({ api }: { api: ReturnType<typeof useApi> }) {
           onChange={(e) => setInput(e.target.value)}
           maxLength={4000}
           placeholder="Pergunte para a SevenIA..."
-          className="h-10 flex-1 rounded-lg border border-white/10 bg-black/20 px-3 text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:border-[var(--s4-accent,#ff3b3f)] focus:outline-none"
+          className="h-10 flex-1 rounded-lg border border-white/10 bg-black/20 px-3 text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:border-[var(--ai-accent)] focus:outline-none"
         />
         <button
           type="submit"
           disabled={sending || !input.trim()}
-          className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-[13px] font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
+          className="inline-flex h-10 items-center gap-2 rounded-lg bg-[var(--ai-accent)] px-4 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
         >
           <Send className="h-3.5 w-3.5" />
           Enviar

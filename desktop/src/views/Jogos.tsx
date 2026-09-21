@@ -383,14 +383,14 @@ export function Jogos({ onNavigate }: { onNavigate?: (view: string) => void }) {
         ) : (
           <>
             <div
-              className="relative mb-5 flex min-h-[200px] items-end overflow-hidden rounded-lg p-6 shadow-[0_18px_60px_rgba(0,0,0,0.5),0_0_42px_rgba(255,59,63,0.16)]"
+              className="relative mb-5 flex min-h-[200px] items-end overflow-hidden rounded-lg p-6 shadow-[0_18px_60px_rgba(0,0,0,0.5),0_0_42px_rgba(230,57,70,0.16)]"
               style={{
                 background: activeArt
                   ? `linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.78)), url(${activeArt}) center/cover no-repeat`
                   : gradientForName(active.name),
               }}
             >
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_32%_0%,rgba(255,59,63,0.28),transparent_62%)]" />
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_32%_0%,rgba(230,57,70,0.28),transparent_62%)]" />
               {activeArt === null && active.artworkPath && (
                 <div className="skeleton-shimmer pointer-events-none absolute inset-0" />
               )}

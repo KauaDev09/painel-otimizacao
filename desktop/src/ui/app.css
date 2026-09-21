@@ -4,23 +4,57 @@
    -webkit-app-region.
    ------------------------------------------------------------------ */
 
-/* Tokens cromáticos SevenOptimizer — dark + vermelho sinal */
+/* ------------------------------------------------------------------
+   SEVENOPTIMIZER DESIGN TOKENS — fonte única de verdade de cor.
+   Paleta profissional (paywall): fundos em camadas, marca restrita,
+   cores semânticas separadas e acento exclusivo de IA.
+   ------------------------------------------------------------------ */
 :root {
-  --s4-bg: #0a0a0b;
-  --s4-surface: #141416;
-  --s4-text-primary: #f4f4f5;
-  --s4-text-secondary: #a1a1aa;
-  --s4-icon-default: #ff3b3f;
-  --s4-icon-active: #ff5558;
-  --s4-hover-fg: #ff3b3f;
-  --s4-hover-glow: rgba(255, 59, 63, 0.16);
-  --s4-hover-border: #c81e22;
-  --s4-selected-bg: rgba(255, 59, 63, 0.12);
-  --s4-core-1: #ff3b3f;
-  --s4-core-2: #c81e22;
-  --s4-core-3: #7d1618;
-  --s4-ambient: rgba(255, 59, 63, 0.08);
-  --s4-lime: #34d399;
+  /* Fundos (camadas) */
+  --bg-base: #0a0a0c;
+  --bg-surface: #131317;
+  --bg-surface-elevated: #1b1b20;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+
+  /* Texto */
+  --text-primary: #f5f5f7;
+  --text-secondary: #a0a0a8;
+  --text-disabled: #5a5a62;
+
+  /* Marca (vermelho restrito: logo, item ativo, CTA principal) */
+  --brand: #e63946;
+  --brand-hover: #ff4d5a;
+
+  /* Navegação — ícones padrão neutros */
+  --icon-default: #8a8a92;
+
+  /* Semânticas (separadas da marca) */
+  --status-success: #22c55e;
+  --status-warning: #f59e0b;
+  --status-danger: #dc2626;
+  --status-info: #3b82f6;
+
+  /* Camada de IA (SevenIA / mascote) — cor exclusiva */
+  --ai-accent: #7c5cff;
+  --ai-accent-soft: rgba(124, 92, 255, 0.14);
+
+  /* Compat — mapeamento do novo sistema para os tokens s4 existentes */
+  --s4-bg: var(--bg-base);
+  --s4-surface: var(--bg-surface);
+  --s4-text-primary: var(--text-primary);
+  --s4-text-secondary: var(--text-secondary);
+  --s4-icon-default: var(--icon-default);
+  --s4-icon-active: var(--brand);
+  --s4-hover-fg: var(--brand-hover);
+  --s4-hover-glow: rgba(230, 57, 70, 0.16);
+  --s4-hover-border: #a9222e;
+  --s4-selected-bg: rgba(230, 57, 70, 0.12);
+  --s4-core-1: #e63946;
+  --s4-core-2: #a9222e;
+  --s4-core-3: #6e1620;
+  --s4-ambient: rgba(230, 57, 70, 0.08);
+  --s4-lime: var(--status-success);
+  --s4-accent: var(--ai-accent);
 
   /* Liquid Glass — superfícies translúcidas com blur real (Frente 1) */
   --s4-glass-bg: rgba(20, 20, 22, 0.64);
@@ -31,7 +65,7 @@
   --s4-glass-saturate: 1.35;
   --s4-glass-radius: 14px;
   --s4-glass-shadow: 0 18px 46px rgba(0, 0, 0, 0.5);
-  --s4-glass-glow: 0 0 0 1px rgba(255, 59, 63, 0.18), 0 10px 34px rgba(255, 59, 63, 0.1);
+  --s4-glass-glow: 0 0 0 1px rgba(230, 57, 70, 0.18), 0 10px 34px rgba(230, 57, 70, 0.1);
 }
 
 /* Liquid Glass — utilitários (superfície translúcida com blur real).
@@ -81,7 +115,7 @@ div.fixed.inset-0:has(> [role="dialog"]) {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0) 36%), var(--s4-glass-bg-strong);
   backdrop-filter: blur(var(--s4-glass-blur)) saturate(var(--s4-glass-saturate));
   -webkit-backdrop-filter: blur(var(--s4-glass-blur)) saturate(var(--s4-glass-saturate));
-  box-shadow: var(--s4-glass-shadow), 0 0 0 1px rgba(255, 59, 63, 0.08);
+  box-shadow: var(--s4-glass-shadow), 0 0 0 1px rgba(230, 57, 70, 0.08);
 }
 
 /* --- Modo econômico ------------------------------------------------
@@ -111,8 +145,8 @@ html[data-lowpower] body {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   background:
-    radial-gradient(900px 480px at 8% -12%, rgba(255, 59, 63, 0.10), transparent 55%),
-    radial-gradient(700px 400px at 92% 0%, rgba(255, 59, 63, 0.06), transparent 50%),
+    radial-gradient(900px 480px at 8% -12%, rgba(230, 57, 70, 0.10), transparent 55%),
+    radial-gradient(700px 400px at 92% 0%, rgba(230, 57, 70, 0.06), transparent 50%),
     rgba(18, 11, 13, 0.85);
 }
 
@@ -135,8 +169,8 @@ body,
 body {
   margin: 0;
   background:
-    radial-gradient(900px 480px at 8% -12%, rgba(255, 59, 63, 0.10), transparent 55%),
-    radial-gradient(700px 400px at 92% 0%, rgba(255, 59, 63, 0.06), transparent 50%),
+    radial-gradient(900px 480px at 8% -12%, rgba(230, 57, 70, 0.10), transparent 55%),
+    radial-gradient(700px 400px at 92% 0%, rgba(230, 57, 70, 0.06), transparent 50%),
     linear-gradient(180deg, rgba(47, 21, 23, 0.6), rgba(20, 11, 14, 0.48));
   backdrop-filter: blur(14px) saturate(1.3);
   -webkit-backdrop-filter: blur(14px) saturate(1.3);
@@ -347,7 +381,7 @@ nav button:hover > svg {
 }
 
 .sparkline-line {
-  stroke: var(--s4-icon-default);
+  stroke: var(--brand);
   stroke-width: 1.6;
   fill: none;
   stroke-linecap: round;
@@ -409,8 +443,8 @@ nav button:hover > svg {
   height: 70vmax;
   background: radial-gradient(
     closest-side,
-    rgba(255, 59, 63, 0.14),
-    rgba(200, 30, 34, 0.06) 45%,
+    rgba(124, 92, 255, 0.14),
+    rgba(124, 92, 255, 0.06) 45%,
     transparent 70%
   );
   transform: translate3d(
@@ -451,7 +485,7 @@ nav button:hover > svg {
   top: -150px;
   width: 420px;
   height: 300px;
-  border: 1px solid rgba(200, 30, 34, 0.55);
+  border: 1px solid rgba(124, 92, 255, 0.42);
   animation: sevenoptimizer-ring-spin 26s linear infinite;
   animation-duration: calc(26s / var(--ring-speed));
 }
@@ -462,7 +496,7 @@ nav button:hover > svg {
   top: -125px;
   width: 300px;
   height: 250px;
-  border: 1px solid rgba(255, 59, 63, 0.55);
+  border: 1px solid rgba(124, 92, 255, 0.55);
   animation: sevenoptimizer-ring-spin-rev 19s linear infinite;
   animation-duration: calc(19s / var(--ring-speed));
 }
@@ -493,8 +527,8 @@ nav button:hover > svg {
   height: 7px;
   margin: -3.5px 0 0 -3.5px;
   border-radius: 50%;
-  background: var(--s4-core-2, #c81e22);
-  box-shadow: 0 0 14px rgba(255, 59, 63, 0.75);
+  background: var(--s4-core-2, #a9222e);
+  box-shadow: 0 0 14px rgba(124, 92, 255, 0.75);
 }
 
 .sevenoptimizer-core-orbital[data-o="1"] { animation: sevenoptimizer-orbit-a 15s linear infinite; animation-duration: calc(15s / var(--ring-speed)); }
@@ -524,7 +558,7 @@ nav button:hover > svg {
   width: 112px;
   height: 112px;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, rgba(255, 120, 122, 0.95), rgba(255, 59, 63, 0.55) 45%, rgba(255, 59, 63, 0) 75%);
+  background: radial-gradient(circle at 50% 50%, rgba(152, 126, 255, 0.95), rgba(124, 92, 255, 0.55) 45%, rgba(124, 92, 255, 0) 75%);
   filter: blur(0.5px);
   opacity: var(--core-glow);
 }
@@ -533,7 +567,7 @@ nav button:hover > svg {
   position: absolute;
   inset: -40px;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, rgba(255, 59, 63, 0.28), rgba(255, 59, 63, 0) 65%);
+  background: radial-gradient(circle at 50% 50%, rgba(124, 92, 255, 0.28), rgba(124, 92, 255, 0) 65%);
   animation: sevenoptimizer-core-pulse 7s ease-in-out infinite;
 }
 

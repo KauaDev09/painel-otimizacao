@@ -53,7 +53,7 @@ export function Sidebar({ view, onNavigate, collapsed, onToggle, version }: Side
                     's4-nav-item mb-0.5 flex w-full items-center gap-3 rounded-md border-0 px-2.5 py-2 text-sm font-medium shadow-none',
                     active
                       ? 'bg-[var(--s4-selected-bg)] text-[var(--s4-text-primary)]'
-                      : 'bg-transparent text-[var(--s4-text-secondary)] hover:bg-[rgba(255,59,63,0.08)] hover:text-[var(--s4-hover-fg)]',
+                      : 'bg-transparent text-[var(--s4-text-secondary)] hover:bg-[var(--s4-selected-bg)]/60 hover:text-[var(--s4-hover-fg)]',
                     collapsed && 'justify-center px-0'
                   )}
                 >

@@ -137,8 +137,8 @@ export function Suporte({ onNavigate }: { onNavigate?: (view: string) => void })
     'inline-flex items-center gap-2 rounded-lg bg-[var(--s4-surface)] px-4 py-2 text-sm font-semibold text-[var(--s4-icon-active)] transition-colors hover:bg-[var(--s4-selected-bg)] hover:text-[var(--s4-hover-fg)] disabled:cursor-not-allowed disabled:opacity-60';
 
   const healthLabel = health === 'online' ? 'Online' : health === 'offline' ? 'Offline' : 'Verificando…';
-  const healthDot = health === 'online' ? 'bg-green-500' : health === 'offline' ? 'bg-red-400' : 'bg-muted-foreground animate-pulse';
-  const healthText = health === 'online' ? 'text-green-400' : health === 'offline' ? 'text-red-400' : 'text-muted-foreground';
+  const healthDot = health === 'online' ? 'bg-[var(--status-success)]' : health === 'offline' ? 'bg-[var(--status-danger)]' : 'bg-muted-foreground animate-pulse';
+  const healthText = health === 'online' ? 'text-[var(--status-success)]' : health === 'offline' ? 'text-[var(--status-danger)]' : 'text-muted-foreground';
 
   return (
     <div className="view-appear space-y-6">
