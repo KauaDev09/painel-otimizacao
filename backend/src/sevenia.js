@@ -95,14 +95,28 @@ async function chatToGemini({ system, messages }) {
       config.sevenia.timeoutMs + 10000
     );
   } catch (err) {
-    if (process.env.SEVENIA_DEBUG) console.error('[sevenia] upstream:', err && err.status, err && err.message);
+    // Fluxo completo de erros upstream: sem SEVENIA_DEBUG o log ainda registra
+    // o motivo real (chave inválida 400, modelo 404, cota 429, indisponível 503).
+    console.error('[sevenia] upstream Gemini:', err && err.status, err && err.message);
     const aborted = err && (err.name === 'AbortError' || String(err.message || '').toLowerCase().includes('timeout'));
     if (aborted) {
-      return fail('SEVENIA_TIMEOUT', 'Não foi possível falar com a SevenIA agora.', 502);
+      return fail('SEVENIA_TIMEOUT', 'A SevenIA está demorando. Tente novamente em instantes.', 502);
     }
     const status = Number(err && err.status) || 0;
     if (status === 401 || status === 403) {
-      return fail('SEVENIA_UPSTREAM_AUTH', 'A SevenIA está com problema de credencial no servidor.', 502);
+      return fail('SEVENIA_UPSTREAM_AUTH', 'A SevenIA está com problema de credencial no servidor. Comunica o suporte.', 502);
+    }
+    if (status === 400) {
+      return fail('SEVENIA_UPSTREAM_BAD_REQUEST', 'A SevenIA está mal configurada no servidor. Comunica o suporte.', 502);
+    }
+    if (status === 404) {
+      return fail('SEVENIA_MODEL_UNAVAILABLE', 'O modelo de IA do servidor está indisponível. Comunica o suporte.', 502);
+    }
+    if (status === 429) {
+      return fail('SEVENIA_UPSTREAM_RATE_LIMIT', 'O serviço de IA está sem cota no momento. Tente novamente mais tarde.', 503);
+    }
+    if (status >= 500) {
+      return fail('SEVENIA_UPSTREAM_UNAVAILABLE', 'A IA está temporariamente indisponível. Tente novamente.', 502);
     }
     return fail('SEVENIA_UPSTREAM_ERROR', 'A IA está instável. Tente novamente.', 502);
   }

@@ -112,7 +112,7 @@ export interface SevenApi {
   settingsSet(patch: unknown): Promise<unknown>;
 
   // ---- SevenIA (assistente de IA) ----
-  seveniaUsage(): Promise<{ ok?: boolean; usage?: SeveniaUsage; offline?: boolean }>;
+  seveniaUsage(): Promise<{ ok?: boolean; usage?: SeveniaUsage; offline?: boolean; code?: string; message?: string }>;
   seveniaChat(payload: {
     message: string;
     history?: SeveniaChatMessage[];
@@ -200,4 +200,6 @@ export interface SeveniaChatResult {
   reply?: string;
   model?: string;
   usage?: SeveniaUsage;
+  code?: string;
+  message?: string;
 }

@@ -73,13 +73,15 @@ module.exports = {
   },
   // SevenIA — assistente de IA (Google Gemini). A chave NUNCA sai do servidor.
   sevenia: {
-    model: env.SEVENIA_MODEL || 'gemini-3.6-flash',
+    // gemini-3.6-flash exige cota paga e responde devagar no free tier (503/429).
+    // flash-lite é estável e rápido para o assistente do painel.
+    model: env.SEVENIA_MODEL || 'gemini-3.5-flash-lite',
     apiKey: env.GEMINI_API_KEY || '',
     maxFreePerDay: Number(env.SEVENIA_LIMIT_FREE || 10),
     maxProPerDay: Number(env.SEVENIA_LIMIT_PRO || 100),
     maxHistory: Number(env.SEVENIA_MAX_HISTORY || 12),
     maxMessageLength: Number(env.SEVENIA_MAX_MESSAGE || 4000),
-    timeoutMs: Number(env.SEVENIA_TIMEOUT_MS || 60000),
+    timeoutMs: Number(env.SEVENIA_TIMEOUT_MS || 30000),
     maxTokens: Number(env.SEVENIA_MAX_TOKENS || 1024)
   }
 };

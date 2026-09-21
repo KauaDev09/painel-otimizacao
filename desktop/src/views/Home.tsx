@@ -222,6 +222,9 @@ function SeveniaPanel({ api }: { api: ReturnType<typeof useApi> }) {
       .then((r) => {
         if (r.ok && r.usage) setUsage(r.usage);
         else if (r.offline) setOffline(true);
+        else if (r.code === 'LICENSE_REQUIRED' && r.message) {
+          setErr(r.message);
+        }
       })
       .catch((e: { code?: string }) => {
         if (e.code === 'LICENSE_REQUIRED') {
@@ -249,7 +252,21 @@ function SeveniaPanel({ api }: { api: ReturnType<typeof useApi> }) {
         setMessages((m) => [...m, { role: 'assistant', content: res.reply as string }]);
         if (res.usage) setUsage(res.usage);
       } else {
-        setErr('A SevenIA não retornou resposta.');
+        const code = res.code;
+        const map: Record<string, string> = {
+          LICENSE_REQUIRED: 'Ative sua licença na aba Licença para usar a SevenIA.',
+          SEVENIA_QUOTA: 'Limite diário de mensagens atingido. Volte amanhã ou ative a SevenIA Pro.',
+          RATE_LIMITED: 'Muitas mensagens em sequência. Aguarde um instante.',
+          NETWORK_ERROR: 'Sem conexão com o servidor da SevenIA. Verifique sua internet.',
+          SEVENIA_TIMEOUT: 'A SevenIA está demorando. Tente novamente em instantes.',
+          SEVENIA_NOT_CONFIGURED: 'A SevenIA ainda não está configurada no servidor.',
+          SEVENIA_UPSTREAM_AUTH: 'A SevenIA está com problema de credencial no servidor. Avise o suporte.',
+          SEVENIA_UPSTREAM_BAD_REQUEST: 'A SevenIA está mal configurada no servidor. Avise o suporte.',
+          SEVENIA_MODEL_UNAVAILABLE: 'O modelo de IA está indisponível. Avise o suporte.',
+          SEVENIA_UPSTREAM_RATE_LIMIT: 'O serviço de IA está sem cota agora. Tente novamente mais tarde.',
+          SEVENIA_UPSTREAM_UNAVAILABLE: 'A IA está temporariamente indisponível. Tente novamente.',
+        };
+        setErr((code && map[code]) || res.message || 'A SevenIA não retornou resposta.');
       }
     } catch (e) {
       const code = (e as { code?: string }).code;
@@ -258,7 +275,13 @@ function SeveniaPanel({ api }: { api: ReturnType<typeof useApi> }) {
         SEVENIA_QUOTA: 'Limite diário de mensagens atingido. Volte amanhã ou ative a SevenIA Pro.',
         RATE_LIMITED: 'Muitas mensagens em sequência. Aguarde um instante.',
         NETWORK_ERROR: 'Sem conexão com o servidor da SevenIA. Verifique sua internet.',
+        SEVENIA_TIMEOUT: 'A SevenIA está demorando. Tente novamente em instantes.',
         SEVENIA_NOT_CONFIGURED: 'A SevenIA ainda não está configurada no servidor.',
+        SEVENIA_UPSTREAM_AUTH: 'A SevenIA está com problema de credencial no servidor. Avise o suporte.',
+        SEVENIA_UPSTREAM_BAD_REQUEST: 'A SevenIA está mal configurada no servidor. Avise o suporte.',
+        SEVENIA_MODEL_UNAVAILABLE: 'O modelo de IA está indisponível. Avise o suporte.',
+        SEVENIA_UPSTREAM_RATE_LIMIT: 'O serviço de IA está sem cota agora. Tente novamente mais tarde.',
+        SEVENIA_UPSTREAM_UNAVAILABLE: 'A IA está temporariamente indisponível. Tente novamente.',
       };
       setErr((code && map[code]) || (e as { message?: string }).message || 'Não foi possível falar com a SevenIA.');
     } finally {

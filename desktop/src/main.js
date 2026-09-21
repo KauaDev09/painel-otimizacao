@@ -719,13 +719,15 @@ function registerIpc() {
   // ---- SevenIA (assistente de IA) ----
   // O token HMAC do cliente fica apenas no processo principal; o renderer
   // nunca recebe o token. Uso offline é informativo (não bloqueia).
+  // O renderer depende de { ok, code, message } — nunca lançar Error pelo
+  // IPC, pois o Electron só preserva "message" (o "code" se perde).
+  const seveniaFailure = (code, message) => ({ ok: false, code, message });
+
   ipcMain.handle('sevenia:usage', async () => {
     const { getApiBaseUrl } = require('./license/config');
     const { getJson } = require('./license/apiClient');
     if (!licenseService.getToken()) {
-      const e = new Error('Ative sua licença para usar a SevenIA.');
-      e.code = 'LICENSE_REQUIRED';
-      throw e;
+      return seveniaFailure('LICENSE_REQUIRED', 'Ative sua licença para usar a SevenIA.');
     }
     try {
       return await getJson(getApiBaseUrl(), '/api/v1/sevenia/uso-hoje', {
@@ -736,29 +738,38 @@ function registerIpc() {
       if (!err.code || err.code === 'NETWORK_ERROR' || err.code === 'HTTP_ERROR') {
         return { ok: false, usage: null, offline: true };
       }
-      throw err;
+      return seveniaFailure(err.code || 'SEVENIA_ERROR', err.message || 'Não foi possível falar com a SevenIA.');
     }
   });
   ipcMain.handle('sevenia:chat', async (_e, payload) => {
     const { getApiBaseUrl } = require('./license/config');
     const { postJson } = require('./license/apiClient');
     if (!licenseService.getToken()) {
-      const e = new Error('Ative sua licença para usar a SevenIA.');
-      e.code = 'LICENSE_REQUIRED';
-      throw e;
+      return seveniaFailure('LICENSE_REQUIRED', 'Ative sua licença para usar a SevenIA.');
     }
     const message = String((payload && payload.message) || '').trim();
-    if (!message) throw new Error('Digite uma mensagem para a SevenIA.');
+    if (!message) return seveniaFailure('BAD_REQUEST', 'Digite uma mensagem para a SevenIA.');
     const history = Array.isArray(payload && payload.history) ? payload.history : [];
-    return postJson(
-      getApiBaseUrl(),
-      '/api/v1/sevenia/chat',
-      { message, history: history.slice(-12) },
-      {
-        headers: { Authorization: `Bearer ${licenseService.getToken()}` },
-        timeoutMs: 90000
+    try {
+      return await postJson(
+        getApiBaseUrl(),
+        '/api/v1/sevenia/chat',
+        { message, history: history.slice(-12) },
+        {
+          headers: { Authorization: `Bearer ${licenseService.getToken()}` },
+          timeoutMs: 70000
+        }
+      );
+    } catch (err) {
+      const code = err.code || 'SEVENIA_ERROR';
+      let text = err.message || 'Não foi possível falar com a SevenIA.';
+      if (code === 'NETWORK_ERROR') {
+        text = 'Sem conexão com o servidor agora. Verifique sua internet e tente novamente.';
+      } else if (code === 'SEVENIA_TIMEOUT') {
+        text = 'A SevenIA está demorando para responder. Tente novamente.';
       }
-    );
+      return seveniaFailure(code, text);
+    }
   });
 
   // ---- Links externos (somente URLs http/https) ----
