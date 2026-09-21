@@ -285,6 +285,19 @@ function seveniaErrorMessage(code?: string, fallback?: string): string {
   return (code && SEVENIA_ERROR_MAP[code]) || fallback || 'A SevenIA não retornou resposta.';
 }
 
+// Quando o motor devolve falha sem `error`, extrai uma explicação legível dos
+// resultados parciais para nunca mostrar um vazio "não foi possível".
+function summarizeApplyResult(res: { error?: string; results?: { name?: string; message?: string; ok?: boolean }[] } | undefined): string {
+  if (!res) return '';
+  if (typeof res.error === 'string' && res.error.trim()) return res.error;
+  const failed = (res.results || []).filter((r) => !r.ok);
+  if (!failed.length) return '';
+  return failed
+    .slice(0, 3)
+    .map((r) => `${r.name || 'Passo'}: ${r.message || 'falhou sem detalhes.'}`)
+    .join(' · ');
+}
+
 function SeveniaPanel({ api }: { api: ReturnType<typeof useApi> }) {
   const [messages, setMessages] = React.useState<ChatMsg[]>(() => readSeveniaHistory());
   const [input, setInput] = React.useState('');
@@ -393,16 +406,21 @@ function SeveniaPanel({ api }: { api: ReturnType<typeof useApi> }) {
   }
 
   async function applyProposal(index: number, proposal: SevenApplyProposal) {
+    const confirmMsg = proposal.label
+      ? `Aplicar "${proposal.label}" com estas otimizações?\n\n${proposal.ids.join(', ')}`
+      : `Aplicar as otimizações sugeridas pela SevenIA?\n\n${proposal.ids.join(', ')}`;
+    if (!window.confirm(confirmMsg)) return;
     setMessages((m) => m.map((msg, i) => (i === index ? { ...msg, applyState: 'applying', applyMsg: '' } : msg)));
     try {
       const res = await api.engineApply?.({ ids: proposal.ids, label: proposal.label || 'SevenIA', createRestorePoint: true });
       if (res && res.ok) {
         setMessages((m) => m.map((msg, i) => (i === index ? { ...msg, applyState: 'done', applyMsg: 'Otimizações aplicadas com sucesso.' } : msg)));
       } else {
-        setMessages((m) => m.map((msg, i) => (i === index ? { ...msg, applyState: 'error', applyMsg: (res && res.error) || 'Não foi possível aplicar as otimizações.' } : msg)));
+        setMessages((m) => m.map((msg, i) => (i === index ? { ...msg, applyState: 'error', applyMsg: summarizeApplyResult(res) || 'Não foi possível aplicar as otimizações.' } : msg)));
       }
     } catch (e) {
-      setMessages((m) => m.map((msg, i) => (i === index ? { ...msg, applyState: 'error', applyMsg: (e as { message?: string }).message || 'Falha ao aplicar.' } : msg)));
+      const msg = (e as { message?: string }).message || 'Falha ao aplicar.';
+      setMessages((m) => m.map((msg2, i) => (i === index ? { ...msg2, applyState: 'error', applyMsg: msg } : msg2)));
     }
   }
 

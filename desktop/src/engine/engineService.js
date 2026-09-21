@@ -125,10 +125,35 @@ function getDrivers() {
   });
 }
 
+// Constrói uma mensagem de erro legível quando a aplicação não conclui todos
+// os passos. Antes disso, `applyItems` devolvia apenas { ok:false } e o painel
+// mostrava um genérico "Não foi possível aplicar as otimizações" sem explicar
+// o motivo real (UAC negado, timeout, passo específico reprovado).
+function summarizeApplyFailure(results, launchError, restorePoint) {
+  const failed = (results || []).filter((r) => !r.ok);
+  const parts = [];
+  if (launchError) parts.push(`Execução interrompida: ${launchError}`);
+  if (restorePoint && restorePoint.ok === false) {
+    parts.push('Ponto de restauração não criado (as otimizações seguiram).');
+  }
+  if (failed.length) {
+    if (!launchError && failed.length === results.length && results.length > 1) {
+      parts.push('Nenhuma otimização foi aplicada — a execução não chegou a concluir os passos.');
+    } else {
+      parts.push(`${failed.length} de ${results.length} otimização(ões) não aplicada(s).`);
+    }
+    const detail = failed.slice(0, 3)
+      .map((r) => `${r.name || 'Passo'}: ${r.message || 'falhou sem detalhes.'}`)
+      .join(' · ');
+    if (detail) parts.push(detail);
+  }
+  return parts.join(' ') || 'Não foi possível aplicar as otimizações.';
+}
+
 /**
  * Aplica um conjunto de itens por ID.
  * opts: { label, createRestorePoint:boolean, onStep(name, ok, message) }
- * Retorna { ok, results, opId, launchError, restorePoint }.
+ * Retorna { ok, error?, results, opId, launchError, restorePoint }.
  */
 async function applyItems(ids, opts = {}) {
   if (!stateDir) throw new Error('Engine não inicializado.');
@@ -240,7 +265,17 @@ async function applyItems(ids, opts = {}) {
   markItemsApplied(okIds);
 
   const allOk = itemResults.length > 0 && itemResults.every((r) => r.ok);
-  return { ok: allOk, results: itemResults, opId, launchError, restorePoint };
+  if (allOk) {
+    return { ok: true, results: itemResults, opId, launchError, restorePoint };
+  }
+  return {
+    ok: false,
+    error: summarizeApplyFailure(itemResults, launchError, restorePoint),
+    results: itemResults,
+    opId,
+    launchError,
+    restorePoint
+  };
 }
 
 /**

@@ -152,11 +152,24 @@ function launchElevated(orchPath, timeoutMs) {
   // Aspas duplas normais ao redor do caminho: cmd.exe NÃO entende \" (barra
   // invertida não é escape no cmd) e o Start-Process do PS 5.1 junta os
   // argumentos sem reaspar — por isso o caminho já vai com aspas próprias.
+  //
+  // Quando o usuário NEGA o UAC, o Start-Process -Verb RunAs falha e o
+  // PowerShell sai com código 1 (e "cancelada pelo usuário" no stderr) — o
+  // código 1223 (ERROR_CANCELLED) nem sempre chega até aqui. Normalizamos
+  // esse caso para 1223 para que o runner reporte o motivo real em vez de
+  // marcar todos os passos como "não concluídos" sem explicação.
   const psCommand =
+    "$ErrorActionPreference='SilentlyContinue'; " +
     "$p = Start-Process -FilePath 'cmd.exe' " +
     `-ArgumentList '/c','"${orchPath}"' ` +
-    '-Verb RunAs -WindowStyle Hidden -PassThru -Wait; exit $p.ExitCode';
-  return spawnProc(psExe(), ['-NoProfile', '-NonInteractive', '-Command', psCommand], timeoutMs + 300000);
+    '-Verb RunAs -WindowStyle Hidden -PassThru -Wait; ' +
+    'if ($LASTEXITCODE) { exit $LASTEXITCODE }; if ($p) { exit $p.ExitCode }; exit 1223';
+  return spawnProc(psExe(), ['-NoProfile', '-NonInteractive', '-Command', psCommand], timeoutMs + 300000).then((r) => {
+    if (r.code !== 0 && r.code !== 1223 && /cancel|negad/i.test(r.stderr || '')) {
+      r.code = 1223;
+    }
+    return r;
+  });
 }
 
 function launchNormal(orchPath, timeoutMs) {
@@ -178,11 +191,13 @@ function psExe() {
 function spawnProc(exe, args, timeoutMs) {
   return new Promise((resolve) => {
     const child = spawn(exe, args, { windowsHide: true });
+    let stderr = '';
     let settled = false;
     const finish = (r) => { if (!settled) { settled = true; clearTimeout(timer); resolve(r); } };
-    const timer = setTimeout(() => { child.kill(); finish({ code: 1, error: 'Tempo esgotado ao elevar permissões.' }); }, timeoutMs);
-    child.on('error', (err) => finish({ code: 1, error: `Não foi possível executar: ${err.message}` }));
-    child.on('close', (code) => finish({ code: code == null ? 1 : code }));
+    const timer = setTimeout(() => { child.kill(); finish({ code: 1, error: 'Tempo esgotado ao elevar permissões.', stderr }); }, timeoutMs);
+    child.stderr.on('data', (d) => { stderr += d.toString('utf8'); });
+    child.on('error', (err) => finish({ code: 1, error: `Não foi possível executar: ${err.message}`, stderr }));
+    child.on('close', (code) => finish({ code: code == null ? 1 : code, stderr }));
   });
 }
 
@@ -311,7 +326,10 @@ async function runSteps(stepsInput, { onStepEnd, timeoutMs, requireAdmin } = {})
   for (const [idx, res] of resultMap) {
     if (!seenEnd.has(idx)) {
       res.ok = false;
-      res.message = launch.error || 'Não foi possível concluir este passo.';
+      res.message = launch.error ||
+        (needsAdmin && launch.code !== 0
+          ? 'Falha ao elevar permissões (UAC). A otimização não foi executada.'
+          : 'Não foi possível concluir este passo.');
       if (onStepEnd) onStepEnd(res.name, false, res.message);
     }
   }

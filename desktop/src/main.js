@@ -821,13 +821,18 @@ function registerIpc() {
     }
   }
 
-  function buildSeveniaCatalog() {
+  async function buildSeveniaCatalog() {
     try {
       // Sem licença ativa, itens PRO não podem ser aplicados: não os ofereça à IA
       // para evitar propor algo que o usuário não conseguirá executar.
       const proAllowed = licenseService.getState().active;
+      // Filtra itens por fabricante da GPU detectado (igual a Otimizações)
+      // para que a IA não sugira otimizações de vendor inexistente no PC.
+      let gpuVendors = [];
+      try { gpuVendors = await getDetectedGpuVendors(); } catch (_) { gpuVendors = []; }
       return engineService.listItems()
         .filter((i) => proAllowed || !i.proOnly)
+        .filter((i) => !(gpuVendors.length && i.vendor && !gpuVendors.includes(i.vendor)))
         .map((i) => ({
           id: i.id, name: i.name, risk: i.risk, category: i.category, proOnly: !!i.proOnly
         }));
@@ -908,7 +913,7 @@ function registerIpc() {
       message,
       history: history.slice(-12),
       context: contextParts.join('\n\n'),
-      catalog: buildSeveniaCatalog()
+      catalog: await buildSeveniaCatalog()
     };
     let emitted = false;
     try {
