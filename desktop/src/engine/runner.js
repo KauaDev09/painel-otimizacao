@@ -128,6 +128,9 @@ function buildOrchestrator(steps, logPath) {
     '@echo off',
     'chcp 65001 >nul',
     `set "MSO_LOG=${logPath}"`,
+    // Modo automático: scripts .bat com menu/set /p (debloaters etc.) pulam a
+    // interação e executam a ação padrão quando esta variável está definida.
+    'set "SEVEN_NO_PROMPT=1"',
     `echo ${MARK_SEQ_START}>> "%MSO_LOG%"`
   ];
   steps.forEach((step, i) => {

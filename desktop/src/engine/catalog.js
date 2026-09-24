@@ -583,7 +583,7 @@ const ITEMS = [
     confirm: false,
     profiles: ['gaming'],
     proOnly: true,
-    apply: script('gaming/priority/Aumentar Prioridade de jogos no Sistema.bat'),
+    apply: ps(IFEO_EXES.map((e) => `New-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\${e}\\PerfOptions' -Force | Out-Null; New-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\${e}\\PerfOptions' -Name CpuPriorityClass -PropertyType DWord -Value 3 -Force | Out-Null`).join('\n')),
     undo: ps(IFEO_EXES.map((e) => `Remove-Item -LiteralPath 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\${e}\\PerfOptions' -Recurse -Force -ErrorAction SilentlyContinue`).join('\n'))
   },
 

@@ -76,6 +76,7 @@ interface BiosItem {
   state?: { key?: string; label?: string; currentMhz?: number | null; ratedMhz?: number | null } | null;
   expected?: { key?: string } | null;
   auto?: boolean;
+  applyMethod?: string;
   capability?: { ok?: boolean; mode?: string; requiresAdmin?: boolean; reason?: string } | null;
   compatibility?: string;
   provider?: string;
@@ -212,6 +213,15 @@ const BIOS_BUTTON_LABEL: Record<string, string> = {
   unavailable: 'INDISPONÍVEL',
   informational: 'VERIFICAR',
   rollback: 'DESFAZER',
+};
+
+// Rotulo no card: o método real de aplicação (biosManager) — nunca "AUTOMÁTICO"
+// quando na prática seria manual/ferramenta.
+const METHOD_LABELS: Record<string, string> = {
+  powercfg: 'POWERCFG',
+  efi: 'MÉTODO: NVRAM',
+  vendor: 'FERRAMENTA',
+  manual: 'MANUAL',
 };
 
 const DISABLED_STATUSES = ['active', 'pending_reboot', 'verifying', 'applying', 'success', 'unavailable'];
@@ -585,7 +595,11 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
       toast('info', 'Preparando otimização...');
       const res = await api.biosApply({ id, reboot: !!item.requiresReboot });
       if (res.manual) {
-        await openBiosGuide(id, item);
+        if (item.applyMethod === 'vendor') {
+          toast('info', res.message || 'Ferramenta do fabricante aberta.');
+        } else {
+          await openBiosGuide(id, item);
+        }
         return;
       }
       if (!res.ok) {
@@ -609,7 +623,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
       const preview = await api.biosDryRun(id);
       const go = await ask({
         title: 'Otimizar BIOS',
-        okLabel: 'OTIMIZAR BIOS',
+        okLabel: item?.applyMethod === 'vendor' ? 'ABRIR FERRAMENTA' : 'OTIMIZAR BIOS',
         body: (
           <div>
             <p className="m-0 mb-2">O SevenOptimizer pretende:</p>
@@ -622,9 +636,11 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
             {preview.reason && <p className="mt-2 text-xs text-muted-foreground">{preview.reason}</p>}
             <p className="mt-3 flex items-start gap-2 text-xs text-amber-400">
               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              {isAuto
-                ? 'A otimização será aplicada automaticamente e verificada após a reinicialização.'
-                : 'Esta alteração exige configuração manual na BIOS — o botão acima apenas explica o procedimento.'}
+              {item?.applyMethod === 'vendor'
+                ? 'A ferramenta oficial do fabricante abrirá para você confirmar a alteração. O SevenOptimizer não marca como aplicado até confirmar no próximo boot.'
+                : isAuto
+                  ? 'A otimização será aplicada automaticamente e verificada após a reinicialização.'
+                  : 'Esta alteração exige configuração manual na BIOS — o botão acima apenas explica o procedimento.'}
             </p>
           </div>
         ),
@@ -885,7 +901,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
         {items.map((item) => {
           const meta = levelMeta(item.level);
           const status = item.status || 'informational';
-          const btnLabel = BIOS_BUTTON_LABEL[status] || item.button || 'VERIFICAR';
+          const btnLabel = item.button || BIOS_BUTTON_LABEL[status] || 'VERIFICAR';
           const disabled = DISABLED_STATUSES.includes(status) || busyId === item.id;
           const outline = status === 'manual' || status === 'informational';
           const isMem = item.id === 'xmp' || item.id === 'expo' || item.id === 'docp';
@@ -919,7 +935,7 @@ export function Bios({ onNavigate }: { onNavigate?: (view: string) => void }) {
                 risk={item.risk}
                 impact={item.impact}
                 reboot={item.requiresReboot}
-                extra={[item.auto ? 'AUTOMÁTICO' : 'MANUAL']}
+                extra={[item.applyMethod ? (METHOD_LABELS[item.applyMethod] || item.applyMethod.toUpperCase()) : (item.auto ? 'AUTOMÁTICO' : 'MANUAL')]}
               />
 
               <p className="mt-3 font-mono text-[0.7rem] text-muted-foreground">

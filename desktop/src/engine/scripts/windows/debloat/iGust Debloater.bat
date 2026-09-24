@@ -2,6 +2,8 @@
 chcp 65001 >nul
 cls
 setlocal enabledelayedexpansion
+:: Modo automático (SevenOptimizer): pula o menu interativo e executa o debloat completo (opção 2).
+if defined SEVEN_NO_PROMPT goto opcao2
 
 set "line1=                                       .__  ________                __   
 set "line2=                                       |__|/  _____/ __ __  _______/  |_ 
@@ -259,6 +261,7 @@ reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policie
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v "AllowCortana" /t REG_DWORD /d 0 /f
 reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SystemPaneSuggestionsEnabled" /t REG_DWORD /d 0 /f
 echo Debloater Feito com Sucesso! :)
+if defined SEVEN_NO_PROMPT exit /b 0
 pause
 cls
 goto :menu

@@ -83,7 +83,6 @@ interface LocalApi {
 // ---------------------------------------------------------------------------
 
 const CUSTOM_PROFILE_KEY = 'sevenoptimizer.customProfile';
-const APPLIED_KEY = 'sevenoptimizer.appliedIds';
 const RISK_SORT: Record<string, number> = { high: 0, medium: 1, low: 2, info: 3 };
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -243,10 +242,6 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
     setRunLog((prev) => [...prev, { id, status, name, message }]);
   }, []);
 
-  const persistApplied = React.useCallback((set: Set<string>) => {
-    writeJson(APPLIED_KEY, [...set]);
-  }, []);
-
   // ---- carga inicial ----
   const load = React.useCallback(async () => {
     setLoading(true);
@@ -267,7 +262,6 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
       setDrivers(Array.isArray(drvs) ? drvs : []);
       setGpuVendors(Array.isArray(gpuCtx?.vendors) ? gpuCtx.vendors : []);
       const app = new Set(list.filter((i) => i.applied).map((i) => i.id));
-      readJsonArray(APPLIED_KEY).forEach((id) => app.add(id));
       setApplied(app);
       setCustomIds(readJsonArray(CUSTOM_PROFILE_KEY));
     } catch (err) {
@@ -467,7 +461,6 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
         setApplied((prev) => {
           const next = new Set(prev);
           next.delete(id);
-          persistApplied(next);
           return next;
         });
         toast('✅ Otimização revertida.', 'ok');
@@ -548,7 +541,6 @@ export function Windows({ onNavigate }: { onNavigate?: (view: string) => void })
         setApplied((prev) => {
           const next = new Set(prev);
           okIds.forEach((id) => next.add(id));
-          persistApplied(next);
           return next;
         });
       }

@@ -2,6 +2,7 @@
 mode con: cols=68 lines=14
 color 1F
 title Reverter Otimizações de Aplicativos e Configurações
+if defined SEVEN_NO_PROMPT goto revert_apps
 cls
 
 echo		===============================================
@@ -40,6 +41,7 @@ powershell -Command "Add-AppxPackage -register C:\Program Files\WindowsApps\Micr
 powershell -Command "Add-AppxPackage -register C:\Program Files\WindowsApps\Microsoft.News_*\AppxManifest.xml"
 powershell -Command "Add-AppxPackage -register C:\Program Files\WindowsApps\Microsoft.OneDrive_*\AppxManifest.xml"
 echo Pacotes de aplicativos revertidos com sucesso.
+if defined SEVEN_NO_PROMPT goto revert_cortana_copilot
 pause
 goto menu
 
@@ -51,6 +53,7 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\E
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v "AllowCortana" /t REG_DWORD /d 1 /f
 reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SystemPaneSuggestionsEnabled" /t REG_DWORD /d 1 /f
 echo Configurações de Cortana e Copilot revertidas com sucesso.
+if defined SEVEN_NO_PROMPT exit /b 0
 pause
 goto menu
 

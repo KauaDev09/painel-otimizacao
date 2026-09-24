@@ -26,12 +26,18 @@ function matchesExpected(item, scan, expected) {
 
   if (item.id === 'resizable_bar') {
     const ok = now.key === 'enabled';
-    return { ok, now, detail: ok ? 'Resizable BAR confirmado pelo driver.' : 'Resizable BAR não confirmado após o reboot.' };
+    const hint = (scan.extra && scan.extra.rebar && scan.extra.rebar.state === 'unknown')
+      ? 'Sem nvidia-smi (ou GPU sem suporte) não há como confirmar pelo Windows.'
+      : '';
+    return { ok, now, detail: ok ? 'Resizable BAR confirmado pelo driver.' : hint || 'Resizable BAR não confirmado após o reboot.' };
   }
 
   if (item.id === 'above_4g') {
     const ok = now.key === 'likely_enabled' || (scan.extra && scan.extra.rebar && scan.extra.rebar.state === 'enabled');
-    return { ok, now, detail: ok ? 'Above 4G provavelmente ativo (ReBAR visível).' : 'Não foi possível confirmar Above 4G Decoding.' };
+    const hint = (scan.extra && scan.extra.rebar && scan.extra.rebar.state === 'unknown')
+      ? 'ReBAR não reportado (GPU sem nvidia-smi) — não é possível confirmar Above 4G.'
+      : '';
+    return { ok, now, detail: ok ? 'Above 4G provavelmente ativo (ReBAR visível).' : hint || 'Não foi possível confirmar Above 4G Decoding.' };
   }
 
   if (item.id === 'csm') {

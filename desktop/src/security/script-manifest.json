@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-09-21T16:34:33.031Z",
+  "generatedAt": "2026-09-24T16:11:25.206Z",
   "files": {
     "hardware/collector.ps1": "aa4f396c4660abe0d90b7d889df54d93edbc5ae242e418006ccf14b4f7714080",
     "security/securityCollector.ps1": "c4398cb53d18ede80d78dd0b7bb153947bbd77c51b11a8bde72691e181524bb5",
@@ -33,11 +33,11 @@
     "engine/scripts/windows/debloat/Desativar Anúncios e sugestões.bat": "f2bbc09e1866f330c91a5ab31cb0e2fd921eeeccc8976565930a7b2acaae1ee1",
     "engine/scripts/windows/debloat/Desativar Copilot.bat": "ab3450eb063d66726614da3612056dd82b91193fd4c1cfbb02399c5181978f39",
     "engine/scripts/windows/debloat/Desativar Cortana.bat": "9685e49dacc9564916f970d07c76b96342812bde821b888a6d2dac87b42af4c3",
-    "engine/scripts/windows/debloat/iGust Debloater.bat": "7f2fe31d78ffc76517446825d622913e7f97f284870dc9e80ec7c8996acfeae1",
+    "engine/scripts/windows/debloat/iGust Debloater.bat": "a8f1c4d12f6c62f007577c314bfac93328eb192d32d273782de984fe29f20e8c",
     "engine/scripts/windows/debloat/Linkedin.bat": "fbaaca406ab61c3613e125d4953ac6f47945aa47639805e3b17b0794a315aeb0",
     "engine/scripts/windows/debloat/Loja do Windows.bat": "a5eb64beb1dda8907347752553a800e2915c7aa0d25f51da1b1b3af6d0198306",
     "engine/scripts/windows/debloat/REMOVA TUDO DE UMA VEZ SÓ.bat": "b4a493675be97afcb974a7c315656e041c2a36c22ee4f0b9f8dd698b8eae82ba",
-    "engine/scripts/windows/debloat/REVERTA OS DEBLOATERS.bat": "6e5edae23b046637035a588db1ac333db2d43eb3b9e6f200fd8a8712638eaee1",
+    "engine/scripts/windows/debloat/REVERTA OS DEBLOATERS.bat": "d5f0182222763eae1b6434292cefa23db9da921ed935a7834c000a2f9c1b1cdb",
     "engine/scripts/windows/debloat/Vincular celular.bat": "b74dda33367b8c9a5f683de8f25f7e4414cf0c43bd95417ff5ad9d393bf682ab",
     "engine/scripts/windows/debloat/Whatsapp.bat": "7ef1868877fda6cf71bc4e1683e1ea60f914a69d75ad082536bdb34105436507",
     "engine/scripts/windows/debloat/Windows 3Dbuilder.bat": "68fc6fb0022009da0d93407d3e029288c98ea99163e264760f68b10a856521e4",

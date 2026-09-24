@@ -109,7 +109,6 @@ class BiosManager {
 
   _buildItems(scan) {
     const provider = scan.provider;
-    const pending = this.store ? this.store.getPending() : [];
     const items = [];
     for (const spec of catalog.ITEMS) {
       if ((spec.id === 'xmp' || spec.id === 'expo' || spec.id === 'docp') && !compat.hardwareOk(spec, scan)) {
@@ -130,26 +129,46 @@ class BiosManager {
         });
       }
 
-      // "Force auto": itens com hardware compatível e ainda não ativos passam a
-      // ser tratados como automáticos na UI. A aplicação usa a ferramenta oficial
-      // do fabricante quando instalada (ver vendorTools); caso contrário orienta
-      // com um aviso em vez de quebrar o botão.
-      const isActiveKey = evald.state.key === 'enabled' || evald.state.key === 'enabled_or_jedec' || evald.state.key === 'likely_enabled';
-      if (!isActiveKey && evald.hardwareOk && evald.state.key !== undefined && spec.id !== 'high_performance_plan' && !evald.auto) {
-        const { capabilityFor } = require('./vendorTools');
-        const cap = capabilityFor(spec, scan);
-        evald = Object.assign({}, evald, {
-          auto: true,
-          applyOk: true,
-          capability: cap.ok
-            ? cap
-            : { ok: true, mode: 'auto', requiresAdmin: false, reason: 'Método automático (ferramenta do fabricante ou orientação ao abrir a BIOS).' },
-          uiStatus: 'available',
-          button: 'ATIVAR'
-        });
+      // Método real da otimização nesta máquina (para badges honestos):
+      //   'powercfg' — plano de energia nativo do Windows;
+      //   'efi'      — NVRAM com offset VERIFICADO na base de offsets;
+      //   'vendor'   — ferramenta oficial do fabricante instalada (abre o app);
+      //   'manual'   — sem método automático (orientação manual na BIOS).
+      let applyMethod = 'manual';
+      if (spec.id === 'high_performance_plan' && evald.capability && evald.capability.ok && evald.capability.mode === 'auto') {
+        applyMethod = 'powercfg';
+      } else {
+        const efiCap = scan.efiCap && scan.efiCap[spec.id];
+        if (efiCap && efiCap.ok && efiCap.mode === 'auto') {
+          applyMethod = 'efi';
+        } else if (evald.capability && evald.capability.ok && evald.capability.mode === 'auto' && evald.capability.vendorTool) {
+          applyMethod = 'vendor';
+        }
       }
 
-      const pend = pending.find((p) => p.setting === spec.id);
+      // Sem offset verificado, alguns itens ainda têm método automático
+      // legítimo: a ferramenta oficial do fabricante (abre o app para o
+      // usuário confirmar). NUNCA inventa capacidade — só quando a ferramenta
+      // foi realmente detectada no scan. Itens não verificáveis ou informativos
+      // (cpb, csm) permanecem manuais/de orientação.
+      const isActiveKey = evald.state.key === 'enabled' || evald.state.key === 'enabled_or_jedec' || evald.state.key === 'likely_enabled' || evald.state.key === 'likely_disabled';
+      if (applyMethod === 'manual' && evald.hardwareOk && evald.state.key !== undefined && !isActiveKey && spec.id !== 'cpb' && spec.id !== 'csm' && !evald.auto) {
+        const { capabilityFor } = require('./vendorTools');
+        const cap = capabilityFor(spec, scan);
+        if (cap.ok) {
+          evald = Object.assign({}, evald, {
+            auto: true,
+            applyOk: true,
+            capability: cap,
+            uiStatus: 'available',
+            button: 'ABRIR FERRAMENTA'
+          });
+          applyMethod = 'vendor';
+        }
+      }
+
+      const hist = this.store ? this.store.getBySetting(spec.id) : [];
+      const pend = hist[hist.length - 1];
       let uiStatus = evald.uiStatus;
       let button = evald.button;
       if (pend && pend.status === 'pending_reboot') {
@@ -189,6 +208,7 @@ class BiosManager {
         state: evald.state,
         expected: evald.expected,
         auto: evald.auto,
+        applyMethod,
         capability: evald.capability,
         compatibility: evald.compatibilityNote,
         provider: provider.id,
@@ -269,7 +289,7 @@ class BiosManager {
       next: item.expected.key === 'enabled' || item.expected.key === 'likely_enabled' ? 'ATIVADO' : item.expected.key,
       reboot: spec.requiresReboot ? 'SIM' : 'NÃO',
       provider: this.lastScan.provider.displayName,
-      mode: item.auto ? 'automático' : 'manual',
+      mode: item.applyMethod === 'vendor' ? 'ferramenta do fabricante' : (item.auto ? 'automático' : 'manual'),
       reason: item.capability && item.capability.reason,
       currentMhz: item.currentMhz,
       ratedMhz: item.ratedMhz
@@ -341,6 +361,21 @@ class BiosManager {
 
     const effSnapshot = result.snapshot ? Object.assign({}, snapshot, result.snapshot) : snapshot;
 
+    if (effSnapshot.type === 'vendor_tool') {
+      // Abrir a ferramenta NÃO significa aplicar a alteração: o usuário confirma
+      // dentro do app do fabricante. Nada muda no firmware até lá, então NÃO se
+      // cria operação pendente — seria marcada como falha após o reboot sem motivo.
+      this.logger.log(`${spec.name}: usuário confirma na ferramenta do fabricante`);
+      return {
+        ok: true,
+        applied: false,
+        manual: true,
+        applyMethod: 'vendor',
+        message: result.message || 'Ferramenta do fabricante aberta. Confirme a alteração nela e reinicie quando indicado.',
+        guide: this.guide(id)
+      };
+    }
+
     if (spec.requiresReboot) {
       const op = this.store.create({
         setting: spec.id,
@@ -401,6 +436,13 @@ class BiosManager {
     if (!this.lastScan) throw new Error('Execute a análise antes.');
     const item = this._buildItems(this.lastScan).find((x) => x.id === id);
     if (!item) throw new Error('Otimização indisponível.');
+    if (spec.id === 'cpb') {
+      // CPB não é exposto pelo Windows: qualquer verificação falharia sempre.
+      // Evita criar operação pendente que nunca poderia ser confirmada.
+      const err = new Error('Precision Boost Overdrive não pode ser verificado pelo Windows — nenhuma operação pendente foi criada.');
+      err.code = 'CPB_NOT_VERIFIABLE';
+      throw err;
+    }
     const op = this.store.create({
       setting: spec.id,
       operation: spec.operation,
