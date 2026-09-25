@@ -90,15 +90,22 @@
       } catch (_) {}
 
       function startDownload() {
-        var link = document.createElement('a');
-        link.href = '/api/v1/public/installer';
-        link.download = '';
-        link.rel = 'noopener noreferrer';
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
+        var frame = document.createElement('iframe');
+        frame.src = '/api/v1/public/installer';
+        frame.title = 'Download do instalador';
+        frame.setAttribute('aria-hidden', 'true');
+        frame.style.display = 'none';
+        document.body.appendChild(frame);
+        window.setTimeout(function () { frame.remove(); }, 60000);
         state.className = 'install-state started';
         message.textContent = 'Download solicitado. Se o arquivo não aparecer, use o botão abaixo.';
+      }
+
+      if (installButton) {
+        installButton.addEventListener('click', function (event) {
+          event.preventDefault();
+          startDownload();
+        });
       }
 
       if (/Win/i.test(navigator.userAgent) && !alreadyStarted) {

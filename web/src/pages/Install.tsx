@@ -12,13 +12,13 @@ const AUTO_DOWNLOAD_KEY = 's4_installer_auto_download';
 type DownloadState = 'loading' | 'started' | 'ready' | 'unsupported';
 
 function triggerDownload() {
-  const link = document.createElement('a');
-  link.href = INSTALLER_DOWNLOAD_URL;
-  link.download = '';
-  link.rel = 'noopener noreferrer';
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+  const frame = document.createElement('iframe');
+  frame.src = INSTALLER_DOWNLOAD_URL;
+  frame.title = 'Download do instalador';
+  frame.setAttribute('aria-hidden', 'true');
+  frame.style.display = 'none';
+  document.body.appendChild(frame);
+  window.setTimeout(() => frame.remove(), 60000);
 }
 
 function hasAutoDownloaded() {
