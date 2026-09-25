@@ -19,5 +19,6 @@ node_modules/
 README.md
 **/release/
 **/node_modules/
+**/.env*
 web/node_modules/
 web/dist/

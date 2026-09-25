@@ -38,7 +38,7 @@ export default function DownloadPanel({ className = '' }: DownloadPanelProps) {
         </div>
         <div>
           <div className="k">Tamanho</div>
-          <div className="v">{download.size || '~78 MB'}</div>
+          <div className="v">{download.size || '~107 MB'}</div>
         </div>
         <div>
           <div className="k">Plataforma</div>
@@ -54,8 +54,14 @@ export default function DownloadPanel({ className = '' }: DownloadPanelProps) {
           <li>Internet necessária para ativar e validar a chave de licença</li>
         </ul>
       </div>
-      <a className="btn btn-primary btn-lg" href={download.url} download data-magnet="12">
-        Baixar instalador
+      <a
+        className="btn btn-primary btn-lg"
+        href="/instalar"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-magnet="12"
+      >
+        Instalar agora
       </a>
       {download.releaseNotes && (
         <div className="changelog">

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instalar — SevenOptimizer</title>
+  <meta name="description" content="Área de instalação do SevenOptimizer para Windows 10 e 11, com download público e sem cadastro.">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="icon" type="image/jpeg" href="/assets/icon.jpeg">
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <nav class="nav"><div class="nav-inner">
+    <a href="/" class="brand" aria-label="SevenOptimizer — Início">
+      <span class="brand-mark" aria-hidden="true"><img src="/assets/icon.jpeg" alt=""></span>
+      SevenOptimizer<span class="accent">OPTIMIZER</span>
+    </a>
+    <div class="nav-actions"><a href="/" class="btn btn-ghost">Voltar ao site</a></div>
+  </div></nav>
+
+  <main class="install-page">
+    <div class="container install-layout">
+      <div class="install-copy">
+        <div class="install-badge">Instalação pública · sem cadastro</div>
+        <h1>Instalar SevenOptimizer</h1>
+        <p>O instalador inicia automaticamente ao abrir esta aba. Você não precisa de conta nem de login do GitHub.</p>
+        <div class="install-points" aria-label="Etapas da instalação">
+          <div class="install-point">
+            <span class="install-point-number">01</span>
+            <div><h2>Download</h2><p>O arquivo oficial começa a ser baixado automaticamente.</p></div>
+          </div>
+          <div class="install-point">
+            <span class="install-point-number">02</span>
+            <div><h2>Confirmação</h2><p>O Windows pergunta antes de executar o instalador.</p></div>
+          </div>
+          <div class="install-point">
+            <span class="install-point-number">03</span>
+            <div><h2>Conclusão</h2><p>Siga o instalador e abra o SevenOptimizer.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="install-card" data-spotlight>
+        <div class="install-card-head">
+          <span class="install-version" data-install-version>v2.1.17</span>
+          <span class="install-platform">Windows 64 bits</span>
+        </div>
+        <h2>SevenOptimizer</h2>
+        <p class="install-file mono" data-install-file>SevenOptimizer-Setup-2.1.17.exe</p>
+        <div class="install-meta">
+          <div><span>Versão</span><strong data-install-version>v2.1.17</strong></div>
+          <div><span>Tamanho</span><strong data-install-size>~107 MB</strong></div>
+          <div><span>Sistema</span><strong>Windows 10/11</strong></div>
+        </div>
+        <div class="install-state loading" data-install-state role="status" aria-live="polite">
+          <span class="install-state-dot"></span>
+          <span data-install-message>Preparando o download do instalador…</span>
+        </div>
+        <a class="btn btn-primary btn-lg btn-block" href="/api/v1/public/installer" download data-install-button>Baixar o instalador novamente</a>
+        <p class="install-note">O Windows sempre solicita confirmação antes de instalar um aplicativo. Se o download não iniciar, use o botão acima ou <a href="/suporte">abra o suporte</a>.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <span>© <span data-year></span> SevenOptimizer.</span>
+        <span><a href="/privacidade">Privacidade</a> · <a href="/termos">Termos</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var yearNode = document.querySelector('[data-year]');
+      var key = 's4_installer_auto_download';
+      var state = document.querySelector('[data-install-state]');
+      var message = document.querySelector('[data-install-message]');
+      var versionNodes = document.querySelectorAll('[data-install-version]');
+      var fileNode = document.querySelector('[data-install-file]');
+      var sizeNode = document.querySelector('[data-install-size]');
+      var installButton = document.querySelector('[data-install-button]');
+      var alreadyStarted = false;
+
+      if (yearNode) yearNode.textContent = new Date().getFullYear();
+
+      try {
+        alreadyStarted = sessionStorage.getItem(key) === '1';
+      } catch (_) {}
+
+      function startDownload() {
+        var link = document.createElement('a');
+        link.href = '/api/v1/public/installer';
+        link.download = '';
+        link.rel = 'noopener noreferrer';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        state.className = 'install-state started';
+        message.textContent = 'Download solicitado. Se o arquivo não aparecer, use o botão abaixo.';
+      }
+
+      if (/Win/i.test(navigator.userAgent) && !alreadyStarted) {
+        try { sessionStorage.setItem(key, '1'); } catch (_) {}
+        startDownload();
+      } else if (/Win/i.test(navigator.userAgent)) {
+        state.className = 'install-state';
+        message.textContent = 'O download já foi solicitado nesta sessão. Use o botão abaixo para tentar novamente.';
+      } else {
+        state.className = 'install-state unsupported';
+        message.textContent = 'Abra esta página no Windows para iniciar a instalação.';
+        if (installButton) installButton.hidden = true;
+      }
+
+      fetch('/api/v1/public/download')
+        .then(function (response) {
+          if (!response.ok) throw new Error('download unavailable');
+          return response.json();
+        })
+        .then(function (payload) {
+          var download = payload && payload.download;
+          if (!download || !download.version) return;
+          versionNodes.forEach(function (node) { node.textContent = 'v' + download.version; });
+          if (download.filename) fileNode.textContent = download.filename;
+          if (download.size) sizeNode.textContent = download.size;
+        })
+        .catch(function () {});
+    })();
+  </script>
+</body>
+</html>

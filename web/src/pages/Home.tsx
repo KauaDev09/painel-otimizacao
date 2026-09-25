@@ -57,9 +57,14 @@ export default function Home() {
               aplica somente o que você autorizar — com histórico para desfazer quando quiser.
             </p>
             <div className="hero-ctas">
-              <Link to="/download" className="btn btn-lg btn-primary">
-                Baixar instalador
-              </Link>
+              <a
+                href="/instalar"
+                className="btn btn-lg btn-primary"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Instalar SevenOptimizer
+              </a>
               <Link to="/#produto" className="btn btn-lg btn-ghost">
                 Conhecer o painel
               </Link>
@@ -423,9 +428,15 @@ export default function Home() {
                 disponíveis para a sua configuração.
               </p>
             </div>
-            <Link to="/download" className="btn btn-lg btn-primary" data-magnet="12">
-              Baixar instalador
-            </Link>
+            <a
+              href="/instalar"
+              className="btn btn-lg btn-primary"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-magnet="12"
+            >
+              Instalar SevenOptimizer
+            </a>
           </Reveal>
         </div>
       </section>

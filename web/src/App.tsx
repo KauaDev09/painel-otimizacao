@@ -5,6 +5,7 @@ import Checkout from './pages/Checkout';
 import Conta from './pages/Conta';
 import DownloadPage from './pages/Download';
 import Home from './pages/Home';
+import Install from './pages/Install';
 import Login from './pages/Login';
 import Planos from './pages/Planos';
 import Privacidade from './pages/Privacidade';
@@ -36,6 +37,7 @@ export default function App() {
           <Route index element={<Home />} />
           <Route path="planos" element={<Planos />} />
           <Route path="download" element={<DownloadPage />} />
+          <Route path="instalar" element={<Install />} />
           <Route path="login" element={<Login />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="conta" element={<Conta />} />

@@ -9,7 +9,7 @@
 const crypto = require('crypto');
 const db = require('./db');
 const config = require('./config');
-const { verifyToken } = require('./util');
+const { cmpVer, verifyToken } = require('./util');
 const rateLimit = require('./rateLimit');
 const backoffice = require('./services/accessLog');
 const { createProvider } = require('./services/paymentProvider');
@@ -66,26 +66,49 @@ async function listPlans() {
 
 // Instalador público: o site sempre oferece o .exe, mesmo se a tabela
 // downloads estiver vazia. Sem login, sem chave, sem liberação.
+const INSTALLER_DOWNLOAD_PATH = '/api/v1/public/installer';
 const PUBLIC_INSTALLER = {
-  version: '2.0.7',
-  filename: 'SevenOptimizer.OPTIMIZER.Setup-2.0.7.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.0.7/SevenOptimizer.OPTIMIZER.Setup-2.0.7.exe',
-  release_notes: 'Instalador oficial para Windows 10/11. Proteção por chave de licença, nova página de Tela e dashboard ao vivo.',
+  version: '2.1.17',
+  filename: 'SevenOptimizer-Setup-2.1.17.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.17/SevenOptimizer-Setup-2.1.17.exe',
+  release_notes: 'Instalador oficial para Windows 10/11. SeteIA estabilizada e instalação atualizada.',
   is_latest: 1,
-  created_at: '2026-09-04T12:00:00.000Z',
-  size: '~78 MB'
+  created_at: '2026-09-21T14:42:38.000Z',
+  size: '~107 MB'
 };
 
-// Retorna o download atual (mais recente e ativo).
+function httpsUrl(raw) {
+  try {
+    const target = new URL(String(raw || '').trim());
+    return target.protocol === 'https:' ? target : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function installerWithOverride(download) {
+  const override = httpsUrl(config.installerUrl);
+  if (!override) return download;
+  const filename = override.pathname.split('/').pop().replace(/[^0-9A-Za-z._-]/g, '_');
+  const versionMatch = filename.match(/\d+\.\d+\.\d+/);
+  return {
+    ...download,
+    version: versionMatch ? versionMatch[0] : download.version,
+    filename: filename || download.filename,
+    url: override.href
+  };
+}
+
 async function latestDownload() {
+  let download = PUBLIC_INSTALLER;
   try {
     const row = await db.queryOne(
       config,
       'SELECT * FROM downloads WHERE active = 1 ORDER BY is_latest DESC, id DESC LIMIT 1'
     );
-    if (row) return row;
+    if (row && cmpVer(row.version, PUBLIC_INSTALLER.version) >= 0 && httpsUrl(row.url)) download = row;
   } catch (_) { /* cai no instalador público */ }
-  return PUBLIC_INSTALLER;
+  return installerWithOverride(download);
 }
 
 function serializeDownload(d) {
@@ -93,12 +116,39 @@ function serializeDownload(d) {
   return {
     version: d.version,
     filename: d.filename,
-    url: d.url,
+    url: INSTALLER_DOWNLOAD_PATH,
     releaseNotes: d.release_notes || d.releaseNotes || '',
     isLatest: !!(d.is_latest || d.isLatest),
     releasedAt: d.created_at ? new Date(d.created_at).toISOString() : (d.releasedAt || null),
-    size: d.size || '~78 MB'
+    size: d.size || PUBLIC_INSTALLER.size
   };
+}
+
+function installerFilename(d) {
+  const version = String((d && d.version) || 'latest').replace(/[^0-9A-Za-z._-]/g, '');
+  const filename = String((d && d.filename) || '').replace(/[^0-9A-Za-z._-]/g, '_');
+  return filename || `SevenOptimizer-Setup-${version || 'latest'}.exe`;
+}
+
+function installerTarget(d) {
+  return httpsUrl(d && d.url);
+}
+
+function redirectInstaller(d, res) {
+  const target = installerTarget(d);
+  if (!target || !res || typeof res.writeHead !== 'function') {
+    return fail('INSTALLER_UNAVAILABLE', 'Instalador temporariamente indisponível.', 503);
+  }
+  res.writeHead(302, {
+    'Location': target.href,
+    'Cache-Control': 'no-store',
+    'Content-Disposition': `attachment; filename="${installerFilename(d)}"`,
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'no-referrer'
+  });
+  res.end();
+  return undefined;
 }
 
 // ---------- registro/login de cliente ----------
@@ -431,6 +481,11 @@ function register(router) {
   router.get('/api/v1/public/download', async () => {
     const d = await latestDownload();
     return { ok: true, download: serializeDownload(d || PUBLIC_INSTALLER) };
+  });
+
+  router.get('/api/v1/public/installer', async (_body, _params, _urlObj, _req, res) => {
+    const d = await latestDownload();
+    return redirectInstaller(d || PUBLIC_INSTALLER, res);
   });
 
   // Resgate de chave: valida a key devolvendo plano + features (desktop).

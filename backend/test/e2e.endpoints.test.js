@@ -75,6 +75,21 @@ e2e('health responde 200 com headers de segurança', async () => {
   assert.strictEqual(r.headers['referrer-policy'], 'no-referrer');
 });
 
+e2e('instalador público redireciona sem autenticação', async () => {
+  const metadata = await api('/api/v1/public/download');
+  assert.strictEqual(metadata.status, 200);
+  assert.strictEqual(metadata.json.download.url, '/api/v1/public/installer');
+  assert.strictEqual(metadata.json.download.version, '2.1.17');
+
+  const installer = await api('/api/v1/public/installer');
+  assert.strictEqual(installer.status, 302);
+  assert.match(installer.headers.location, /\/v2\.1\.17\//);
+  assert.strictEqual(
+    installer.headers['content-disposition'],
+    'attachment; filename="SevenOptimizer-Setup-2.1.17.exe"'
+  );
+});
+
 e2e('store/login é limitado por IP (429 após N tentativas)', async () => {
   const limit = config.security.storeAuthRateLimit;
   const statuses = [];

@@ -13,13 +13,15 @@ export class ApiError extends Error {
   }
 }
 
+export const INSTALLER_DOWNLOAD_URL = '/api/v1/public/installer';
+
 export const PUBLIC_INSTALLER = {
-  version: '2.1.10',
-  filename: 'SevenOptimizer-Setup-2.1.10.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.10/SevenOptimizer-Setup-2.1.10.exe',
+  version: '2.1.17',
+  filename: 'SevenOptimizer-Setup-2.1.17.exe',
+  url: INSTALLER_DOWNLOAD_URL,
   releaseNotes:
-    'Discord oficial no suporte. Fonte Inter. Login e Configurações com o novo canal. Instalador público; o painel abre com a key.',
-  size: '~108 MB',
+    'Instalador público para Windows 10 e 11. O download inicia sem cadastro e a ativação do painel continua sendo feita por key.',
+  size: '~107 MB',
 };
 
 export type DownloadInfo = {

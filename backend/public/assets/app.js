@@ -71,11 +71,11 @@ function brl(v) {
 }
 
 const PUBLIC_INSTALLER = {
-  version: '2.1.5',
-  filename: 'SevenOptimizer.OPTIMIZER.Setup-2.1.5.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.5/SevenOptimizer.OPTIMIZER.Setup-2.1.5.exe',
-  releaseNotes: 'Discord oficial no suporte. Fonte Inter. Login e Configurações com o novo canal. Instalador público; o painel abre com a key.',
-  size: '~108 MB'
+  version: '2.1.17',
+  filename: 'SevenOptimizer-Setup-2.1.17.exe',
+  url: '/api/v1/public/installer',
+  releaseNotes: 'Instalador público para Windows 10 e 11. O download inicia sem cadastro e a ativação do painel continua sendo feita por key.',
+  size: '~107 MB'
 };
 
 function escapeHtml(s) {
@@ -100,7 +100,7 @@ async function loadDownloadPanel(el) {
     <p class="dl-free">Download grátis · chave de licença necessária</p>
     <div class="dl-meta">
       <div><div class="k">Versão</div><div class="v">${escapeHtml(download.version)}</div></div>
-      <div><div class="k">Tamanho</div><div class="v">${escapeHtml(download.size || '~78 MB')}</div></div>
+      <div><div class="k">Tamanho</div><div class="v">${escapeHtml(download.size || '~107 MB')}</div></div>
       <div><div class="k">Plataforma</div><div class="v">Windows</div></div>
     </div>
     <div class="dl-reqs">
@@ -112,7 +112,7 @@ async function loadDownloadPanel(el) {
         <li>Internet necessária para ativar e validar a chave de licença</li>
       </ul>
     </div>
-    <a class="btn btn-primary btn-lg" href="${escapeHtml(download.url)}" download data-magnet="12">Baixar instalador</a>
+    <a class="btn btn-primary btn-lg" href="/instalar" target="_blank" rel="noopener noreferrer" data-magnet="12">Instalar agora</a>
     ${notes}`;
   if (window.S4FX) {
     window.S4FX.initStarButtons();

@@ -13,13 +13,13 @@ loadEnv();
 const mysql = require('mysql2/promise');
 
 const RELEASE = {
-  version: '2.1.10',
-  filename: 'SevenOptimizer-Setup-2.1.10.exe',
-  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.10/SevenOptimizer-Setup-2.1.10.exe',
+  version: '2.1.17',
+  filename: 'SevenOptimizer-Setup-2.1.17.exe',
+  url: 'https://github.com/KauaDev09/painel-otimizacao/releases/download/v2.1.17/SevenOptimizer-Setup-2.1.17.exe',
   changelog: [
-    'Identidade SevenOptimizer (S4): dark + vermelho sinal no site, admin e app.',
-    'Logo S4 integrada; termos e privacidade atualizados.',
-    'Instalador e atalhos renomeados para SevenOptimizer (versão 2.1.10).'
+    'SevenIA estabilizada com o modelo padrão gemini-3.5-flash-lite.',
+    'Timeout da SevenIA ajustado para evitar desconexões na Vercel.',
+    'Mensagens de erro da SevenIA mais claras.'
   ].join('\n'),
   obrigatoria: true,
   exige_pagamento: false,

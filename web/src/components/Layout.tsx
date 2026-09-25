@@ -8,7 +8,7 @@ import Nav from './Nav';
 import { ToastProvider } from './Toast';
 
 function footerVariant(pathname: string): 'full' | 'minimal' | 'none' {
-  if (['/login', '/checkout', '/sucesso'].includes(pathname)) return 'none';
+  if (['/instalar', '/login', '/checkout', '/sucesso'].includes(pathname)) return 'none';
   if (['/termos', '/privacidade'].includes(pathname)) return 'minimal';
   return 'full';
 }
